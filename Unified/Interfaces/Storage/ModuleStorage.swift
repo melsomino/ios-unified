@@ -1,5 +1,5 @@
 //
-// Created by Власов М.Ю. on 17.05.16.
+// Created by Michael Vlasov on 17.05.16.
 //
 
 import Foundation

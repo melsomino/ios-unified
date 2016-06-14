@@ -1,9 +1,8 @@
 //
-// Created by Власов М.Ю. on 26.05.16.
+// Created by Michael Vlasov on 26.05.16.
 //
 
 import Foundation
-import SbisCore
 import  UIKit
 
 

@@ -1,6 +1,6 @@
 //
-// Created by Власов М.Ю. on 08.06.16.
-// Copyright (c) 2016 Tensor. All rights reserved.
+// Created by Michael Vlasovon 08.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation

@@ -2,8 +2,8 @@
 //  Unified.h
 //  Unified
 //
-//  Created by Власов М.Ю. on 14.06.16.
-//  Copyright © 2016 melsomino. All rights reserved.
+//  Created by Michael Vlasov on 14.06.16.
+//  Copyright © 2016 Michael Vlasov. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

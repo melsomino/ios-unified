@@ -1,7 +1,7 @@
 //
 //
-// Created by Власов М.Ю. on 17.05.16.
-// Copyright (c) 2016 Tensor. All rights reserved.
+// Created by Michael Vlasov on 17.05.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
