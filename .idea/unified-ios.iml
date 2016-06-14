@@ -2,8 +2,69 @@
 <module type="CIDR_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Dependency/Component.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Dependency/DependencyComponent.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Dependency/DependencyResolver.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/DatabaseExtentions.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/StorageDatabase.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/DatabaseStatement.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/DatabaseSelectStatement.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/DatabaseUpdateStatement.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/DatabaseReader.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/Database/DatabaseMaintenance.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/StorageError.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/ModuleStorage.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Storage/ApplicationStorage.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Threading/Execution.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Threading/SingleExecution.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Threading/Executor.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Threading/Threading.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Threading/ExecutionQueue.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Threading/ExecutionControl.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Cloud/CloudError.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Cloud/CloudConnector.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiParameterValue.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiPrimitiveTypeConverter.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiFieldConverter.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiStructConverter.swift" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Unified/Unified.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Dependency/DefaultDependencyResolver.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Threading/DefaultExecutionControl.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Threading/DefaultExecutionQueue.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Threading/DefaultExecution.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Threading/DefaultThreading.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseSelectStatement.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/Database/DefaultStorageDatabase.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseStatement.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseReader.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseUpdateStatement.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/DefaultModuleStorage.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Storage/DefaultApplicationStorage.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Cloud/DefaultCloudConnector.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Cloud/StringHashes.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Cloud/DefaultCloudFilesCache.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Implementation/Cloud/DefaultCloudFile.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/UIKitExtensions.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/TableCellContext.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutFrameItem.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutView.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutPadding.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/Layout.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutText.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutCache.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutLayered.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutStack.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutItem.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutAlign.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/Layout/LayoutViewItem.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/LabelBack.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/Ui/CloudImageView.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/SortedTableSync.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/SpinLock.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/ListenerList.swift" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/Library/FoundationExtensions.swift" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Unified/Info.plist" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Unified/UnifiedComponents.swift" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
