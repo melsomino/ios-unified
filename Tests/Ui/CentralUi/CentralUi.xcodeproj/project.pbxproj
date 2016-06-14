@@ -12,6 +12,7 @@
 		29269CA91D0FC73500135FF8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 29269CA71D0FC73500135FF8 /* Main.storyboard */; };
 		29269CAB1D0FC73500135FF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 29269CAA1D0FC73500135FF8 /* Assets.xcassets */; };
 		29269CAE1D0FC73500135FF8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 29269CAC1D0FC73500135FF8 /* LaunchScreen.storyboard */; };
+		B40A98D2D34AA5D6988C2A7C /* Pods_CentralUi.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B7612CFC61540996D28AE1 /* Pods_CentralUi.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,9 @@
 		29269CAA1D0FC73500135FF8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		29269CAD1D0FC73500135FF8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		29269CAF1D0FC73500135FF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8129C216CF7A3BEAA08C13E3 /* Pods-CentralUi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CentralUi.release.xcconfig"; path = "Pods/Target Support Files/Pods-CentralUi/Pods-CentralUi.release.xcconfig"; sourceTree = "<group>"; };
+		B5B67EA94711A8D018C118DF /* Pods-CentralUi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CentralUi.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CentralUi/Pods-CentralUi.debug.xcconfig"; sourceTree = "<group>"; };
+		C2B7612CFC61540996D28AE1 /* Pods_CentralUi.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CentralUi.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,6 +33,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40A98D2D34AA5D6988C2A7C /* Pods_CentralUi.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +45,8 @@
 			children = (
 				29269CA21D0FC73500135FF8 /* CentralUi */,
 				29269CA11D0FC73500135FF8 /* Products */,
+				AF40BD08D2A017FE5295401E /* Pods */,
+				D95E06125A464E1C03B85BF9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -64,6 +71,23 @@
 			path = CentralUi;
 			sourceTree = "<group>";
 		};
+		AF40BD08D2A017FE5295401E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				B5B67EA94711A8D018C118DF /* Pods-CentralUi.debug.xcconfig */,
+				8129C216CF7A3BEAA08C13E3 /* Pods-CentralUi.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		D95E06125A464E1C03B85BF9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C2B7612CFC61540996D28AE1 /* Pods_CentralUi.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -71,9 +95,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 29269CB21D0FC73500135FF8 /* Build configuration list for PBXNativeTarget "CentralUi" */;
 			buildPhases = (
+				09F2D3F13C69A468886AC024 /* 📦 Check Pods Manifest.lock */,
 				29269C9C1D0FC73500135FF8 /* Sources */,
 				29269C9D1D0FC73500135FF8 /* Frameworks */,
 				29269C9E1D0FC73500135FF8 /* Resources */,
+				1EB13BF677B3011636815254 /* 📦 Embed Pods Frameworks */,
+				E17B432F6008890348A12603 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -129,6 +156,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		09F2D3F13C69A468886AC024 /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		1EB13BF677B3011636815254 /* 📦 Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CentralUi/Pods-CentralUi-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E17B432F6008890348A12603 /* 📦 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CentralUi/Pods-CentralUi-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		29269C9C1D0FC73500135FF8 /* Sources */ = {
@@ -249,6 +324,7 @@
 		};
 		29269CB31D0FC73500135FF8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B5B67EA94711A8D018C118DF /* Pods-CentralUi.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = CentralUi/Info.plist;
@@ -260,6 +336,7 @@
 		};
 		29269CB41D0FC73500135FF8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8129C216CF7A3BEAA08C13E3 /* Pods-CentralUi.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = CentralUi/Info.plist;
@@ -288,6 +365,7 @@
 				29269CB41D0FC73500135FF8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

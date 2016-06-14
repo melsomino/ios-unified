@@ -5,7 +5,7 @@
 import Foundation
 
 
-public class DefaultApplicationStorage: ApplicationStorage, DependentObject, LogonListener {
+public class DefaultApplicationStorage: ApplicationStorage, DependentObject {
 
 
 	// MARK: - ApplicationStorage
@@ -35,20 +35,6 @@ public class DefaultApplicationStorage: ApplicationStorage, DependentObject, Log
 
 	public func resolveDependency(dependency: DependencyResolver) {
 		self.dependency = dependency
-		logon?.addListener(self)
-	}
-
-
-	// MARK: - LogonListener
-
-
-	public func onLogin() {
-		switchToAccount(logon?.currentAccount)
-	}
-
-
-	public func onLogout() {
-		switchToAccount(logon?.currentAccount)
 	}
 
 
@@ -59,10 +45,6 @@ public class DefaultApplicationStorage: ApplicationStorage, DependentObject, Log
 
 	private var threading: Threading! {
 		return dependency.threading
-	}
-
-	private var logon: LogonModule! {
-		return dependency.optionalLogonModule
 	}
 
 	private var moduleStorages = [String: DefaultModuleStorage]()

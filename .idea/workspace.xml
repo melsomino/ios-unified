@@ -2,81 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="aa37db21-11f4-4a65-9aa9-884a57a27ac1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/project.xcworkspace/xcuserdata/mu.vlasov.xcuserdatad/UserInterfaceState.xcuserstate" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/project.pbxproj" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/project.xcworkspace/contents.xcworkspacedata" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/xcuserdata/mu.vlasov.xcuserdatad/xcschemes/CentralUi.xcscheme" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/xcuserdata/mu.vlasov.xcuserdatad/xcschemes/xcschememanagement.plist" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi/AppDelegate.swift" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi/Assets.xcassets/AppIcon.appiconset/Contents.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi/Base.lproj/LaunchScreen.storyboard" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi/Base.lproj/Main.storyboard" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi/Info.plist" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi/ViewController.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified.xcodeproj/project.xcworkspace/xcuserdata/mu.vlasov.xcuserdatad/UserInterfaceState.xcuserstate" afterPath="$PROJECT_DIR$/Unified.xcodeproj/project.xcworkspace/xcuserdata/mu.vlasov.xcuserdatad/UserInterfaceState.xcuserstate" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/.idea/vcs.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/Podfile" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Unified/Implementation/Ui/DefaultCentralUi.swift" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Unified/Interfaces/Ui/CentralUi.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/unified-ios.iml" afterPath="$PROJECT_DIR$/.idea/unified-ios.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Cloud/DefaultCloudConnector.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Cloud/DefaultCloudConnector.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Cloud/DefaultCloudFile.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Cloud/DefaultCloudFile.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Cloud/DefaultCloudFilesCache.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Cloud/DefaultCloudFilesCache.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Cloud/StringHashes.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Cloud/StringHashes.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Dependency/DefaultDependencyResolver.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Dependency/DefaultDependencyResolver.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseReader.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseReader.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseSelectStatement.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseSelectStatement.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseStatement.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseStatement.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseUpdateStatement.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultDatabaseUpdateStatement.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultStorageDatabase.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/Database/DefaultStorageDatabase.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/Tests/Ui/CentralUi/CentralUi.xcodeproj/project.pbxproj" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/Unified.xcodeproj/project.pbxproj" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/DefaultApplicationStorage.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/DefaultApplicationStorage.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Storage/DefaultModuleStorage.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Storage/DefaultModuleStorage.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecution.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecution.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecutionControl.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecutionControl.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecutionQueue.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecutionQueue.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultThreading.swift" afterPath="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultThreading.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Cloud/CloudConnector.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Cloud/CloudConnector.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Cloud/CloudError.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Cloud/CloudError.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiFieldConverter.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiFieldConverter.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiParameterValue.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiParameterValue.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiPrimitiveTypeConverter.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiPrimitiveTypeConverter.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiStructConverter.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Cloud/Converters/CloudApiStructConverter.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Dependency/Component.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Dependency/Component.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Dependency/DependencyComponent.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Dependency/DependencyComponent.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Dependency/DependencyResolver.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Dependency/DependencyResolver.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/ApplicationStorage.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/ApplicationStorage.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseExtentions.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseExtentions.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseMaintenance.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseMaintenance.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseReader.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseReader.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseSelectStatement.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseSelectStatement.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseStatement.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseStatement.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseUpdateStatement.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseUpdateStatement.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/StorageDatabase.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/StorageDatabase.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/ModuleStorage.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/ModuleStorage.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Storage/StorageError.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Storage/StorageError.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Threading/Execution.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Threading/Execution.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Threading/ExecutionControl.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Threading/ExecutionControl.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Threading/ExecutionQueue.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Threading/ExecutionQueue.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Threading/Executor.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Threading/Executor.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Threading/SingleExecution.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Threading/SingleExecution.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Interfaces/Threading/Threading.swift" afterPath="$PROJECT_DIR$/Unified/Interfaces/Threading/Threading.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/FoundationExtensions.swift" afterPath="$PROJECT_DIR$/Unified/Library/FoundationExtensions.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/ListenerList.swift" afterPath="$PROJECT_DIR$/Unified/Library/ListenerList.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/SortedTableSync.swift" afterPath="$PROJECT_DIR$/Unified/Library/SortedTableSync.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/SpinLock.swift" afterPath="$PROJECT_DIR$/Unified/Library/SpinLock.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/UIKitExtensions.swift" afterPath="$PROJECT_DIR$/Unified/Library/UIKitExtensions.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/CloudImageView.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/CloudImageView.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/LabelBack.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/LabelBack.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/Layout.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/Layout.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutAlign.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutAlign.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutCache.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutCache.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutFrameItem.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutFrameItem.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutItem.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutItem.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutLayered.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutLayered.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutPadding.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutPadding.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutStack.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutStack.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutText.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutText.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutView.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutView.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutViewItem.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/Layout/LayoutViewItem.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Library/Ui/TableCellContext.swift" afterPath="$PROJECT_DIR$/Unified/Library/Ui/TableCellContext.swift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/Unified.h" afterPath="$PROJECT_DIR$/Unified/Unified.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Unified/UnifiedComponents.swift" afterPath="$PROJECT_DIR$/Unified/UnifiedComponents.swift" />
     </list>
     <ignored path="unified-ios.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -96,12 +31,36 @@
     <favorites_list name="Unified" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="UnifiedComponents.swift" pinned="false" current-in-tab="true">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="UnifiedComponents.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Unified/UnifiedComponents.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+            <state relative-caret-position="285">
+              <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+              <folding>
+                <element signature="e#49#66#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CentralUi.swift" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Unified/Interfaces/Ui/CentralUi.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="286">
+              <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+              <folding>
+                <element signature="e#108#125#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DefaultCentralUi.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Unified/Implementation/Ui/DefaultCentralUi.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="38">
+              <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -115,8 +74,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Unified/Interfaces/Dependency/DependencyResolver.swift" />
-        <option value="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseExtentions.swift" />
         <option value="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseMaintenance.swift" />
         <option value="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseReader.swift" />
         <option value="$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseSelectStatement.swift" />
@@ -166,6 +123,8 @@
         <option value="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultExecutionQueue.swift" />
         <option value="$PROJECT_DIR$/Unified/Implementation/Threading/DefaultThreading.swift" />
         <option value="$PROJECT_DIR$/Unified/UnifiedComponents.swift" />
+        <option value="$PROJECT_DIR$/Unified/Implementation/Ui/DefaultCentralUi.swift" />
+        <option value="$PROJECT_DIR$/Unified/Interfaces/Ui/CentralUi.swift" />
       </list>
     </option>
   </component>
@@ -176,10 +135,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="48" />
+    <option name="x" value="58" />
     <option name="y" value="23" />
     <option name="width" value="1812" />
-    <option name="height" value="1057" />
+    <option name="height" value="1164" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -231,6 +190,86 @@
               <option name="myItemId" value="Unified" />
               <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeProjectNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Interfaces" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ui" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeRootNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Interfaces" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeRootNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Implementation" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Ui" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeRootNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Implementation" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeViewNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeRootNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Unified" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.XcodeProjectNode" />
+            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
@@ -240,10 +279,18 @@
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="CocoaPods" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Unified/UnifiedComponents.swift" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Unified.xcodeproj" />
     <property name="OBJC.PRESERVED_TARGET_SELECTION" value="Unified" />
+    <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
   </component>
   <component name="RunManager" selected="Application.Unified">
+    <configuration default="false" name="Unified" type="AppleRunConfiguration" factoryName="Application" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Unified" TARGET_NAME="Unified" CONFIG_NAME="Debug" SCHEME_NAME="Unified" MAKE_ACTIVE="TRUE" WAIT_FOR="FALSE">
+      <envs />
+      <EXTENSION ID="org.jetbrains.appcode.reveal.RevealRunConfigurationExtension">
+        <REVEAL_SETTINGS autoInject="false" autoInstall="true" askToEnableAutoInstall="true" />
+      </EXTENSION>
+      <method />
+    </configuration>
     <configuration default="true" type="AppleRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Unified" TARGET_NAME="Unified" CONFIG_NAME="Debug" MAKE_ACTIVE="TRUE" WAIT_FOR="FALSE">
       <envs />
       <EXTENSION ID="org.jetbrains.appcode.reveal.RevealRunConfigurationExtension">
@@ -263,6 +310,12 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
@@ -272,16 +325,14 @@
       <envs />
       <method />
     </configuration>
-    <configuration default="false" name="Unified" type="AppleRunConfiguration" factoryName="Application" WORKING_DIR="" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Unified" TARGET_NAME="Unified" CONFIG_NAME="Debug" SCHEME_NAME="Unified" MAKE_ACTIVE="TRUE" WAIT_FOR="FALSE">
-      <envs />
-      <EXTENSION ID="org.jetbrains.appcode.reveal.RevealRunConfigurationExtension">
-        <REVEAL_SETTINGS autoInject="false" autoInstall="true" askToEnableAutoInstall="true" />
-      </EXTENSION>
-      <method />
-    </configuration>
     <list size="1">
       <item index="0" class="java.lang.String" itemvalue="Application.Unified" />
     </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="Application.Unified" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
@@ -297,27 +348,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="48" y="23" width="1812" height="1057" extended-state="0" />
+    <frame x="58" y="23" width="1812" height="1164" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="PlantUML" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24958123" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3299595" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="PlantUML" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3299595" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -330,27 +381,10 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Unified/Interfaces/Dependency/DependencyResolver.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseExtentions.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Unified/Interfaces/Storage/Database/DatabaseMaintenance.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -358,7 +392,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -366,7 +399,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -374,7 +406,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -382,7 +413,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -390,7 +420,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -398,7 +427,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -406,7 +434,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -414,7 +441,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -422,7 +448,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -430,7 +455,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -438,7 +462,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -446,7 +469,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -454,7 +476,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -462,7 +483,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -470,7 +490,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -478,7 +497,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -486,7 +504,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -494,7 +511,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -502,7 +518,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -510,7 +525,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -518,7 +532,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -526,7 +539,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -534,7 +546,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -542,7 +553,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -550,7 +560,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -558,7 +567,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -566,7 +574,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -574,7 +581,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -582,7 +588,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -590,7 +595,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -598,7 +602,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="76">
           <caret line="4" column="27" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -606,7 +609,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -614,7 +616,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -622,7 +623,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -630,7 +630,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -646,7 +645,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -654,7 +652,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -662,7 +659,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
           <caret line="3" column="36" selection-start-line="3" selection-start-column="36" selection-end-line="3" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -670,7 +666,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -678,7 +673,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -694,7 +688,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -702,7 +695,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -710,7 +702,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -718,7 +709,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -726,15 +716,34 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Unified/UnifiedComponents.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+        <state relative-caret-position="285">
+          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+          <folding>
+            <element signature="e#49#66#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Unified/Implementation/Ui/DefaultCentralUi.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Unified/Interfaces/Ui/CentralUi.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+          <folding>
+            <element signature="e#108#125#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		29269C901D0FB98000135FF8 /* Unified.h in Headers */ = {isa = PBXBuildFile; fileRef = 29269C8F1D0FB98000135FF8 /* Unified.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CF7B942CE65746B261B40A5E /* DefaultCentralUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUi.swift */; };
+		CF7B99E80ECFF7AE837531EA /* CentralUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9CC97B296480396F71AD /* CentralUi.swift */; };
 		EBE700072F09B4BBECCC6595 /* DefaultModuleStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70E5052840BE8E159A04A /* DefaultModuleStorage.swift */; };
 		EBE7002D838A61A404A07A07 /* DatabaseStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70F9928717A85259C66F1 /* DatabaseStatement.swift */; };
 		EBE7002E86452B122C9725B7 /* SortedTableSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70CD1F2295387FE41C745 /* SortedTableSync.swift */; };
@@ -75,6 +77,8 @@
 		29269C8C1D0FB98000135FF8 /* Unified.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Unified.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		29269C8F1D0FB98000135FF8 /* Unified.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Unified.h; sourceTree = "<group>"; };
 		29269C911D0FB98000135FF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultCentralUi.swift; sourceTree = "<group>"; };
+		CF7B9CC97B296480396F71AD /* CentralUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUi.swift; sourceTree = "<group>"; };
 		EBE7006390E3502E7B8BC571 /* LayoutAlign.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutAlign.swift; sourceTree = "<group>"; };
 		EBE701253C49AA586FD3E01E /* LayoutItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LayoutItem.swift; sourceTree = "<group>"; };
 		EBE70155A4404B01F850ACF0 /* TableCellContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableCellContext.swift; sourceTree = "<group>"; };
@@ -178,6 +182,22 @@
 			path = Unified;
 			sourceTree = "<group>";
 		};
+		CF7B953125B1C3E7F961251A /* Ui */ = {
+			isa = PBXGroup;
+			children = (
+				CF7B9CC97B296480396F71AD /* CentralUi.swift */,
+			);
+			path = Ui;
+			sourceTree = "<group>";
+		};
+		CF7B9A92F92147FDCF1DB67D /* Ui */ = {
+			isa = PBXGroup;
+			children = (
+				CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUi.swift */,
+			);
+			path = Ui;
+			sourceTree = "<group>";
+		};
 		EBE7002B0579D623C4E16A0D /* Dependency */ = {
 			isa = PBXGroup;
 			children = (
@@ -227,6 +247,7 @@
 				EBE70645391431B91126D13E /* Storage */,
 				EBE700A47ACF613E9C35912E /* Threading */,
 				EBE7006D34A6904F550720D6 /* Dependency */,
+				CF7B953125B1C3E7F961251A /* Ui */,
 			);
 			path = Interfaces;
 			sourceTree = "<group>";
@@ -308,6 +329,7 @@
 				EBE70758524B3759619D6F9C /* Storage */,
 				EBE70FD13E19589911F9226B /* Threading */,
 				EBE7002B0579D623C4E16A0D /* Dependency */,
+				CF7B9A92F92147FDCF1DB67D /* Ui */,
 			);
 			path = Implementation;
 			sourceTree = "<group>";
@@ -502,6 +524,8 @@
 				EBE706E7136489BCAB814533 /* UIKitExtensions.swift in Sources */,
 				EBE70E1A7E25661EF376099E /* FoundationExtensions.swift in Sources */,
 				EBE70875FF16B82F33B420EC /* UnifiedComponents.swift in Sources */,
+				CF7B99E80ECFF7AE837531EA /* CentralUi.swift in Sources */,
+				CF7B942CE65746B261B40A5E /* DefaultCentralUi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
