@@ -9,5 +9,5 @@ import Foundation
 
 
 
-public class DefaultCentralUi: CentralUi {
+public class DefaultCentralUi {
 }

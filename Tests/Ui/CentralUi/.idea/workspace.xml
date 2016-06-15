@@ -2,16 +2,32 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d688c837-5201-450e-88b9-4d650e594ab1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Podfile" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../../../Unified/Implementation/Ui/DefaultCentralUi.swift" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../../../Unified/Interfaces/Ui/CentralUi.swift" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts.xcodeproj/project.xcworkspace/xcuserdata/vlasov.xcuserdatad/UserInterfaceState.xcuserstate" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/dictionaries/vlasov.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/Layouts.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/encodings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/modules.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/vcs.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/workspace.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/.idea/xcode.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts.xcodeproj/project.pbxproj" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts.xcodeproj/project.xcworkspace/contents.xcworkspacedata" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts.xcodeproj/xcuserdata/vlasov.xcuserdatad/xcschemes/Layouts.xcscheme" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts.xcodeproj/xcuserdata/vlasov.xcuserdatad/xcschemes/xcschememanagement.plist" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts/AppDelegate.swift" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts/Assets.xcassets/AppIcon.appiconset/Contents.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts/Base.lproj/LaunchScreen.storyboard" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts/Base.lproj/Main.storyboard" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts/Info.plist" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Layouts/ViewController.swift" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Layouts/Podfile" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../.idea/unified-ios.iml" afterPath="$PROJECT_DIR$/../../../.idea/unified-ios.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../.idea/workspace.xml" afterPath="$PROJECT_DIR$/../../../.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../README.md" afterPath="$PROJECT_DIR$/../../../README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CentralUi.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/CentralUi.xcodeproj/project.pbxproj" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../Unified.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/../../../Unified.xcodeproj/project.pbxproj" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../Unified/Implementation/Storage/DefaultApplicationStorage.swift" afterPath="$PROJECT_DIR$/../../../Unified/Implementation/Storage/DefaultApplicationStorage.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../Unified/Implementation/Ui/DefaultCentralUi.swift" afterPath="$PROJECT_DIR$/../../../Unified/Implementation/Ui/DefaultCentralUi.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../../Unified/Library/Ui/Layout/Layout.swift" afterPath="$PROJECT_DIR$/../../../Unified/Library/Ui/Layout/Layout.swift" />
     </list>
     <ignored path="CentralUi.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -32,17 +48,17 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Podfile" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Podfile" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Podfile">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="7" column="9" selection-start-line="7" selection-start-column="9" selection-end-line="7" selection-end-column="9" />
+            <state relative-caret-position="171">
+              <caret line="9" column="3" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DefaultApplicationStorage.swift" pinned="false" current-in-tab="true">
+      <file leaf-file-name="DefaultApplicationStorage.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../../Unified/Implementation/Storage/DefaultApplicationStorage.swift">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="931">
@@ -305,7 +321,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24985963" sideWeight="0.4951857" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24985963" sideWeight="0.4951857" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299539" sideWeight="0.4980348" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -333,18 +349,18 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Podfile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="7" column="9" selection-start-line="7" selection-start-column="9" selection-end-line="7" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../../Unified/Implementation/Storage/DefaultApplicationStorage.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="931">
           <caret line="49" column="0" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Podfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="9" column="3" selection-start-line="9" selection-start-column="3" selection-end-line="9" selection-end-column="3" />
           <folding />
         </state>
       </provider>
