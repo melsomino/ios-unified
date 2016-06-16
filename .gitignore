@@ -1,4 +1,8 @@
 Tests/Ui/CentralUi/Pods
 Tests/Ui/CentralUi/CentralUi.xcworkspace
 Podfile.lock
+Tests/Ui/Layouts/Pods
+Tests/Ui/Layouts/Layouts.xcworkspace
 **/xcuserdata/**
+.idea/
+*.xcworkspacedata

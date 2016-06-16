@@ -14,13 +14,12 @@ enum LayoutAlignment {
 
 
 
-public class Layout<Model> {
+public class Layout {
 
 	public let boundToViews: Bool
 	public private(set) var root: LayoutItem
 	public private(set) var frameItems: [LayoutFrameItem]
 	public var frame = CGRectZero
-	public private(set) var model: Model!
 
 	private var _root: LayoutItem!
 
@@ -78,16 +77,7 @@ public class Layout<Model> {
 	}
 
 
-	func setModel(model: Model) {
-		self.model = model
-		reflectLayout()
-		if boundToViews {
-			reflectViews()
-		}
-	}
-
-
-// MARK: - Virtuals
+	// MARK: - Virtuals
 
 
 	func createRoot() -> LayoutItem {
@@ -99,15 +89,7 @@ public class Layout<Model> {
 	}
 
 
-	func reflectLayout() {
-	}
-
-
-	func reflectViews() {
-	}
-
-
-// MARK: - Layouts
+	// MARK: - Layouts
 
 
 	func padding(top top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat, _ content: LayoutItem) -> LayoutPadding {
@@ -159,11 +141,11 @@ public class Layout<Model> {
 	}
 
 	func vertical(content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: .Fill, across: .Leading, spacing: 0, content)
+		return LayoutStack(direction: .Vertical, along: .Leading, across: .Leading, spacing: 0, content)
 	}
 
 	func vertical(spacing spacing: CGFloat, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: .Fill, across: .Leading, spacing: spacing, content)
+		return LayoutStack(direction: .Vertical, along: .Leading, across: .Leading, spacing: spacing, content)
 	}
 
 	func vertical(along along: LayoutAlignment, _ content: LayoutItem...) -> LayoutItem {
