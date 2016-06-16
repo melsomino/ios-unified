@@ -15,7 +15,7 @@ class ViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		layout = Layout1(inSuperview: view)
-		layout.setModel(Model1(text: "Text", details: "Details", warning: "Warning", footer: "Footer"))
+		layout.setModel(Model1(text: "Text", details: "Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details", warning: "Warning", footer: "Footer"))
 	}
 
 	override func viewDidLayoutSubviews() {
@@ -59,12 +59,12 @@ class Layout1: LayoutWithModel<Model1> {
 	}
 
 	let markup = [
-		"vertical margin=12 marginTop=40 spacing=8 along=leading",
+		"vertical margin=20 marginTop=40 spacing=8 along=leading",
 		"    horizontal spacing=8",
-		"        image #icon size=55 scale=aspect-fit source=TestImage",
+		"        view #icon align=center size=55 fixedSize=true cornerRadius=8 background=green scale=aspect-fit source=TestImage",
 		"        vertical along=leading",
 		"            layered",
-		"                view fixedSize=false size=20 background=red cornerRadius=3",
+		"                view background=red cornerRadius=3",
 		"                label #text color=yellow margin=(8 4)",
 		"            label #details",
 		"    label #warning font=('Helvetica Neue' 24) color=red",

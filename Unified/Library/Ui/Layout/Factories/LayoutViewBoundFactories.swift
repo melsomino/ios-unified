@@ -50,7 +50,7 @@ class LayoutViewBoundFactory: LayoutItemFactory {
 
 class LayoutViewFactory: LayoutViewBoundFactory {
 	var size = CGSizeZero
-	var fixedSize = true
+	var fixedSize = false
 
 	override func create() -> LayoutItem {
 		return LayoutView(size: size, fixedSize: fixedSize, { frame in UIView() })
