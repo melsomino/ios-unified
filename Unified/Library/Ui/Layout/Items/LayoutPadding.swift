@@ -7,8 +7,13 @@ import Foundation
 import UIKit
 
 class LayoutPadding: LayoutItem {
-	let insets: UIEdgeInsets
-	let content: LayoutItem
+	var insets = UIEdgeInsetsZero
+	var content: LayoutItem!
+
+
+	override init() {
+
+	}
 
 	init(top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat, _ content: LayoutItem) {
 		self.insets = UIEdgeInsetsMake(top, left, bottom, right)

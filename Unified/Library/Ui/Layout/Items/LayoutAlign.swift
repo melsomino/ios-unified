@@ -11,8 +11,11 @@ public enum LayoutAlignAnchor {
 }
 
 public class LayoutAlign: LayoutItem {
-	let anchor: LayoutAlignAnchor
-	let content: LayoutItem
+	var anchor = LayoutAlignAnchor.TopLeft
+	var content: LayoutItem!
+
+	override init() {
+	}
 
 	init(anchor: LayoutAlignAnchor, _ content: LayoutItem) {
 		self.anchor = anchor

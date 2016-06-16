@@ -6,18 +6,19 @@
 import Foundation
 import UIKit
 
-class LayoutText: LayoutViewItem {
+public class LayoutLabel: LayoutViewItem {
 	var maxLines: Int {
 		didSet {
 			label?.numberOfLines = maxLines
 		}
 	}
-	let nowrap: Bool
-	let font: UIFont
+	var nowrap: Bool
+	var font: UIFont
 
 	var autoHideEmptyText = true
+	var initLabel: ((UILabel) -> Void)?
 
-	var text: String? {
+	public var text: String? {
 		didSet {
 			label?.text = text
 			if autoHideEmptyText {
@@ -26,13 +27,15 @@ class LayoutText: LayoutViewItem {
 		}
 	}
 
-	override var boundView: UIView? {
+	public override var boundView: UIView? {
 		return label
 	}
 
 	var label: UILabel! {
 		didSet {
 			if let label = label {
+				initView?(label)
+				initLabel?(label)
 				label.font = font
 				label.numberOfLines = maxLines
 				label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
@@ -51,10 +54,17 @@ class LayoutText: LayoutViewItem {
 	}
 
 
+	public override init() {
+		font = UIFont.systemFontOfSize(UIFont.systemFontSize())
+		maxLines = 0
+		nowrap = false
+	}
+
+
 	// MARK: - LayoutItem
 
 
-	override func createViews(inSuperview superview: UIView) {
+	public override func createViews(inSuperview superview: UIView) {
 		if label == nil {
 			label = UILabel()
 			superview.addSubview(label)
@@ -63,17 +73,17 @@ class LayoutText: LayoutViewItem {
 
 
 
-	override var visible: Bool {
+	public override var visible: Bool {
 		return !hidden && text != nil && !text!.isEmpty
 	}
 
 
-	override var fixedSize: Bool {
+	public override var fixedSize: Bool {
 		return nowrap
 	}
 
 
-	override func measureMaxSize(bounds: CGSize) -> CGSize {
+	public override func measureMaxSize(bounds: CGSize) -> CGSize {
 		guard visible else {
 			return CGSizeZero
 		}
@@ -98,7 +108,7 @@ class LayoutText: LayoutViewItem {
 
 
 
-	override func measureSize(bounds: CGSize) -> CGSize {
+	public override func measureSize(bounds: CGSize) -> CGSize {
 		guard visible else {
 			return CGSizeZero
 		}

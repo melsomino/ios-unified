@@ -7,8 +7,8 @@ import Foundation
 import UIKit
 
 public class LayoutView<View: UIView>: LayoutViewItem {
-	let size: CGSize
-	let _fixedSize: Bool
+	var size: CGSize
+	var _fixedSize: Bool
 
 	var view: View!
 	var createView: ((CGRect) -> View)?
@@ -36,6 +36,7 @@ public class LayoutView<View: UIView>: LayoutViewItem {
 	public override func createViews(inSuperview superview: UIView) {
 		if createView != nil {
 			view = createView!(CGRectMake(0, 0, size.width, size.height))
+			initView?(view)
 			superview.addSubview(view!)
 		}
 	}

@@ -7,7 +7,11 @@ import Foundation
 import UIKit
 
 public class LayoutLayered: LayoutItem {
-	let content: [LayoutItem]
+	var content: [LayoutItem]!
+
+	override init() {
+
+	}
 
 	init(_ content: [LayoutItem]) {
 		self.content = content

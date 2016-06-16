@@ -76,11 +76,11 @@ private struct Measured {
 
 public class LayoutStack: LayoutItem {
 
-	let direction: LayoutStackDirection
-	let along: LayoutAlignment
-	let across: LayoutAlignment
-	let spacing: CGFloat
-	let content: [LayoutItem]
+	var direction = LayoutStackDirection.Vertical
+	var along = LayoutAlignment.Fill
+	var across = LayoutAlignment.Leading
+	var spacing = CGFloat(0)
+	var content: [LayoutItem]!
 
 	private var measured = [Measured]()
 	private var measuredCount = 0
@@ -90,6 +90,10 @@ public class LayoutStack: LayoutItem {
 	private var spacingSize: CGFloat = 0
 	private var size = StackPosition()
 
+
+	override init() {
+
+	}
 
 	init(direction: LayoutStackDirection, along: LayoutAlignment, across: LayoutAlignment, spacing: CGFloat, _ content: [LayoutItem]) {
 		self.direction = direction

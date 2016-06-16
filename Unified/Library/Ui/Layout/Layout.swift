@@ -39,7 +39,7 @@ public class Layout {
 
 
 
-	func performLayoutInBounds(bounds: CGRect) {
+	public func performLayoutInBounds(bounds: CGRect) {
 		root.measureMaxSize(bounds.size)
 		root.measureSize(bounds.size)
 		frame = root.layout(bounds)
@@ -49,7 +49,7 @@ public class Layout {
 
 
 
-	func performLayoutForWidth(width: CGFloat) {
+	public func performLayoutForWidth(width: CGFloat) {
 		performLayoutInBounds(CGRectMake(0, 0, width, LayoutItem.maxHeight))
 	}
 
@@ -57,7 +57,7 @@ public class Layout {
 
 
 
-	func performLayoutForWidth(width: CGFloat, cache: LayoutCache, key: String) {
+	public func performLayoutForWidth(width: CGFloat, cache: LayoutCache, key: String) {
 		if let frames = cache.cachedFramesForWidth(width, key: key) {
 			frame = frames[0]
 			for index in 0 ..< min(frames.count - 1, frameItems.count) {
@@ -80,12 +80,12 @@ public class Layout {
 	// MARK: - Virtuals
 
 
-	func createRoot() -> LayoutItem {
+	public func createRoot() -> LayoutItem {
 		return LayoutItem()
 	}
 
 
-	func initViews() {
+	public func initViews() {
 	}
 
 

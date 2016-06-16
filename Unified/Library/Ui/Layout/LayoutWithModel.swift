@@ -9,7 +9,7 @@ import UIKit
 public class LayoutWithModel<Model>: Layout {
 	public private(set) var model: Model!
 
-	func setModel(model: Model) {
+	public func setModel(model: Model) {
 		self.model = model
 		reflectLayout()
 		if boundToViews {
@@ -24,11 +24,11 @@ public class LayoutWithModel<Model>: Layout {
 	// MARK: - Virtuals
 
 
-	func reflectLayout() {
+	public func reflectLayout() {
 	}
 
 
-	func reflectViews() {
+	public func reflectViews() {
 	}
 
 

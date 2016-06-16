@@ -8,6 +8,8 @@ import UIKit
 
 public class LayoutViewItem: LayoutFrameItem {
 
+	var initView: ((UIView) -> Void)?
+
 	public var hidden = false {
 		didSet {
 			boundView?.hidden = hidden
