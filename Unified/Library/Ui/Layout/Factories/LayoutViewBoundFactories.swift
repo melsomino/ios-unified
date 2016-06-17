@@ -15,7 +15,7 @@ class LayoutViewBoundFactory: LayoutItemFactory {
 		switch name {
 			case "background":
 				backgroundColor = try value.getColor()
-			case "cornerradius":
+			case "cornerradius", "corner-radius":
 				cornerRadius = try value.getFloat()
 			default:
 				try super.applyMarkupAttributeWithName(name, value: value)
@@ -68,7 +68,7 @@ class LayoutViewFactory: LayoutViewBoundFactory {
 		switch name {
 			case "size":
 				size = try value.getSize()
-			case "fixedsize":
+			case "fixedsize", "fixed-size":
 				fixedSize = try value.getBool()
 			default:
 				try super.applyMarkupAttributeWithName(name, value: value)

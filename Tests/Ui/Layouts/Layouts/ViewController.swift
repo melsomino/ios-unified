@@ -27,12 +27,25 @@ class ViewController: UIViewController {
 }
 
 
+class UiRepository {
+	func requiredLayout(name: String) {
+
+	}
+}
+
+
+public class UiLayout<Model>: LayoutWithModel<Model> {
+	public init()
+}
+
 struct Model1 {
 	let text: String
 	let details: String
 	let warning: String
 	let footer: String
 }
+
+
 
 
 class Layout1: LayoutWithModel<Model1> {
