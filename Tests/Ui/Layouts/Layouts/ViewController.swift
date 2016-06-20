@@ -9,67 +9,48 @@
 import UIKit
 import Unified
 
-private let uiLayouts = [
-	"Layouts.TestLayout": [
-		"vertical margin=20 marginTop=40 spacing=8 along=leading",
-		"    horizontal spacing=8",
-		"        view #icon align=center size=55 fixedSize=true cornerRadius=8 background=green scale=aspect-fit source=TestImage",
-		"        vertical along=leading",
-		"            layered",
-		"                view background=red cornerRadius=3",
-		"                label #text color=yellow margin=(8 4)",
-		"            label #details",
-		"    label #warning font=('Helvetica Neue' 24) color=red",
-		"    label #footer font=13 color=aaa",
-	]
-]
+public class Ui<Model>: LayoutWithModel<Model> {
+	public let dependency: DependencyResolver
 
-
-protocol UiRepository {
-	func compileLayouts(source: String)
-	func createLayoutRootFor(layout: Layout) -> LayoutItem
-}
-
-let UiRepositoryDependency = Dependency<UiRepository>()
-
-extension DependencyResolver {
-	var uiRepository: UiRepository {
-		return required(UiRespositoryDependency)
-	}
-	var optionalUiRepository: UiRepository {
-		return optional(UiRespositoryDependency)
-	}
-}
-
-class DefaultUiRepository: UiRepository {
-	private var layoutFactoryByClassName = [String:LayoutItemFactory]()
-
-	func compileLayouts(source: String) {
-		let lines = source.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()).filter{!$0.isEmpty}
+	init(inSuperview superview: UIView?, dependency: DependencyResolver) {
+		self.dependency = dependency
+		super.init(inSuperview: superview)
 	}
 
-	func createLayoutRootFor(layout: Layout) -> LayoutItem {
-		let className = String(NSStringFromClass(layout.dynamicType))
-		guard let factory = layoutFactoryByClassName[className] else {
-			fatalError("UiRepository does not contains layout definition for: \(className)")
-		}
-		return factory.createItem()
+	public override func createRoot() -> LayoutItem {
+		return try! dependency.repository.createLayoutFor(self)
 	}
+
 }
 
 
-class UiLayout<Model>: LayoutWithModel<Model> {
-
-
-
+struct TestModel {
+	let text: String
+	let details: String
+	let warning: String
+	let footer: String
 }
 
 
 
 
+class TestUi: Ui<TestModel> {
+	let text = LayoutLabel()
+	let details = LayoutLabel()
+	let warning = LayoutLabel()
+	let footer = LayoutLabel()
 
-class TestLayout: UiLayout<Model1> {
+	override init(inSuperview superview: UIView?, dependency: DependencyResolver) {
+		super.init(inSuperview: superview, dependency: dependency)
+	}
 
+
+	override func reflectLayout() {
+		text.text = model.text
+		details.text = model.details
+		warning.text = model.warning
+		footer.text = model.footer
+	}
 }
 
 
@@ -81,71 +62,23 @@ class ViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		layout = Layout1(inSuperview: view)
-		layout.setModel(Model1(text: "Text", details: "Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details", warning: "Warning", footer: "Footer"))
 
-		let test = TestLayout()
+		dependency.createDefaultRepository()
+
+		ui = TestUi(inSuperview: view, dependency: dependency)
+		ui.setModel(TestModel(text: "Text",
+			details: "Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details Details",
+			warning: "Warning",
+			footer: "Footer"))
 	}
 
 
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-		layout.performLayoutForWidth(view.bounds.width)
+		ui.performLayoutForWidth(view.bounds.width)
 	}
 
-	private var layout: Layout1!
+	private var dependency = DependencyContainer()
+	private var ui: TestUi!
 }
 
-
-
-
-
-struct Model1 {
-	let text: String
-	let details: String
-	let warning: String
-	let footer: String
-}
-
-
-
-
-
-class Layout1: LayoutWithModel<Model1> {
-
-	let text = LayoutLabel()
-	let details = LayoutLabel()
-	let warning = LayoutLabel()
-	let footer = LayoutLabel()
-
-	required init(inSuperview superview: UIView?) {
-		super.init(inSuperview: superview)
-	}
-
-
-	override func createRoot() -> LayoutItem {
-		let factory = try! LayoutItemFactory.parse(markup)
-		return factory.createWith(self)
-	}
-
-
-	override func reflectLayout() {
-		text.text = model.text
-		details.text = model.details
-		warning.text = model.warning
-		footer.text = model.footer
-	}
-
-	let markup = [
-		"vertical margin=20 marginTop=40 spacing=8 along=leading",
-		"    horizontal spacing=8",
-		"        view #icon align=center size=55 fixedSize=true cornerRadius=8 background=green scale=aspect-fit source=TestImage",
-		"        vertical along=leading",
-		"            layered",
-		"                view background=red cornerRadius=3",
-		"                label #text color=yellow margin=(8 4)",
-		"            label #details",
-		"    label #warning font=('Helvetica Neue' 24) color=red",
-		"    label #footer font=13 color=aaa",
-	]
-}

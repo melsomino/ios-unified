@@ -1,0 +1,15 @@
+ui
+	Layouts.TestUi
+		vertical margin=20 margin-top=40 spacing=8
+			horizontal spacing=8
+				view #icon align=center size=55 fixed-size corner-radius=8 background=green
+				vertical
+					layered
+						view background=red corner-radius=3
+						label #text color=yellow margin=(8 4)
+					label #details
+				label #warning font=('Helvetica Neue' 24) color=red
+				label #footer font=13 color=aaa
+
+
+

@@ -1,11 +1,18 @@
 //
-// Created by Michael Vlasovon 08.06.16.
-// Copyright (c) 2016 Michael Vlasov. All rights reserved.
+// Created by Власов М.Ю. on 08.06.16.
+// Copyright (c) 2016 Tensor. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
+
+public enum PopoverAnchor {
+	case None
+	case BarButton(UIBarButtonItem)
+	case Frame(CGRect)
+	case View(UIView)
+}
 
 extension UIViewController {
 	public var wrapper: UIViewController {
@@ -31,6 +38,50 @@ extension UIViewController {
 				fatalError("can not unwrap controller to \(String(T.self))")
 		}
 	}
+
+
+	public func showDetails(controller: UIViewController) {
+		if let split = splitViewController {
+			split.showDetailViewController(controller.wrapper, sender: nil)
+			return
+		}
+		if let navigation = navigationController {
+			navigation.pushViewController(controller.wrapper, animated: true)
+		}
+		presentViewController(controller.wrapper, animated: true, completion: nil)
+
+	}
+
+
+
+	public func dismisDetails() {
+
+	}
+
+
+
+	public func showModal(controller: UIViewController, width: CGFloat?, anchor: PopoverAnchor = .None) {
+		let wrapper = controller.wrapper
+		wrapper.modalPresentationStyle = UIModalPresentationStyle.Popover
+		if let popover = wrapper.popoverPresentationController {
+			switch anchor {
+				case .BarButton(let barButton):
+					popover.barButtonItem = barButton
+				case .View(let view):
+					popover.sourceView = view
+				case .Frame(let frame):
+					popover.sourceRect = frame
+				default:
+					break
+			}
+			if let popoverDelegate = controller as? UIPopoverPresentationControllerDelegate {
+				popover.delegate = popoverDelegate
+			}
+		}
+		presentViewController(wrapper, animated: true, completion: nil)
+	}
+
+
 }
 
 
@@ -45,28 +96,35 @@ public class SplitControllerFix: UISplitViewControllerDelegate {
 
 
 	@objc public func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
-		if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-			return true
-		}
-		else {
-			return false
-		}
+		return true
 	}
 }
 
 private let splitControllerFix = SplitControllerFix()
 
 extension UIStoryboard {
-	public static func createInitialControllerInStoryboard<Controller: UIViewController>(name: String, forClass: AnyClass, dependency: DependencyResolver) -> Controller {
-		let storyboard = UIStoryboard(name: name, bundle: NSBundle(forClass: forClass))
-		let controller = storyboard.instantiateInitialViewController()!
+
+	private static func createController<Controller:UIViewController>(create: (UIStoryboard) -> UIViewController, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+		let storyboard = UIStoryboard(name: storyboardName, bundle: NSBundle(forClass: Controller.self))
+		let controller = create(storyboard)
 		let target = controller.unwrap() as Controller
-		dependency.resolve(target as! DependentObject)
+		dependency.resolve(target)
+		initialization?(target)
 		if let split = controller as? UISplitViewController {
 			split.preferredDisplayMode = .AllVisible
 			split.delegate = splitControllerFix
 		}
 		return target
+	}
+
+
+
+	public static func createControllerWithId<Controller:UIViewController>(id: String, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+		return createController({ $0.instantiateViewControllerWithIdentifier(id) }, inStoryboard: storyboardName, dependency: dependency, initialization: initialization) as Controller
+	}
+
+	public static func createInitialControllerInStoryboard<Controller:UIViewController>(name: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+		return createController({ $0.instantiateInitialViewController()! }, inStoryboard: name, dependency: dependency, initialization: initialization) as Controller
 	}
 }
 

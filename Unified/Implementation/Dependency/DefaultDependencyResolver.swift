@@ -1,6 +1,6 @@
 //
 // Created by Michael Vlasov on 15.05.16.
-// Copyright (c) 2016 Michael Vlasov. All rights reserved.
+// Copyright (c) 2016 Tensor. All rights reserved.
 //
 
 import Foundation
@@ -14,8 +14,12 @@ public class DependencyError: ErrorType {
 }
 
 
-class DependencyRegistration<Interface>: DependentObject {
-	private var sync = FastLock()
+private protocol DependencyRegistrationEntry: class {
+	func resolveImplementation(dependency: DependencyResolver)
+}
+
+class DependencyRegistration<Interface>: DependencyRegistrationEntry {
+	var sync = FastLock()
 	private let factory: (() -> Interface)?
 	private var implementation: Interface?
 
@@ -28,11 +32,12 @@ class DependencyRegistration<Interface>: DependentObject {
 		self.implementation = implementation
 	}
 
-	func resolveDependency(dependency: DependencyResolver) {
-		if let dependent = implementation as? DependentObject {
-			dependent.resolveDependency(dependency)
+	func resolveImplementation(dependency: DependencyResolver) {
+		if var dependent = implementation as? Dependent {
+			dependent.dependency = dependency
 		}
 	}
+
 }
 
 
@@ -47,9 +52,7 @@ public class DependencyContainer: DependencyResolver {
 		setRegistration(DependencyRegistration<Interface>(implementation), at: dependency.index)
 		sync.unlock()
 		if resolveOnRegisterLock == 0 {
-			if let dependent = implementation as? DependentObject {
-				dependent.resolveDependency(self)
-			}
+			resolve(implementation)
 		}
 	}
 
@@ -69,19 +72,19 @@ public class DependencyContainer: DependencyResolver {
 		resolveOnRegisterLock += 1
 		sync.unlock()
 		creation(self)
-		var dependents = [DependentObject]()
+		var resolveQueue = [DependencyRegistrationEntry]()
 		sync.lock()
 		resolveOnRegisterLock -= 1
 		if resolveOnRegisterLock == 0 {
-			for index in 0 ..< registrations.count {
-				if let dependent = registrations[index] as? DependentObject {
-					dependents.append(dependent)
+			for i in 0 ..< registrations.count {
+				if let registration = registrations[i] {
+					resolveQueue.append(registration)
 				}
 			}
 		}
 		sync.unlock()
-		for dependent in dependents {
-			dependent.resolveDependency(self)
+		for registration in resolveQueue {
+			registration.resolveImplementation(self)
 		}
 	}
 
@@ -92,18 +95,18 @@ public class DependencyContainer: DependencyResolver {
 		guard component.index < registrations.count else {
 			return nil
 		}
-		guard let registrationObject = registrations[component.index] else {
+		guard let registrationEntry = registrations[component.index] else {
 			return nil
 		}
 
-		let registration = registrationObject as! DependencyRegistration<Interface>
+		let registration = registrationEntry as! DependencyRegistration<Interface>
 
 		if registration.implementation == nil {
 			registration.sync.lock()
 			if registration.implementation == nil {
 				registration.implementation = registration.factory!()
-				if let dependent = registration.implementation as? DependentObject {
-					dependent.resolveDependency(self)
+				if var dependent = registration.implementation as? Dependent {
+					dependent.dependency = self
 				}
 			}
 			registration.sync.unlock()
@@ -131,7 +134,7 @@ public class DependencyContainer: DependencyResolver {
 
 	private var sync = FastLock()
 	private var resolveOnRegisterLock = 0
-	private var registrations = [AnyObject?]()
+	private var registrations = [DependencyRegistrationEntry?]()
 
 	private func setRegistration<Interface>(registration: DependencyRegistration<Interface>, at index: Int) {
 		while index >= registrations.count {

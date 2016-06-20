@@ -7,12 +7,12 @@ import Foundation
 import UIKit
 
 
-public enum MarkupValue {
+public enum DeclarationValue {
 	case Missing
 	case Value(String)
-	case List([MarkupValue])
+	case List([DeclarationValue])
 
-	public var missing: Bool {
+	public var isMissing: Bool {
 		switch self {
 			case .Missing: return true
 			default: return false
@@ -24,17 +24,8 @@ public enum MarkupValue {
 			case Value(let value):
 				return valuesByLowercaseName[value.lowercaseString]!
 			default:
-				throw LayoutMarkupError("Invalid value")
+				throw DeclarationError(message: "Invalid value", scanner: nil)
 		}
-	}
-
-
-	private func parseFloat(string: String) throws -> CGFloat {
-		var value: Float = 0
-		if NSScanner(string: string).scanFloat(&value) {
-			return CGFloat(value)
-		}
-		throw LayoutMarkupError("Number expected")
 	}
 
 
@@ -43,7 +34,7 @@ public enum MarkupValue {
 			case Value(let string):
 				return string
 			default:
-				throw LayoutMarkupError("String value expected")
+				throw DeclarationError(message: "String value expected", scanner: nil)
 		}
 	}
 
@@ -53,7 +44,7 @@ public enum MarkupValue {
 			case Value(let string):
 				return try parseFloat(string)
 			default:
-				throw LayoutMarkupError("Number value expected")
+				throw DeclarationError(message: "Number value expected", scanner: nil)
 		}
 	}
 
@@ -67,11 +58,11 @@ public enum MarkupValue {
 				if "false".caseInsensitiveCompare(string) == NSComparisonResult.OrderedSame {
 					return false
 				}
-				throw LayoutMarkupError("Boolean value expected (\"true\" or \"false\")")
+				throw DeclarationError(message: "Boolean value expected (\"true\" or \"false\")", scanner: nil)
 			case Missing:
 				return true
 			default:
-				throw LayoutMarkupError("Boolean value expected (\"true\" or \"false\")")
+				throw DeclarationError(message: "Boolean value expected (\"true\" or \"false\")", scanner: nil)
 		}
 	}
 
@@ -85,9 +76,9 @@ public enum MarkupValue {
 				if values.count == 2 {
 					return CGSizeMake(try values[0].getFloat(), try values[1].getFloat())
 				}
-				throw LayoutMarkupError("Size value must contains single number or two numbers (width, height)")
+				throw DeclarationError(message: "Size value must contains single number or two numbers (width, height)", scanner: nil)
 			default:
-				throw LayoutMarkupError("Missing size value")
+				throw DeclarationError(message: "Missing size value", scanner: nil)
 		}
 	}
 
@@ -106,10 +97,10 @@ public enum MarkupValue {
 					case 4:
 						return UIEdgeInsetsMake(try values[0].getFloat(), try values[1].getFloat(), try values[2].getFloat(), try values[3].getFloat())
 					default:
-						throw LayoutMarkupError("Inset values must contains single number or two numbers (horizontal, vertical) or four numbers (top, left, bottom, right)")
+						throw DeclarationError(message: "Inset values must contains single number or two numbers (horizontal, vertical) or four numbers (top, left, bottom, right)", scanner: nil)
 				}
 			default:
-				throw LayoutMarkupError("Missing insets value")
+				throw DeclarationError(message: "Missing insets value", scanner: nil)
 		}
 	}
 
@@ -117,30 +108,48 @@ public enum MarkupValue {
 	public func getColor() throws -> UIColor {
 		switch self {
 			case Value(let string):
-				if let named = MarkupValue.colorsByName[string.lowercaseString] {
-					return named
-				}
-				let hex = string.stringByTrimmingCharactersInSet(NSCharacterSet.alphanumericCharacterSet().invertedSet)
-				var int = UInt32()
-				NSScanner(string: hex).scanHexInt(&int)
-				let a, r, g, b: UInt32
-				switch hex.characters.count {
-					case 3: // RGB (12-bit)
-						(a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-					case 6: // RGB (24-bit)
-						(a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-					case 8: // ARGB (32-bit)
-						(a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-					default:
-						(a, r, g, b) = (1, 1, 1, 0)
-				}
-				return UIColor(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+				return DeclarationValue.parseColor(string)
 			default:
-				throw LayoutMarkupError("Missing color value")
+				throw DeclarationError(message: "Missing color value", scanner: nil)
 		}
 	}
 
-	static let colorsByName = [
+
+	// MARK: - Internals
+
+
+	private func parseFloat(string: String) throws -> CGFloat {
+		var value: Float = 0
+		if NSScanner(string: string).scanFloat(&value) {
+			return CGFloat(value)
+		}
+		throw DeclarationError(message: "Number expected", scanner: nil)
+	}
+
+
+	private static func parseColor(string: String) -> UIColor {
+		if let named = DeclarationValue.colorsByName[string.lowercaseString] {
+			return named
+		}
+		let hex = string.stringByTrimmingCharactersInSet(NSCharacterSet.alphanumericCharacterSet().invertedSet)
+		var int = UInt32()
+		NSScanner(string: hex).scanHexInt(&int)
+		let a, r, g, b: UInt32
+		switch hex.characters.count {
+			case 3: // RGB (12-bit)
+				(a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+			case 6: // RGB (24-bit)
+				(a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+			case 8: // ARGB (32-bit)
+				(a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+			default:
+				(a, r, g, b) = (1, 1, 1, 0)
+		}
+		return UIColor(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+	}
+
+
+	private static let colorsByName = [
 		"black": UIColor.blackColor(),
 		"darkGray": UIColor.darkGrayColor(),
 		"lightGray": UIColor.lightGrayColor(),

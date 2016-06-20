@@ -10,7 +10,7 @@ public class Dependency<Protocol> {
 
 	public let index: Int
 
-	init() {
+	public init() {
 		_protocol_dependency_lock.lock()
 		index = _protocol_dependency_count
 		_protocol_dependency_count += 1

@@ -12,14 +12,16 @@ public protocol DependencyResolver {
 }
 
 
-public protocol DependentObject {
-	func resolveDependency(dependency: DependencyResolver)
+public protocol Dependent {
+	var dependency: DependencyResolver! { get set }
 }
 
 public extension DependencyResolver {
-	public func resolve(dependentObjects: DependentObject...) {
-		for object in dependentObjects {
-			object.resolveDependency(self)
+	public func resolve(objects: Any...) {
+		for object in objects {
+			if var dependent = object as? Dependent {
+				dependent.dependency = self
+			}
 		}
 	}
 

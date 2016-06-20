@@ -17,22 +17,22 @@ class LayoutLabelFactory: LayoutViewBoundFactory {
 		return LayoutLabel()
 	}
 
-	override func applyMarkupAttributeWithName(name: String, value: MarkupValue) throws {
-		switch name {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+		switch attribute.name {
 			case "font":
-				try applyFontValue(value)
+				try applyFontValue(attribute.value)
 			case "maxlines":
-				maxLines = Int(try value.getFloat())
+				maxLines = Int(try attribute.value.getFloat())
 			case "nowrap":
-				nowrap = try value.getBool()
+				nowrap = try attribute.value.getBool()
 			case "color":
-				color = try value.getColor()
+				color = try attribute.value.getColor()
 			default:
-				try super.applyMarkupAttributeWithName(name, value: value)
+				try super.applyDeclarationAttribute(attribute)
 		}
 	}
 
-	private func applyFontValue(value: MarkupValue) throws {
+	private func applyFontValue(value: DeclarationValue) throws {
 		switch value {
 			case .Value(let string):
 				var size: Float = 0
@@ -47,7 +47,7 @@ class LayoutLabelFactory: LayoutViewBoundFactory {
 					try applyFontValue(value)
 				}
 			default:
-				throw LayoutMarkupError("Font attributes expected")
+				throw DeclarationError(message: "Font attributes expected", scanner: nil)
 		}
 	}
 

@@ -11,14 +11,14 @@ class LayoutViewBoundFactory: LayoutItemFactory {
 	var backgroundColor: UIColor?
 	var cornerRadius: CGFloat?
 
-	override func applyMarkupAttributeWithName(name: String, value: MarkupValue) throws {
-		switch name {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+		switch attribute.name {
 			case "background":
-				backgroundColor = try value.getColor()
+				backgroundColor = try attribute.value.getColor()
 			case "cornerradius", "corner-radius":
-				cornerRadius = try value.getFloat()
+				cornerRadius = try attribute.value.getFloat()
 			default:
-				try super.applyMarkupAttributeWithName(name, value: value)
+				try super.applyDeclarationAttribute(attribute)
 		}
 	}
 
@@ -63,15 +63,15 @@ class LayoutViewFactory: LayoutViewBoundFactory {
 		view._fixedSize = fixedSize
 	}
 
-	override func applyMarkupAttributeWithName(name: String, value: MarkupValue) throws {
-		try super.applyMarkupAttributeWithName(name, value: value)
-		switch name {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+		try super.applyDeclarationAttribute(attribute)
+		switch attribute.name {
 			case "size":
-				size = try value.getSize()
+				size = try attribute.value.getSize()
 			case "fixedsize", "fixed-size":
-				fixedSize = try value.getBool()
+				fixedSize = try attribute.value.getBool()
 			default:
-				try super.applyMarkupAttributeWithName(name, value: value)
+				try super.applyDeclarationAttribute(attribute)
 		}
 	}
 

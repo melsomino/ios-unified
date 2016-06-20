@@ -1,11 +1,11 @@
 //
-// Created by Michael Vlasov on 17.05.16.
+// Created by Власов М.Ю. on 17.05.16.
 //
 
 import Foundation
 
 
-public class DefaultApplicationStorage: ApplicationStorage, DependentObject {
+public class DefaultApplicationStorage: ApplicationStorage, Dependent {
 
 
 	// MARK: - ApplicationStorage
@@ -33,15 +33,11 @@ public class DefaultApplicationStorage: ApplicationStorage, DependentObject {
 	// MARK: - DependentObject
 
 
-	public func resolveDependency(dependency: DependencyResolver) {
-		self.dependency = dependency
-	}
+	public var dependency: DependencyResolver!
 
 
 	// MARK: - Internals
 
-
-	private var dependency: DependencyResolver!
 
 	private var threading: Threading! {
 		return dependency.threading

@@ -34,16 +34,16 @@ class LayoutStackFactory: LayoutItemFactory {
 	}
 
 
-	override func applyMarkupAttributeWithName(name: String, value: MarkupValue) throws {
-		switch name {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+		switch attribute.name {
 			case "along":
-				along = try value.getEnum(LayoutItemFactory.alignments)
+				along = try attribute.value.getEnum(LayoutItemFactory.alignments)
 			case "across":
-				across = try value.getEnum(LayoutItemFactory.alignments)
+				across = try attribute.value.getEnum(LayoutItemFactory.alignments)
 			case "spacing":
-				spacing = try value.getFloat()
+				spacing = try attribute.value.getFloat()
 			default:
-				try super.applyMarkupAttributeWithName(name, value: value)
+				try super.applyDeclarationAttribute(attribute)
 		}
 	}
 

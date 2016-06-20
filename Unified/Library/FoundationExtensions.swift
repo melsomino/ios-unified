@@ -73,8 +73,9 @@ extension NSScanner {
 		}
 	}
 
+
 	func passWhitespaces() {
-		scanCharactersFromSet(NSScanner.whitespaces, intoString: nil)
+		scanCharactersFromSet(NSCharacterSet.whitespaceCharacterSet(), intoString: nil)
 	}
 
 
@@ -89,7 +90,7 @@ extension NSScanner {
 
 	func expect(expected: String, passWhitespaces: Bool) throws {
 		if !pass(expected, passWhitespaces: passWhitespaces) {
-			throw LayoutMarkupError("\(expected) expected")
+			throw DeclarationError(message: "\(expected) expected", scanner: self)
 		}
 	}
 
@@ -113,7 +114,7 @@ extension NSScanner {
 
 	func expectIdentifier(passWhitespaces passWhitespaces: Bool) throws -> String {
 		guard let passed = passIdentifier(passWhitespaces: passWhitespaces) else {
-			throw LayoutMarkupError("identifier expected")
+			throw DeclarationError(message: "identifier expected", scanner: self)
 		}
 		return passed
 	}
@@ -151,12 +152,11 @@ extension NSScanner {
 
 	func expectUntil(terminator: String) throws -> String {
 		guard let passed = passUntil(terminator) else {
-			throw LayoutMarkupError("can not find terminator \"\(terminator)\"")
+			throw DeclarationError(message: "can not find terminator \"\(terminator)\"", scanner: self)
 		}
 		return passed
 	}
 
-	private static let whitespaces = NSCharacterSet.whitespaceAndNewlineCharacterSet()
 	private static let identifierStart = NSCharacterSet.union(NSCharacterSet.letterCharacterSet(), NSCharacterSet(charactersInString: "_"))
 	private static let identifierRest = NSCharacterSet.union(identifierStart, NSCharacterSet.decimalDigitCharacterSet())
 

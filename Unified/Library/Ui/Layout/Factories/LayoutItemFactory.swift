@@ -6,13 +6,6 @@
 import Foundation
 import UIKit
 
-struct LayoutMarkupError: ErrorType {
-	let message: String
-	init(_ message: String) {
-		self.message = message
-	}
-}
-
 
 public class LayoutItemFactory {
 	var id: String?
@@ -56,16 +49,10 @@ public class LayoutItemFactory {
 	}
 
 
-	public static func parse(source: [String]) throws -> LayoutItemFactory {
-		let token = try MarkupToken.parse(source)
-		return try fromMarkup(token)
-	}
-
-
-	public static func fromMarkup(markup: MarkupToken) throws -> LayoutItemFactory {
+	public static func fromDeclaration(element: DeclarationElement) throws -> LayoutItemFactory {
 		var factory: LayoutItemFactory
 
-		switch markup.name {
+		switch element.name {
 			case "vertical":
 				factory = LayoutStackFactory(direction: .Vertical)
 			case "horizontal":
@@ -77,33 +64,33 @@ public class LayoutItemFactory {
 			case "layered":
 				factory = LayoutLayeredFactory()
 			default:
-				throw LayoutMarkupError("Unknown markup element \"\(markup.name)\"")
+				throw DeclarationError(message: "Unknown markup element \"\(element.name)\"", scanner: nil)
 		}
 
 
 		var decorators = Decorators(target: factory)
 
-		for (name, value) in markup.attributes {
-			switch name {
+		for attribute in element.attributes {
+			switch attribute.name {
 				case "margin":
-					decorators.padding.insets = try value.getInsets()
+					decorators.padding.insets = try attribute.value.getInsets()
 				case "margintop":
-					decorators.padding.insets.top = try value.getFloat()
+					decorators.padding.insets.top = try attribute.value.getFloat()
 				case "marginleft":
-					decorators.padding.insets.left = try value.getFloat()
+					decorators.padding.insets.left = try attribute.value.getFloat()
 				case "marginbottom":
-					decorators.padding.insets.bottom = try value.getFloat()
+					decorators.padding.insets.bottom = try attribute.value.getFloat()
 				case "marginright":
-					decorators.padding.insets.right = try value.getFloat()
+					decorators.padding.insets.right = try attribute.value.getFloat()
 				case "align":
-					decorators.align.anchor = try value.getEnum(LayoutItemFactory.alignAnchors)
+					decorators.align.anchor = try attribute.value.getEnum(LayoutItemFactory.alignAnchors)
 				default:
-					try factory.applyMarkupAttributeWithName(name, value: value)
+					try factory.applyDeclarationAttribute(attribute)
 			}
 		}
 
-		for child in markup.children {
-			factory.contentFactories.append(try LayoutItemFactory.fromMarkup(child))
+		for child in element.children {
+			factory.contentFactories.append(try LayoutItemFactory.fromDeclaration(child))
 		}
 
 		return decorators.result
@@ -132,9 +119,9 @@ public class LayoutItemFactory {
 
 
 
-	func applyMarkupAttributeWithName(name: String, value: MarkupValue) throws {
-		if name == "id" {
-			id = try value.getString()
+	func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+		if attribute.name == "id" {
+			id = try attribute.value.getString()
 		}
 	}
 
