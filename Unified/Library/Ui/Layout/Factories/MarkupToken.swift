@@ -19,6 +19,16 @@ public struct MarkupToken {
 	public let children: [MarkupToken]
 
 
+	public static func parse(source: String) throws -> MarkupToken {
+		var sourceIndex = 0
+		let tokens = try parseChildren(source, childrenIndent: 0, sourceIndex: &sourceIndex)
+		guard tokens.count == 1 else {
+			throw LayoutMarkupError("Layout markup must define single root element")
+		}
+		return tokens[0]
+	}
+
+
 	public static func parse(source: [String]) throws -> MarkupToken {
 		var sourceIndex = 0
 		let tokens = try parseChildren(source, childrenIndent: 0, sourceIndex: &sourceIndex)
