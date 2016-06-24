@@ -10,30 +10,9 @@ public enum LayoutAlignAnchor {
 	case TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left, Center
 }
 
-public class LayoutAlign: LayoutItem {
+public class LayoutAlign: LayoutWithSingleContent {
 	var anchor = LayoutAlignAnchor.TopLeft
-	var content: LayoutItem!
 
-	override init() {
-	}
-
-	init(anchor: LayoutAlignAnchor, _ content: LayoutItem) {
-		self.anchor = anchor
-		self.content = content
-	}
-
-	public override var visible: Bool {
-		return content.visible
-	}
-
-	public override func createViews(inSuperview superview: UIView) {
-		content.createViews(inSuperview: superview)
-	}
-
-
-	public override func collectFrameItems(inout items: [LayoutFrameItem]) {
-		content.collectFrameItems(&items)
-	}
 
 	public override func measureMaxSize(bounds: CGSize) -> CGSize {
 		return content.measureMaxSize(bounds)

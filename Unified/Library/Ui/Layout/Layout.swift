@@ -16,9 +16,9 @@ enum LayoutAlignment {
 
 public class Layout {
 
-	public let boundToViews: Bool
+	public private(set) var boundToViews: Bool
 	public private(set) var root: LayoutItem
-	public private(set) var frameItems: [LayoutFrameItem]
+	public private(set) var frameItems: [LayoutViewItem]
 	public var frame = CGRectZero
 
 	private var _root: LayoutItem!
@@ -26,17 +26,35 @@ public class Layout {
 	public required init(inSuperview superview: UIView?) {
 		self.boundToViews = superview != nil
 		root = LayoutItem()
-		frameItems = [LayoutFrameItem]()
-		root = createRoot()
-		root.collectFrameItems(&frameItems)
-		if boundToViews {
-			root.createViews(inSuperview: superview!)
-			initViews()
-		}
+		frameItems = [LayoutViewItem]()
+		recreate(inSuperview: superview)
 	}
 
 
-
+	public func recreate(inSuperview superview: UIView?) {
+		if boundToViews {
+			for item in frameItems {
+				item.view?.removeFromSuperview()
+			}
+		}
+		frameItems.removeAll(keepCapacity: true)
+		root = createRoot()
+		root.traversal {
+			if let view = $0 as? LayoutViewItem {
+				frameItems.append(view)
+			}
+		}
+		boundToViews = superview != nil
+		if boundToViews {
+			for item in frameItems {
+				if item.view == nil {
+					item.view = item.createView()
+				}
+				superview!.addSubview(item.view!)
+			}
+			initViews()
+		}
+	}
 
 
 	public func performLayoutInBounds(bounds: CGRect) {
@@ -50,7 +68,7 @@ public class Layout {
 
 
 	public func performLayoutForWidth(width: CGFloat) {
-		performLayoutInBounds(CGRectMake(0, 0, width, LayoutItem.maxHeight))
+		performLayoutInBounds(CGRectMake(0, 0, width, 9000))
 	}
 
 
@@ -88,69 +106,6 @@ public class Layout {
 	public func initViews() {
 	}
 
-
-	// MARK: - Layouts
-
-
-	func padding(top top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat, _ content: LayoutItem) -> LayoutPadding {
-		return LayoutPadding(top: top, left: left, bottom: bottom, right: right, content)
-	}
-
-	func padding(top top: CGFloat, _ content: LayoutItem) -> LayoutPadding {
-		return LayoutPadding(top: top, left: 0, bottom: 0, right: 0, content)
-	}
-
-	func padding(all: CGFloat, _ content: LayoutItem) -> LayoutPadding {
-		return LayoutPadding(top: all, left: all, bottom: all, right: all, content)
-	}
-
-	func padding(horizontal horizontal: CGFloat, vertical: CGFloat, _ content: LayoutItem) -> LayoutPadding {
-		return LayoutPadding(top: vertical, left: horizontal, bottom: vertical, right: horizontal, content)
-	}
-
-	func layered(content: LayoutItem...) -> LayoutLayered {
-		return LayoutLayered(content)
-	}
-
-	func aligned(anchor: LayoutAlignAnchor, _ content: LayoutItem) -> LayoutAlign {
-		return LayoutAlign(anchor: anchor, content)
-	}
-
-	func horizontal(along along: LayoutAlignment, across: LayoutAlignment, spacing: CGFloat, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Horizontal, along: along, across: across, spacing: spacing, content)
-	}
-
-	func horizontal(content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Horizontal, along: .Fill, across: .Leading, spacing: 0, content)
-	}
-
-	func horizontal(spacing spacing: CGFloat, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Horizontal, along: .Fill, across: .Leading, spacing: spacing, content)
-	}
-
-	func horizontal(along along: LayoutAlignment, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Horizontal, along: along, across: .Leading, spacing: 0, content)
-	}
-
-	func vertical(along along: LayoutAlignment, across: LayoutAlignment, spacing: CGFloat, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: along, across: across, spacing: spacing, content)
-	}
-
-	func vertical(along along: LayoutAlignment, spacing: CGFloat, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: along, across: .Leading, spacing: spacing, content)
-	}
-
-	func vertical(content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: .Leading, across: .Leading, spacing: 0, content)
-	}
-
-	func vertical(spacing spacing: CGFloat, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: .Leading, across: .Leading, spacing: spacing, content)
-	}
-
-	func vertical(along along: LayoutAlignment, _ content: LayoutItem...) -> LayoutItem {
-		return LayoutStack(direction: .Vertical, along: along, across: .Leading, spacing: 0, content)
-	}
 
 }
 

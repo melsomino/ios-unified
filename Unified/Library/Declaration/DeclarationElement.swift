@@ -8,25 +8,11 @@ import UIKit
 
 
 
-public struct DeclarationError: ErrorType {
-	let message: String
-	init(message: String, scanner: NSScanner?) {
-		if scanner != nil {
-			self.message = "\(message): \(scanner!.string.substringFromIndex(scanner!.string.startIndex.advancedBy(scanner!.scanLocation)))"
-		}
-		else {
-			self.message = message
-		}
-	}
-}
-
-
-
-
-
 public struct DeclarationAttribute {
 	let name: String
 	let value: DeclarationValue
+
+
 }
 
 
@@ -34,10 +20,13 @@ public struct DeclarationAttribute {
 
 
 public struct DeclarationElement {
-	public let name: String
 	public let attributes: [DeclarationAttribute]
 	public let children: [DeclarationElement]
 
+
+	public var name: String {
+		return attributes[0].name
+	}
 
 	public static func load(path: String) throws -> [DeclarationElement] {
 		let string = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
@@ -59,15 +48,16 @@ public struct DeclarationElement {
 			return nil
 		}
 
+		scanner.passEmptyAndCommentLines()
+
 		guard scanner.passDeclarationIndent(elementIndent) else {
 			return nil
 		}
 
-		let name = (try scanner.expectName(passWhitespaces: true)).lowercaseString
 		let attributes = try scanner.parseDeclarationAttributes(elementIndent)
 		let children = try parseElements(scanner, elementIndent: elementIndent + 1)
 
-		return DeclarationElement(name: name, attributes: attributes, children: children)
+		return DeclarationElement(attributes: attributes, children: children)
 	}
 
 
@@ -85,6 +75,23 @@ public struct DeclarationElement {
 
 
 extension NSScanner {
+
+	func passEmptyAndCommentLines() {
+		while !atEnd {
+			let saveLocation = scanLocation
+			passWhitespaces()
+			if pass("#", passWhitespaces: false) {
+				passUntilEndOrOneOf(NSCharacterSet.newlineCharacterSet(), passWhitespaces: false)
+			}
+			if atEnd {
+				return
+			}
+			if passCharachters(NSCharacterSet.newlineCharacterSet(), passWhitespaces: false) == nil {
+				scanLocation = saveLocation
+				return
+			}
+		}
+	}
 
 	func passDeclarationIndent(expected: Int) -> Bool {
 		var indent = 0
@@ -111,24 +118,19 @@ extension NSScanner {
 	func parseDeclarationAttributes(elementIndent: Int) throws -> [DeclarationAttribute] {
 		var attributes = [DeclarationAttribute]()
 		while !atEnd {
-			if scanCharactersFromSet(NSCharacterSet.newlineCharacterSet(), intoString: nil) {
+			if passCharachters(NSCharacterSet.newlineCharacterSet(), passWhitespaces: false) != nil {
 				let saveLocation = scanLocation
 				if !(passDeclarationIndent(elementIndent + 1) && pass("~", passWhitespaces: true)) {
 					scanLocation = saveLocation
 					break
 				}
 			}
-			if pass("#", passWhitespaces: true) {
-				attributes.append(DeclarationAttribute(name: "id", value: .Value(try expectIdentifier(passWhitespaces: true))))
+			let name = (try expectName(passWhitespaces: true)).lowercaseString
+			var value = DeclarationValue.Missing
+			if pass("=", passWhitespaces: true) {
+				value = try passAttributeValue()
 			}
-			else {
-				let name = (try expectName(passWhitespaces: true)).lowercaseString
-				var value = DeclarationValue.Missing
-				if pass("=", passWhitespaces: true) {
-					value = try passAttributeValue()
-				}
-				attributes.append(DeclarationAttribute(name: name, value: value))
-			}
+			attributes.append(DeclarationAttribute(name: name, value: value))
 		}
 		return attributes
 	}
@@ -138,41 +140,33 @@ extension NSScanner {
 		if pass("(", passWhitespaces: true) {
 			var values = [DeclarationValue]()
 			while !pass(")", passWhitespaces: true) {
-				let value = try passAttributeValue()
-				if value.isMissing {
+				guard let value = try passNameOrValue() else {
 					throw DeclarationError(message: "Invalid value list", scanner: self)
 				}
-				values.append(value)
+				values.append(.Value(value))
 			}
 			return .List(values)
 		}
-		if pass("'", passWhitespaces: false) {
-			let value = passUntil("'") ?? ""
-			try expect("'", passWhitespaces: true)
-			return .Value(value)
-		}
-		if let value = passUntilEndOrOneOf(valueTerminator, passWhitespaces: true) {
-			return .Value(value)
-		}
-		return .Missing
+		return try .Value(passNameOrValue()!)
 	}
 
 
-	func passName(passWhitespaces passWhitespaces: Bool) -> String? {
-		var name: NSString?
-		guard scanCharactersFromSet(nameCharachters, intoString: &name) else {
-			return nil
+	func passNameOrValue() throws -> String? {
+		if pass("'", passWhitespaces: false) {
+			let value = passUntil("'")
+			try expect("'", passWhitespaces: true)
+			return value
 		}
-		if passWhitespaces {
-			self.passWhitespaces()
-		}
-		return String(name!)
+		return passUntilEndOrOneOf(nameOrValueTerminator, passWhitespaces: true)
 	}
 
 
 	func expectName(passWhitespaces passWhitespaces: Bool) throws -> String {
-		guard let passed = passName(passWhitespaces: passWhitespaces) else {
+		guard let passed = try passNameOrValue() else {
 			throw DeclarationError(message: "name expected", scanner: self)
+		}
+		if passWhitespaces {
+			self.passWhitespaces()
 		}
 		return passed
 	}
@@ -182,5 +176,5 @@ extension NSScanner {
 
 }
 
-private let valueTerminator = NSCharacterSet.union(NSCharacterSet.whitespaceAndNewlineCharacterSet(), NSCharacterSet(charactersInString: ")"))
+private let nameOrValueTerminator = NSCharacterSet.union(NSCharacterSet.whitespaceAndNewlineCharacterSet(), NSCharacterSet(charactersInString: "=()'~"))
 private let nameCharachters = NSCharacterSet.union(NSCharacterSet.alphanumericCharacterSet(), NSCharacterSet(charactersInString: "-."))

@@ -6,37 +6,9 @@
 import Foundation
 import UIKit
 
-public class LayoutLayered: LayoutItem {
-	var content: [LayoutItem]!
+public class LayoutLayered: LayoutWithMultipleContent {
 
-	override init() {
-
-	}
-
-	init(_ content: [LayoutItem]) {
-		self.content = content
-	}
-
-	public override var visible: Bool {
-		return content.contains({ $0.visible })
-	}
-
-	public override var fixedSize: Bool {
-		return content.contains({ $0.fixedSize })
-	}
-
-	public override func createViews(inSuperview superview: UIView) {
-		for item in content {
-			item.createViews(inSuperview: superview)
-		}
-	}
-
-
-	public override func collectFrameItems(inout items: [LayoutFrameItem]) {
-		for item in content {
-			item.collectFrameItems(&items)
-		}
-	}
+	// MARK: - LayoutItem
 
 	public override func measureMaxSize(bounds: CGSize) -> CGSize {
 		var maxSize = CGSizeZero

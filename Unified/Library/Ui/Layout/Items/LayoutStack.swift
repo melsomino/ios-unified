@@ -74,13 +74,12 @@ private struct Measured {
 
 
 
-public class LayoutStack: LayoutItem {
+public class LayoutStack: LayoutWithMultipleContent {
 
 	var direction = LayoutStackDirection.Vertical
 	var along = LayoutAlignment.Fill
 	var across = LayoutAlignment.Leading
 	var spacing = CGFloat(0)
-	var content: [LayoutItem]!
 
 	private var measured = [Measured]()
 	private var measuredCount = 0
@@ -91,22 +90,6 @@ public class LayoutStack: LayoutItem {
 	private var size = StackPosition()
 
 
-	override init() {
-
-	}
-
-	init(direction: LayoutStackDirection, along: LayoutAlignment, across: LayoutAlignment, spacing: CGFloat, _ content: [LayoutItem]) {
-		self.direction = direction
-		self.along = along
-		self.across = across
-		self.spacing = spacing
-		self.content = content
-	}
-
-
-
-
-
 	public override var visible: Bool {
 		for item in content {
 			if item.visible {
@@ -114,20 +97,6 @@ public class LayoutStack: LayoutItem {
 			}
 		}
 		return false
-	}
-
-
-	public override func createViews(inSuperview superview: UIView) {
-		for item in content {
-			item.createViews(inSuperview: superview)
-		}
-	}
-
-
-	public override func collectFrameItems(inout items: [LayoutFrameItem]) {
-		for item in content {
-			item.collectFrameItems(&items)
-		}
 	}
 
 
@@ -227,7 +196,7 @@ public class LayoutStack: LayoutItem {
 			stackOrigin.along += itemSize.along + spacing
 		}
 
-		return CGRect(origin:  bounds.origin, size: size.toSize(horizontal))
+		return CGRect(origin: bounds.origin, size: size.toSize(horizontal))
 	}
 
 }

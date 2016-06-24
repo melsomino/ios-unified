@@ -10,24 +10,29 @@ public protocol RepositoryListener {
 	func repositoryChanged(repository: Repository)
 }
 
-public protocol Repository {
+
+public protocol Repository: class {
 	var devServerUrl: NSURL? { get set }
 
 	func addListener(listener: RepositoryListener)
 	func removeListener(listener: RepositoryListener)
 
-	func createLayoutFor(ui: AnyObject) throws -> LayoutItem
+	func layoutFactory(forUi ui: AnyObject, name: String?) throws -> LayoutItemFactory
 }
 
 
 public let RepositoryDependency = Dependency<Repository>()
 
 
-extension DependencyResolver {
+
+public protocol RepositoryDependent: Dependent {
+}
+
+extension RepositoryDependent {
 	public var repository: Repository {
-		return required(RepositoryDependency)
+		return dependency.required(RepositoryDependency)
 	}
 	public var optionalRepository: Repository? {
-		return optional(RepositoryDependency)
+		return dependency.optional(RepositoryDependency)
 	}
 }

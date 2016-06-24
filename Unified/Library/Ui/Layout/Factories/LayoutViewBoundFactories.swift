@@ -7,39 +7,26 @@ import Foundation
 import UIKit
 
 
-class LayoutViewBoundFactory: LayoutItemFactory {
+class LayoutViewItemFactory: LayoutItemFactory {
 	var backgroundColor: UIColor?
 	var cornerRadius: CGFloat?
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "background":
-				backgroundColor = try attribute.value.getColor()
-			case "cornerradius", "corner-radius":
-				cornerRadius = try attribute.value.getFloat()
+				backgroundColor = try context.getColor(attribute)
+			case "corner-radius":
+				cornerRadius = try context.getFloat(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute)
+				try super.applyDeclarationAttribute(attribute, context: context)
 		}
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
-		super.apply(item, content)
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 		let viewItem = item as! LayoutViewItem
-
-		if backgroundColor != nil || cornerRadius != nil {
-			let bc = backgroundColor
-			let cr = cornerRadius
-			viewItem.initView = {
-				view in
-				if bc != nil {
-					view.backgroundColor = bc!
-				}
-				if cr != nil {
-					view.clipsToBounds = true
-					view.layer.cornerRadius = cr!
-				}
-			}
-		}
+		viewItem.backgroundColor = backgroundColor
+		viewItem.cornerRadius = cornerRadius
 	}
 
 }
@@ -48,30 +35,29 @@ class LayoutViewBoundFactory: LayoutItemFactory {
 
 
 
-class LayoutViewFactory: LayoutViewBoundFactory {
+class LayoutViewFactory: LayoutViewItemFactory {
 	var size = CGSizeZero
 	var fixedSize = false
 
 	override func create() -> LayoutItem {
-		return LayoutView(size: size, fixedSize: fixedSize, { frame in UIView() })
+		return LayoutView()
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
-		super.apply(item, content)
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 		let view = item as! LayoutView
 		view.size = size
-		view._fixedSize = fixedSize
+		view.fixedSizeValue = fixedSize
 	}
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
-		try super.applyDeclarationAttribute(attribute)
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "size":
-				size = try attribute.value.getSize()
-			case "fixedsize", "fixed-size":
-				fixedSize = try attribute.value.getBool()
+				size = try context.getSize(attribute)
+			case "fixed-size":
+				fixedSize = try context.getBool(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute)
+				try super.applyDeclarationAttribute(attribute, context: context)
 		}
 	}
 

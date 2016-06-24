@@ -7,68 +7,70 @@ import Foundation
 import UIKit
 
 public class LayoutLabel: LayoutViewItem {
-	var maxLines: Int {
+
+	public var maxLines = 0 {
 		didSet {
-			label?.numberOfLines = maxLines
+			initializeView()
 		}
 	}
-	var nowrap: Bool
-	var font: UIFont
 
-	var autoHideEmptyText = true
-	var initLabel: ((UILabel) -> Void)?
+	public var nowrap = false
+
+	public var font: UIFont? {
+		didSet {
+			initializeView()
+		}
+	}
+
+	public var color: UIColor? {
+		didSet {
+			initializeView()
+		}
+	}
+
+	public var autoHideEmptyText = true
 
 	public var text: String? {
 		didSet {
-			label?.text = text
+			if let label = view as? UILabel {
+				label.text = text
+			}
 			if autoHideEmptyText {
 				hidden = text == nil || text!.isEmpty
 			}
 		}
 	}
 
-	public override var boundView: UIView? {
-		return label
+
+	public override required init() {
+		super.init()
 	}
 
-	var label: UILabel! {
-		didSet {
-			if let label = label {
-				initView?(label)
-				initLabel?(label)
-				label.font = font
-				label.numberOfLines = maxLines
-				label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
+	// MARK: - LayoutViewItem
+
+
+	public override func initializeView() {
+		super.initializeView()
+		if let label = view as? UILabel {
+			label.font = resolveFont()
+			if let color = color {
+				label.textColor = color
 			}
+			else {
+				label.textColor = UIColor.blackColor()
+			}
+
+			label.numberOfLines = maxLines
+			label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
 		}
-	}
-
-
-
-
-
-	init(font: UIFont, maxLines: Int = 0, nowrap: Bool = false) {
-		self.font = font
-		self.maxLines = maxLines
-		self.nowrap = nowrap
-	}
-
-
-	public override init() {
-		font = UIFont.systemFontOfSize(UIFont.systemFontSize())
-		maxLines = 0
-		nowrap = false
 	}
 
 
 	// MARK: - LayoutItem
 
 
-	public override func createViews(inSuperview superview: UIView) {
-		if label == nil {
-			label = UILabel()
-			superview.addSubview(label)
-		}
+	public override func createView() -> UIView {
+		return UILabel()
 	}
 
 
@@ -87,7 +89,7 @@ public class LayoutLabel: LayoutViewItem {
 		guard visible else {
 			return CGSizeZero
 		}
-		let measuredText = textForMeasure
+		let measuredText = textForMeasure()
 		if nowrap {
 			return measureText(measuredText, CGFloat.max)
 		}
@@ -112,7 +114,7 @@ public class LayoutLabel: LayoutViewItem {
 		guard visible else {
 			return CGSizeZero
 		}
-		let measuredText = textForMeasure
+		let measuredText = textForMeasure()
 		if nowrap {
 			return measureText(measuredText, CGFloat.max)
 		}
@@ -136,7 +138,7 @@ public class LayoutLabel: LayoutViewItem {
 	// MARK: - Internals
 
 
-	private var textForMeasure: String {
+	private func textForMeasure() -> String {
 		return text ?? ""
 	}
 
@@ -147,12 +149,15 @@ public class LayoutLabel: LayoutViewItem {
 		let constraintSize = CGSize(width: width, height: CGFloat.max)
 		let size = text.boundingRectWithSize(constraintSize,
 			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
-			attributes: [NSFontAttributeName: font],
+			attributes: [NSFontAttributeName: resolveFont()],
 			context: nil).size
 		return size
 	}
 
 
+	private func resolveFont() -> UIFont {
+		return font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+	}
 }
 
 

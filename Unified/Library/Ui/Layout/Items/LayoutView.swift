@@ -6,44 +6,27 @@
 import Foundation
 import UIKit
 
-public class LayoutView<View: UIView>: LayoutViewItem {
-	var size: CGSize
-	var _fixedSize: Bool
+public class LayoutView: LayoutViewItem {
+	var size = CGSizeZero
+	public var fixedSizeValue = false
 
-	var view: View!
-	var createView: ((CGRect) -> View)?
+	var viewFactory: (() -> UIView)?
 
-	public override var boundView: UIView? {
-		return view
-	}
-
-
-	public init(size: CGSize, fixedSize: Bool, _ createView: ((CGRect) -> View)? = nil) {
-		self.size = size
-		self._fixedSize = fixedSize
-		self.createView = createView
-	}
-
-
-	public convenience init(size: CGSize, _ createView: ((CGRect) -> View)? = nil) {
-		self.init(size: size, fixedSize: true, createView)
+	public init(_ viewFactory: (() -> UIView)? = nil) {
+		self.viewFactory = viewFactory
 	}
 
 
 	// MARK: - LayoutItem
 
 
-	public override func createViews(inSuperview superview: UIView) {
-		if createView != nil {
-			view = createView!(CGRectMake(0, 0, size.width, size.height))
-			initView?(view)
-			superview.addSubview(view!)
-		}
+	public override func createView() -> UIView {
+		return viewFactory != nil ? viewFactory!() : super.createView()
 	}
 
 
 	public override var fixedSize: Bool {
-		return _fixedSize
+		return fixedSizeValue
 	}
 
 	public override func measureMaxSize(bounds: CGSize) -> CGSize {

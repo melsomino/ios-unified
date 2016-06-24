@@ -8,7 +8,8 @@ import UIKit
 
 
 public class LayoutItem {
-	public static let maxHeight = CGFloat(9000)
+
+	public var id: String?
 
 	public var visible: Bool {
 		return true
@@ -18,12 +19,8 @@ public class LayoutItem {
 		return false
 	}
 
-	public func createViews(inSuperview superview: UIView) {
-
-	}
-
-	public func collectFrameItems(inout items: [LayoutFrameItem]) {
-
+	public func traversal(@noescape visit: (LayoutItem) -> Void) {
+		visit(self)
 	}
 
 	public func measureMaxSize(bounds: CGSize) -> CGSize {

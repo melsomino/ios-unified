@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-class LayoutLabelFactory: LayoutViewBoundFactory {
+class LayoutLabelFactory: LayoutViewItemFactory {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var maxLines = 0
@@ -17,22 +17,22 @@ class LayoutLabelFactory: LayoutViewBoundFactory {
 		return LayoutLabel()
 	}
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "font":
-				try applyFontValue(attribute.value)
-			case "maxlines":
-				maxLines = Int(try attribute.value.getFloat())
+				try applyFontValue(attribute, value: attribute.value, context: context)
+			case "max-lines":
+				maxLines = Int(try context.getFloat(attribute))
 			case "nowrap":
-				nowrap = try attribute.value.getBool()
+				nowrap = try context.getBool(attribute)
 			case "color":
-				color = try attribute.value.getColor()
+				color = try context.getColor(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute)
+				try super.applyDeclarationAttribute(attribute, context: context)
 		}
 	}
 
-	private func applyFontValue(value: DeclarationValue) throws {
+	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
 			case .Value(let string):
 				var size: Float = 0
@@ -44,15 +44,15 @@ class LayoutLabelFactory: LayoutViewBoundFactory {
 				}
 			case .List(let values):
 				for value in values {
-					try applyFontValue(value)
+					try applyFontValue(attribute, value: value, context: context)
 				}
 			default:
 				throw DeclarationError(message: "Font attributes expected", scanner: nil)
 		}
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
-		super.apply(item, content)
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 
 		let label = item as! LayoutLabel
 		if let name = fontName, size = fontSize {
@@ -64,21 +64,9 @@ class LayoutLabelFactory: LayoutViewBoundFactory {
 		else if let size = fontSize {
 			label.font = UIFont.systemFontOfSize(size)
 		}
-		else {
-			label.font = UIFont.systemFontOfSize(UIFont.systemFontSize())
-		}
+		label.color = color
 		label.maxLines = maxLines
 		label.nowrap = nowrap
-
-		if color != nil {
-			let c = color
-			label.initLabel = {
-				label in
-				if c != nil {
-					label.textColor = c!
-				}
-			}
-		}
 	}
 
 	func font(name: String, _ size: CGFloat) -> UIFont {

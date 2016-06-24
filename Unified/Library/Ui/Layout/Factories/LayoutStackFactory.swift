@@ -24,7 +24,8 @@ class LayoutStackFactory: LayoutItemFactory {
 		return LayoutStack()
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 		let stack = item as! LayoutStack
 		stack.direction = direction
 		stack.along = along
@@ -34,16 +35,16 @@ class LayoutStackFactory: LayoutItemFactory {
 	}
 
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "along":
-				along = try attribute.value.getEnum(LayoutItemFactory.alignments)
+				along = try context.getEnum(attribute, LayoutItemFactory.alignments)
 			case "across":
-				across = try attribute.value.getEnum(LayoutItemFactory.alignments)
+				across = try context.getEnum(attribute, LayoutItemFactory.alignments)
 			case "spacing":
-				spacing = try attribute.value.getFloat()
+				spacing = try context.getFloat(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute)
+				try super.applyDeclarationAttribute(attribute, context: context)
 		}
 	}
 

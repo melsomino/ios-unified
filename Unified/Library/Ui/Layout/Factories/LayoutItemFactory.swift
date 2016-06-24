@@ -11,9 +11,17 @@ public class LayoutItemFactory {
 	var id: String?
 	var contentFactories = [LayoutItemFactory]()
 
+
+
+
+
 	public func createWith(target: Any) -> LayoutItem {
 		return createWithMirror(Mirror(reflecting: target))
 	}
+
+
+
+
 
 	public func createWithMirror(mirror: Mirror) -> LayoutItem {
 		var content = [LayoutItem]()
@@ -21,9 +29,12 @@ public class LayoutItemFactory {
 			content.append(factory.createWithMirror(mirror))
 		}
 		let item = findByIdInMirror(mirror) ?? create()
-		apply(item, content)
+		initialize(item, content: content)
 		return item
 	}
+
+
+
 
 
 	func findByIdInMirror(mirror: Mirror) -> LayoutItem? {
@@ -40,16 +51,26 @@ public class LayoutItemFactory {
 	}
 
 
+
+
+
 	func create() -> LayoutItem {
 		return LayoutItem()
 	}
 
 
-	func apply(item: LayoutItem, _ content: [LayoutItem]) {
+
+
+
+	func initialize(item: LayoutItem, content: [LayoutItem]) {
+		item.id = id
 	}
 
 
-	public static func fromDeclaration(element: DeclarationElement) throws -> LayoutItemFactory {
+
+
+
+	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> LayoutItemFactory {
 		var factory: LayoutItemFactory
 
 		switch element.name {
@@ -70,31 +91,35 @@ public class LayoutItemFactory {
 
 		var decorators = Decorators(target: factory)
 
-		for attribute in element.attributes {
+		for index in 1 ..< element.attributes.count {
+			let attribute = element.attributes[index]
 			switch attribute.name {
 				case "margin":
-					decorators.padding.insets = try attribute.value.getInsets()
-				case "margintop":
-					decorators.padding.insets.top = try attribute.value.getFloat()
-				case "marginleft":
-					decorators.padding.insets.left = try attribute.value.getFloat()
-				case "marginbottom":
-					decorators.padding.insets.bottom = try attribute.value.getFloat()
-				case "marginright":
-					decorators.padding.insets.right = try attribute.value.getFloat()
+					decorators.padding.insets = try context.getInsets(attribute)
+				case "margin-top":
+					decorators.padding.insets.top = try context.getFloat(attribute)
+				case "margin-left":
+					decorators.padding.insets.left = try context.getFloat(attribute)
+				case "margin-bottom":
+					decorators.padding.insets.bottom = try context.getFloat(attribute)
+				case "margin-right":
+					decorators.padding.insets.right = try context.getFloat(attribute)
 				case "align":
-					decorators.align.anchor = try attribute.value.getEnum(LayoutItemFactory.alignAnchors)
+					decorators.align.anchor = try context.getEnum(attribute, LayoutItemFactory.alignAnchors)
 				default:
-					try factory.applyDeclarationAttribute(attribute)
+					try factory.applyDeclarationAttribute(attribute, context: context)
 			}
 		}
 
 		for child in element.children {
-			factory.contentFactories.append(try LayoutItemFactory.fromDeclaration(child))
+			factory.contentFactories.append(try LayoutItemFactory.fromDeclaration(child, context: context))
 		}
 
 		return decorators.result
 	}
+
+
+
 
 
 	static let alignments = [
@@ -105,25 +130,34 @@ public class LayoutItemFactory {
 	]
 
 
+
+
+
 	static let alignAnchors = [
-		"topleft": LayoutAlignAnchor.TopLeft,
+		"top-left": LayoutAlignAnchor.TopLeft,
 		"top": LayoutAlignAnchor.Top,
-		"topright": LayoutAlignAnchor.TopRight,
+		"top-right": LayoutAlignAnchor.TopRight,
 		"right": LayoutAlignAnchor.Right,
-		"bottomright": LayoutAlignAnchor.BottomRight,
+		"bottom-right": LayoutAlignAnchor.BottomRight,
 		"bottom": LayoutAlignAnchor.Bottom,
-		"bottomleft": LayoutAlignAnchor.BottomLeft,
+		"bottom-left": LayoutAlignAnchor.BottomLeft,
 		"left": LayoutAlignAnchor.Left,
 		"center": LayoutAlignAnchor.Center
 	]
 
 
 
-	func applyDeclarationAttribute(attribute: DeclarationAttribute) throws {
-		if attribute.name == "id" {
-			id = try attribute.value.getString()
+
+
+	func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+		if attribute.name.hasPrefix("@") {
+			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
 		}
 	}
+
+
+
+
 
 	private struct Decorators {
 		let target: LayoutItemFactory
@@ -185,7 +219,8 @@ class LayoutPaddingFactory: LayoutItemFactory {
 		return LayoutPadding()
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 		let item = item as! LayoutPadding
 		item.insets = insets
 		item.content = content[0]
@@ -203,7 +238,8 @@ class LayoutAlignFactory: LayoutItemFactory {
 		return LayoutAlign()
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 		let align = item as! LayoutAlign
 		align.anchor = anchor
 		align.content = content[0]
@@ -220,7 +256,8 @@ class LayoutLayeredFactory: LayoutItemFactory {
 		return LayoutLayered()
 	}
 
-	override func apply(item: LayoutItem, _ content: [LayoutItem]) {
+	override func initialize(item: LayoutItem, content: [LayoutItem]) {
+		super.initialize(item, content: content)
 		let layered = item as! LayoutLayered
 		layered.content = content
 	}

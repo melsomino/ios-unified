@@ -18,12 +18,12 @@ public class LayoutCache {
 
 
 
-	func cachedFramesForWidth(width: CGFloat, key: String) -> [CGRect]? {
+	public func cachedFramesForWidth(width: CGFloat, key: String) -> [CGRect]? {
 		return cacheByWidth[width]?.frames[key]
 	}
 
 
-	func setFrames(frames: [CGRect], forWidth width: CGFloat, key: String) {
+	public func setFrames(frames: [CGRect], forWidth width: CGFloat, key: String) {
 		if let existing = cacheByWidth[width] {
 			existing.frames[key] = frames
 		}
@@ -35,7 +35,7 @@ public class LayoutCache {
 	}
 
 
-	func cachedHeightForWidth(width: CGFloat, key: String) -> CGFloat? {
+	public func cachedHeightForWidth(width: CGFloat, key: String) -> CGFloat? {
 		return cacheByWidth[width]?.frames[key]?[0].height
 	}
 

@@ -6,24 +6,64 @@
 import Foundation
 import UIKit
 
-public class LayoutViewItem: LayoutFrameItem {
+public class LayoutViewItem: LayoutItem {
 
-	var initView: ((UIView) -> Void)?
+	public var view: UIView! {
+		didSet {
+		}
+	}
 
 	public var hidden = false {
 		didSet {
-			boundView?.hidden = hidden
+			view?.hidden = hidden
 		}
 	}
 
-	public override var frame: CGRect {
+	public var frame: CGRect = CGRectZero {
 		didSet {
-			boundView?.frame = frame
+			view?.frame = frame
 		}
 	}
 
-	public var boundView: UIView? {
-		return nil
+	public var backgroundColor: UIColor? {
+		didSet {
+			initializeView()
+		}
+	}
+
+	public var cornerRadius: CGFloat? {
+		didSet {
+			initializeView()
+		}
+	}
+
+	// MARK: - Virtuals
+
+
+	public func createView() -> UIView {
+		return UIView()
+	}
+
+
+	public func initializeView() {
+		guard let view = view else {
+			return
+		}
+
+		if let color = backgroundColor {
+			view.backgroundColor = color
+		}
+		else {
+			view.backgroundColor = UIColor.clearColor()
+		}
+
+		if let radius = cornerRadius {
+			view.clipsToBounds = true
+			view.layer.cornerRadius = radius
+		}
+		else {
+			view.layer.cornerRadius = 0
+		}
 	}
 
 
@@ -32,6 +72,11 @@ public class LayoutViewItem: LayoutFrameItem {
 
 	public override var visible: Bool {
 		return !hidden
+	}
+
+	public override func layout(bounds: CGRect) -> CGRect {
+		frame = bounds
+		return frame
 	}
 
 }

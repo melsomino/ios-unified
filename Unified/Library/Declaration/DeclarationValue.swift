@@ -1,57 +1,70 @@
 //
-// Created by Власов М.Ю. on 16.06.16.
-// Copyright (c) 2016 melsomino. All rights reserved.
+// Created by Michael Vlasov on 16.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
 
-public enum DeclarationValue {
-	case Missing
-	case Value(String)
-	case List([DeclarationValue])
+public struct DeclarationError: ErrorType {
+	let message: String
+	init(message: String, scanner: NSScanner?) {
+		if scanner != nil {
+			self.message = "\(message): \(scanner!.string.substringFromIndex(scanner!.string.startIndex.advancedBy(scanner!.scanLocation)))"
+		}
+		else {
+			self.message = message
+		}
+	}
+}
 
-	public var isMissing: Bool {
-		switch self {
-			case .Missing: return true
-			default: return false
+
+public struct DeclarationContext {
+
+	init(_ elements: [DeclarationElement]) {
+
+	}
+
+	public func getFloat(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
+		switch value {
+			case .Value(let string):
+				return try parseFloat(string, attribute: attribute)
+			default:
+				throw DeclarationError(message: "Number value expected", scanner: nil)
 		}
 	}
 
-	public func getEnum<Enum>(valuesByLowercaseName: [String:Enum]) throws -> Enum {
-		switch self {
-			case Value(let value):
+	public func getFloat(attribute: DeclarationAttribute) throws -> CGFloat {
+		return try getFloat(attribute, attribute.value)
+	}
+
+	public func getEnum<Enum>(attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
+		switch attribute.value {
+			case .Value(let value):
 				return valuesByLowercaseName[value.lowercaseString]!
 			default:
 				throw DeclarationError(message: "Invalid value", scanner: nil)
 		}
 	}
 
-
-	public func getString() throws -> String {
-		switch self {
-			case Value(let string):
+	public func getString(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> String {
+		switch value {
+			case .Value(let string):
 				return string
 			default:
 				throw DeclarationError(message: "String value expected", scanner: nil)
 		}
 	}
 
-
-	public func getFloat() throws -> CGFloat {
-		switch self {
-			case Value(let string):
-				return try parseFloat(string)
-			default:
-				throw DeclarationError(message: "Number value expected", scanner: nil)
-		}
+	public func getString(attribute: DeclarationAttribute) throws -> String {
+		return try getString(attribute, attribute.value)
 	}
 
 
-	public func getBool() throws -> Bool {
-		switch self {
-			case Value(let string):
+	public func getBool(attribute: DeclarationAttribute) throws -> Bool {
+		switch attribute.value {
+			case .Value(let string):
 				if "true".caseInsensitiveCompare(string) == NSComparisonResult.OrderedSame {
 					return true
 				}
@@ -59,7 +72,7 @@ public enum DeclarationValue {
 					return false
 				}
 				throw DeclarationError(message: "Boolean value expected (\"true\" or \"false\")", scanner: nil)
-			case Missing:
+			case .Missing:
 				return true
 			default:
 				throw DeclarationError(message: "Boolean value expected (\"true\" or \"false\")", scanner: nil)
@@ -67,14 +80,14 @@ public enum DeclarationValue {
 	}
 
 
-	public func getSize() throws -> CGSize {
-		switch self {
-			case Value(let string):
-				let size = try parseFloat(string)
+	public func getSize(attribute: DeclarationAttribute) throws -> CGSize {
+		switch attribute.value {
+			case .Value(let string):
+				let size = try parseFloat(string, attribute: attribute)
 				return CGSizeMake(size, size)
-			case List(let values):
+			case .List(let values):
 				if values.count == 2 {
-					return CGSizeMake(try values[0].getFloat(), try values[1].getFloat())
+					return CGSizeMake(try getFloat(attribute, values[0]), try getFloat(attribute, values[1]))
 				}
 				throw DeclarationError(message: "Size value must contains single number or two numbers (width, height)", scanner: nil)
 			default:
@@ -83,19 +96,19 @@ public enum DeclarationValue {
 	}
 
 
-	public func getInsets() throws -> UIEdgeInsets {
-		switch self {
-			case Value(let string):
-				let inset = try parseFloat(string)
+	public func getInsets(attribute: DeclarationAttribute) throws -> UIEdgeInsets {
+		switch attribute.value {
+			case .Value(let string):
+				let inset = try parseFloat(string, attribute: attribute)
 				return UIEdgeInsetsMake(inset, inset, inset, inset)
-			case List(let values):
+			case .List(let values):
 				switch values.count {
 					case 2:
-						let x = try values[0].getFloat()
-						let y = try values[1].getFloat()
+						let x = try getFloat(attribute, values[0])
+						let y = try getFloat(attribute, values[1])
 						return UIEdgeInsetsMake(y, x, y, x)
 					case 4:
-						return UIEdgeInsetsMake(try values[0].getFloat(), try values[1].getFloat(), try values[2].getFloat(), try values[3].getFloat())
+						return UIEdgeInsetsMake(try getFloat(attribute, values[0]), try getFloat(attribute, values[1]), try getFloat(attribute, values[2]), try getFloat(attribute, values[3]))
 					default:
 						throw DeclarationError(message: "Inset values must contains single number or two numbers (horizontal, vertical) or four numbers (top, left, bottom, right)", scanner: nil)
 				}
@@ -105,10 +118,10 @@ public enum DeclarationValue {
 	}
 
 
-	public func getColor() throws -> UIColor {
-		switch self {
-			case Value(let string):
-				return DeclarationValue.parseColor(string)
+	public func getColor(attribute: DeclarationAttribute) throws -> UIColor {
+		switch attribute.value {
+			case .Value(let string):
+				return DeclarationContext.parseColor(string)
 			default:
 				throw DeclarationError(message: "Missing color value", scanner: nil)
 		}
@@ -118,7 +131,7 @@ public enum DeclarationValue {
 	// MARK: - Internals
 
 
-	private func parseFloat(string: String) throws -> CGFloat {
+	private func parseFloat(string: String, attribute: DeclarationAttribute) throws -> CGFloat {
 		var value: Float = 0
 		if NSScanner(string: string).scanFloat(&value) {
 			return CGFloat(value)
@@ -128,7 +141,7 @@ public enum DeclarationValue {
 
 
 	private static func parseColor(string: String) -> UIColor {
-		if let named = DeclarationValue.colorsByName[string.lowercaseString] {
+		if let named = DeclarationContext.colorsByName[string.lowercaseString] {
 			return named
 		}
 		let hex = string.stringByTrimmingCharactersInSet(NSCharacterSet.alphanumericCharacterSet().invertedSet)
@@ -166,4 +179,23 @@ public enum DeclarationValue {
 		"brown": UIColor.brownColor(),
 		"clear": UIColor.clearColor()
 	]
+
+
+}
+
+
+
+public enum DeclarationValue {
+	case Missing
+	case Value(String)
+	case List([DeclarationValue])
+
+	public var isMissing: Bool {
+		switch self {
+			case .Missing: return true
+			default: return false
+		}
+	}
+
+
 }

@@ -6,36 +6,12 @@
 import Foundation
 import UIKit
 
-class LayoutPadding: LayoutItem {
+class LayoutPadding: LayoutWithSingleContent {
 	var insets = UIEdgeInsetsZero
-	var content: LayoutItem!
 
 
-	override init() {
+	// MARK: - LayoutItem
 
-	}
-
-	init(top: CGFloat, left: CGFloat, bottom: CGFloat, right: CGFloat, _ content: LayoutItem) {
-		self.insets = UIEdgeInsetsMake(top, left, bottom, right)
-		self.content = content
-	}
-
-	override var visible: Bool {
-		return content.visible
-	}
-
-	override var fixedSize: Bool {
-		return content.fixedSize
-	}
-
-	override func createViews(inSuperview superview: UIView) {
-		content.createViews(inSuperview: superview)
-	}
-
-
-	override func collectFrameItems(inout items: [LayoutFrameItem]) {
-		content.collectFrameItems(&items)
-	}
 
 	override func measureMaxSize(bounds: CGSize) -> CGSize {
 		return expandSize(content.measureMaxSize(reduceSize(bounds)))

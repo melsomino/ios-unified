@@ -1,4 +1,5 @@
-Test
+
+Layouts.TestLayout
 	vertical margin=20 margin-top=40 spacing=8
 		horizontal spacing=8
 			view #icon align=center size=55 fixed-size=true corner-radius=8 background=green scale=aspect-fit source=TestImage
