@@ -1,6 +1,6 @@
 //
-// Created by Власов М.Ю. on 16.06.16.
-// Copyright (c) 2016 melsomino. All rights reserved.
+// Created by Michael Vlasov on 16.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
@@ -81,7 +81,7 @@ public class LayoutItemFactory {
 			case "view":
 				factory = LayoutViewFactory()
 			case "label":
-				factory = LayoutLabelFactory()
+				factory = LayoutTextFactory()
 			case "layered":
 				factory = LayoutLayeredFactory()
 			default:

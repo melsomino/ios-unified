@@ -1,12 +1,12 @@
 //
-// Created by Власов М.Ю. on 16.06.16.
-// Copyright (c) 2016 melsomino. All rights reserved.
+// Created by Michael Vlasov on 16.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
-class LayoutLabelFactory: LayoutViewItemFactory {
+class LayoutTextFactory: LayoutViewItemFactory {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var maxLines = 0
@@ -14,7 +14,7 @@ class LayoutLabelFactory: LayoutViewItemFactory {
 	var color: UIColor?
 
 	override func create() -> LayoutItem {
-		return LayoutLabel()
+		return LayoutText()
 	}
 
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
@@ -54,7 +54,7 @@ class LayoutLabelFactory: LayoutViewItemFactory {
 	override func initialize(item: LayoutItem, content: [LayoutItem]) {
 		super.initialize(item, content: content)
 
-		let label = item as! LayoutLabel
+		let label = item as! LayoutText
 		if let name = fontName, size = fontSize {
 			label.font = font(name, size)
 		}

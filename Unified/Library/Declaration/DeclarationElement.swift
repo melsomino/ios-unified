@@ -177,4 +177,4 @@ extension NSScanner {
 }
 
 private let nameOrValueTerminator = NSCharacterSet.union(NSCharacterSet.whitespaceAndNewlineCharacterSet(), NSCharacterSet(charactersInString: "=()'~"))
-private let nameCharachters = NSCharacterSet.union(NSCharacterSet.alphanumericCharacterSet(), NSCharacterSet(charactersInString: "-."))
+private let nameCharacters = NSCharacterSet.union(NSCharacterSet.alphanumericCharacterSet(), NSCharacterSet(charactersInString: "-."))

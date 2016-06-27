@@ -47,6 +47,13 @@ public class DependencyContainer: DependencyResolver {
 
 	}
 
+
+	public convenience init(initialComponentsFactory: (DependencyContainer) -> Void) {
+		self.init()
+		createComponents(initialComponentsFactory)
+	}
+
+
 	public func register<Interface>(dependency: Dependency<Interface>, _ implementation: Interface) {
 		sync.lock()
 		setRegistration(DependencyRegistration<Interface>(implementation), at: dependency.index)

@@ -54,7 +54,7 @@ extension UIViewController {
 
 
 
-	public func dismisDetails() {
+	public func dismissDetails() {
 
 	}
 
@@ -158,4 +158,47 @@ extension UIImage {
 		return thumbnail
 	}
 
+}
+
+
+extension UIColor {
+	public static func parse(string: String) -> UIColor {
+		if let named = UIColor.colorsByName[string.lowercaseString] {
+			return named
+		}
+		let hex = string.stringByTrimmingCharactersInSet(NSCharacterSet.alphanumericCharacterSet().invertedSet)
+		var int = UInt32()
+		NSScanner(string: hex).scanHexInt(&int)
+		let a, r, g, b: UInt32
+		switch hex.characters.count {
+			case 3: // RGB (12-bit)
+				(a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+			case 6: // RGB (24-bit)
+				(a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+			case 8: // ARGB (32-bit)
+				(a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+			default:
+				(a, r, g, b) = (1, 1, 1, 0)
+		}
+		return UIColor(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+	}
+
+
+	private static let colorsByName = [
+		"black": UIColor.blackColor(),
+		"darkGray": UIColor.darkGrayColor(),
+		"lightGray": UIColor.lightGrayColor(),
+		"white": UIColor.whiteColor(),
+		"gray": UIColor.grayColor(),
+		"red": UIColor.redColor(),
+		"green": UIColor.greenColor(),
+		"blue": UIColor.blueColor(),
+		"cyan": UIColor.cyanColor(),
+		"yellow": UIColor.yellowColor(),
+		"magenta": UIColor.magentaColor(),
+		"orange": UIColor.orangeColor(),
+		"purple": UIColor.purpleColor(),
+		"brown": UIColor.brownColor(),
+		"clear": UIColor.clearColor()
+	]
 }

@@ -1,0 +1,38 @@
+Unified.Alert background-color=ff7033
+	horizontal along=fill across=center spacing=12 padding=(30 12 7 12)
+		image @icon size=(24 27) image-align=center
+		text @message font=12 color=white
+		button @closeButton size=(12 12) corner-radius=6 background-color=ffb898 tint-color=ff7033
+			~ image=SbisDesign.navbarClose image-resize=6
+
+Unified.Alert.Info 
+	ui Unified.Alert
+		@back background-color=TestImage
+
+Unified.Alert.Warning include=Unified.Alert
+
+Unified.Alert.Error include=Unified.Alert
+
+Unified.SideMenu
+	vertical
+		horizontal spacing=8
+			view #icon align=center size=55 fixed-size=true corner-radius=8 background=green scale=aspect-fit source=TestImage
+			vertical
+				layered
+					view background=red corner-radius=3
+					label #text color=yellow margin=(8 4)
+				label #details
+			label #warning font=('Helvetica Neue' 24) color=red
+			label #footer font=13 color=aaa
+
+Unified.SideMenuItem
+	vertical
+		horizontal spacing=8
+			view #icon align=center size=55 fixed-size=true corner-radius=8 background=green scale=aspect-fit source=TestImage
+			vertical
+				layered
+					view background=red corner-radius=3
+					label #text color=yellow margin=(8 4)
+				label #details
+			label #warning font=('Helvetica Neue' 24) color=red
+			label #footer font=13 color=aaa

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <scenes>
+        <!--Main Menu Side Controller-->
+        <scene sceneID="Z6t-Yn-VL8">
+            <objects>
+                <viewController restorationIdentifier="MainMenuSideController" storyboardIdentifier="MainMenuSideController" id="7fM-md-44B" customClass="MainMenuSideController" customModule="SbisNotifications" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="wHc-6b-3rh">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" id="ztd-w9-S9T" userLabel="menuContainer">
+                                <rect key="frame" x="0.0" y="0.0" width="260" height="568"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="MainMenuLogo" id="5Pd-ud-cPD">
+                                        <rect key="frame" x="0.0" y="25" width="260" height="39"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                    </imageView>
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="50" sectionHeaderHeight="28" sectionFooterHeight="28" id="WXX-Ol-QTn">
+                                        <rect key="frame" x="0.0" y="64" width="260" height="454"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <connections>
+                                            <outlet property="dataSource" destination="7fM-md-44B" id="3Tj-0q-ZH7"/>
+                                            <outlet property="delegate" destination="7fM-md-44B" id="PlI-Jx-hAB"/>
+                                        </connections>
+                                    </tableView>
+                                    <view contentMode="scaleToFill" id="ve2-S7-t6O">
+                                        <rect key="frame" x="0.0" y="518" width="260" height="50"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="FFH-rm-DuV">
+                                                <rect key="frame" x="50" y="0.0" width="211" height="50"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="MainMenuLogoutImage" id="Q5v-51-8Vu">
+                                                <rect key="frame" x="12" y="10" width="30" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" heightSizable="YES"/>
+                                            </imageView>
+                                            <view contentMode="scaleToFill" id="7Di-om-kx6">
+                                                <rect key="frame" x="0.0" y="0.0" width="260" height="1"/>
+                                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                                <color key="backgroundColor" red="0.038793884217739105" green="0.31567347049713135" blue="0.5033867359161377" alpha="1" colorSpace="calibratedRGB"/>
+                                            </view>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="RjY-Aq-lZq">
+                                                <rect key="frame" x="218" y="10" width="30" height="30"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" image="MainMenuSettingsButton"/>
+                                                <connections>
+                                                    <action selector="openSettings:" destination="7fM-md-44B" eventType="touchUpInside" id="iIG-aJ-uZq"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                    </view>
+                                    <view userInteractionEnabled="NO" contentMode="scaleToFill" id="GAM-Kd-kWP">
+                                        <rect key="frame" x="245" y="0.0" width="15" height="568"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" heightSizable="YES"/>
+                                        <color key="backgroundColor" white="1" alpha="0.34740691489361702" colorSpace="calibratedWhite"/>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" red="0.011764705882352941" green="0.15294117647058825" blue="0.23529411764705882" alpha="1" colorSpace="calibratedRGB"/>
+                            </view>
+                            <view contentMode="scaleToFill" id="FiP-P8-V2F" userLabel="closeMenuContainer">
+                                <rect key="frame" x="260" y="0.0" width="60" height="568"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="Y6d-pr-WiZ" appends="YES" id="Ktb-0N-4K5"/>
+                                </connections>
+                            </view>
+                        </subviews>
+                    </view>
+                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
+                    <connections>
+                        <outlet property="closeMenuContainer" destination="FiP-P8-V2F" id="rlq-83-ZoV"/>
+                        <outlet property="logonImage" destination="Q5v-51-8Vu" id="BdJ-EJ-wRz"/>
+                        <outlet property="logonLabel" destination="FFH-rm-DuV" id="hCQ-20-WNV"/>
+                        <outlet property="logonSeparator" destination="7Di-om-kx6" id="anv-fk-QDT"/>
+                        <outlet property="menuContainer" destination="ztd-w9-S9T" id="NH1-sx-jrb"/>
+                        <outlet property="rightShadowView" destination="GAM-Kd-kWP" id="KlL-4H-cYc"/>
+                        <outlet property="tableView" destination="WXX-Ol-QTn" id="UKT-C0-fs2"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="XQn-Pb-M4B" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="Y6d-pr-WiZ">
+                    <connections>
+                        <action selector="closeMenu:" destination="7fM-md-44B" id="BWf-xA-pCC"/>
+                    </connections>
+                </tapGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="109" y="335"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="MainMenuLogo" width="70" height="25"/>
+        <image name="MainMenuLogoutImage" width="30" height="30"/>
+        <image name="MainMenuSettingsButton" width="22" height="22"/>
+    </resources>
+</document>

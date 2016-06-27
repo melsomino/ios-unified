@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class LayoutLabel: LayoutViewItem {
+public class LayoutText: LayoutViewItem {
 
 	public var maxLines = 0 {
 		didSet {

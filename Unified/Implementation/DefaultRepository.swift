@@ -1,6 +1,6 @@
 //
-// Created by Власов М.Ю. on 20.06.16.
-// Copyright (c) 2016 melsomino. All rights reserved.
+// Created by Michael Vlasov on 20.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
@@ -9,16 +9,16 @@ import Starscream
 
 public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
-	private func makeLayoutName(forClass uiClass: AnyClass, name: String?) -> String {
-		let uiClassName = String(NSStringFromClass(uiClass))
-		return name != nil ? "\(uiClassName).\(name!)" : uiClassName
-	}
-
-
 	public func layoutFactory(forUi ui: AnyObject, name: String?) throws -> LayoutItemFactory {
 		let uiClass: AnyClass = ui.dynamicType
 		let layoutName = makeLayoutName(forClass: uiClass, name: name)
 		let key = layoutName.lowercaseString
+
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
+
 		if let factory = layoutFactoryByName[key] {
 			return factory
 		}
@@ -33,12 +33,12 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 	public var devServerUrl: NSURL? {
 		didSet {
-			devSocket?.disconnect()
-			devSocket = nil
+			devServerWebSocket?.disconnect()
+			devServerWebSocket = nil
 			if let url = devServerUrl {
-				devSocket = WebSocket(url: url)
-				devSocket!.delegate = self
-				devSocket!.connect()
+				devServerWebSocket = WebSocket(url: url)
+				devServerWebSocket!.delegate = self
+				devServerWebSocket!.connect()
 			}
 		}
 	}
@@ -55,7 +55,8 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 	public var dependency: DependencyResolver!
 
 
-	// MARK: - WebSocketDelegate
+	// MARK: - DevServer WebSocket Delegate
+
 
 	public func websocketDidReceiveMessage(socket: WebSocket, text: String) {
 		let parts = text.componentsSeparatedByString("`")
@@ -63,34 +64,48 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 			case "repository-changed":
 				socket.writeString("get-repository`\(parts[1])")
 			case "repository":
-				try! loadRepositoryFromDevServer(parts[1]);
+				lock.lock()
+				defer {
+					lock.unlock()
+				}
+				try! loadRepository(DeclarationElement.parse(parts[1]), overrideExisting: true)
 				notify()
 			default:
 				break
 		}
 	}
 
+
 	public func websocketDidConnect(socket: WebSocket) {
 		let device = UIDevice.currentDevice()
 		socket.writeString("client-info`\(device.name), iOS \(device.systemVersion)")
 	}
 
+
 	public func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
 		print("dev server disconnected")
 	}
 
+
 	public func websocketDidReceiveData(socket: WebSocket, data: NSData) {
-		print("dev server data")
 	}
 
 
 	// MARK: - Internals
 
-	private var devSocket: WebSocket?
+	private var devServerWebSocket: WebSocket?
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
 	private var layoutFactoryByName = [String: LayoutItemFactory]()
+	private var lock = FastLock()
+
+
+	private func makeLayoutName(forClass uiClass: AnyClass, name: String?) -> String {
+		let uiClassName = String(NSStringFromClass(uiClass))
+		return name != nil ? "\(uiClassName).\(name!)" : uiClassName
+	}
+
 
 	private func notify() {
 		for listener in listeners.getLive() {
@@ -105,26 +120,21 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 				continue
 			}
 			loadedUniPaths.insert(uniPath)
-			let elements = try DeclarationElement.load(uniPath)
-			let context = DeclarationContext(elements)
-			for ui in elements.filter({ $0.name == "ui" }) {
-				for layout in ui.children {
+			try loadRepository(DeclarationElement.load(uniPath), overrideExisting: false)
+		}
+	}
+
+	func loadRepository(elements: [DeclarationElement], overrideExisting: Bool) throws {
+		let context = DeclarationContext(elements)
+		for ui in elements.filter({ $0.name == "ui" }) {
+			for layout in ui.children {
+				if overrideExisting || layoutFactoryByName[layout.name] == nil {
 					let factory = try LayoutItemFactory.fromDeclaration(layout.children[0], context: context)
 					layoutFactoryByName[layout.name] = factory
 				}
 			}
 		}
-	}
 
-	func loadRepositoryFromDevServer(repository_source: String) throws {
-		let elements = try DeclarationElement.parse(repository_source)
-		let context = DeclarationContext(elements)
-		for ui in elements.filter({ $0.name == "ui" }) {
-			for layout in ui.children {
-				let factory = try LayoutItemFactory.fromDeclaration(layout.children[0], context: context)
-				layoutFactoryByName[layout.name] = factory
-			}
-		}
 	}
 }
 
