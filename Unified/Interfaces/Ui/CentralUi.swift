@@ -79,7 +79,7 @@ public protocol CentralUi: class {
 	// MARK: - Content
 
 
-	func setContent(controller: UIViewController?, animation: CentralUiContentAnimation)
+	func setContent(controller: UIViewController?, animation: CentralUiContentAnimation, completion: (() -> Void)?)
 
 
 	// MARK: - Alerts

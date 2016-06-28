@@ -68,7 +68,7 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 							if item.contentController == nil {
 								item.contentController = controllerFactory(self.dependency)
 							}
-							self.setContent(item.contentController!, animation: effect)
+							self.setContent(item.contentController!, animation: effect, completion: nil)
 							break
 						case .Run(let run):
 							run(self.dependency)
@@ -124,7 +124,7 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 	}
 
 
-	public func setContent(controller: UIViewController?, animation: CentralUiContentAnimation) {
+	public func setContent(controller: UIViewController?, animation: CentralUiContentAnimation, completion: (() -> Void)?) {
 		defaultRootController.setContentController(controller, animation: animation, completion: completion)
 	}
 

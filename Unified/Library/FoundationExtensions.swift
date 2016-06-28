@@ -88,6 +88,11 @@ extension NSScanner {
 	}
 
 
+	func pass(expected: String) -> Bool {
+		return pass(expected, passWhitespaces: false)
+	}
+
+
 	func passCharachters(charachters: NSCharacterSet, passWhitespaces: Bool) -> String? {
 		var passed: NSString?
 		if scanCharactersFromSet(charachters, intoString: &passed) {
