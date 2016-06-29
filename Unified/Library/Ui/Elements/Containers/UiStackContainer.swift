@@ -6,79 +6,18 @@
 import Foundation
 import UIKit
 
-public enum LayoutStackDirection {
+public enum UiStackDirection {
 	case Horizontal, Vertical
 }
 
 
 
 
-private struct StackPosition {
-	var along: CGFloat = 0
-	var across: CGFloat = 0
+public class UiStackContainer: UiMultipleElementContainer {
 
-	init() {
-
-	}
-
-	init(_ along: CGFloat, _ across: CGFloat) {
-		self.along = along
-		self.across = across
-	}
-
-	init(_ size: CGSize, _ horizontal: Bool) {
-		self.along = horizontal ? size.width : size.height
-		self.across = horizontal ? size.height : size.width
-	}
-
-	init(_ point: CGPoint, _ horizontal: Bool) {
-		self.along = horizontal ? point.x : point.y
-		self.across = horizontal ? point.y : point.x
-	}
-
-	mutating func clear() {
-		along = 0
-		across = 0
-	}
-	func toSize(horizontal: Bool) -> CGSize {
-		return CGSizeMake(horizontal ? along : across, horizontal ? across : along)
-	}
-
-	func toPoint(horizontal: Bool) -> CGPoint {
-		return CGPointMake(horizontal ? along : across, horizontal ? across : along)
-	}
-
-}
-
-
-private struct Measured {
-	var content: LayoutItem!
-	var maxSize = StackPosition()
-	var size = StackPosition()
-
-	init() {
-	}
-
-	mutating func measureMaxSize(content: LayoutItem, _ bounds: StackPosition, _ horizontal: Bool) -> StackPosition {
-		self.content = content
-		let contentMaxSize = content.measureMaxSize(bounds.toSize(horizontal))
-		maxSize = StackPosition(contentMaxSize, horizontal)
-		return maxSize
-	}
-
-	mutating func measureSize(bounds: StackPosition, _ horizontal: Bool) -> StackPosition {
-		size = StackPosition(content.measureSize(bounds.toSize(horizontal)), horizontal)
-		return size
-	}
-}
-
-
-
-public class LayoutStack: LayoutWithMultipleContent {
-
-	var direction = LayoutStackDirection.Vertical
-	var along = LayoutAlignment.Fill
-	var across = LayoutAlignment.Leading
+	var direction = UiStackDirection.Vertical
+	var along = UiAlignment.Fill
+	var across = UiAlignment.Leading
 	var spacing = CGFloat(0)
 
 	private var measured = [Measured]()
@@ -91,7 +30,7 @@ public class LayoutStack: LayoutWithMultipleContent {
 
 
 	public override var visible: Bool {
-		for item in content {
+		for item in children {
 			if item.visible {
 				return true
 			}
@@ -108,7 +47,7 @@ public class LayoutStack: LayoutWithMultipleContent {
 		spacingSize = 0
 		fixedSpace = 0
 		notFixedMaxSpace = 0
-		for item in content {
+		for item in children {
 			if item.visible {
 				if measuredCount >= measured.count {
 					measured.append(Measured())
@@ -197,6 +136,120 @@ public class LayoutStack: LayoutWithMultipleContent {
 		}
 
 		return CGRect(origin: bounds.origin, size: size.toSize(horizontal))
+	}
+
+}
+
+
+
+
+
+private struct StackPosition {
+	var along: CGFloat = 0
+	var across: CGFloat = 0
+
+	init() {
+
+	}
+
+	init(_ along: CGFloat, _ across: CGFloat) {
+		self.along = along
+		self.across = across
+	}
+
+	init(_ size: CGSize, _ horizontal: Bool) {
+		self.along = horizontal ? size.width : size.height
+		self.across = horizontal ? size.height : size.width
+	}
+
+	init(_ point: CGPoint, _ horizontal: Bool) {
+		self.along = horizontal ? point.x : point.y
+		self.across = horizontal ? point.y : point.x
+	}
+
+	mutating func clear() {
+		along = 0
+		across = 0
+	}
+	func toSize(horizontal: Bool) -> CGSize {
+		return CGSizeMake(horizontal ? along : across, horizontal ? across : along)
+	}
+
+	func toPoint(horizontal: Bool) -> CGPoint {
+		return CGPointMake(horizontal ? along : across, horizontal ? across : along)
+	}
+
+}
+
+
+
+
+
+private struct Measured {
+	var content: UiElement!
+	var maxSize = StackPosition()
+	var size = StackPosition()
+
+	init() {
+	}
+
+	mutating func measureMaxSize(content: UiElement, _ bounds: StackPosition, _ horizontal: Bool) -> StackPosition {
+		self.content = content
+		let contentMaxSize = content.measureMaxSize(bounds.toSize(horizontal))
+		maxSize = StackPosition(contentMaxSize, horizontal)
+		return maxSize
+	}
+
+	mutating func measureSize(bounds: StackPosition, _ horizontal: Bool) -> StackPosition {
+		size = StackPosition(content.measureSize(bounds.toSize(horizontal)), horizontal)
+		return size
+	}
+}
+
+
+
+
+
+class UiStackContainerFactory: UiElementFactory {
+	let direction: UiStackDirection
+	var along = UiAlignment.Fill
+	var across = UiAlignment.Leading
+	var spacing = CGFloat(0)
+
+
+	init(direction: UiStackDirection) {
+		self.direction = direction
+		along = direction == .Horizontal ? .Fill : .Leading
+		across = direction == .Horizontal ? .Leading : .Fill
+	}
+
+
+	override func create() -> UiElement {
+		return UiStackContainer()
+	}
+
+	override func initialize(item: UiElement, content: [UiElement]) {
+		super.initialize(item, content: content)
+		let stack = item as! UiStackContainer
+		stack.direction = direction
+		stack.along = along
+		stack.across = across
+		stack.spacing = spacing
+		stack.children = content
+	}
+
+
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+		switch attribute.name {
+			case "along":
+				along = try context.getEnum(attribute, UiElementFactory.alignments)
+			case "across":
+				across = try context.getEnum(attribute, UiElementFactory.alignments)
+			case "spacing":
+				spacing = try context.getFloat(attribute)
+			default:
+				try super.applyDeclarationAttribute(attribute, context: context)
+		}
 	}
 
 }

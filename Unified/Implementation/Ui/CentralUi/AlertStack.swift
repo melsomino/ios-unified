@@ -8,9 +8,10 @@ import UIKit
 
 
 
-public class AlertStack {
+public class AlertStack: Dependent {
 
 
+	public var dependency: DependencyResolver!
 
 	init() {
 	}
@@ -18,7 +19,8 @@ public class AlertStack {
 
 
 	public func pushInContainer(container: UIView, icon: UIImage, message: String, actionArg: Any?, action: ((Any?) -> Void)?) {
-		let newPanel = AlertPanel(frame: CGRectMake(0, 0, container.bounds.width, -CentralUiDesign.informationPanelHeight))
+		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUiDesign.informationPanelHeight, container.bounds.width, CentralUiDesign.informationPanelHeight))
+		dependency.resolve(newPanel)
 		newPanel.stack = self
 		newPanel.ui.model = AlertModel(icon: icon, message: message, actionArg: actionArg, action: action)
 
@@ -93,7 +95,7 @@ public class AlertStack {
 
 
 
-struct AlertModel {
+public struct AlertModel {
 	let icon: UIImage
 	let message: String
 	let actionArg: Any?
@@ -104,10 +106,10 @@ struct AlertModel {
 
 
 
-class AlertPanel: UIView, Dependent {
+class AlertPanel: UIView, Dependent, AlertUiDelegate {
 
 	weak var stack: AlertStack?
-	var ui: AlertUi!
+	var ui = AlertUi()
 
 
 	override init(frame: CGRect) {
@@ -125,9 +127,8 @@ class AlertPanel: UIView, Dependent {
 	func initialize() {
 		userInteractionEnabled = true
 		autoresizingMask = [.FlexibleWidth]
-		backgroundColor = CentralUiDesign.informationPanelBackgroundColor
-		ui = AlertUi()
 		ui.container = self
+		ui.delegate = self
 
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapOnPanelRecognized(_:))))
 	}
@@ -136,6 +137,10 @@ class AlertPanel: UIView, Dependent {
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		ui.performLayout(inBounds: bounds.size)
+	}
+
+	func onClose() {
+		stack?.hidePanelAnimated(self)
 	}
 
 
@@ -159,7 +164,7 @@ class AlertPanel: UIView, Dependent {
 
 	var dependency: DependencyResolver! {
 		didSet {
-			ui.dependency = dependency
+			dependency.resolve(ui)
 		}
 	}
 
@@ -167,24 +172,30 @@ class AlertPanel: UIView, Dependent {
 
 
 
+protocol AlertUiDelegate: class {
+	func onClose()
+}
 
+public class AlertUi: ModelUi<AlertModel> {
 
-class AlertUi: Ui<AlertModel> {
+	weak var delegate: AlertUiDelegate?
 
-	let icon = LayoutView({ UIImageView() })
-	let message = LayoutText()
-	let closeButton = LayoutView({ UIButton(type: .System) })
+	let icon = UiImage()
+	let message = UiText()
+	let closeButton = UiButton()
 
-	var iconView: UIImageView? {
-		return icon.view as? UIImageView
+	override init() {
+		super.init()
+//		closeButton.onTouchUpInside = {
+//			[unowned self] in
+//			self.delegate?.onClose()
+//		}
 	}
 
-	override func onModelChanged() {
+	public override func onModelChanged() {
 		message.text = model?.message
-		iconView?.image = model?.icon
+		icon.image = model?.icon
 	}
-
-
 
 }
 

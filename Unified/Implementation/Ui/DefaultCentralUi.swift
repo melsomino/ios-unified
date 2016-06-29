@@ -4,7 +4,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 
 
@@ -12,7 +12,11 @@ import Foundation
 public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 
 
-	public var dependency: DependencyResolver!
+	public var dependency: DependencyResolver! {
+		didSet {
+			dependency.resolve(alerts)
+		}
+	}
 
 	// MARK: - CentralUi
 
@@ -23,6 +27,16 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 
 	public var contentContainer: UIView {
 		return defaultRootController.contentContainer
+	}
+
+
+	public func execute(action: CentralUiAction) {
+		switch action {
+			case .Run(let action):
+				action(dependency)
+			case .SetContent(let controllerFactory):
+				setContent(controllerFactory(dependency), animation: .Fade, completion: nil)
+		}
 	}
 
 	public func addMenuItem(name: String, title: String, icon: UIImage?, action: CentralUiAction) {
@@ -64,7 +78,7 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 				}
 				if let item = self.selectedMenuItem as? DefaultMenuItem {
 					switch item.action {
-						case .Content(let controllerFactory):
+						case .SetContent(let controllerFactory):
 							if item.contentController == nil {
 								item.contentController = controllerFactory(self.dependency)
 							}
@@ -88,41 +102,10 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 	}
 
 
-	public var accountIcon: UIImage? {
-		get {
-			return nil
-		}
-		set {
-		}
-	}
-
-
-	public var accountTitle: String? {
-		get {
-			return nil
-		}
-		set {
-		}
-	}
-
-
-	public var settingsAction: CentralUiAction? {
-		get {
-			return nil
-		}
-		set {
-		}
-	}
-
-
-	public var accountAction: CentralUiAction? {
-		get {
-			return nil
-		}
-		set {
-		}
-	}
-
+	public var accountIcon: UIImage?
+	public var accountTitle: String?
+	public var settingsAction: CentralUiAction?
+	public var accountAction: CentralUiAction?
 
 	public func setContent(controller: UIViewController?, animation: CentralUiContentAnimation, completion: (() -> Void)?) {
 		defaultRootController.setContentController(controller, animation: animation, completion: completion)
@@ -136,6 +119,7 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 
 	// MARK: - DefaultMenuItem Delegate
 
+
 	func onMenuItemChanged(menuItem: DefaultMenuItem) {
 	}
 
@@ -143,11 +127,11 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 	// MARK: - Internals
 
 	var items = [DefaultMenuItem]()
-	public lazy var defaultRootController: MainMenuRootController = MainMenuRootController()
+	public lazy var defaultRootController: CentralUiRootController = CentralUiRootController()
 	public let alerts = AlertStack()
 
 	@objc func showSideMenu() {
-
+		CentralUiSideController.show(self)
 	}
 }
 

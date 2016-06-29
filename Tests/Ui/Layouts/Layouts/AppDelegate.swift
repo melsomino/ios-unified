@@ -10,7 +10,7 @@ import UIKit
 import Unified
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent {
+class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, RepositoryDependent {
 
 	var window: UIWindow?
 	var dependency: DependencyResolver!
@@ -23,20 +23,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent {
 			container.createDefaultCentralUi()
 		}
 
+		repository.devServerUrl = NSURL(string: RepositoryDefaultDevServerUrl)
+
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		window!.rootViewController = centralUi.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .Content({ self.createLayoutsController() }))
+		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ ViewController.create($0) }))
 		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
 		return true
 	}
 
-	func createLayoutsController() -> ViewController {
-		let controller = ViewController()
-		controller.dependency = dependency
-		return controller
-	}
 
 
 

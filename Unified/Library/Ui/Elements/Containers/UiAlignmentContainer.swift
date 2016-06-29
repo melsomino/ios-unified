@@ -6,20 +6,20 @@
 import Foundation
 import UIKit
 
-public enum LayoutAlignAnchor {
+public enum UiAlignmentAnchor {
 	case TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left, Center
 }
 
-public class LayoutAlign: LayoutWithSingleContent {
-	var anchor = LayoutAlignAnchor.TopLeft
+public class UiAlignmentContainer: UiSingleElementContainer {
+	var anchor = UiAlignmentAnchor.TopLeft
 
 
 	public override func measureMaxSize(bounds: CGSize) -> CGSize {
-		return content.measureMaxSize(bounds)
+		return child.measureMaxSize(bounds)
 	}
 
 	public override func measureSize(bounds: CGSize) -> CGSize {
-		contentSize = content.measureSize(bounds)
+		contentSize = child.measureSize(bounds)
 		return contentSize
 	}
 
@@ -46,7 +46,7 @@ public class LayoutAlign: LayoutWithSingleContent {
 				contentOrigin.y = bounds.origin.y + bounds.size.height / 2 - contentSize.height / 2
 		}
 
-		content.layout(CGRectMake(contentOrigin.x, contentOrigin.y, contentSize.width, contentSize.height))
+		child.layout(CGRectMake(contentOrigin.x, contentOrigin.y, contentSize.width, contentSize.height))
 		return bounds
 	}
 
@@ -56,6 +56,25 @@ public class LayoutAlign: LayoutWithSingleContent {
 
 	private var contentSize = CGSizeZero
 
+}
+
+
+
+
+
+public class UiAlignmentContainerFactory: UiElementFactory {
+	var anchor = UiAlignmentAnchor.TopLeft
+
+	override func create() -> UiElement {
+		return UiAlignmentContainer()
+	}
+
+	override func initialize(item: UiElement, content: [UiElement]) {
+		super.initialize(item, content: content)
+		let align = item as! UiAlignmentContainer
+		align.anchor = anchor
+		align.child = content[0]
+	}
 }
 
 

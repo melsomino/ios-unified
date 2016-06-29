@@ -6,11 +6,11 @@
 import Foundation
 import UIKit
 
-private class FramesByKey {
+private class UiFramesByKey {
 	var frames = [String: [CGRect]]()
 }
 
-public class LayoutCache {
+public class UiLayoutCache {
 
 	public func clear() {
 		cacheByWidth.removeAll(keepCapacity: true)
@@ -28,7 +28,7 @@ public class LayoutCache {
 			existing.frames[key] = frames
 		}
 		else {
-			let framesByKey = FramesByKey()
+			let framesByKey = UiFramesByKey()
 			framesByKey.frames[key] = frames
 			cacheByWidth[width] = framesByKey
 		}
@@ -43,7 +43,7 @@ public class LayoutCache {
 	// MARK: - Internals
 
 
-	private var cacheByWidth = [CGFloat: FramesByKey]()
+	private var cacheByWidth = [CGFloat: UiFramesByKey]()
 
 
 

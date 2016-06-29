@@ -6,23 +6,23 @@
 import Foundation
 import UIKit
 
-class LayoutPadding: LayoutWithSingleContent {
+class UiPaddingContainer: UiSingleElementContainer {
 	var insets = UIEdgeInsetsZero
 
 
-	// MARK: - LayoutItem
+	// MARK: - UiElement
 
 
 	override func measureMaxSize(bounds: CGSize) -> CGSize {
-		return expandSize(content.measureMaxSize(reduceSize(bounds)))
+		return expandSize(child.measureMaxSize(reduceSize(bounds)))
 	}
 
 	override func measureSize(bounds: CGSize) -> CGSize {
-		return expandSize(content.measureSize(reduceSize(bounds)))
+		return expandSize(child.measureSize(reduceSize(bounds)))
 	}
 
 	override func layout(bounds: CGRect) -> CGRect {
-		return expandRect(content.layout(UIEdgeInsetsInsetRect(bounds, insets)))
+		return expandRect(child.layout(UIEdgeInsetsInsetRect(bounds, insets)))
 	}
 
 
@@ -42,6 +42,25 @@ class LayoutPadding: LayoutWithSingleContent {
 	}
 
 }
+
+
+
+class UiPaddingContainerFactory: UiElementFactory {
+	var insets = UIEdgeInsetsZero
+
+	override func create() -> UiElement {
+		return UiPaddingContainer()
+	}
+
+	override func initialize(item: UiElement, content: [UiElement]) {
+		super.initialize(item, content: content)
+		let item = item as! UiPaddingContainer
+		item.insets = insets
+		item.child = content[0]
+	}
+}
+
+
 
 
 

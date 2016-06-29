@@ -6,11 +6,11 @@
 import Foundation
 import UIKit
 
-public class MainMenuSideController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
+public class CentralUiSideController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
 
 	public static func show(centralUi: CentralUi) {
 		let storyboard = UIStoryboard(name: "MainMenu", bundle: NSBundle(forClass: DefaultCentralUi.self))
-		let sideController = storyboard.instantiateViewControllerWithIdentifier("MainMenuSideController") as! MainMenuSideController
+		let sideController = storyboard.instantiateViewControllerWithIdentifier("MainMenuSideController") as! CentralUiSideController
 		sideController.setCentralUi(centralUi)
 		sideController.showAnimated()
 	}
@@ -37,6 +37,10 @@ public class MainMenuSideController: UIViewController, UITableViewDelegate, UITa
 
 
 	@IBAction func openSettings(sender: AnyObject) {
+		if let settings = centralUi.settingsAction {
+			hideAnimated(nil)
+			centralUi.execute(settings)
+		}
 	}
 
 
@@ -98,7 +102,7 @@ public class MainMenuSideController: UIViewController, UITableViewDelegate, UITa
 	public func handleSwipeGesture() {
 		let rootController = centralUi.rootController
 		let rootBounds = rootController.view.bounds
-		let menuWidth = MainMenuSideController.menuWidth
+		let menuWidth = CentralUiSideController.menuWidth
 		let location = swipeRecognizer.locationInView(centralUi.rootController.view)
 		switch swipeRecognizer.state {
 			case .Possible:
@@ -171,7 +175,7 @@ public class MainMenuSideController: UIViewController, UITableViewDelegate, UITa
 	func showAnimated() {
 		let rootController = centralUi.rootController
 		let rootBounds = rootController.view.bounds
-		let menuWidth = MainMenuSideController.menuWidth
+		let menuWidth = CentralUiSideController.menuWidth
 
 		rootController.addChildViewController(self)
 		view.frame = CGRectOffset(rootBounds, -menuWidth, 0)
@@ -196,7 +200,7 @@ public class MainMenuSideController: UIViewController, UITableViewDelegate, UITa
 		willMoveToParentViewController(nil)
 		UIView.animateWithDuration(NSTimeInterval(0.25),
 			animations: {
-				self.view.frame = CGRectOffset(rootBounds, -MainMenuSideController.menuWidth, 0)
+				self.view.frame = CGRectOffset(rootBounds, -CentralUiSideController.menuWidth, 0)
 				self.centralUi.contentContainer.frame = rootBounds
 			},
 			completion: {

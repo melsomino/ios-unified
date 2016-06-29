@@ -7,9 +7,21 @@ import Foundation
 import UIKit
 
 
-public class Ui<Model>: RepositoryDependent, RepositoryListener {
+public class Ui: RepositoryDependent, RepositoryListener {
 
-	public var layoutCache: LayoutCache?
+	public var backgroundColor: UIColor? {
+		didSet {
+			initializeContainer()
+		}
+	}
+
+	public var cornerRadius: CGFloat? {
+		didSet {
+			initializeContainer()
+		}
+	}
+
+	public var layoutCache: UiLayoutCache?
 
 	public var container: UIView? {
 		get {
@@ -22,18 +34,27 @@ public class Ui<Model>: RepositoryDependent, RepositoryListener {
 			else {
 				currentContainer = newValue
 			}
-		}
-	}
-
-	public var model: Model? {
-		didSet {
-			onModelChanged()
-			performLayout()
+			initializeContainer()
 		}
 	}
 
 	public init() {
 	}
+
+	private func initializeContainer() {
+		container?.backgroundColor = backgroundColor
+		container?.layer.cornerRadius = cornerRadius ?? 0
+		if cornerRadius != nil {
+			container?.clipsToBounds = true
+		}
+	}
+
+	public func createContainer(inWidth width: CGFloat) -> UIView {
+		performLayout(inWidth: width)
+		let container = UIView(frame: frame)
+		return container
+	}
+
 
 	public func performLayout() {
 		if let bounds = container?.bounds.size {
@@ -114,15 +135,7 @@ public class Ui<Model>: RepositoryDependent, RepositoryListener {
 
 
 	public var layoutCacheKey: String {
-		if let modelObject = model as? AnyObject {
-			return String(ObjectIdentifier(modelObject).uintValue)
-		}
-		else {
-			return ""
-		}
-	}
-
-	public func onModelChanged() {
+		return String(ObjectIdentifier(self).uintValue)
 	}
 
 
@@ -151,17 +164,19 @@ public class Ui<Model>: RepositoryDependent, RepositoryListener {
 
 	private var currentContainer: UIView?
 	private var currentLayoutName: String?
-	private var currentLayout: LayoutItem?
+	private var currentLayout: UiElement?
 
-	private var views = [LayoutViewItem]()
-	private var frame = CGRectZero
+	private var views = [UiContentElement]()
+	public private(set) var frame = CGRectZero
 
-	private func createLayout(name: String?) -> LayoutItem {
-		let factory = try! repository.layoutFactory(forUi: self, name: name)
-		return factory.createWith(self)
+	private func createLayout(name: String?) -> UiElement {
+		let factory = try! repository.uiFactory(forUi: self, name: name)
+		backgroundColor = factory.backgroundColor
+		cornerRadius = factory.cornerRadius
+		return factory.root.createWith(self)
 	}
 
-	private func setLayout(layout: LayoutItem, container: UIView?) {
+	private func setLayout(layout: UiElement, container: UIView?) {
 		let oldLayout = currentLayout
 		let layoutChanged = !sameObjects(currentLayout, layout)
 		let containerChanged = !sameObjects(currentContainer, container)
@@ -180,7 +195,7 @@ public class Ui<Model>: RepositoryDependent, RepositoryListener {
 			currentLayout = layout
 			views.removeAll(keepCapacity: true)
 			layout.traversal {
-				if let item = $0 as? LayoutViewItem {
+				if let item = $0 as? UiContentElement {
 					views.append(item)
 				}
 			}
@@ -194,6 +209,7 @@ public class Ui<Model>: RepositoryDependent, RepositoryListener {
 				for item in views {
 					if item.view == nil {
 						item.view = item.createView()
+						item.onViewCreated()
 						hasNewViews = true
 					}
 					container!.addSubview(item.view!)
@@ -209,10 +225,82 @@ public class Ui<Model>: RepositoryDependent, RepositoryListener {
 			}
 		}
 
-		if hasNewViews && model != nil {
-			onModelChanged()
+		if hasNewViews {
+			onSomeViewsCreated()
 		}
 
 		performLayout()
+	}
+
+	public func onSomeViewsCreated() {
+	}
+}
+
+
+
+public class ModelUi<Model>: Ui {
+
+	public var model: Model? {
+		didSet {
+			onModelChanged()
+			performLayout()
+		}
+	}
+
+
+	override init() {
+		super.init()
+	}
+
+
+
+	public override func onSomeViewsCreated() {
+		if model != nil {
+			onModelChanged()
+		}
+	}
+
+	// MARK: - Virtuals
+
+
+	public override var layoutCacheKey: String {
+		if let modelObject = model as? AnyObject {
+			return String(ObjectIdentifier(modelObject).uintValue)
+		}
+		else {
+			return ""
+		}
+	}
+
+	public func onModelChanged() {
+	}
+}
+
+
+
+public class UiFactory {
+	var backgroundColor: UIColor?
+	var cornerRadius: CGFloat?
+
+	var root: UiElementFactory
+
+	init(root: UiElementFactory) {
+		self.root = root
+	}
+
+	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiFactory {
+		let factory = UiFactory(root: try UiElementFactory.fromDeclaration(element.children[0], context: context))
+		for index in 1 ..< element.attributes.count {
+			let attribute = element.attributes[index]
+			switch attribute.name {
+				case "background-color":
+					factory.backgroundColor = try context.getColor(attribute)
+				case "corner-radius":
+					factory.cornerRadius = try context.getFloat(attribute)
+				default:
+					break
+			}
+		}
+		return factory
 	}
 }

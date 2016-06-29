@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class LayoutView: LayoutViewItem {
+public class UiView: UiContentElement {
 	var size = CGSizeZero
 	public var fixedSizeValue = false
 
@@ -50,4 +50,39 @@ public class LayoutView: LayoutViewItem {
 	}
 
 }
+
+
+
+
+class UiViewFactory: UiContentElementFactory {
+	var size = CGSizeZero
+	var fixedSize = false
+
+	override func create() -> UiElement {
+		return UiView()
+	}
+
+	override func initialize(item: UiElement, content: [UiElement]) {
+		super.initialize(item, content: content)
+		let view = item as! UiView
+		view.size = size
+		view.fixedSizeValue = fixedSize
+	}
+
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+		switch attribute.name {
+			case "size":
+				size = try context.getSize(attribute)
+			case "fixed-size":
+				fixedSize = try context.getBool(attribute)
+			default:
+				try super.applyDeclarationAttribute(attribute, context: context)
+		}
+	}
+
+}
+
+
+
+
 

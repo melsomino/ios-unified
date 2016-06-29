@@ -17,9 +17,12 @@ public protocol Repository: class {
 	func addListener(listener: RepositoryListener)
 	func removeListener(listener: RepositoryListener)
 
-	func layoutFactory(forUi ui: AnyObject, name: String?) throws -> LayoutItemFactory
+	func uiFactory(forUi ui: AnyObject, name: String?) throws -> UiFactory
+
 }
 
+
+public let RepositoryDefaultDevServerUrl = NSURL(string: "ws://localhost:8080/events")!
 
 public let RepositoryDependency = Dependency<Repository>()
 

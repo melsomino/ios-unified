@@ -12,8 +12,15 @@ public protocol ApplicationStorage {
 
 public let ApplicationStorageDependency = Dependency<ApplicationStorage>()
 
-extension DependencyResolver {
+public protocol ApplicationStorageDependent: Dependent {
+}
+
+extension ApplicationStorageDependent {
 	public var applicationStorage: ApplicationStorage {
-		return required(ApplicationStorageDependency)
+		return dependency.required(ApplicationStorageDependency)
+	}
+
+	public var optionalApplicationStorage: ApplicationStorage? {
+		return dependency.optional(ApplicationStorageDependency)
 	}
 }

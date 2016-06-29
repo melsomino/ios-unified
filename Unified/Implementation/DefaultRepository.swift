@@ -1,4 +1,3 @@
-//
 // Created by Michael Vlasov on 20.06.16.
 // Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
@@ -9,24 +8,24 @@ import Starscream
 
 public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
-	public func layoutFactory(forUi ui: AnyObject, name: String?) throws -> LayoutItemFactory {
+	public func uiFactory(forUi ui: AnyObject, name: String?) throws -> UiFactory {
 		let uiClass: AnyClass = ui.dynamicType
-		let layoutName = makeLayoutName(forClass: uiClass, name: name)
-		let key = layoutName.lowercaseString
+		let uiName = makeUiName(forClass: uiClass, name: name)
+		let key = uiName.lowercaseString
 
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
 
-		if let factory = layoutFactoryByName[key] {
+		if let factory = uiFactoryByName[key] {
 			return factory
 		}
 		try loadRepositoriesInBundleForClass(uiClass)
-		if let factory = layoutFactoryByName[key] {
+		if let factory = uiFactoryByName[key] {
 			return factory
 		}
-		fatalError("Repository does not contains ui definition: \(layoutName)")
+		fatalError("Repository does not contains ui definition: \(uiName)")
 	}
 
 
@@ -64,17 +63,20 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 			case "repository-changed":
 				socket.writeString("get-repository`\(parts[1])")
 			case "repository":
-				lock.lock()
-				defer {
-					lock.unlock()
-				}
-				try! loadRepository(DeclarationElement.parse(parts[1]), overrideExisting: true)
+				try! loadRepositoryFromDevServer(parts[1])
 				notify()
 			default:
 				break
 		}
 	}
 
+	private func loadRepositoryFromDevServer(repositoryString: String) throws {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
+		try loadRepository(DeclarationElement.parse(repositoryString), overrideExisting: true)
+	}
 
 	public func websocketDidConnect(socket: WebSocket) {
 		let device = UIDevice.currentDevice()
@@ -97,11 +99,11 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
-	private var layoutFactoryByName = [String: LayoutItemFactory]()
+	private var uiFactoryByName = [String: UiFactory]()
 	private var lock = FastLock()
 
 
-	private func makeLayoutName(forClass uiClass: AnyClass, name: String?) -> String {
+	private func makeUiName(forClass uiClass: AnyClass, name: String?) -> String {
 		let uiClassName = String(NSStringFromClass(uiClass))
 		return name != nil ? "\(uiClassName).\(name!)" : uiClassName
 	}
@@ -114,7 +116,9 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 	}
 
 	func loadRepositoriesInBundleForClass(forClass: AnyClass) throws {
-		let bundle = NSBundle(forClass: forClass)
+		let classNameParts = String(NSStringFromClass(forClass)).componentsSeparatedByString(".")
+		let bundle = classNameParts.count > 1 ? NSBundle.fromModuleName(classNameParts[0])! : NSBundle(forClass: forClass)
+
 		for uniPath in bundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
 			guard !loadedUniPaths.contains(uniPath) else {
 				continue
@@ -126,11 +130,11 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 	func loadRepository(elements: [DeclarationElement], overrideExisting: Bool) throws {
 		let context = DeclarationContext(elements)
-		for ui in elements.filter({ $0.name == "ui" }) {
-			for layout in ui.children {
-				if overrideExisting || layoutFactoryByName[layout.name] == nil {
-					let factory = try LayoutItemFactory.fromDeclaration(layout.children[0], context: context)
-					layoutFactoryByName[layout.name] = factory
+		for uiSection in elements.filter({ $0.name == "ui" }) {
+			for ui in uiSection.children {
+				if overrideExisting || uiFactoryByName[ui.name] == nil {
+					let factory = try UiFactory.fromDeclaration(ui, context: context)
+					uiFactoryByName[ui.name] = factory
 				}
 			}
 		}

@@ -42,7 +42,10 @@ public struct DeclarationContext {
 	public func getEnum<Enum>(attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
 		switch attribute.value {
 			case .Value(let value):
-				return valuesByLowercaseName[value.lowercaseString]!
+				if let resolved = valuesByLowercaseName[value.lowercaseString] {
+					return resolved
+				}
+				throw DeclarationError(message: "Invalid value \"\(value)\" for attribute \"\(attribute.name)\"", scanner: nil)
 			default:
 				throw DeclarationError(message: "Invalid value", scanner: nil)
 		}
@@ -59,6 +62,30 @@ public struct DeclarationContext {
 
 	public func getString(attribute: DeclarationAttribute) throws -> String {
 		return try getString(attribute, attribute.value)
+	}
+
+
+	public func getImage(attribute: DeclarationAttribute) throws -> UIImage {
+		switch attribute.value {
+			case .Value(let string):
+				let nameParts = string.componentsSeparatedByString(".")
+				var image: UIImage!
+				if nameParts.count < 2 {
+					image = UIImage(named: string)
+				}
+				else {
+					let moduleName = nameParts[0]
+					let imageName = nameParts[1]
+					let bundle = NSBundle.fromModuleName(moduleName)
+					image = UIImage(named: imageName, inBundle: bundle, compatibleWithTraitCollection: nil)
+				}
+				if image != nil {
+					return image
+				}
+				throw DeclarationError(message: "Missing required image: \(string)", scanner: nil)
+			default:
+				throw DeclarationError(message: "Image name expected", scanner: nil)
+		}
 	}
 
 

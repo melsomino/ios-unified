@@ -20,7 +20,7 @@ public enum CentralUiContentAnimation {
 
 public enum CentralUiAction {
 	case Run((DependencyResolver) -> Void)
-	case Content((DependencyResolver) -> UIViewController)
+	case SetContent((DependencyResolver) -> UIViewController)
 }
 
 
@@ -53,6 +53,8 @@ public protocol CentralUi: class {
 
 	var rootController: UIViewController { get }
 	var contentContainer: UIView { get }
+
+	func execute(action: CentralUiAction)
 
 	// MARK: - Menu
 

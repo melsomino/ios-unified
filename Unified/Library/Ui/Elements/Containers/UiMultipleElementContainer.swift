@@ -5,24 +5,24 @@
 
 import Foundation
 
-public class LayoutWithMultipleContent: LayoutItem {
+public class UiMultipleElementContainer: UiElement {
 
-	public var content: [LayoutItem]!
+	public var children: [UiElement]!
 
 	// MARK: - LayoutItem
 
 
 	public override var visible: Bool {
-		return content.contains({ $0.visible })
+		return children.contains({ $0.visible })
 	}
 
 	public override var fixedSize: Bool {
-		return content.contains({ $0.fixedSize })
+		return children.contains({ $0.fixedSize })
 	}
 
-	public override func traversal(@noescape visit: (LayoutItem) -> Void) {
+	public override func traversal(@noescape visit: (UiElement) -> Void) {
 		super.traversal(visit)
-		for item in content {
+		for item in children {
 			item.traversal(visit)
 		}
 	}

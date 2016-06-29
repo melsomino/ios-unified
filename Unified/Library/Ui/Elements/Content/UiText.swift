@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class LayoutText: LayoutViewItem {
+public class UiText: UiContentElement {
 
 	public var maxLines = 0 {
 		didSet {
@@ -46,27 +46,33 @@ public class LayoutText: LayoutViewItem {
 		super.init()
 	}
 
-	// MARK: - LayoutViewItem
+	// MARK: - UiContentElement
+
+
+	public override func onViewCreated() {
+		super.onViewCreated()
+		guard let label = view as? UILabel else {
+			return
+		}
+		defaultMaxLines = label.numberOfLines
+		defaultFont = label.font
+		defaultColor = label.textColor
+	}
 
 
 	public override func initializeView() {
 		super.initializeView()
-		if let label = view as? UILabel {
-			label.font = resolveFont()
-			if let color = color {
-				label.textColor = color
-			}
-			else {
-				label.textColor = UIColor.blackColor()
-			}
-
-			label.numberOfLines = maxLines
-			label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
+		guard let label = view as? UILabel else {
+			return
 		}
+		label.font = font ?? defaultFont
+		label.textColor = color ?? defaultColor
+		label.numberOfLines = maxLines ?? defaultMaxLines
+		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
 	}
 
 
-	// MARK: - LayoutItem
+	// MARK: - UiElement
 
 
 	public override func createView() -> UIView {
@@ -137,6 +143,9 @@ public class LayoutText: LayoutViewItem {
 
 	// MARK: - Internals
 
+	private var defaultMaxLines = 0
+	private var defaultFont: UIFont?
+	private var defaultColor: UIColor?
 
 	private func textForMeasure() -> String {
 		return text ?? ""
@@ -162,3 +171,70 @@ public class LayoutText: LayoutViewItem {
 
 
 
+class UiTextFactory: UiContentElementFactory {
+	var fontName: String?
+	var fontSize: CGFloat?
+	var maxLines = 0
+	var nowrap = false
+	var color: UIColor?
+
+	override func create() -> UiElement {
+		return UiText()
+	}
+
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+		switch attribute.name {
+			case "font":
+				try applyFontValue(attribute, value: attribute.value, context: context)
+			case "max-lines":
+				maxLines = Int(try context.getFloat(attribute))
+			case "nowrap":
+				nowrap = try context.getBool(attribute)
+			case "color":
+				color = try context.getColor(attribute)
+			default:
+				try super.applyDeclarationAttribute(attribute, context: context)
+		}
+	}
+
+	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
+		switch value {
+			case .Value(let string):
+				var size: Float = 0
+				if NSScanner(string: string).scanFloat(&size) {
+					fontSize = CGFloat(size)
+				}
+				else {
+					fontName = string
+				}
+			case .List(let values):
+				for value in values {
+					try applyFontValue(attribute, value: value, context: context)
+				}
+			default:
+				throw DeclarationError(message: "Font attributes expected", scanner: nil)
+		}
+	}
+
+	override func initialize(item: UiElement, content: [UiElement]) {
+		super.initialize(item, content: content)
+
+		let label = item as! UiText
+		if let name = fontName, size = fontSize {
+			label.font = font(name, size)
+		}
+		else if let name = fontName {
+			label.font = font(name, UIFont.systemFontSize())
+		}
+		else if let size = fontSize {
+			label.font = UIFont.systemFontOfSize(size)
+		}
+		label.color = color
+		label.maxLines = maxLines
+		label.nowrap = nowrap
+	}
+
+	func font(name: String, _ size: CGFloat) -> UIFont {
+		return UIFont(name: name, size: size) ?? UIFont.systemFontOfSize(size)
+	}
+}

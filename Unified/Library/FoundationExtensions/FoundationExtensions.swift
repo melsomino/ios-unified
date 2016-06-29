@@ -93,9 +93,16 @@ extension NSScanner {
 	}
 
 
-	func passCharachters(charachters: NSCharacterSet, passWhitespaces: Bool) -> String? {
+	func expect(expected: String, passWhitespaces: Bool) throws {
+		if !pass(expected, passWhitespaces: passWhitespaces) {
+			throw DeclarationError(message: "\(expected) expected", scanner: self)
+		}
+	}
+
+
+	func passCharacters(expected: NSCharacterSet, passWhitespaces: Bool) -> String? {
 		var passed: NSString?
-		if scanCharactersFromSet(charachters, intoString: &passed) {
+		if scanCharactersFromSet(expected, intoString: &passed) {
 			if passWhitespaces {
 				self.passWhitespaces()
 			}
@@ -105,11 +112,24 @@ extension NSScanner {
 	}
 
 
-	func expect(expected: String, passWhitespaces: Bool) throws {
-		if !pass(expected, passWhitespaces: passWhitespaces) {
-			throw DeclarationError(message: "\(expected) expected", scanner: self)
-		}
+	func passCharacters(expected: NSCharacterSet) -> String? {
+		return passCharacters(expected, passWhitespaces: false)
 	}
+
+
+	func expectCharacters(expected: NSCharacterSet, passWhitespaces: Bool, expectedDescription: String) throws -> String {
+		if let passed = passCharacters(expected, passWhitespaces: passWhitespaces) {
+			return passed
+		}
+		throw DeclarationError(message: "\(expectedDescription) expected", scanner: self)
+	}
+
+
+	func expectCharacters(expected: NSCharacterSet, expectedDescription: String) throws -> String {
+		return try expectCharacters(expected, passWhitespaces: false, expectedDescription: expectedDescription)
+	}
+
+
 
 
 	func passIdentifier(passWhitespaces passWhitespaces: Bool) -> String? {
@@ -191,3 +211,33 @@ extension NSCharacterSet {
 	}
 }
 
+
+
+extension NSBundle {
+
+	private static var bundleIdByModuleName: [String:String]?
+
+	public static func fromModuleName(moduleName: String) -> NSBundle? {
+		if bundleIdByModuleName == nil {
+			bundleIdByModuleName = [String: String]()
+			for bundle in NSBundle.allBundles() {
+				if let id = bundle.bundleIdentifier {
+					let idParts = id.componentsSeparatedByString(".")
+					let moduleName = idParts[idParts.count - 1]
+					bundleIdByModuleName![moduleName] = id
+				}
+			}
+			for bundle in NSBundle.allFrameworks() {
+				if let id = bundle.bundleIdentifier {
+					let idParts = id.componentsSeparatedByString(".")
+					let moduleName = idParts[idParts.count - 1]
+					bundleIdByModuleName![moduleName] = id
+				}
+			}
+		}
+		let id = bundleIdByModuleName![moduleName]
+		return id != nil ? NSBundle(identifier: id!) : nil
+	}
+
+
+}

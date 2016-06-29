@@ -86,7 +86,7 @@ extension NSScanner {
 			if atEnd {
 				return
 			}
-			if passCharachters(NSCharacterSet.newlineCharacterSet(), passWhitespaces: false) == nil {
+			if passCharacters(NSCharacterSet.newlineCharacterSet(), passWhitespaces: false) == nil {
 				scanLocation = saveLocation
 				return
 			}
@@ -118,7 +118,7 @@ extension NSScanner {
 	func parseDeclarationAttributes(elementIndent: Int) throws -> [DeclarationAttribute] {
 		var attributes = [DeclarationAttribute]()
 		while !atEnd {
-			if passCharachters(NSCharacterSet.newlineCharacterSet(), passWhitespaces: false) != nil {
+			if passCharacters(NSCharacterSet.newlineCharacterSet()) != nil {
 				let saveLocation = scanLocation
 				if !(passDeclarationIndent(elementIndent + 1) && pass("~", passWhitespaces: true)) {
 					scanLocation = saveLocation

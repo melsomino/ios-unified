@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 
 
-public class MainMenuRootController: UIViewController {
+public class CentralUiRootController: UIViewController {
 
 	public lazy var contentContainer: UIView = {
 		[unowned self] in

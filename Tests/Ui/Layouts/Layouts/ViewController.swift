@@ -23,11 +23,11 @@ struct TestModel {
 
 
 class TestUi: Ui<TestModel> {
-	let icon = LayoutView()
-	let text = LayoutText()
-	let details = LayoutText()
-	let warning = LayoutText()
-	let footer = LayoutText()
+	let icon = UiView()
+	let text = UiText()
+	let details = UiText()
+	let warning = UiText()
+	let footer = UiText()
 
 	override init() {
 		super.init()
@@ -47,15 +47,34 @@ class TestUi: Ui<TestModel> {
 
 class ViewController: UIViewController, Dependent {
 
+	static func create(dependency: DependencyResolver) -> UIViewController {
+		let controller = ViewController()
+		dependency.resolve(controller)
+		let nav = UINavigationController(rootViewController: controller)
+		return nav
+	}
+
+	private var scroller: UIScrollView!
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
-		createComponents()
+		view.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+		view.backgroundColor = UIColor.whiteColor()
 
-		ui = TestUi()
-		ui.dependency = dependency
-		ui.container = view
+		scroller = UIScrollView(frame: view.bounds)
+		scroller.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+		view.addSubview(scroller)
+
+		ui.container = scroller
 		ui.model = createTestModel()
+
+		navigationItem?.title = "UI Layouts"
+
+	}
+
+	override func shouldAutorotate() -> Bool {
+		return true
 	}
 
 
@@ -65,16 +84,13 @@ class ViewController: UIViewController, Dependent {
 	}
 
 
-	var dependency: DependencyResolver!
-	var ui: TestUi!
-
-
-	private func createComponents() {
-		let components = DependencyContainer()
-		components.createDefaultRepository()
-		components.required(RepositoryDependency).devServerUrl = NSURL(string: "ws://localhost:8080/events")
-		dependency = components
+	var dependency: DependencyResolver! {
+		didSet {
+			dependency?.resolve(ui)
+		}
 	}
+	var ui = TestUi()
+
 
 	private func createTestModel() -> TestModel {
 		return TestModel(text: "Text",
