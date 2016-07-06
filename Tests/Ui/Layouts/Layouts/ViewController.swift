@@ -22,16 +22,13 @@ struct TestModel {
 
 
 
-class TestUi: Ui<TestModel> {
+class TestUi: ModelUi<TestModel> {
 	let icon = UiView()
 	let text = UiText()
 	let details = UiText()
 	let warning = UiText()
 	let footer = UiText()
 
-	override init() {
-		super.init()
-	}
 
 	override func onModelChanged() {
 		text.text = model?.text
@@ -69,7 +66,7 @@ class ViewController: UIViewController, Dependent {
 		ui.container = scroller
 		ui.model = createTestModel()
 
-		navigationItem?.title = "UI Layouts"
+		navigationItem.title = "UI Layouts"
 
 	}
 

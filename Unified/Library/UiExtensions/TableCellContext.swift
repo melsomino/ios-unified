@@ -9,7 +9,7 @@ import UIKit
 public struct TableCellContext {
 	public let tableView: UITableView
 	public let indexPath: NSIndexPath
-	public let layoutCache: LayoutCache
+	public let layoutCache: UiLayoutCache
 	public let dependency: DependencyResolver
 
 	public var width: CGFloat {

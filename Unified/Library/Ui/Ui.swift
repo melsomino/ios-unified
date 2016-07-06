@@ -248,7 +248,7 @@ public class ModelUi<Model>: Ui {
 	}
 
 
-	override init() {
+	public override init() {
 		super.init()
 	}
 
