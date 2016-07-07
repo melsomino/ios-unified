@@ -34,11 +34,11 @@ extension NSScanner {
 
 
 
-	public static func parseJson(source: String) throws -> AnyObject? {
+	public static func parseJson(source: String) throws -> AnyObject {
 		let scanner = NSScanner(source: source, passWhitespaces: false)
 		scanner.passWhitespaces()
 		if scanner.atEnd {
-			return nil
+			throw JsonError("Empty JSON string")
 		}
 		let value = try scanner.expectJsonValue()
 		if !scanner.atEnd {
@@ -111,7 +111,7 @@ extension NSScanner {
 				guard let name = try passJsonString() else {
 					throw JsonError("Object property name expected")
 				}
-				try expect("=", passWhitespaces: true)
+				try expect(":", passWhitespaces: true)
 				object[name] = try expectJsonValue()
 				if pass("}", passWhitespaces: true) {
 					break

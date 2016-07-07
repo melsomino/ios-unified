@@ -22,6 +22,10 @@ public class UiImage: UiContentElement {
 	}
 
 
+	public override init() {
+		super.init()
+	}
+
 	// MARK: - UiContentElement
 
 

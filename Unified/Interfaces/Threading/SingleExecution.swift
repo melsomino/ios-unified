@@ -7,7 +7,7 @@ import Foundation
 
 public class SingleExecution {
 
-	init(_ threading: Threading) {
+	public init(_ threading: Threading) {
 		self.threading = threading
 	}
 

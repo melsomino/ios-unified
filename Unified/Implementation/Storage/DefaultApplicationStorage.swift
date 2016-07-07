@@ -47,3 +47,11 @@ public class DefaultApplicationStorage: ApplicationStorage, Dependent {
 	private var accountName: String?
 
 }
+
+
+
+extension DependencyContainer {
+	func createDefaultApplicationStorage() {
+		register(ApplicationStorageDependency, DefaultApplicationStorage())
+	}
+}

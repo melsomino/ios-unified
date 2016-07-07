@@ -6,6 +6,12 @@ import Foundation
 
 public class ListenerList<ListenerType> {
 
+	public init() {
+
+	}
+
+
+
 	public func add(listener: ListenerType) {
 		guard let object = listener as? AnyObject else {
 			fatalError("Object (\(listener)) should be subclass of AnyObject")

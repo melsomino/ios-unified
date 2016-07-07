@@ -125,7 +125,7 @@ public class DatabaseRecordField<Record> {
 	public let name: String
 	public let isKey: Bool
 	public let paramSetter: ParamSetter
-	init(_ name: String, _ isKey: Bool, _ paramSetter: ParamSetter) {
+	public init(_ name: String, _ isKey: Bool, _ paramSetter: ParamSetter) {
 		self.name = name
 		self.isKey = isKey
 		self.paramSetter = paramSetter
@@ -266,7 +266,7 @@ public class DatabaseStatementFactory<Record> {
 		return created
 	}
 
-	func execute(record: Record) -> Void {
+	public func execute(record: Record) -> Void {
 		let (statement, fields) = get(sqlFactory.getFieldSet(record))
 		for index in 0 ..< fields.count {
 			fields[index].paramSetter(statement, index, record)
@@ -275,7 +275,7 @@ public class DatabaseStatementFactory<Record> {
 	}
 
 
-	func execute(records: [Record]) -> Void {
+	public func execute(records: [Record]) -> Void {
 		for record in records {
 			execute(record)
 		}
@@ -287,7 +287,7 @@ public class DatabaseRecordSqlFactory<Record> {
 	public let updates: DatabaseSqlFactory<Record>
 	public let inserts: DatabaseSqlFactory<Record>
 	public let deletes: DatabaseSqlFactory<Record>
-	init(_ tableName: String, _ getFieldSet: (Record) -> Int, _ fields: [DatabaseRecordField<Record>]) {
+	public init(_ tableName: String, _ getFieldSet: (Record) -> Int, _ fields: [DatabaseRecordField<Record>]) {
 		updates = DatabaseSqlFactory<Record>(tableName, getFieldSet, fields) {
 			fieldSet, factory in return factory.createUpdate(fieldSet)
 		}
@@ -304,11 +304,11 @@ public class DatabaseRecordSqlFactory<Record> {
 
 public class DatabaseRecordStatementFactory<Record> {
 	let database: StorageDatabase
-	let updates: DatabaseStatementFactory<Record>
-	let inserts: DatabaseStatementFactory<Record>
-	let deletes: DatabaseStatementFactory<Record>
+	public let updates: DatabaseStatementFactory<Record>
+	public let inserts: DatabaseStatementFactory<Record>
+	public let deletes: DatabaseStatementFactory<Record>
 
-	init(_ database: StorageDatabase, _ factory: DatabaseRecordSqlFactory<Record>) {
+	public init(_ database: StorageDatabase, _ factory: DatabaseRecordSqlFactory<Record>) {
 		self.database = database
 		updates = DatabaseStatementFactory<Record>(database, factory.updates)
 		inserts = DatabaseStatementFactory<Record>(database, factory.inserts)

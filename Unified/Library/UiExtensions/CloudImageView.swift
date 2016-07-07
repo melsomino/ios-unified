@@ -57,9 +57,9 @@ public class CloudImageView: UIImageView, CloudFileListener {
 			case .Loaded:
 				startLoadImage(imageFile.localPath)
 			case .Loading:
-				image = UIImage(named: "NotificationsImagePlaceholder")
+				image = nil
 			case .Failed:
-				image = UIImage(named: "NotificationsImagePlaceholder")
+				image = nil
 		}
 		currentState = state
 	}

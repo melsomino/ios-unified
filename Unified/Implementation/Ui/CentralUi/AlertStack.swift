@@ -13,7 +13,7 @@ public class AlertStack: Dependent {
 
 	public var dependency: DependencyResolver!
 
-	init() {
+	public init() {
 	}
 
 

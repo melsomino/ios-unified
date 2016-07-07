@@ -12,7 +12,7 @@ Pod::Spec.new do |spec|
 
 
   spec.source_files = 'Unified/**/*.{h,m,swift}'
-  spec.resources = 'Unified/**/*.{xib,storyboard,xcassets,sql}'
+  spec.resources = 'Unified/**/*.{xib,storyboard,xcassets,sql,uni}'
 
   spec.dependency 'GRDB.swift'
   spec.dependency 'Starscream', '~> 1.1.3'

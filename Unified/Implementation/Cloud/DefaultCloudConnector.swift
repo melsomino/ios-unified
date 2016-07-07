@@ -94,3 +94,10 @@ public class DefaultCloudConnector: CloudConnector {
 
 	var baseUrl: NSURL!
 }
+
+
+extension DependencyContainer {
+	func createDefaultCloudConnector(baseUrl: NSURL) {
+		register(CloudConnectorDependency, DefaultCloudConnector(baseUrl: baseUrl))
+	}
+}

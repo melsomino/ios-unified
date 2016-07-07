@@ -20,3 +20,10 @@ class DefaultThreading: Threading {
 	}
 
 }
+
+
+extension DependencyContainer {
+	func createDefaultThreading() {
+		register(ThreadingDependency, DefaultThreading())
+	}
+}

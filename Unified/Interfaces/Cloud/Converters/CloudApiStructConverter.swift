@@ -258,12 +258,14 @@ public class CloudApiStructConverter<StructType> {
 		let encoded = string.dataUsingEncoding(NSUTF8StringEncoding)!
 		do {
 			return try NSJSONSerialization.JSONObjectWithData(encoded, options: [])
-		}
-		catch let error as NSError {
+		} catch let error as NSError {
 			print("decodeJsonError: \(error)")
-			print("Invalid JSON:\n--------------------------------------\n\(string)\n--------------------------------------\n")
-		}
-		catch {
+			print("Invalid JSON:\n--------------------------------------\n\(string)\n--------------------------------------\nWe try to fix it")
+			do {
+				return try NSScanner.parseJson(string)
+			} catch let fixError as ErrorType {
+				print(fixError)
+			}
 		}
 		return NSNull()
 	}

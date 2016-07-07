@@ -41,7 +41,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func integerFromJson(value: AnyObject) -> Int? {
+	public static func integerFromJson(value: AnyObject) -> Int? {
 		switch value {
 			case let s as String: return Int(s)
 			case let i as Int: return i
@@ -53,7 +53,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func jsonFromInteger(value: Int?) -> AnyObject {
+	public static func jsonFromInteger(value: Int?) -> AnyObject {
 		return value ?? NSNull()
 	}
 
@@ -61,7 +61,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func int64FromJson(value: AnyObject) -> Int64? {
+	public static func int64FromJson(value: AnyObject) -> Int64? {
 		switch value {
 			case let s as String: return Int64(s)
 			case let i64 as Int64: return i64
@@ -74,7 +74,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func jsonFromInt64(value: Int64?) -> AnyObject {
+	public static func jsonFromInt64(value: Int64?) -> AnyObject {
 		return value != nil ? String(value!) : NSNull()
 	}
 
@@ -94,7 +94,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func booleanFromJson(value: AnyObject) -> Bool? {
+	public static func booleanFromJson(value: AnyObject) -> Bool? {
 		switch value {
 			case let s as String: return boolFromString(s)
 			case let b as Bool: return b
@@ -106,7 +106,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func jsonFromBoolean(value: Bool?) -> AnyObject {
+	public static func jsonFromBoolean(value: Bool?) -> AnyObject {
 		return value ?? NSNull()
 	}
 
@@ -114,7 +114,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func stringFromJson(value: AnyObject) -> String? {
+	public static func stringFromJson(value: AnyObject) -> String? {
 		switch value {
 			case is NSNull: return nil
 			case let s as String: return s
@@ -126,7 +126,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func jsonFromString(value: String?) -> AnyObject {
+	public static func jsonFromString(value: String?) -> AnyObject {
 		return value ?? NSNull()
 	}
 
@@ -153,7 +153,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func dateTimeFromJson(value: AnyObject) -> NSDate? {
+	public static func dateTimeFromJson(value: AnyObject) -> NSDate? {
 		switch value {
 			case let s as String:
 				if let date = dateTimeFormatter.dateFromString(s) {
@@ -172,13 +172,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func jsonFromDateTime(value: NSDate?) -> AnyObject {
+	public static func jsonFromDateTime(value: NSDate?) -> AnyObject {
 		return value != nil ? dateTimeFormatter.stringFromDate(value!) : NSNull()
 	}
 
 
 
-	static func arrayFromJson<T>(source: AnyObject, _ loadItem: (_:AnyObject) -> T?) -> [T?] {
+	public static func arrayFromJson<T>(source: AnyObject, _ loadItem: (_:AnyObject) -> T?) -> [T?] {
 		var result = [T?]()
 		if let sourceArray = source as? [AnyObject] {
 			for sourceItem in sourceArray {
@@ -192,7 +192,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	static func jsonFromArray<T>(source: [T?], _ saveItem: (_:T) -> AnyObject) -> [AnyObject] {
+	public static func jsonFromArray<T>(source: [T?], _ saveItem: (_:T) -> AnyObject) -> [AnyObject] {
 		var array = [AnyObject]()
 		for sourceItem in source {
 			array.append(sourceItem == nil ? NSNull() : saveItem(sourceItem!))

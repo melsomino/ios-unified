@@ -50,7 +50,7 @@ public struct SortedTableSync<Item> {
 
 
 
-	func update(tableView: UITableView, @noescape deleteItem: (Int) -> Void, @noescape insertItem: (Item, Int) -> Void) {
+	public func update(tableView: UITableView, @noescape deleteItem: (Int) -> Void, @noescape insertItem: (Item, Int) -> Void) {
 		tableView.beginUpdates()
 		if deletions.count > 0 {
 			var deletedIndexPaths = [NSIndexPath]()
