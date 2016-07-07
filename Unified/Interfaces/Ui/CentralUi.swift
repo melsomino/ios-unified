@@ -87,7 +87,7 @@ public protocol CentralUi: class {
 	// MARK: - Alerts
 
 
-	func pushAlert(alert: CentralUiAlert, message: String, icon: UIImage, actionArg: Any?, action: ((Any?) -> Void)?)
+	func pushAlert(alert: CentralUiAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?)
 
 }
 
@@ -98,6 +98,9 @@ public protocol CentralUi: class {
 extension CentralUi {
 	public func pushAlert(alert: CentralUiAlert, message: String, icon: UIImage) {
 		pushAlert(alert, message: message, icon: icon, actionArg: nil, action: nil)
+	}
+	public func pushAlert(alert: CentralUiAlert, message: String) {
+		pushAlert(alert, message: message, icon: nil, actionArg: nil, action: nil)
 	}
 }
 

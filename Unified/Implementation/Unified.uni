@@ -2,9 +2,8 @@ ui
 	SbisNotifications.AlertUi background-color=ff7033
 		horizontal along=fill across=center spacing=12 margin=(30 12 7 12)
 			image @icon source=SbisDesign.notificationBell size=(24 27) image-alignment=center
-			text @message font=12 color=white
-			button size=(12 12) corner-radius=6 background-color=ffb898 tint-color=ff7033
-				~ image=SbisDesign.navbarClose image-size=6
+			text @message font=13 color=white max-lines=2
+			button size=(12 12) image=SbisNotifications.CentralUiAlertClose image-size=6
 
 
 	SbisNotifications.DemandUi
@@ -34,18 +33,23 @@ ui
 				text @title font=17
 				text @date color=b8b0a0 font=14 nowrap
 			text @text font=15 color=b8b0a0
-			text text="Налоговая"
 			text @details max-lines=2 font=14.8 color=b8b0a0
+			text text=Налоговая color=gray
 			text @footer font=14 max-lines=5
 
 
+	SbisNotifications.AcceptedReportDocumentUi background-color=f6f3ee
+		vertical margin=12
+			text text='В предоставленном файле' font=15
+			text @title color=gray max-lines=3
+			text text='не содержится ошибок (противоречий)' font=15
+
 	SbisNotifications.RejectedReportUi
-		vertical margin=14 margin-top=72 spacing=8 margin-bottom=20
+		vertical margin=14 margin-top=72 spacing=8
 			layered
 				text @title font=17
 				text @date color=b8b0a0 font=14 nowrap align=bottom-right
 			text @text font=15 color=b8b0a0
-			text text="Налоговая"
 			text @details max-lines=2 font=14.8 color=b8b0a0
 			text @footer font=14 max-lines=5
 

@@ -112,8 +112,8 @@ public class DefaultCentralUi: Dependent, CentralUi, DefaultMenuItemDelegate {
 	}
 
 
-	public func pushAlert(alert: CentralUiAlert, message: String, icon: UIImage, actionArg: Any?, action: (Any? -> Void)?) {
-		alerts.pushInContainer(rootController.view, icon: icon, message: message, actionArg: actionArg, action: action)
+	public func pushAlert(alert: CentralUiAlert, message: String, icon: UIImage?, actionArg: Any?, action: (Any? -> Void)?) {
+		alerts.pushInContainer(rootController.view, alert: alert, message: message, icon: icon, actionArg: actionArg, action: action)
 	}
 
 

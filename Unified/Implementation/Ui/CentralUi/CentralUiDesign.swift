@@ -19,6 +19,10 @@ public class CentralUiDesign {
 	public static let barButtonImage = CentralUiDesign.imageNamed("CentralUiMenu")
 	public static let logoutImage = CentralUiDesign.imageNamed("CentralUiMenuLogout")
 
+	public static let alertInformationIcon = CentralUiDesign.imageNamed("CentralUiAlertInformation")
+	public static let alertWarningIcon = CentralUiDesign.imageNamed("CentralUiAlertWarning")
+	public static let alertErrorIcon = CentralUiDesign.imageNamed("CentralUiAlertError")
+
 	public static let backgroundColor = UIColor.parse("00283b")
 	public static let separatorColor = UIColor.parse("004666")
 	public static let selectionBackgroundColor = UIColor.parse("002335")

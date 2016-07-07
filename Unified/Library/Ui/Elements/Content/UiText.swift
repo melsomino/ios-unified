@@ -69,6 +69,7 @@ public class UiText: UiContentElement {
 		label.textColor = color ?? defaultColor
 		label.numberOfLines = maxLines ?? defaultMaxLines
 		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
+		label.text = text
 	}
 
 
@@ -177,6 +178,7 @@ class UiTextFactory: UiContentElementFactory {
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
+	var text: String?
 
 	override func create() -> UiElement {
 		return UiText()
@@ -192,6 +194,8 @@ class UiTextFactory: UiContentElementFactory {
 				nowrap = try context.getBool(attribute)
 			case "color":
 				color = try context.getColor(attribute)
+			case "text":
+				text = try context.getString(attribute)
 			default:
 				try super.applyDeclarationAttribute(attribute, context: context)
 		}
@@ -219,19 +223,20 @@ class UiTextFactory: UiContentElementFactory {
 	override func initialize(item: UiElement, content: [UiElement]) {
 		super.initialize(item, content: content)
 
-		let label = item as! UiText
+		let text = item as! UiText
 		if let name = fontName, size = fontSize {
-			label.font = font(name, size)
+			text.font = font(name, size)
 		}
 		else if let name = fontName {
-			label.font = font(name, UIFont.systemFontSize())
+			text.font = font(name, UIFont.systemFontSize())
 		}
 		else if let size = fontSize {
-			label.font = UIFont.systemFontOfSize(size)
+			text.font = UIFont.systemFontOfSize(size)
 		}
-		label.color = color
-		label.maxLines = maxLines
-		label.nowrap = nowrap
+		text.color = color
+		text.maxLines = maxLines
+		text.nowrap = nowrap
+		text.text = self.text
 	}
 
 	func font(name: String, _ size: CGFloat) -> UIFont {

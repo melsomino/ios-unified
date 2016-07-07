@@ -18,11 +18,22 @@ public class AlertStack: Dependent {
 
 
 
-	public func pushInContainer(container: UIView, icon: UIImage, message: String, actionArg: Any?, action: ((Any?) -> Void)?) {
+	public func pushInContainer(container: UIView, alert: CentralUiAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?) {
+		var icon = icon
+		if icon == nil {
+			switch alert {
+				case .Error:
+					icon = CentralUiDesign.alertErrorIcon
+				case .Warning:
+					icon = CentralUiDesign.alertWarningIcon
+				case .Information:
+					icon = CentralUiDesign.alertInformationIcon
+			}
+		}
 		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUiDesign.informationPanelHeight, container.bounds.width, CentralUiDesign.informationPanelHeight))
 		dependency.resolve(newPanel)
 		newPanel.stack = self
-		newPanel.ui.model = AlertModel(icon: icon, message: message, actionArg: actionArg, action: action)
+		newPanel.ui.model = AlertModel(icon: icon!, message: message, actionArg: actionArg, action: action)
 
 		stack.insert(newPanel, atIndex: 0)
 		container.addSubview(newPanel)

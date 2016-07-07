@@ -28,8 +28,8 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			return currentContainer
 		}
 		set {
-			if currentLayout != nil {
-				setLayout(currentLayout!, container: newValue)
+			if currentRoot != nil {
+				setRoot(currentRoot!, container: newValue)
 			}
 			else {
 				currentContainer = newValue
@@ -87,13 +87,13 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	public func performLayout(inBounds bounds: CGSize) {
-		if currentLayout == nil {
-			setLayout(createLayout(currentLayoutName), container: currentContainer)
+		if currentRoot == nil {
+			setRoot(createLayout(currentLayoutName), container: currentContainer)
 		}
 
-		currentLayout!.measureMaxSize(bounds)
-		currentLayout!.measureSize(bounds)
-		frame = currentLayout!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
+		currentRoot!.measureMaxSize(bounds)
+		currentRoot!.measureSize(bounds)
+		frame = currentRoot!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
 
 		print("perform layout")
 	}
@@ -125,8 +125,8 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			return
 		}
 		currentLayoutName = name
-		if currentLayout != nil {
-			setLayout(createLayout(name), container: currentContainer)
+		if currentRoot != nil {
+			setRoot(createLayout(name), container: currentContainer)
 		}
 	}
 
@@ -143,7 +143,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	public func repositoryChanged(repository: Repository) {
-		setLayout(createLayout(currentLayoutName), container: currentContainer)
+		setRoot(createLayout(currentLayoutName), container: currentContainer)
 	}
 
 
@@ -164,7 +164,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 	private var currentContainer: UIView?
 	private var currentLayoutName: String?
-	private var currentLayout: UiElement?
+	private var currentRoot: UiElement?
 
 	private var views = [UiContentElement]()
 	public private(set) var frame = CGRectZero
@@ -173,15 +173,15 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		let factory = try! repository.uiFactory(forUi: self, name: name)
 		backgroundColor = factory.backgroundColor
 		cornerRadius = factory.cornerRadius
-		return factory.root.createWith(self)
+		return factory.rootFactory.createWith(self)
 	}
 
-	private func setLayout(layout: UiElement, container: UIView?) {
-		let oldLayout = currentLayout
-		let layoutChanged = !sameObjects(currentLayout, layout)
+	private func setRoot(root: UiElement, container: UIView?) {
+		let oldRoot = currentRoot
+		let rootChanged = !sameObjects(currentRoot, root)
 		let containerChanged = !sameObjects(currentContainer, container)
 
-		guard layoutChanged || containerChanged else {
+		guard rootChanged || containerChanged else {
 			return
 		}
 
@@ -191,10 +191,10 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			}
 		}
 
-		if layoutChanged {
-			currentLayout = layout
+		if rootChanged {
+			currentRoot = root
 			views.removeAll(keepCapacity: true)
-			layout.traversal {
+			root.traversal {
 				if let item = $0 as? UiContentElement {
 					views.append(item)
 				}
@@ -204,7 +204,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		var hasNewViews = false
 		currentContainer = container
 
-		if containerChanged || oldLayout == nil {
+		if containerChanged || oldRoot == nil {
 			if container != nil {
 				for item in views {
 					if item.view == nil {
@@ -217,7 +217,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			}
 		}
 
-		if layoutChanged || hasNewViews {
+		if rootChanged || hasNewViews {
 			for item in views {
 				if item.view != nil {
 					item.initializeView()
@@ -248,7 +248,7 @@ public class ModelUi<Model>: Ui {
 	}
 
 
-	public override init() {
+	override init() {
 		super.init()
 	}
 
@@ -282,10 +282,10 @@ public class UiFactory {
 	var backgroundColor: UIColor?
 	var cornerRadius: CGFloat?
 
-	var root: UiElementFactory
+	var rootFactory: UiElementFactory
 
 	init(root: UiElementFactory) {
-		self.root = root
+		self.rootFactory = root
 	}
 
 	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiFactory {
