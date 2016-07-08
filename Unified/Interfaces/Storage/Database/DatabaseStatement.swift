@@ -10,7 +10,7 @@ public protocol DatabaseStatement {
 	func close()
 
 	func setNull(index: Int)
-	func setUuid(index: Int, _ value: UUID?)
+	func setUuid(index: Int, _ value: Uuid?)
 	func setString(index: Int, _ value: String?)
 	func setInteger(index: Int, _ value: Int?)
 	func setDateTime(index: Int, _ value: NSDate?)

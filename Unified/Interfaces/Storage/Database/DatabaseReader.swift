@@ -11,7 +11,7 @@ public protocol DatabaseReader {
 
 	func isNull(index: Int) -> Bool
 	func getString(index: Int) -> String?
-	func getUuid(index: Int) -> UUID?
+	func getUuid(index: Int) -> Uuid?
 	func getInteger(index: Int) -> Int?
 	func getDateTime(index: Int) -> NSDate?
 	func getDouble(index: Int) -> Double?

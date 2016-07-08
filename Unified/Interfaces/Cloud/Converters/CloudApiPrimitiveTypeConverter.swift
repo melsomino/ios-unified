@@ -5,26 +5,26 @@
 
 import Foundation
 
-public typealias UUID = NSUUID
+public typealias Uuid = NSUUID
 
 
 extension String {
 
-	public func toUuid() -> UUID? {
-		return !isEmpty ? UUID(UUIDString: self) : nil
+	public func toUuid() -> Uuid? {
+		return !isEmpty ? Uuid(UUIDString: self) : nil
 	}
 
-	public static func fromUuid(value: UUID?) -> String {
+	public static func fromUuid(value: Uuid?) -> String {
 		return value != nil ? value!.UUIDString : ""
 	}
 }
 
 public class CloudApiPrimitiveTypeConverter {
 
-	public static func uuidFromJson(value: AnyObject) -> UUID? {
+	public static func uuidFromJson(value: AnyObject) -> Uuid? {
 		switch value {
-			case let uuid as UUID: return uuid
-			case let string as String: return UUID(UUIDString: string)
+			case let uuid as Uuid: return uuid
+			case let string as String: return Uuid(UUIDString: string)
 			default: return nil
 		}
 	}
@@ -33,7 +33,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromUuid(value: UUID?) -> AnyObject {
+	public static func jsonFromUuid(value: Uuid?) -> AnyObject {
 		return value?.UUIDString ?? NSNull()
 	}
 

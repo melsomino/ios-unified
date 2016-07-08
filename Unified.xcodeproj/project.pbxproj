@@ -46,6 +46,7 @@
 		EBE7059D2F53686E598FE976 /* ModuleStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70B2E85E2039F7E31084E /* ModuleStorage.swift */; };
 		EBE7059D4F15A712756C8BAC /* DefaultDatabaseStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7082F2E85872723EFC45F /* DefaultDatabaseStatement.swift */; };
 		EBE705C3D6290850C5C2935E /* CloudApiFieldConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70FFEC08C41AA8ED50BD0 /* CloudApiFieldConverter.swift */; };
+		EBE705C98AEDE588183D39FD /* UnifiedRepository.uni in Resources */ = {isa = PBXBuildFile; fileRef = EBE707DA6CD54EB21CCD061A /* UnifiedRepository.uni */; };
 		EBE7061914FA48E5D8202BB5 /* ApplicationStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70E0F55B961A031AE2182 /* ApplicationStorage.swift */; };
 		EBE7062F4B36A7AEB5D2EA79 /* DefaultExecutionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7098F8C18D44E4CFE8637 /* DefaultExecutionControl.swift */; };
 		EBE7066C5440BB4C0952371F /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70DB4BCA926D6ACDEA101 /* SpinLock.swift */; };
@@ -133,6 +134,7 @@
 		EBE70751B634E7E061865457 /* UiPaddingContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiPaddingContainer.swift; sourceTree = "<group>"; };
 		EBE7075A6ECAD3FCF686A9A1 /* DefaultStorageDatabase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultStorageDatabase.swift; sourceTree = "<group>"; };
 		EBE707CEDE6008ECC990AE89 /* UiView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiView.swift; sourceTree = "<group>"; };
+		EBE707DA6CD54EB21CCD061A /* UnifiedRepository.uni */ = {isa = PBXFileReference; lastKnownFileType = file.uni; path = UnifiedRepository.uni; sourceTree = "<group>"; };
 		EBE707EDD2D93E2F78E8E49D /* UiLayeredContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiLayeredContainer.swift; sourceTree = "<group>"; };
 		EBE7080D75C289307DC3E50F /* ExecutionControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecutionControl.swift; sourceTree = "<group>"; };
 		EBE7082F2E85872723EFC45F /* DefaultDatabaseStatement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultDatabaseStatement.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				EBE70465DD24A44B7BDF9930 /* Interfaces */,
 				EBE7089D100D44C783D19D11 /* Library */,
 				EBE7036A83E27CD39A301A8E /* UnifiedComponents.swift */,
+				EBE707DA6CD54EB21CCD061A /* UnifiedRepository.uni */,
 			);
 			path = Unified;
 			sourceTree = "<group>";
@@ -549,6 +552,7 @@
 				2908A8BB1D2E2B5D00CB1D19 /* CentralUi.xcassets in Resources */,
 				EBE703670D45E0BF671B2DF8 /* MainMenu.storyboard in Resources */,
 				EBE700F3FC86E0D178AAC7C3 /* MainMenuItemCell.xib in Resources */,
+				EBE705C98AEDE588183D39FD /* UnifiedRepository.uni in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

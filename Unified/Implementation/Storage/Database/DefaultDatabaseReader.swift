@@ -29,7 +29,7 @@ public class DefaultDatabaseReader: DatabaseReader {
 		return true
 	}
 
-	public func getUuid(index: Int) -> UUID? {
+	public func getUuid(index: Int) -> Uuid? {
 		let string = getString(index)
 		return string != nil ? CloudApiPrimitiveTypeConverter.uuidFromJson(string!) : nil
 	}

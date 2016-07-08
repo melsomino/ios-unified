@@ -39,7 +39,7 @@ public class DefaultDatabaseStatement: DatabaseStatement {
 	}
 
 
-	public func setUuid(index: Int, _ value: UUID?) {
+	public func setUuid(index: Int, _ value: Uuid?) {
 		setString(index, value?.UUIDString)
 	}
 
