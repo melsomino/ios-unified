@@ -10,6 +10,7 @@
 		29269C901D0FB98000135FF8 /* Unified.h in Headers */ = {isa = PBXBuildFile; fileRef = 29269C8F1D0FB98000135FF8 /* Unified.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CF7B942CE65746B261B40A5E /* DefaultCentralUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUi.swift */; };
 		CF7B99E80ECFF7AE837531EA /* CentralUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9CC97B296480396F71AD /* CentralUi.swift */; };
+		CF7B9AFFEA90B93A9A8E5C25 /* UiBindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B90F77D530F911B8CB956 /* UiBindings.swift */; };
 		EBE700072F09B4BBECCC6595 /* DefaultModuleStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70E5052840BE8E159A04A /* DefaultModuleStorage.swift */; };
 		EBE7002D838A61A404A07A07 /* DatabaseStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70F9928717A85259C66F1 /* DatabaseStatement.swift */; };
 		EBE70060ACB555FB877FAA0E /* DeclarationValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70B8A67DBBAD23D9A077C /* DeclarationValue.swift */; };
@@ -109,6 +110,7 @@
 		29269C8C1D0FB98000135FF8 /* Unified.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Unified.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		29269C8F1D0FB98000135FF8 /* Unified.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Unified.h; sourceTree = "<group>"; };
 		29269C911D0FB98000135FF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CF7B90F77D530F911B8CB956 /* UiBindings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiBindings.swift; sourceTree = "<group>"; };
 		CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultCentralUi.swift; sourceTree = "<group>"; };
 		CF7B9CC97B296480396F71AD /* CentralUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUi.swift; sourceTree = "<group>"; };
 		EBE70062EA761AEA16D51FAB /* LabelBack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelBack.swift; sourceTree = "<group>"; };
@@ -244,6 +246,14 @@
 				EBE7036A83E27CD39A301A8E /* UnifiedComponents.swift */,
 			);
 			path = Unified;
+			sourceTree = "<group>";
+		};
+		CF7B910262E86F37C4E1213E /* Bindings */ = {
+			isa = PBXGroup;
+			children = (
+				CF7B90F77D530F911B8CB956 /* UiBindings.swift */,
+			);
+			path = Bindings;
 			sourceTree = "<group>";
 		};
 		CF7B953125B1C3E7F961251A /* Ui */ = {
@@ -412,6 +422,7 @@
 				EBE70EBE70D493FCB2BEDFBE /* Elements */,
 				EBE7016326DCBA0EBEC34911 /* UiLayoutCache.swift */,
 				EBE702CDA10E2B4457EE5A5D /* Ui.swift */,
+				CF7B910262E86F37C4E1213E /* Bindings */,
 			);
 			path = Ui;
 			sourceTree = "<group>";
@@ -742,6 +753,7 @@
 				EBE70B6129B17D913BD78EFB /* UiStackContainer.swift in Sources */,
 				EBE70FE515F2D01B87396A67 /* UiLayoutCache.swift in Sources */,
 				EBE707091043CA8D70632B74 /* Ui.swift in Sources */,
+				CF7B9AFFEA90B93A9A8E5C25 /* UiBindings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

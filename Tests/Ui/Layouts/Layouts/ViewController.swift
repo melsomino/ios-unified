@@ -20,30 +20,9 @@ struct TestModel {
 }
 
 
+class TestUi: ModelUi<TestModel> {
 
-
-class TestUi: Ui<TestModel> {
-	let icon = UiView()
-	let text = UiText()
-	let details = UiText()
-	let warning = UiText()
-	let footer = UiText()
-
-	override init() {
-		super.init()
-	}
-
-	override func onModelChanged() {
-		text.text = model?.text
-		details.text = model?.details
-		warning.text = model?.warning
-		footer.text = model?.footer
-	}
 }
-
-
-
-
 
 class ViewController: UIViewController, Dependent {
 
@@ -69,7 +48,7 @@ class ViewController: UIViewController, Dependent {
 		ui.container = scroller
 		ui.model = createTestModel()
 
-		navigationItem?.title = "UI Layouts"
+		navigationItem.title = "UI Layouts"
 
 	}
 
@@ -89,7 +68,7 @@ class ViewController: UIViewController, Dependent {
 			dependency?.resolve(ui)
 		}
 	}
-	var ui = TestUi()
+	var ui = ModelUi<TestModel>()
 
 
 	private func createTestModel() -> TestModel {
