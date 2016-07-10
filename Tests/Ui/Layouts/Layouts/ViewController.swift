@@ -20,27 +20,9 @@ struct TestModel {
 }
 
 
-
-
 class TestUi: ModelUi<TestModel> {
-	let icon = UiView()
-	let text = UiText()
-	let details = UiText()
-	let warning = UiText()
-	let footer = UiText()
 
-
-	override func onModelChanged() {
-		text.text = model?.text
-		details.text = model?.details
-		warning.text = model?.warning
-		footer.text = model?.footer
-	}
 }
-
-
-
-
 
 class ViewController: UIViewController, Dependent {
 
@@ -86,7 +68,7 @@ class ViewController: UIViewController, Dependent {
 			dependency?.resolve(ui)
 		}
 	}
-	var ui = TestUi()
+	var ui = ModelUi<TestModel>()
 
 
 	private func createTestModel() -> TestModel {
