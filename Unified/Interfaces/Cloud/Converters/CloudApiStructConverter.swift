@@ -263,7 +263,7 @@ public class CloudApiStructConverter<StructType> {
 			print("Invalid JSON:\n--------------------------------------\n\(string)\n--------------------------------------\nWe try to fix it")
 			do {
 				return try NSScanner.parseJson(string)
-			} catch let fixError as ErrorType {
+			} catch let fixError {
 				print(fixError)
 			}
 		}

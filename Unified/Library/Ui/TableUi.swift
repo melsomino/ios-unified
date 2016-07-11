@@ -9,25 +9,29 @@ import UIKit
 
 
 
+
 public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
 
 
-	public lazy var tableView: UITableView = {
-		[unowned self] in return self.createTableView()
-	}()
-
-
-
+	public var tableView: UITableView! {
+		didSet {
+			if let prev = oldValue {
+				prev.dataSource = nil
+				prev.delegate = nil
+			}
+			if let current = tableView {
+				current.delegate = self
+				current.dataSource = self
+			}
+		}
+	}
 
 
 	public func registerModelUi<Model>(ui: () -> ModelUi<Model>) {
 		let registration = ModelUiRegistration<Model>(dependency: dependency, uiFactory: ui)
-		tableView.registerClass(LayoutTableCell.self, forCellReuseIdentifier: registration.cellReuseId)
+		tableView.registerClass(TableCellUi.self, forCellReuseIdentifier: registration.cellReuseId)
 		registrations.append(registration)
 	}
-
-
-
 
 
 	public func setModels(models: [Any]) {
@@ -35,12 +39,24 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 		tableView.reloadData()
 	}
 
+	public func createController() -> UIViewController {
+		let controller = TableUiController()
+		controller.ui = self
+		return controller
+	}
+
+	// MARK: - Dependency
+
 
 	public var dependency: DependencyResolver! {
 		didSet {
 			repository.addListener(self)
 		}
 	}
+
+
+	// MARK: - Repository Listener
+
 
 	public func repositoryChanged(repository: Repository) {
 		tableView.reloadData()
@@ -55,13 +71,10 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 	}
 
 
-
-
-
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let model = models[indexPath.row]
 		let registration = requiredRegistration(model)
-		let cell = tableView.dequeueReusableCellWithIdentifier(registration.cellReuseId, forIndexPath: indexPath) as! LayoutTableCell
+		let cell = tableView.dequeueReusableCellWithIdentifier(registration.cellReuseId, forIndexPath: indexPath) as! TableCellUi
 		if cell.ui == nil {
 			cell.ui = registration.createUi(dependency)
 			cell.ui.container = cell.contentView
@@ -70,9 +83,6 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 		cell.ui.performLayout(inBounds: cell.contentView.bounds.size)
 		return cell
 	}
-
-
-
 
 
 	public func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -88,9 +98,6 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 	private var models: [Any]!
 
 
-
-
-
 	private func requiredRegistration(model: Any) -> ModelUiRegistrationEntry {
 		for registration in registrations {
 			if registration.supports(model) {
@@ -100,23 +107,13 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 		fatalError("Layout registration not found for type: \(model.dynamicType)")
 	}
 
-
-
-
-
-	private func createTableView() -> UITableView {
-		let tableView = UITableView()
-		tableView.dataSource = self
-		tableView.delegate = self
-		return tableView
-	}
 }
 
 
 
 
 
-class LayoutTableCell: UITableViewCell {
+class TableCellUi: UITableViewCell {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
@@ -135,8 +132,14 @@ private protocol ModelUiRegistrationEntry {
 
 
 	func supports(model: Any) -> Bool
+
+
 	func createUi(dependency: DependencyResolver) -> Ui
+
+
 	func setModel(model: Any, inUi ui: Ui)
+
+
 	func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat
 }
 
@@ -156,6 +159,7 @@ private class ModelUiRegistration<Model>: ModelUiRegistrationEntry {
 		heightCalculator = uiFactory()
 		dependency.resolve(heightCalculator)
 	}
+
 
 	func supports(model: Any) -> Bool {
 		return model is Model
@@ -181,3 +185,25 @@ private class ModelUiRegistration<Model>: ModelUiRegistrationEntry {
 	}
 
 }
+
+
+
+
+
+class TableUiController: UIViewController {
+	weak var ui: TableUi!
+
+	override func viewDidLoad() {
+		super.viewDidLoad()
+		let tableView = UITableView(frame: view.bounds)
+		tableView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+		view.addSubview(tableView)
+		ui.tableView = tableView
+	}
+
+}
+
+
+
+
+

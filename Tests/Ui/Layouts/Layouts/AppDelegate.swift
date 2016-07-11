@@ -10,19 +10,63 @@ import UIKit
 import Unified
 
 
+struct AlbumTrack {
+	let title: String
+	let duration: NSTimeInterval
+}
 
-
-
-struct Model1 {
-	let a: String
-	let b: Int
-	let c: Bool
-	let d: NSDate
+struct Album {
+	let artist: String
+	let title: String
+	let issued: NSDate
+	let tracks: [AlbumTrack]
 }
 
 
+func makeDate(d: Int, _ m: Int, _ y: Int) -> NSDate {
+	let components = NSDateComponents()
+	components.day = d
+	components.month = m
+	components.year = y
+	return components.date!
+}
 
 
+func makeDuration(m: Int, _ s: Int) -> NSTimeInterval {
+	return NSTimeInterval(m) + NSTimeInterval(s) / 60
+}
+
+
+let KissDestroyer = Album(artist: "Kiss", title: "Destroyer", issued: makeDate(5, 3, 1976), tracks: [
+	AlbumTrack(title: "Detroit Rock City", duration: makeDuration(5, 17)),
+	AlbumTrack(title: "King of the Night Time World", duration: makeDuration(3, 19)),
+	AlbumTrack(title: "God of Thunder", duration: makeDuration(4, 13)),
+	AlbumTrack(title: "Great Expectations", duration: makeDuration(4, 24)),
+	AlbumTrack(title: "Flaming Youth", duration: makeDuration(3, 00)),
+	AlbumTrack(title: "Sweet Pain", duration: makeDuration(3, 20)),
+	AlbumTrack(title: "Shout It Out Loud", duration: makeDuration(2, 49)),
+	AlbumTrack(title: "Beth", duration: makeDuration(2, 45)),
+	AlbumTrack(title: "Do You Love Me?", duration: makeDuration(4, 57))
+])
+
+
+
+func join<Child>(head: Any, children: [Child]) -> [Any] {
+	var joined = [Any]()
+	joined.append(head)
+	for child in children {
+		joined.append(child)
+	}
+	return joined
+}
+
+class MyClass {
+	let a = "A"
+
+	 func printA() {
+		 print(a)
+	 }
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, RepositoryDependent {
@@ -32,14 +76,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
-		AppDelegate.testPerfomance()
-
-		let m = Model1(a: "A", b: 12, c: true, d: NSDate())
-		var b = UiBinding()
-		let e = b.parse("a={a}, b={b}, c={c}, d={d}")
-		b.setModel(m)
-		print(b.evaluateExpression(e))
-
 
 
 		dependency = DependencyContainer {
@@ -50,153 +86,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 		repository.devServerUrl = RepositoryDefaultDevServerUrl
 
+
+		let m  = MyClass()
+		let printA: () -> Void
+		printA = m.printA
+		printA()
+
+
+		let ui = TableUi()
+		dependency.resolve(ui)
+		ui.setModels(join(KissDestroyer, children: KissDestroyer.tracks))
+
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		window!.rootViewController = centralUi.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ ViewController.create($0) }))
+		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in ui.createController() }))
 		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
 		return true
 	}
-
-
-	static let perfomanceCount = 50000
-
-	static func createTest(a: Int, _ b: String) -> Any {
-		return Test(a, b)
-	}
-
-	static func testPerfomance() {
-		measure("direct") {
-			let test = createTest(1, "One")
-
-			for _ in 0 ..< perfomanceCount {
-				var a: String = ""
-				var b: String = ""
-				let o = test as! Test
-				a = String(o.a)
-				b = o.b
-			}
-		}
-		measure("delegates") {
-			let test = createTest(1, "One")
-			let getA = aGetter()
-			let getB = bGetter()
-
-			for _ in 0 ..< perfomanceCount {
-				var a: String = ""
-				var b: String = ""
-				a = getA(test)!
-				b = getB(test)!
-			}
-		}
-
-		measure("type info") {
-			let test = createTest(1, "One")
-			let typeInfo = (test as! SupportsTypeInfo).typeInfo
-			let getA = typeInfo.requiredField("a").format
-			let getB = typeInfo.requiredField("b").format
-
-			for _ in 0 ..< perfomanceCount {
-				var a: String = ""
-				var b: String = ""
-				a = getA(test)!
-				b = getB(test)!
-			}
-		}
-
-
-		measure("mirror") {
-			let o = createTest(1, "One")
-			let mirror = Mirror(reflecting: o)
-
-			for _ in 0 ..< perfomanceCount {
-				var a: String = ""
-				var b: String = ""
-				for (memberName, memberValue) in mirror.children {
-					if memberName == "a" {
-						a = String(memberValue as! Int)
-					}
-					else if memberName == "b" {
-						b = memberValue as! String
-					}
-				}
-			}
-		}
-	}
-
-	static func aGetter() -> (Any) -> String? {
-		return {
-			String(($0 as! Test).a)
-		}
-	}
-	static func bGetter() -> (Any) -> String? {
-		return {
-			($0 as! Test).b
-		}
-	}
-
-	static func measure(title: String, test: () -> Void) {
-		let start = NSDate()
-		test()
-		let time = NSDate().timeIntervalSinceDate(start) * 1000
-		print("\(title): \(time)")
-	}
-}
-
-
-struct TypeInfo {
-
-	struct Field {
-		let name: String
-		let format: (Any) -> String?
-
-		init(_ name: String, format: (Any) -> String?) {
-			self.name = name
-			self.format = format
-		}
-
-	}
-
-	let fields: [Field]
-	let fieldsByName: [String:Field]
-
-	init(fields: [Field]) {
-		self.fields = fields
-		var fieldsByName = [String: Field]()
-		for field in fields {
-			fieldsByName[field.name] = field
-		}
-		self.fieldsByName = fieldsByName
-	}
-
-	func requiredField(name: String) -> Field {
-		return fieldsByName[name]!
-	}
-}
-
-protocol SupportsTypeInfo {
-	var typeInfo: TypeInfo { get }
-}
-
-class Test {
-	var a: Int
-	var b: String
-	init(_ a: Int, _ b: String) {
-		self.a = a
-		self.b = b
-	}
-}
-
-extension Test: SupportsTypeInfo {
-	var typeInfo: TypeInfo {
-		return Test.typeInfo
-	}
-
-	static let typeInfo = TypeInfo(fields: [
-		TypeInfo.Field("a", format: { String(($0 as! Test).a) }),
-		TypeInfo.Field("b", format: { ($0 as! Test).b })
-	])
 }
 
 

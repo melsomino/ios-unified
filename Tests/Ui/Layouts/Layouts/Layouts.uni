@@ -12,14 +12,3 @@ ui
 			text @warning font=('Palatino' 20) color=gray
 			text @footer font=10 color=green
 
-	Layouts.TestUi.v2
-		vertical margin=20 margin-top=50 spacing=8
-			horizontal spacing=12
-				view @icon align=top size=55 fixed-size corner-radius=3 background=green
-				vertical
-					layered
-						view background=red corner-radius=10
-						text @text color=yellow margin=(6 4)
-					text @details
-			text @warning font=('Palatino' 20) color=blue
-			text @footer font=20 color=green
