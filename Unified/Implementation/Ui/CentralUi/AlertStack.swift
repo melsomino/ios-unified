@@ -33,7 +33,7 @@ public class AlertStack: Dependent {
 		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUiDesign.informationPanelHeight, container.bounds.width, CentralUiDesign.informationPanelHeight))
 		dependency.resolve(newPanel)
 		newPanel.stack = self
-		newPanel.ui.model = AlertModel(icon: icon!, message: message, actionArg: actionArg, action: action)
+		newPanel.ui.model = Alert(icon: icon!, message: message, actionArg: actionArg, action: action)
 
 		stack.insert(newPanel, atIndex: 0)
 		container.addSubview(newPanel)
@@ -106,7 +106,7 @@ public class AlertStack: Dependent {
 
 
 
-public struct AlertModel {
+public struct Alert {
 	let icon: UIImage
 	let message: String
 	let actionArg: Any?
@@ -164,8 +164,8 @@ class AlertPanel: UIView, Dependent, AlertUiDelegate {
 		}
 		let location = sender.locationInView(self)
 		if location.x < 36 {
-			if let action = ui.model?.action {
-				action(ui.model!.actionArg)
+			if let action = ui.alert?.action {
+				action(ui.alert!.actionArg)
 			}
 		}
 		stack.hidePanelAnimated(self)
@@ -187,7 +187,13 @@ protocol AlertUiDelegate: class {
 	func onClose()
 }
 
-public class AlertUi: ModelUi<AlertModel> {
+
+
+public class AlertUi: Ui {
+
+	var alert: Alert? {
+		return model as? Alert
+	}
 
 	weak var delegate: AlertUiDelegate?
 
@@ -195,8 +201,8 @@ public class AlertUi: ModelUi<AlertModel> {
 	let message = UiText()
 	let closeButton = UiButton()
 
-	override init() {
-		super.init()
+	public convenience init() {
+		self.init(forModelType: Alert.self)
 //		closeButton.onTouchUpInside = {
 //			[unowned self] in
 //			self.delegate?.onClose()
@@ -204,8 +210,8 @@ public class AlertUi: ModelUi<AlertModel> {
 	}
 
 	public override func onModelChanged() {
-		message.text = model?.message
-		icon.image = model?.icon
+		message.text = alert?.message
+		icon.image = alert?.icon
 	}
 
 }

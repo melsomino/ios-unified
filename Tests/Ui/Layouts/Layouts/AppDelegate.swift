@@ -28,7 +28,7 @@ func makeDate(d: Int, _ m: Int, _ y: Int) -> NSDate {
 	components.day = d
 	components.month = m
 	components.year = y
-	return components.date!
+	return NSCalendar.currentCalendar().dateFromComponents(components)!
 }
 
 
@@ -60,23 +60,17 @@ func join<Child>(head: Any, children: [Child]) -> [Any] {
 	return joined
 }
 
-class MyClass {
-	let a = "A"
 
-	 func printA() {
-		 print(a)
-	 }
-}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, RepositoryDependent {
+
 
 	var window: UIWindow?
 	var dependency: DependencyResolver!
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
-
 
 		dependency = DependencyContainer {
 			container in
@@ -85,12 +79,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 		}
 
 		repository.devServerUrl = RepositoryDefaultDevServerUrl
-
-
-		let m  = MyClass()
-		let printA: () -> Void
-		printA = m.printA
-		printA()
 
 
 		let ui = TableUi()

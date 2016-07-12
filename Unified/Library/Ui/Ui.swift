@@ -9,6 +9,23 @@ import UIKit
 
 public class Ui: RepositoryDependent, RepositoryListener {
 
+	public let modelType: Any.Type
+
+	private var layoutName: String? {
+		didSet {
+			updateFactoryFromRepository()
+		}
+	}
+
+	public var layoutCache: UiLayoutCache?
+
+	public var container: UIView? {
+		didSet {
+			detachFromContainer()
+			attachToContainer()
+		}
+	}
+
 	public var backgroundColor: UIColor? {
 		didSet {
 			initializeContainer()
@@ -21,39 +38,39 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		}
 	}
 
-	public var layoutCache: UiLayoutCache?
-
-	public var container: UIView? {
-		get {
-			return currentContainer
-		}
-		set {
-			if currentRoot != nil {
-				setRoot(currentRoot!, container: newValue)
+	public var model: Any? {
+		didSet {
+			if factory == nil {
+				updateFactoryFromRepository()
 			}
-			else {
-				currentContainer = newValue
+			if modelValues.count > 0 {
+				for i in 0 ..< modelValues.count {
+					modelValues[i] = nil
+				}
+				if let model = model {
+					let mirror = Mirror(reflecting: model)
+					for member in mirror.children {
+						if let name = member.label {
+							if let index = factory!.bindings.valueIndexByName[name] {
+								modelValues[index] = member.value
+							}
+						}
+					}
+				}
+				rootElement?.traversal {
+					$0.bindValues(modelValues)
+				}
 			}
-			initializeContainer()
+			onModelChanged()
+			performLayout()
 		}
 	}
 
-	public init() {
+
+	public init(forModelType modelType: Any.Type) {
+		self.modelType = modelType
 	}
 
-	private func initializeContainer() {
-		container?.backgroundColor = backgroundColor
-		container?.layer.cornerRadius = cornerRadius ?? 0
-		if cornerRadius != nil {
-			container?.clipsToBounds = true
-		}
-	}
-
-	public func createContainer(inWidth width: CGFloat) -> UIView {
-		performLayout(inWidth: width)
-		let container = UIView(frame: frame)
-		return container
-	}
 
 
 	public func performLayout() {
@@ -66,8 +83,8 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		if let cache = layoutCache {
 			if let frames = cache.cachedFramesForWidth(width, key: layoutCacheKey) {
 				frame = frames[0]
-				for index in 0 ..< min(frames.count - 1, views.count) {
-					views[index].frame = frames[index + 1]
+				for index in 0 ..< min(frames.count - 1, contentElements.count) {
+					contentElements[index].frame = frames[index + 1]
 				}
 				return
 			}
@@ -76,10 +93,10 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		performLayout(inBounds: CGSizeMake(width, 10000))
 
 		if let cache = layoutCache {
-			var frames = [CGRect](count: 1 + views.count, repeatedValue: CGRectZero)
+			var frames = [CGRect](count: 1 + contentElements.count, repeatedValue: CGRectZero)
 			frames[0] = frame
-			for index in 0 ..< views.count {
-				frames[index + 1] = views[index].frame
+			for index in 0 ..< contentElements.count {
+				frames[index + 1] = contentElements[index].frame
 			}
 			cache.setFrames(frames, forWidth: width, key: layoutCacheKey)
 		}
@@ -87,55 +104,32 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	public func performLayout(inBounds bounds: CGSize) {
-		if currentRoot == nil {
-			setRoot(createLayout(currentLayoutName), container: currentContainer)
+		if factory == nil {
+			updateFactoryFromRepository()
 		}
-
-		currentRoot!.measureMaxSize(bounds)
-		currentRoot!.measureSize(bounds)
-		frame = currentRoot!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
+		rootElement!.measureMaxSize(bounds)
+		rootElement!.measureSize(bounds)
+		frame = rootElement!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
 
 		print("perform layout")
 	}
 
-
-	private func same(a: String?, _ b: String?) -> Bool {
-		if a == nil && b == nil {
-			return true
-		}
-		if a == nil || b == nil {
-			return false
-		}
-		return a! == b!
-	}
-
-	private func sameObjects(a: AnyObject?, _ b: AnyObject?) -> Bool {
-		if a == nil && b == nil {
-			return true
-		}
-		if a == nil || b == nil {
-			return false
-		}
-		return a! === b!
-	}
-
-
-	public func setLayoutName(name: String? = nil) {
-		guard !same(name, currentLayoutName) else {
-			return
-		}
-		currentLayoutName = name
-		if currentRoot != nil {
-			setRoot(createLayout(name), container: currentContainer)
-		}
-	}
-
+	public private(set) var frame = CGRectZero
 
 	// MARK: - Virtuals
 
 
+	public func onModelChanged() {
+	}
+
+
 	public var layoutCacheKey: String {
-		return String(ObjectIdentifier(self).uintValue)
+		if let modelObject = model as? AnyObject {
+			return String(ObjectIdentifier(modelObject).uintValue)
+		}
+		else {
+			return ""
+		}
 	}
 
 
@@ -143,9 +137,8 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	public func repositoryChanged(repository: Repository) {
-		setRoot(createLayout(currentLayoutName), container: currentContainer)
+		updateFactoryFromRepository()
 	}
-
 
 
 	// MARK: - Dependency
@@ -162,119 +155,97 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	// MARK: - Internals
 
 
-	private var currentContainer: UIView?
-	private var currentLayoutName: String?
-	private var currentRoot: UiElement?
+	private var factory: UiFactory!
+	private var rootElement: UiElement!
+	private var contentElements = [UiContentElement]()
+	private var modelValues = [Any?]()
 
-	private var views = [UiContentElement]()
-	public private(set) var frame = CGRectZero
-
-	private func createLayout(name: String?) -> UiElement {
-		let factory = try! repository.uiFactory(forUi: self, name: name)
-		backgroundColor = factory.backgroundColor
-		cornerRadius = factory.cornerRadius
-		return factory.rootFactory.createWith(self)
-	}
-
-	private func setRoot(root: UiElement, container: UIView?) {
-		let oldRoot = currentRoot
-		let rootChanged = !sameObjects(currentRoot, root)
-		let containerChanged = !sameObjects(currentContainer, container)
-
-		guard rootChanged || containerChanged else {
+	private func setFactory(factory: UiFactory?) {
+		guard !sameObjects(factory, self.factory) else {
 			return
 		}
 
-		if containerChanged && currentContainer != nil {
-			for item in views {
-				item.view?.removeFromSuperview()
+		self.factory = factory
+
+		backgroundColor = factory?.backgroundColor
+		cornerRadius = factory?.cornerRadius
+
+		detachFromContainer()
+
+		rootElement = factory?.rootFactory.createWith(self)
+		contentElements.removeAll(keepCapacity: true)
+		rootElement.traversal {
+			if let element = $0 as? UiContentElement {
+				contentElements.append(element)
 			}
 		}
+		modelValues = [Any?](count: factory?.bindings.valueIndexByName.count ?? 0, repeatedValue: nil)
 
-		if rootChanged {
-			currentRoot = root
-			views.removeAll(keepCapacity: true)
-			root.traversal {
-				if let item = $0 as? UiContentElement {
-					views.append(item)
-				}
-			}
-		}
-
-		var hasNewViews = false
-		currentContainer = container
-
-		if containerChanged || oldRoot == nil {
-			if container != nil {
-				for item in views {
-					if item.view == nil {
-						item.view = item.createView()
-						item.onViewCreated()
-						hasNewViews = true
-					}
-					container!.addSubview(item.view!)
-				}
-			}
-		}
-
-		if rootChanged || hasNewViews {
-			for item in views {
-				if item.view != nil {
-					item.initializeView()
-				}
-			}
-		}
-
-		if hasNewViews {
-			onSomeViewsCreated()
-		}
+		attachToContainer()
 
 		performLayout()
 	}
 
-	public func onSomeViewsCreated() {
+
+	func updateFactoryFromRepository() {
+		setFactory(try! repository.uiFactory(forModelType: modelType, name: layoutName))
+	}
+
+
+	private func detachFromContainer() {
+		for element in contentElements {
+			element.view?.removeFromSuperview()
+		}
+	}
+
+
+	private func attachToContainer() {
+		guard let container = container else {
+			return
+		}
+		for element in contentElements {
+			if element.view == nil {
+				element.view = element.createView()
+				element.onViewCreated()
+				element.initializeView()
+			}
+			container.addSubview(element.view)
+		}
+		initializeContainer()
+	}
+
+
+	private func initializeContainer() {
+		container?.backgroundColor = backgroundColor
+		container?.layer.cornerRadius = cornerRadius ?? 0
+		if cornerRadius != nil {
+			container?.clipsToBounds = true
+		}
+	}
+
+
+	private func same(a: String?, _ b: String?) -> Bool {
+		if a == nil && b == nil {
+			return true
+		}
+		if a == nil || b == nil {
+			return false
+		}
+		return a! == b!
+	}
+
+
+	private func sameObjects(a: AnyObject?, _ b: AnyObject?) -> Bool {
+		if a == nil && b == nil {
+			return true
+		}
+		if a == nil || b == nil {
+			return false
+		}
+		return a! === b!
 	}
 }
 
-
-
-public class ModelUi<Model>: Ui {
-
-	public var model: Model? {
-		didSet {
-			onModelChanged()
-			performLayout()
-		}
-	}
-
-
-	public override init() {
-		super.init()
-	}
-
-
-
-	public override func onSomeViewsCreated() {
-		if model != nil {
-			onModelChanged()
-		}
-	}
-
-	// MARK: - Virtuals
-
-
-	public override var layoutCacheKey: String {
-		if let modelObject = model as? AnyObject {
-			return String(ObjectIdentifier(modelObject).uintValue)
-		}
-		else {
-			return ""
-		}
-	}
-
-	public func onModelChanged() {
-	}
-}
 
 
 
@@ -283,13 +254,16 @@ public class UiFactory {
 	var cornerRadius: CGFloat?
 
 	var rootFactory: UiElementFactory
+	var bindings: UiBindings
 
-	init(root: UiElementFactory) {
-		self.rootFactory = root
+	init(rootFactory: UiElementFactory, bindings: UiBindings) {
+		self.rootFactory = rootFactory
+		self.bindings = bindings
 	}
 
 	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiFactory {
-		let factory = UiFactory(root: try UiElementFactory.fromDeclaration(element.children[0], context: context))
+		let rootFactory = try UiElementFactory.fromDeclaration(element.children[0], context: context)
+		let factory = UiFactory(rootFactory: rootFactory, bindings: context.bindings)
 		for index in 1 ..< element.attributes.count {
 			let attribute = element.attributes[index]
 			switch attribute.name {

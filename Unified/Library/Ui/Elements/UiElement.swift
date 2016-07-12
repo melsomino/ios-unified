@@ -28,6 +28,9 @@ public class UiElement {
 		visit(self)
 	}
 
+	public func bindValues(values: [Any?]) {
+	}
+
 	public func measureMaxSize(bounds: CGSize) -> CGSize {
 		return bounds
 	}

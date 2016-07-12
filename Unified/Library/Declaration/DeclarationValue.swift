@@ -20,7 +20,9 @@ public struct DeclarationError: ErrorType {
 }
 
 
-public struct DeclarationContext {
+public class DeclarationContext {
+
+	var bindings = UiBindings()
 
 	init(_ elements: [DeclarationElement]) {
 
@@ -62,6 +64,20 @@ public struct DeclarationContext {
 
 	public func getString(attribute: DeclarationAttribute) throws -> String {
 		return try getString(attribute, attribute.value)
+	}
+
+
+	public func getExpression(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> UiBindings.Expression? {
+		switch value {
+			case .Value(let string):
+				return bindings.parse(string)
+			default:
+				throw DeclarationError(message: "String value expected", scanner: nil)
+		}
+	}
+
+	public func getExpression(attribute: DeclarationAttribute) throws -> UiBindings.Expression? {
+		return try getExpression(attribute, attribute.value)
 	}
 
 

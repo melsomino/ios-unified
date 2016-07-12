@@ -20,7 +20,7 @@ struct TestModel {
 }
 
 
-class TestUi: ModelUi<TestModel> {
+class TestUi: Ui {
 
 }
 
@@ -68,7 +68,7 @@ class ViewController: UIViewController, Dependent {
 			dependency?.resolve(ui)
 		}
 	}
-	var ui = ModelUi<TestModel>()
+	var ui = Ui(forModelType: ViewController.self)
 
 
 	private func createTestModel() -> TestModel {

@@ -30,6 +30,8 @@ public class UiText: UiContentElement {
 
 	public var autoHideEmptyText = true
 
+	public var binding: UiBindings.Expression?
+
 	public var text: String? {
 		didSet {
 			if let label = view as? UILabel {
@@ -80,6 +82,13 @@ public class UiText: UiContentElement {
 		return UILabel()
 	}
 
+
+	public override func bindValues(values: [Any?]) {
+		super.bindValues(values)
+		if let binding = binding {
+			text = binding.evaluate(values)
+		}
+	}
 
 
 	public override var visible: Bool {
@@ -178,6 +187,7 @@ class UiTextFactory: UiContentElementFactory {
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
+	var binding: UiBindings.Expression?
 	var text: String?
 
 	override func create() -> UiElement {
@@ -195,7 +205,9 @@ class UiTextFactory: UiContentElementFactory {
 			case "color":
 				color = try context.getColor(attribute)
 			case "text":
-				text = try context.getString(attribute)
+				let value = try context.getString(attribute)
+				binding = context.bindings.parse(value)
+				text = binding == nil ? value : nil
 			default:
 				try super.applyDeclarationAttribute(attribute, context: context)
 		}
@@ -236,6 +248,7 @@ class UiTextFactory: UiContentElementFactory {
 		text.color = color
 		text.maxLines = maxLines
 		text.nowrap = nowrap
+		text.binding = self.binding
 		text.text = self.text
 	}
 

@@ -1,14 +1,14 @@
 repository Layouts
 ui
-	Layouts.TestUi
-		vertical margin=20 margin-top=50 spacing=2
-			horizontal spacing=12
-				view @icon align=top size=55 fixed-size corner-radius=5 background=green
-				vertical
-					layered
-						view background=red corner-radius=5
-						text @text color=yellow margin=(6 4)
-					text @details
-			text @warning font=('Palatino' 20) color=gray
-			text @footer font=10 color=green
+	Layouts.Album background-color=f1f1f1
+		horizontal margin=12 margin-top=25
+			vertical
+				text text={artist} font=40 color=red
+				text text={title} font=20 color=gray
+			text text={issued} font=12 color=gray align=top
+
+	Layouts.AlbumTrack
+		horizontal margin=12
+			text text={title} color=e33 max-lines=3 font=20
+			text text={duration} font=8 color=333 align=right
 

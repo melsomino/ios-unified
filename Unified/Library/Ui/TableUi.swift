@@ -22,21 +22,17 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 			if let current = tableView {
 				current.delegate = self
 				current.dataSource = self
+				for registration in registrations {
+					current.registerClass(TableCellUi.self, forCellReuseIdentifier: registration.cellReuseId)
+				}
 			}
 		}
 	}
 
 
-	public func registerModelUi<Model>(ui: () -> ModelUi<Model>) {
-		let registration = ModelUiRegistration<Model>(dependency: dependency, uiFactory: ui)
-		tableView.registerClass(TableCellUi.self, forCellReuseIdentifier: registration.cellReuseId)
-		registrations.append(registration)
-	}
-
-
 	public func setModels(models: [Any]) {
 		self.models = models
-		tableView.reloadData()
+		tableView?.reloadData()
 	}
 
 	public func createController() -> UIViewController {
@@ -79,8 +75,7 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 			cell.ui = registration.createUi(dependency)
 			cell.ui.container = cell.contentView
 		}
-		registration.setModel(model, inUi: cell.ui)
-		cell.ui.performLayout(inBounds: cell.contentView.bounds.size)
+		cell.ui.model = model
 		return cell
 	}
 
@@ -94,17 +89,21 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 	// MARK: - Internals
 
 
-	private var registrations = [ModelUiRegistrationEntry]()
+	private var registrations = [ModelUiRegistration]()
 	private var models: [Any]!
 
 
-	private func requiredRegistration(model: Any) -> ModelUiRegistrationEntry {
+	private func requiredRegistration(model: Any) -> ModelUiRegistration {
 		for registration in registrations {
 			if registration.supports(model) {
 				return registration
 			}
 		}
-		fatalError("Layout registration not found for type: \(model.dynamicType)")
+
+		let registration = ModelUiRegistration(dependency: dependency, forModelType: model.dynamicType)
+		registrations.append(registration)
+		tableView?.registerClass(TableCellUi.self, forCellReuseIdentifier: registration.cellReuseId)
+		return registration
 	}
 
 }
@@ -127,59 +126,35 @@ class TableCellUi: UITableViewCell {
 
 
 
-private protocol ModelUiRegistrationEntry {
-	var cellReuseId: String { get }
-
-
-	func supports(model: Any) -> Bool
-
-
-	func createUi(dependency: DependencyResolver) -> Ui
-
-
-	func setModel(model: Any, inUi ui: Ui)
-
-
-	func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat
-}
-
-
-
-
-
-private class ModelUiRegistration<Model>: ModelUiRegistrationEntry {
-	let uiFactory: () -> ModelUi<Model>
-	let heightCalculator: ModelUi<Model>
+private class ModelUiRegistration {
+	var uiFactory: UiFactory!
+	let heightCalculator: Ui
 	let cellReuseId: String
+	let modelType: Any.Type
 
 
-	init(dependency: DependencyResolver, uiFactory: () -> ModelUi<Model>) {
-		cellReuseId = String(Model.Type)
-		self.uiFactory = uiFactory
-		heightCalculator = uiFactory()
+	init(dependency: DependencyResolver, forModelType modelType: Any.Type) {
+		self.modelType = modelType
+		cellReuseId = String(reflecting: modelType)
+		heightCalculator = Ui(forModelType: modelType)
 		dependency.resolve(heightCalculator)
 	}
 
 
 	func supports(model: Any) -> Bool {
-		return model is Model
+		return model.dynamicType == modelType
 	}
 
 
 	func createUi(dependency: DependencyResolver) -> Ui {
-		let ui = uiFactory()
+		let ui = Ui(forModelType: modelType)
 		dependency.resolve(ui)
 		return ui
 	}
 
 
-	func setModel(model: Any, inUi ui: Ui) {
-		(ui as! ModelUi<Model>).model = (model as! Model)
-	}
-
-
 	func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
-		heightCalculator.model = model as? Model
+		heightCalculator.model = model
 		heightCalculator.performLayout(inWidth: width)
 		return heightCalculator.frame.height
 	}

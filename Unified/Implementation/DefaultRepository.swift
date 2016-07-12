@@ -8,9 +8,8 @@ import Starscream
 
 public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
-	public func uiFactory(forUi ui: AnyObject, name: String?) throws -> UiFactory {
-		let uiClass: AnyClass = ui.dynamicType
-		let uiName = makeUiName(forClass: uiClass, name: name)
+	public func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiFactory {
+		let uiName = makeUiName(forModelType: modelType, name: name)
 		let key = uiName.lowercaseString
 
 		lock.lock()
@@ -21,7 +20,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		if let factory = uiFactoryByName[key] {
 			return factory
 		}
-		try loadRepositoriesInBundleForClass(uiClass)
+		try loadRepositoriesInBundle(forType: modelType)
 		if let factory = uiFactoryByName[key] {
 			return factory
 		}
@@ -103,9 +102,14 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 	private var lock = FastLock()
 
 
-	private func makeUiName(forClass uiClass: AnyClass, name: String?) -> String {
-		let uiClassName = String(NSStringFromClass(uiClass))
-		return name != nil ? "\(uiClassName).\(name!)" : uiClassName
+	private func makeTypeName(forType type: Any.Type) -> String {
+		return String(reflecting: type)
+	}
+
+
+	private func makeUiName(forModelType modelType: Any.Type, name: String?) -> String {
+		let modelTypeName = makeTypeName(forType: modelType)
+		return name != nil ? "\(modelTypeName).\(name!)" : modelTypeName
 	}
 
 
@@ -115,9 +119,11 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		}
 	}
 
-	func loadRepositoriesInBundleForClass(forClass: AnyClass) throws {
-		let classNameParts = String(NSStringFromClass(forClass)).componentsSeparatedByString(".")
-		let bundle = classNameParts.count > 1 ? NSBundle.fromModuleName(classNameParts[0])! : NSBundle(forClass: forClass)
+
+	func loadRepositoriesInBundle(forType type: Any.Type) throws {
+		let typeName = makeTypeName(forType: type)
+		let typeNameParts = typeName.componentsSeparatedByString(".")
+		let bundle = typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
 
 		for uniPath in bundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
 			guard !loadedUniPaths.contains(uniPath) else {
@@ -127,6 +133,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 			try loadRepository(DeclarationElement.load(uniPath), overrideExisting: false)
 		}
 	}
+
 
 	func loadRepository(elements: [DeclarationElement], overrideExisting: Bool) throws {
 		let context = DeclarationContext(elements)

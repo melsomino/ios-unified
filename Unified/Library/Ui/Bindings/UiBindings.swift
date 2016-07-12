@@ -9,50 +9,71 @@ import Foundation
 
 
 
-public struct UiBinding {
+public struct UiBindings {
 
 	public init() {
 
 	}
 
 
-	private static let opening_brace = "{"
-	private static let closing_brace = "}"
-
-
 	public mutating func parse(string: String?) -> Expression? {
-		let (literal, non_literal) = UiBinding.split(string, UiBinding.opening_brace)
-		let (expression, rest) = UiBinding.split(non_literal, UiBinding.closing_brace)
+		guard let expression = parseString(string) else {
+			return nil
+		}
+		if let literal = expression as? Literal {
+			if literal.next == nil {
+				return nil
+			}
+		}
+		return expression
+	}
+
+	// MARK: - Internals
+
+	public var valueIndexByName = [String: Int]()
+
+	private static let openingBrace = "{"
+	private static let closingBrace = "}"
+
+
+	private mutating func parseString(string: String?) -> Expression? {
+		let (literal, nonLiteral) = UiBindings.split(string, UiBindings.openingBrace)
+		let (expression, rest) = UiBindings.split(nonLiteral, UiBindings.closingBrace)
 		if literal != nil && expression != nil && rest != nil {
-			return parse_literal(literal!, parse_expression(expression!, parse(rest)))
+			return parseLiteral(literal!, parseExpression(expression!, parse(rest)))
 		}
 		if literal != nil && expression != nil {
-			return parse_literal(literal!, parse_expression(expression!, nil))
+			return parseLiteral(literal!, parseExpression(expression!, nil))
 		}
 		if expression != nil && rest != nil {
-			return parse_expression(expression!, parse(rest))
+			return parseExpression(expression!, parse(rest))
 		}
 		if expression != nil {
-			return parse_expression(expression!, nil)
+			return parseExpression(expression!, nil)
 		}
 		return nil
 	}
 
 
-	private func parse_literal(string: String, _ next: Expression?) -> Expression {
+	private func parseLiteral(string: String, _ next: Expression?) -> Expression {
 		return Literal(value: string, next: next)
 	}
 
 
-	private mutating func parse_expression(string: String, _ next: Expression?) -> Expression {
-		let name = string
-		var value_index = value_index_by_name[name]
-		if value_index == nil {
-			value_index = values.count
-			values.append(nil)
-			value_index_by_name[name] = value_index!
+	private mutating func parseExpression(string: String, _ next: Expression?) -> Expression {
+		var name = string
+		let formatter: NSFormatter? = nil
+		if let formatSeparatorRange = string.rangeOfString(" ") {
+			name = string.substringWithRange(string.startIndex ..< formatSeparatorRange.startIndex)
 		}
-		return Value(value_index: value_index!, next: next)
+
+		var valueIndex = valueIndexByName[name]
+		if valueIndex == nil {
+			valueIndex = valueIndexByName.count
+			valueIndexByName[name] = valueIndex!
+		}
+
+		return Value(value_index: valueIndex!, formatter: formatter, next: next)
 	}
 
 
@@ -63,11 +84,11 @@ public struct UiBinding {
 		guard !string.isEmpty else {
 			return (nil, nil)
 		}
-		guard let separator_range = string.rangeOfString(separator, options: .LiteralSearch, range: string.startIndex ..< string.endIndex) else {
+		guard let separatorRange = string.rangeOfString(separator, options: .LiteralSearch, range: string.startIndex ..< string.endIndex) else {
 			return (string, nil)
 		}
-		let left = substring(string, string.startIndex, separator_range.startIndex)
-		let right = substring(string, separator_range.endIndex, string.endIndex)
+		let left = substring(string, string.startIndex, separatorRange.startIndex)
+		let right = substring(string, separatorRange.endIndex, string.endIndex)
 		return (left, right)
 	}
 
@@ -75,51 +96,6 @@ public struct UiBinding {
 	private static func substring(string: String?, _ start: String.Index, _ end: String.Index) -> String? {
 		return string != nil && start != end ? string!.substringWithRange(start ..< end) : nil
 	}
-
-	public mutating func setModel(model: Any?) {
-		guard values.count > 0 else {
-			return
-		}
-		for i in 0 ..< values.count {
-			values[i] = nil
-		}
-		if model != nil {
-			let mirror = Mirror(reflecting: model!)
-			for member in mirror.children {
-				if let name = member.label {
-					if let index = value_index_by_name[name] {
-						values[index] = member.value
-					}
-				}
-			}
-		}
-	}
-
-
-	public func evaluateExpression(expression: Expression?) -> String? {
-		var expression = expression
-		var result: String?
-		while expression != nil {
-			let value = expression!.evaluate(values)
-			if let value = value {
-				if result == nil {
-					result = value
-				}
-				else {
-					result! += value
-				}
-			}
-			expression = expression!.next
-		}
-		return result
-	}
-
-
-	// MARK: - Internals
-
-	private var value_index_by_name = [String: Int]()
-	private var values = [Any?]()
-
 
 
 
@@ -132,7 +108,25 @@ public struct UiBinding {
 		}
 
 
-		func evaluate(values: [Any?]) -> String? {
+		public func evaluate(values: [Any?]) -> String? {
+			var expression: Expression? = self
+			var result: String?
+			while expression != nil {
+				let value = expression!.evaluateOwnValue(values)
+				if let value = value {
+					if result == nil {
+						result = value
+					}
+					else {
+						result! += value
+					}
+				}
+				expression = expression!.next
+			}
+			return result
+		}
+
+		func evaluateOwnValue(values: [Any?]) -> String? {
 			return nil
 		}
 	}
@@ -150,7 +144,7 @@ public struct UiBinding {
 		}
 
 
-		override func evaluate(values: [Any?]) -> String? {
+		override func evaluateOwnValue(values: [Any?]) -> String? {
 			return value
 		}
 	}
@@ -160,17 +154,22 @@ public struct UiBinding {
 
 
 	class Value: Expression {
-		let value_index: Int
+		let valueIndex: Int
+		let formatter: NSFormatter?
 
-		init(value_index: Int, next: Expression?) {
-			self.value_index = value_index
+		init(value_index: Int, formatter: NSFormatter?, next: Expression?) {
+			self.valueIndex = value_index
+			self.formatter = formatter
 			super.init(next: next)
 		}
 
 
-		override func evaluate(values: [Any?]) -> String? {
-			guard let value = values[value_index] else {
+		override func evaluateOwnValue(values: [Any?]) -> String? {
+			guard let value = values[valueIndex] else {
 				return nil
+			}
+			if let formatter = formatter, valueObject = value as? AnyObject {
+				return formatter.stringForObjectValue(valueObject)
 			}
 			return String(value)
 		}
