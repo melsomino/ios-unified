@@ -10,18 +10,17 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 	public func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiFactory {
 		let uiName = makeUiName(forModelType: modelType, name: name)
-		let key = uiName.lowercaseString
 
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
 
-		if let factory = uiFactoryByName[key] {
+		if let factory = uiFactoryByName[uiName] {
 			return factory
 		}
 		try loadRepositoriesInBundle(forType: modelType)
-		if let factory = uiFactoryByName[key] {
+		if let factory = uiFactoryByName[uiName] {
 			return factory
 		}
 		fatalError("Repository does not contains ui definition: \(uiName)")

@@ -34,6 +34,10 @@ public class UiContentElement: UiElement {
 		}
 	}
 
+	public override init() {
+		super.init()
+	}
+
 	// MARK: - Virtuals
 
 
@@ -83,13 +87,14 @@ public class UiContentElement: UiElement {
 
 
 
-class UiContentElementFactory: UiElementFactory {
-	var backgroundColor: UIColor?
-	var cornerRadius: CGFloat?
+public class UiContentElementFactory: UiElementFactory {
+	public var backgroundColor: UIColor?
+	public var cornerRadius: CGFloat?
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+
+	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
-			case "background":
+			case "background-color":
 				backgroundColor = try context.getColor(attribute)
 			case "corner-radius":
 				cornerRadius = try context.getFloat(attribute)
@@ -98,7 +103,7 @@ class UiContentElementFactory: UiElementFactory {
 		}
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
+	public override func initialize(item: UiElement, content: [UiElement]) {
 		super.initialize(item, content: content)
 		let viewItem = item as! UiContentElement
 		viewItem.backgroundColor = backgroundColor

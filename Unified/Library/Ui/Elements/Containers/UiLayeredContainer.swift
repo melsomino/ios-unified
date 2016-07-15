@@ -10,6 +10,18 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 	// MARK: - UiElement
 
+	public override func measureSizeRange(bounds: CGSize) -> UiSizeRange {
+		var maxSize = UiSizeRange.zero
+		for element in children {
+			let itemSize = element.measureSizeRange(bounds)
+			maxSize.width.min = max(maxSize.width.min, itemSize.width.min)
+			maxSize.width.max = max(maxSize.width.max, itemSize.width.max)
+			maxSize.height.min = max(maxSize.height.min, itemSize.height.min)
+			maxSize.height.max = max(maxSize.height.max, itemSize.height.max)
+		}
+		return maxSize
+	}
+
 	public override func measureMaxSize(bounds: CGSize) -> CGSize {
 		var maxSize = CGSizeZero
 		for item in children {
@@ -43,11 +55,11 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 public class UiLayeredContainerFactory: UiElementFactory {
 
-	override func create() -> UiElement {
+	public override func create() -> UiElement {
 		return UiLayeredContainer()
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
+	public override func initialize(item: UiElement, content: [UiElement]) {
 		super.initialize(item, content: content)
 		let layered = item as! UiLayeredContainer
 		layered.children = content

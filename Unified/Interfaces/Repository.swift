@@ -36,6 +36,6 @@ extension RepositoryDependent {
 		return dependency.required(RepositoryDependency)
 	}
 	public var optionalRepository: Repository? {
-		return dependency.optional(RepositoryDependency)
+		return dependency?.optional(RepositoryDependency)
 	}
 }

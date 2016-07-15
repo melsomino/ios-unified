@@ -175,6 +175,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		rootElement = factory?.rootFactory.createWith(self)
 		contentElements.removeAll(keepCapacity: true)
 		rootElement.traversal {
+			dependency.resolve($0)
 			if let element = $0 as? UiContentElement {
 				contentElements.append(element)
 			}
@@ -253,7 +254,7 @@ public class UiFactory {
 	var backgroundColor: UIColor?
 	var cornerRadius: CGFloat?
 
-	var rootFactory: UiElementFactory
+	private var rootFactory: UiElementFactory
 	var bindings: UiBindings
 
 	init(rootFactory: UiElementFactory, bindings: UiBindings) {

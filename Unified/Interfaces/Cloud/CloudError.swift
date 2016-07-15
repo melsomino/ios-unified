@@ -9,7 +9,7 @@ public class CloudError: ErrorType, CustomStringConvertible, CustomDebugStringCo
 	public let message: String?
 	public let source: Any?
 
-	init (_ message: String, _ source: Any?) {
+	public init (_ message: String, _ source: Any?) {
 		self.message = message
 		self.source = source
 	}

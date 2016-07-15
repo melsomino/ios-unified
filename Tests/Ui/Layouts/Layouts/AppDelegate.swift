@@ -9,6 +9,10 @@
 import UIKit
 import Unified
 
+struct Header {
+	let title: String
+	let totalCount: String
+}
 
 struct AlbumTrack {
 	let title: String
@@ -83,13 +87,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 		let ui = TableUi()
 		dependency.resolve(ui)
-		ui.setModels(join(KissDestroyer, children: KissDestroyer.tracks))
+//		ui.setModels(join(KissDestroyer, children: KissDestroyer.tracks))
+		ui.setModels([Header(title: "Требования ФНС", totalCount: "20")])
 
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		window!.rootViewController = centralUi.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in ui.createController() }))
+		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in UINavigationController(rootViewController: ui.createController()) }))
 		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
 		return true
 	}

@@ -1,5 +1,13 @@
 repository Layouts
 ui
+	Layouts.Header background-color=f0f0f0
+		vertical margin-top=40
+			horizontal along=tailing across=fill spacing=8 margin=12
+				text text={title} font=15
+				text text='{totalCount}' font=15 color=red
+			view size=1 background-color=ccc
+
+
 	Layouts.Album background-color=f1f1f1
 		horizontal margin=12 margin-top=25
 			vertical

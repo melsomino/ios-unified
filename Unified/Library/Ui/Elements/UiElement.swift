@@ -12,6 +12,57 @@ public enum UiAlignment {
 }
 
 
+
+
+
+public struct UiFloatRangeConstraint {
+	public var min: CGFloat?
+	public var max: CGFloat?
+}
+
+
+
+
+
+public struct UiSizeRangeConstraint {
+	public var width: UiFloatRangeConstraint
+	public var height: UiFloatRangeConstraint
+}
+
+
+
+
+
+public struct UiFloatRange {
+	var min: CGFloat
+	var max: CGFloat
+
+	public static func fromValue(value: CGFloat) -> UiFloatRange {
+		return UiFloatRange(min: value, max: value)
+	}
+
+	public static let zero = UiFloatRange.fromValue(0)
+}
+
+
+
+
+
+public struct UiSizeRange {
+	public var width: UiFloatRange
+	public var height: UiFloatRange
+
+	public static func fromSize(size: CGSize) -> UiSizeRange {
+		return UiSizeRange(width: UiFloatRange.fromValue(size.width), height: UiFloatRange.fromValue(size.height))
+	}
+
+	public static let zero = UiSizeRange.fromSize(CGSizeZero)
+}
+
+
+
+
+
 public class UiElement {
 
 	public var id: String?
@@ -29,6 +80,10 @@ public class UiElement {
 	}
 
 	public func bindValues(values: [Any?]) {
+	}
+
+	public func measureSizeRange(bounds: CGSize) -> UiSizeRange {
+		return UiSizeRange.fromSize(bounds)
 	}
 
 	public func measureMaxSize(bounds: CGSize) -> CGSize {
@@ -50,11 +105,40 @@ public class UiElement {
 
 
 public class UiElementFactory {
-	var id: String?
-	var childrenFactories = [UiElementFactory]()
+	public static var factoriesByElementName: [String:() -> UiElementFactory] = [
+		"vertical": {
+			UiStackContainerFactory(direction: .Vertical)
+		},
+		"horizontal": {
+			UiStackContainerFactory(direction: .Horizontal)
+		},
+		"layered": {
+			UiLayeredContainerFactory()
+		},
+		"view": {
+			UiViewFactory()
+		},
+		"text": {
+			UiTextFactory()
+		},
+		"image": {
+			UiImageFactory()
+		},
+		"button": {
+			UiButtonFactory()
+		}
+	]
 
+	public var id: String?
+	public var childrenFactories = [UiElementFactory]()
 
+	public init() {
 
+	}
+
+	public static func register(elementName: String, factory: () -> UiElementFactory) {
+		factoriesByElementName[elementName] = factory
+	}
 
 
 	public func createWith(ui: Any) -> UiElement {
@@ -96,7 +180,7 @@ public class UiElementFactory {
 
 
 
-	func create() -> UiElement {
+	public func create() -> UiElement {
 		return UiElement()
 	}
 
@@ -104,7 +188,7 @@ public class UiElementFactory {
 
 
 
-	func initialize(item: UiElement, content: [UiElement]) {
+	public func initialize(item: UiElement, content: [UiElement]) {
 		item.id = id
 	}
 
@@ -113,27 +197,10 @@ public class UiElementFactory {
 
 
 	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiElementFactory {
-		var factory: UiElementFactory
-
-		switch element.name {
-			case "vertical":
-				factory = UiStackContainerFactory(direction: .Vertical)
-			case "horizontal":
-				factory = UiStackContainerFactory(direction: .Horizontal)
-			case "layered":
-				factory = UiLayeredContainerFactory()
-			case "view":
-				factory = UiViewFactory()
-			case "text":
-				factory = UiTextFactory()
-			case "image":
-				factory = UiImageFactory()
-			case "button":
-				factory = UiButtonFactory()
-			default:
-				throw DeclarationError(message: "Unknown markup element \"\(element.name)\"", scanner: nil)
+		guard let createFactory = UiElementFactory.factoriesByElementName[element.name] else {
+			throw DeclarationError(message: "Unknown markup element \"\(element.name)\"", scanner: nil)
 		}
-
+		let factory = createFactory()
 
 		var decorators = Decorators(target: factory)
 
@@ -195,7 +262,7 @@ public class UiElementFactory {
 
 
 
-	func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		if attribute.name.hasPrefix("@") {
 			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
 		}

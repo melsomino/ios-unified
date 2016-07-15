@@ -22,7 +22,7 @@ public struct DeclarationError: ErrorType {
 
 public class DeclarationContext {
 
-	var bindings = UiBindings()
+	public var bindings = UiBindings()
 
 	init(_ elements: [DeclarationElement]) {
 

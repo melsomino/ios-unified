@@ -166,7 +166,7 @@ private class ModelUiRegistration {
 
 
 class TableUiController: UIViewController {
-	weak var ui: TableUi!
+	var ui: TableUi!
 
 	override func viewDidLoad() {
 		super.viewDidLoad()

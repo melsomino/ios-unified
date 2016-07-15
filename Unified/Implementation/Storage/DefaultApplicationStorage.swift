@@ -51,7 +51,7 @@ public class DefaultApplicationStorage: ApplicationStorage, Dependent {
 
 
 extension DependencyContainer {
-	func createDefaultApplicationStorage() {
+	public func createDefaultApplicationStorage() {
 		register(ApplicationStorageDependency, DefaultApplicationStorage())
 	}
 }

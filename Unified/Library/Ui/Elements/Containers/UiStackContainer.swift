@@ -107,6 +107,16 @@ public class UiStackContainer: UiMultipleElementContainer {
 
 
 
+	private func calcMeasuredAlongSize() -> CGFloat {
+		var size = CGFloat(0)
+		for index in 0 ..< measuredCount {
+			if  index > 0 {
+				size += spacing
+			}
+			size += measured[index].size.along
+		}
+		return size
+	}
 
 
 	public override func layout(bounds: CGRect) -> CGRect {
@@ -116,6 +126,16 @@ public class UiStackContainer: UiMultipleElementContainer {
 		if across != .Fill && size.across < stackBounds.across {
 			stackBounds.across = size.across
 		}
+
+		switch along {
+			case .Center:
+				stackOrigin.along = stackOrigin.along + stackBounds.along / 2 - calcMeasuredAlongSize() / 2
+			case .Tailing:
+				stackOrigin.along = stackOrigin.along + stackBounds.along - calcMeasuredAlongSize()
+			default:
+				break
+		}
+
 		for index in 0 ..< measuredCount {
 			let item = measured[index]
 			var itemOrigin = stackOrigin
@@ -171,6 +191,7 @@ private struct StackPosition {
 		along = 0
 		across = 0
 	}
+
 	func toSize(horizontal: Bool) -> CGSize {
 		return CGSizeMake(horizontal ? along : across, horizontal ? across : along)
 	}

@@ -171,7 +171,12 @@ public struct UiBindings {
 			if let formatter = formatter, valueObject = value as? AnyObject {
 				return formatter.stringForObjectValue(valueObject)
 			}
-			return String(value)
+			switch value {
+				case let string as String:
+					return string
+				default:
+					return String(value)
+			}
 		}
 	}
 

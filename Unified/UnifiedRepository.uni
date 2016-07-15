@@ -1,6 +1,6 @@
 ui
-	Unified.AlertUi background-color=ff7033
+	Unified.Alert background-color=ff7033
 		horizontal along=fill across=center spacing=12 margin=(30 12 7 12)
-			image @icon size=(24 27) image-alignment=center
+			image @icon size=(24 27) image-alignment=scale-aspect-fit
 			text @message font=13 color=white max-lines=2
 			button size=(12 12) image=Unified.CentralUiAlertClose image-size=6

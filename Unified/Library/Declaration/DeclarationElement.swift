@@ -9,8 +9,8 @@ import UIKit
 
 
 public struct DeclarationAttribute {
-	let name: String
-	let value: DeclarationValue
+	public let name: String
+	public let value: DeclarationValue
 
 
 }
@@ -125,7 +125,7 @@ extension NSScanner {
 					break
 				}
 			}
-			let name = (try expectName(passWhitespaces: true)).lowercaseString
+			let name = try expectName(passWhitespaces: true)
 			var value = DeclarationValue.Missing
 			if pass("=", passWhitespaces: true) {
 				value = try passAttributeValue()

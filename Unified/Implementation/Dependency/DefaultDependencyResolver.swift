@@ -48,7 +48,7 @@ public class DependencyContainer: DependencyResolver {
 	}
 
 
-	public convenience init(initialComponentsFactory: (DependencyContainer) -> Void) {
+	public convenience init(@noescape initialComponentsFactory: (DependencyContainer) -> Void) {
 		self.init()
 		createComponents(initialComponentsFactory)
 	}
@@ -74,7 +74,7 @@ public class DependencyContainer: DependencyResolver {
 	}
 
 
-	public func createComponents(creation: (DependencyContainer) -> Void) {
+	public func createComponents(@noescape creation: (DependencyContainer) -> Void) {
 		sync.lock()
 		resolveOnRegisterLock += 1
 		sync.unlock()

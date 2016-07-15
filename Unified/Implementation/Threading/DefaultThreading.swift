@@ -23,7 +23,7 @@ class DefaultThreading: Threading {
 
 
 extension DependencyContainer {
-	func createDefaultThreading() {
+	public func createDefaultThreading() {
 		register(ThreadingDependency, DefaultThreading())
 	}
 }
