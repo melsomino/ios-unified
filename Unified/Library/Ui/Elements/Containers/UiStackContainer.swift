@@ -231,7 +231,7 @@ private struct Measured {
 
 
 
-class UiStackContainerFactory: UiElementFactory {
+class UiStackContainerFactory: UiElementDefinition {
 	let direction: UiStackDirection
 	var along = UiAlignment.Fill
 	var across = UiAlignment.Leading
@@ -250,7 +250,7 @@ class UiStackContainerFactory: UiElementFactory {
 	}
 
 	override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
+		super.initialize(item, children: content)
 		let stack = item as! UiStackContainer
 		stack.direction = direction
 		stack.along = along
@@ -263,9 +263,9 @@ class UiStackContainerFactory: UiElementFactory {
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "along":
-				along = try context.getEnum(attribute, UiElementFactory.alignments)
+				along = try context.getEnum(attribute, UiElementDefinition.alignments)
 			case "across":
-				across = try context.getEnum(attribute, UiElementFactory.alignments)
+				across = try context.getEnum(attribute, UiElementDefinition.alignments)
 			case "spacing":
 				spacing = try context.getFloat(attribute)
 			default:

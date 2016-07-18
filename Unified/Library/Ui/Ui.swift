@@ -7,6 +7,9 @@ import Foundation
 import UIKit
 
 
+
+
+
 public class Ui: RepositoryDependent, RepositoryListener {
 
 	public let modelType: Any.Type
@@ -26,21 +29,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		}
 	}
 
-	public var backgroundColor: UIColor? {
-		didSet {
-			initializeContainer()
-		}
-	}
-
-	public var cornerRadius: CGFloat? {
-		didSet {
-			initializeContainer()
-		}
-	}
-
 	public var model: Any? {
 		didSet {
-			if factory == nil {
+			if definition == nil {
 				updateFactoryFromRepository()
 			}
 			if modelValues.count > 0 {
@@ -51,7 +42,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 					let mirror = Mirror(reflecting: model)
 					for member in mirror.children {
 						if let name = member.label {
-							if let index = factory!.bindings.valueIndexByName[name] {
+							if let index = definition!.bindings.valueIndexByName[name] {
 								modelValues[index] = member.value
 							}
 						}
@@ -72,12 +63,12 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
-
 	public func performLayout() {
 		if let bounds = container?.bounds.size {
 			performLayout(inBounds: bounds)
 		}
 	}
+
 
 	public func performLayout(inWidth width: CGFloat) {
 		if let cache = layoutCache {
@@ -104,7 +95,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	public func performLayout(inBounds bounds: CGSize) {
-		if factory == nil {
+		if definition == nil {
 			updateFactoryFromRepository()
 		}
 		rootElement!.measureMaxSize(bounds)
@@ -155,24 +146,24 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	// MARK: - Internals
 
 
-	private var factory: UiFactory!
+	private var definition: UiDefinition!
 	private var rootElement: UiElement!
 	private var contentElements = [UiContentElement]()
 	private var modelValues = [Any?]()
 
-	private func setFactory(factory: UiFactory?) {
-		guard !sameObjects(factory, self.factory) else {
+	private func setDefinition(definition: UiDefinition?) {
+		guard !sameObjects(definition, self.definition) else {
 			return
 		}
 
-		self.factory = factory
+		self.definition = definition
 
-		backgroundColor = factory?.backgroundColor
-		cornerRadius = factory?.cornerRadius
+		backgroundColor = definition?.containerBackgroundColor
+		cornerRadius = definition?.containerCornerRadius
 
 		detachFromContainer()
 
-		rootElement = factory?.rootFactory.createWith(self)
+		rootElement = definition?.rootElementDefinition.createElement(self)
 		contentElements.removeAll(keepCapacity: true)
 		rootElement.traversal {
 			dependency.resolve($0)
@@ -180,7 +171,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 				contentElements.append(element)
 			}
 		}
-		modelValues = [Any?](count: factory?.bindings.valueIndexByName.count ?? 0, repeatedValue: nil)
+		modelValues = [Any?](count: definition?.bindings.valueIndexByName.count ?? 0, repeatedValue: nil)
 
 		attachToContainer()
 
@@ -189,7 +180,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	func updateFactoryFromRepository() {
-		setFactory(try! repository.uiFactory(forModelType: modelType, name: layoutName))
+		setDefinition(try! repository.uiFactory(forModelType: modelType, name: layoutName))
 	}
 
 
@@ -250,32 +241,78 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 
-public class UiFactory {
-	var backgroundColor: UIColor?
-	var cornerRadius: CGFloat?
 
-	private var rootFactory: UiElementFactory
-	var bindings: UiBindings
+public class UiDefinition {
+	private let rootElementDefinition: UiElementDefinition
+	let bindings: UiBindings
+	private let ids: Set<String>
 
-	init(rootFactory: UiElementFactory, bindings: UiBindings) {
-		self.rootFactory = rootFactory
+	let containerBackgroundColor: UIColor?
+	let containerCornerRadius: CGFloat?
+
+
+	init(rootElementDefinition: UiElementDefinition, bindings: UiBindings, ids: Set<String>,
+	     containerBackgroundColor: UIColor?, containerCornerRadius: CGFloat?) {
+		self.rootElementDefinition = rootElementDefinition
 		self.bindings = bindings
+		self.ids = ids
+		self.containerBackgroundColor = containerBackgroundColor
+		self.containerCornerRadius = containerCornerRadius
 	}
 
-	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiFactory {
-		let rootFactory = try UiElementFactory.fromDeclaration(element.children[0], context: context)
-		let factory = UiFactory(rootFactory: rootFactory, bindings: context.bindings)
-		for index in 1 ..< element.attributes.count {
-			let attribute = element.attributes[index]
+
+	public func createRootElement(forUi ui: Any) -> UiElement {
+		let mirror = Mirror(reflecting: ui)
+		var existingElementById = [String:UiElement]()
+		for member in mirror.children {
+			if let name = member.label {
+				if ids.contains(name) {
+					existingElementById[name] = member.value as? UiElement
+				}
+			}
+		}
+
+		let rootElement = createOrReuseElement()
+
+		return rootElement
+	}
+
+
+
+	private func createOrReuseElement(definition: UiElementDefinition, existingElementById: [String: UiElement]) -> UiElement {
+		var children = [UiElement]()
+		for childDefinition in definition.childrenDefinitions {
+			children.append(createOrReuseElement(childDefinition, existingElementById: existingElementById))
+		}
+		var element: UiElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
+		definition.initialize(element, children: children)
+		return element
+	}
+
+
+	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
+		var containerBackgroundColor: UIColor? = nil
+		var containerCornerRadius: CGFloat? = nil
+		for index in 1 ..< declaration.attributes.count {
+			let attribute = declaration.attributes[index]
 			switch attribute.name {
 				case "background-color":
-					factory.backgroundColor = try context.getColor(attribute)
+					containerBackgroundColor = try context.getColor(attribute)
 				case "corner-radius":
-					factory.cornerRadius = try context.getFloat(attribute)
+					containerCornerRadius = try context.getFloat(attribute)
 				default:
 					break
 			}
 		}
-		return factory
+		let rootElementDefinition = try UiElementDefinition.fromDeclaration(declaration.children[0], context: context)
+		var ids = Set<String>()
+		rootElementDefinition.traversal {
+			if let id = $0.id {
+				ids.insert(id)
+			}
+		}
+		return UiDefinition(rootElementDefinition: rootElementDefinition, bindings: context.bindings, ids: ids,
+			containerBackgroundColor: containerBackgroundColor,
+			containerCornerRadius: containerCornerRadius)
 	}
 }

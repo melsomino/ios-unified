@@ -45,18 +45,18 @@ class UiPaddingContainer: UiSingleElementContainer {
 
 
 
-class UiPaddingContainerFactory: UiElementFactory {
+class UiPaddingContainerDefinition: UiElementDefinition {
 	var insets = UIEdgeInsetsZero
 
-	override func create() -> UiElement {
+	override func createElement() -> UiElement {
 		return UiPaddingContainer()
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
-		let item = item as! UiPaddingContainer
-		item.insets = insets
-		item.child = content[0]
+	override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+		let element = element as! UiPaddingContainer
+		element.insets = insets
+		element.child = children[0]
 	}
 }
 

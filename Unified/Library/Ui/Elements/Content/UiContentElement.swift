@@ -38,6 +38,7 @@ public class UiContentElement: UiElement {
 		super.init()
 	}
 
+
 	// MARK: - Virtuals
 
 
@@ -87,7 +88,7 @@ public class UiContentElement: UiElement {
 
 
 
-public class UiContentElementFactory: UiElementFactory {
+public class UiContentElementFactory: UiElementDefinition {
 	public var backgroundColor: UIColor?
 	public var cornerRadius: CGFloat?
 
@@ -104,7 +105,7 @@ public class UiContentElementFactory: UiElementFactory {
 	}
 
 	public override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
+		super.initialize(item, children: content)
 		let viewItem = item as! UiContentElement
 		viewItem.backgroundColor = backgroundColor
 		viewItem.cornerRadius = cornerRadius

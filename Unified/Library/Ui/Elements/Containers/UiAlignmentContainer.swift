@@ -62,7 +62,7 @@ public class UiAlignmentContainer: UiSingleElementContainer {
 
 
 
-public class UiAlignmentContainerFactory: UiElementFactory {
+public class UiAlignmentContainerFactory: UiElementDefinition {
 	var anchor = UiAlignmentAnchor.TopLeft
 
 	public override func create() -> UiElement {
@@ -70,7 +70,7 @@ public class UiAlignmentContainerFactory: UiElementFactory {
 	}
 
 	public override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
+		super.initialize(item, children: content)
 		let align = item as! UiAlignmentContainer
 		align.anchor = anchor
 		align.child = content[0]

@@ -127,7 +127,7 @@ class TableCellUi: UITableViewCell {
 
 
 private class ModelUiRegistration {
-	var uiFactory: UiFactory!
+	var uiFactory: UiDefinition!
 	let heightCalculator: Ui
 	let cellReuseId: String
 	let modelType: Any.Type

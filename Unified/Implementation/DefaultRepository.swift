@@ -8,7 +8,7 @@ import Starscream
 
 public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
-	public func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiFactory {
+	public func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiDefinition {
 		let uiName = makeUiName(forModelType: modelType, name: name)
 
 		lock.lock()
@@ -97,7 +97,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
-	private var uiFactoryByName = [String: UiFactory]()
+	private var uiFactoryByName = [String: UiDefinition]()
 	private var lock = FastLock()
 
 
@@ -139,7 +139,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		for uiSection in elements.filter({ $0.name == "ui" }) {
 			for ui in uiSection.children {
 				if overrideExisting || uiFactoryByName[ui.name] == nil {
-					let factory = try UiFactory.fromDeclaration(ui, context: context)
+					let factory = try UiDefinition.fromDeclaration(ui, context: context)
 					uiFactoryByName[ui.name] = factory
 				}
 			}

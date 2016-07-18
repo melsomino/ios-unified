@@ -17,7 +17,7 @@ public protocol Repository: class {
 	func addListener(listener: RepositoryListener)
 	func removeListener(listener: RepositoryListener)
 
-	func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiFactory
+	func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiDefinition
 
 }
 
