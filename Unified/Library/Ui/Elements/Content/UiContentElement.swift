@@ -88,7 +88,7 @@ public class UiContentElement: UiElement {
 
 
 
-public class UiContentElementFactory: UiElementDefinition {
+public class UiContentElementDefinition: UiElementDefinition {
 	public var backgroundColor: UIColor?
 	public var cornerRadius: CGFloat?
 
@@ -104,11 +104,11 @@ public class UiContentElementFactory: UiElementDefinition {
 		}
 	}
 
-	public override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, children: content)
-		let viewItem = item as! UiContentElement
-		viewItem.backgroundColor = backgroundColor
-		viewItem.cornerRadius = cornerRadius
+	public override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+		let contentElement = element as! UiContentElement
+		contentElement.backgroundColor = backgroundColor
+		contentElement.cornerRadius = cornerRadius
 	}
 
 }

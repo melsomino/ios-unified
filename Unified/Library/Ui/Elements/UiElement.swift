@@ -12,7 +12,11 @@ import UIKit
 
 public class UiElement {
 
-	public var definition: UiElementDefinition!
+	public final var definition: UiElementDefinition!
+
+
+	// MARK: - Overridable
+
 
 	public var visible: Bool {
 		return true
@@ -25,7 +29,6 @@ public class UiElement {
 	public func traversal(@noescape visit: (UiElement) -> Void) {
 		visit(self)
 	}
-
 
 	public func bind(toModel values: [Any?]) {
 	}
@@ -59,8 +62,8 @@ public class UiElement {
 
 public class UiElementDefinition {
 
-	public var id: String?
-	public var childrenDefinitions = [UiElementDefinition]()
+	public final var id: String?
+	public final var childrenDefinitions = [UiElementDefinition]()
 
 	public init() {
 
@@ -73,7 +76,7 @@ public class UiElementDefinition {
 	}
 
 
-	public func traversal(@noescape visit: (UiElementDefinition) -> Void) {
+	public final func traversal(@noescape visit: (UiElementDefinition) -> Void) {
 		visit(self)
 		for childDefinition in childrenDefinitions {
 			childDefinition.traversal(visit)
@@ -84,13 +87,20 @@ public class UiElementDefinition {
 	// MARK: - Virtuals
 
 
+	public func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+		if attribute.name.hasPrefix("@") {
+			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
+		}
+	}
+
+
 	public func createElement() -> UiElement {
 		return UiElement()
 	}
 
 
 	public func initialize(element: UiElement, children: [UiElement]) {
-		element.id = id
+		element.definition = self
 	}
 
 
@@ -154,11 +164,6 @@ public class UiElementDefinition {
 	]
 
 
-	public func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
-		if attribute.name.hasPrefix("@") {
-			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
-		}
-	}
 
 
 
@@ -183,7 +188,7 @@ public class UiElementDefinition {
 		var padding: UiPaddingContainerDefinition {
 			mutating get {
 				if cached_padding == nil {
-					cached_padding = UiPaddingContainerFactory()
+					cached_padding = UiPaddingContainerDefinition()
 					append(cached_padding!)
 				}
 				return cached_padding!
@@ -218,25 +223,28 @@ public class UiElementDefinition {
 
 	public static var definitionFactoryByName: [String:() -> UiElementDefinition] = [
 		"vertical": {
-			UiStackContainerFactory(direction: .Vertical)
+			UiStackContainerDefinition(direction: .Vertical)
 		},
 		"horizontal": {
-			UiStackContainerFactory(direction: .Horizontal)
+			UiStackContainerDefinition(direction: .Horizontal)
 		},
 		"layered": {
-			UiLayeredContainerFactory()
+			UiLayeredContainerDefinition()
 		},
 		"view": {
-			UiViewFactory()
+			UiViewDefinition()
 		},
 		"text": {
-			UiTextFactory()
+			UiTextDefinition()
+		},
+		"html": {
+			UiHtmlDefinition()
 		},
 		"image": {
-			UiImageFactory()
+			UiImageDefinition()
 		},
 		"button": {
-			UiButtonFactory()
+			UiButtonDefinition()
 		}
 	]
 

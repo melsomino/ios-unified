@@ -17,33 +17,46 @@ public struct UiBindings {
 
 
 	public mutating func parse(string: String?) -> Expression? {
-		guard let expression = parseString(string) else {
-			return nil
-		}
-		if let literal = expression as? Literal {
-			if literal.next == nil {
-				return nil
-			}
-		}
+		let expression = parseString(string)
+		print("Binding: \(string) parsed to: \(expression)")
 		return expression
 	}
 
+
+	public static func registerFormatter(name: String, formatterFactory: (String?) -> NSFormatter) {
+		formatterFactoryByName[name] = formatterFactory
+	}
+
+
 	// MARK: - Internals
+
 
 	public var valueIndexByName = [String: Int]()
 
 	private static let openingBrace = "{"
 	private static let closingBrace = "}"
 
+	private static var formatterFactoryByName: [String:(String?) -> NSFormatter] = [
+		"date": {
+			args in
+			let formatter = NSDateFormatter()
+			if let args = args {
+				formatter.dateFormat = args
+			}
+			formatter.calendar = NSCalendar.currentCalendar()
+			formatter.timeZone = NSCalendar.currentCalendar().timeZone
+			return formatter
+		}
+	]
 
 	private mutating func parseString(string: String?) -> Expression? {
 		let (literal, nonLiteral) = UiBindings.split(string, UiBindings.openingBrace)
 		let (expression, rest) = UiBindings.split(nonLiteral, UiBindings.closingBrace)
 		if literal != nil && expression != nil && rest != nil {
-			return parseLiteral(literal!, parseExpression(expression!, parse(rest)))
+			return Literal(value: literal!, next: parseExpression(expression!, parse(rest)))
 		}
 		if literal != nil && expression != nil {
-			return parseLiteral(literal!, parseExpression(expression!, nil))
+			return Literal(value: literal!, next: parseExpression(expression!, nil))
 		}
 		if expression != nil && rest != nil {
 			return parseExpression(expression!, parse(rest))
@@ -51,20 +64,19 @@ public struct UiBindings {
 		if expression != nil {
 			return parseExpression(expression!, nil)
 		}
+		if literal != nil {
+			return Literal(value: literal!, next: nil)
+		}
 		return nil
-	}
-
-
-	private func parseLiteral(string: String, _ next: Expression?) -> Expression {
-		return Literal(value: string, next: next)
 	}
 
 
 	private mutating func parseExpression(string: String, _ next: Expression?) -> Expression {
 		var name = string
-		let formatter: NSFormatter? = nil
+		var formatter: NSFormatter? = nil
 		if let formatSeparatorRange = string.rangeOfString(" ") {
 			name = string.substringWithRange(string.startIndex ..< formatSeparatorRange.startIndex)
+			formatter = parseFormatter(string.substringFromIndex(formatSeparatorRange.endIndex))
 		}
 
 		var valueIndex = valueIndexByName[name]
@@ -74,6 +86,38 @@ public struct UiBindings {
 		}
 
 		return Value(value_index: valueIndex!, formatter: formatter, next: next)
+	}
+
+
+	private func parseFormatter(string: String) -> NSFormatter? {
+		let scanner = NSScanner(source: string, passWhitespaces: false)
+		scanner.passWhitespaces()
+		guard let name = try? scanner.passNameOrValue() else {
+			return nil
+		}
+		guard name == "format" else {
+			return nil
+		}
+		guard scanner.pass("=", passWhitespaces: true) else {
+			return nil
+		}
+		guard let formatterName = try? scanner.passNameOrValue() else {
+			return nil
+		}
+		var formatterArgs: String?
+		if scanner.pass("(", passWhitespaces: false) {
+			formatterArgs = scanner.passUntil(")")
+			guard formatterArgs != nil else {
+				return nil
+			}
+			guard scanner.pass(")", passWhitespaces: true) else {
+				return nil
+			}
+		}
+		guard let factory = UiBindings.formatterFactoryByName[formatterName!] else {
+			return nil
+		}
+		return factory(formatterArgs)
 	}
 
 
@@ -168,12 +212,14 @@ public struct UiBindings {
 			guard let value = values[valueIndex] else {
 				return nil
 			}
-			if let formatter = formatter, valueObject = value as? AnyObject {
-				return formatter.stringForObjectValue(valueObject)
-			}
 			switch value {
 				case let string as String:
 					return string
+				case let date as NSDate:
+					if let formatter = formatter {
+						return formatter.stringForObjectValue(date)
+					}
+					return String(date)
 				default:
 					return String(value)
 			}

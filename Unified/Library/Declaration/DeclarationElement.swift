@@ -157,6 +157,11 @@ extension NSScanner {
 			try expect("'", passWhitespaces: true)
 			return value
 		}
+		if pass("\"", passWhitespaces: false) {
+			let value = passUntil("\"")
+			try expect("\"", passWhitespaces: true)
+			return value
+		}
 		return passUntilEndOrOneOf(nameOrValueTerminator, passWhitespaces: true)
 	}
 

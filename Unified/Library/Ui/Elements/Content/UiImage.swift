@@ -72,15 +72,11 @@ public class UiImage: UiContentElement {
 }
 
 
-class UiImageFactory: UiContentElementFactory {
+class UiImageDefinition: UiContentElementDefinition {
 	var source: UIImage?
 	var size = CGSizeZero
 	var fixedSize = false
 	var imageAlignment = UIViewContentMode.Center
-
-	override func create() -> UiElement {
-		return UiImage()
-	}
 
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
@@ -91,16 +87,20 @@ class UiImageFactory: UiContentElementFactory {
 			case "source":
 				source = try context.getImage(attribute)
 			case "image-alignment":
-				imageAlignment = try context.getEnum(attribute, UiImageFactory.imageAlignments)
+				imageAlignment = try context.getEnum(attribute, UiImageDefinition.imageAlignments)
 			default:
 				try super.applyDeclarationAttribute(attribute, context: context)
 		}
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
+	override func createElement() -> UiElement {
+		return UiImage()
+	}
 
-		let image = item as! UiImage
+	override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+
+		let image = element as! UiImage
 		image.image = source
 		image.size = size
 		image.fixedSizeValue = fixedSize

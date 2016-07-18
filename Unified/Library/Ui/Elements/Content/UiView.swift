@@ -54,17 +54,17 @@ public class UiView: UiContentElement {
 
 
 
-class UiViewFactory: UiContentElementFactory {
+class UiViewDefinition: UiContentElementDefinition {
 	var size = CGSizeZero
 	var fixedSize = false
 
-	override func create() -> UiElement {
+	override func createElement() -> UiElement {
 		return UiView()
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
-		let view = item as! UiView
+	override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+		let view = element as! UiView
 		view.size = size
 		view.fixedSizeValue = fixedSize
 	}

@@ -231,7 +231,7 @@ private struct Measured {
 
 
 
-class UiStackContainerFactory: UiElementDefinition {
+class UiStackContainerDefinition: UiElementDefinition {
 	let direction: UiStackDirection
 	var along = UiAlignment.Fill
 	var across = UiAlignment.Leading
@@ -245,18 +245,18 @@ class UiStackContainerFactory: UiElementDefinition {
 	}
 
 
-	override func create() -> UiElement {
+	override func createElement() -> UiElement {
 		return UiStackContainer()
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, children: content)
-		let stack = item as! UiStackContainer
+	override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+		let stack = element as! UiStackContainer
 		stack.direction = direction
 		stack.along = along
 		stack.across = across
 		stack.spacing = spacing
-		stack.children = content
+		stack.children = children
 	}
 
 

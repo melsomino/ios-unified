@@ -112,16 +112,12 @@ public class UiButton: UiContentElement {
 
 
 
-class UiButtonFactory: UiContentElementFactory {
+class UiButtonDefinition: UiContentElementDefinition {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var color: UIColor?
 	var title: String?
 	var image: UIImage?
-
-	override func create() -> UiElement {
-		return UiButton()
-	}
 
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
@@ -157,10 +153,14 @@ class UiButtonFactory: UiContentElementFactory {
 		}
 	}
 
-	override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, content: content)
+	override func createElement() -> UiElement {
+		return UiButton()
+	}
 
-		let button = item as! UiButton
+	override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+
+		let button = element as! UiButton
 		if let name = fontName, size = fontSize {
 			button.font = font(name, size)
 		}

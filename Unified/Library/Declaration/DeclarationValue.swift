@@ -23,6 +23,7 @@ public struct DeclarationError: ErrorType {
 public class DeclarationContext {
 
 	public var bindings = UiBindings()
+	public var hasBindings = false
 
 	init(_ elements: [DeclarationElement]) {
 
@@ -70,6 +71,7 @@ public class DeclarationContext {
 	public func getExpression(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> UiBindings.Expression? {
 		switch value {
 			case .Value(let string):
+				hasBindings = true
 				return bindings.parse(string)
 			default:
 				throw DeclarationError(message: "String value expected", scanner: nil)

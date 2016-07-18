@@ -1,15 +1,16 @@
 //
-// Created by Michael Vlasov on 01.06.16.
-// Copyright (c) 2016 Michael Vlasov. All rights reserved.
+// Created by Michael Vlasov on 18.07.16.
 //
+
+import Foundation
 
 import Foundation
 import UIKit
 
-public class UiText: UiContentElement {
+public class UiHtml: UiContentElement {
 
-	public var textDefinition: UiTextDefinition {
-		return definition as! UiTextDefinition
+	public var htmlDefinition: UiHtmlDefinition {
+		return definition as! UiHtmlDefinition
 	}
 
 	public var maxLines = 0 {
@@ -34,13 +35,53 @@ public class UiText: UiContentElement {
 
 	public var autoHideEmptyText = true
 
-	public var text: String? {
+	private func getLastParagraphRange(string: NSMutableAttributedString) -> NSRange {
+		if string.length == 0 {
+			return NSMakeRange(0, 0)
+		}
+		let s = string.string as NSString
+		return s.paragraphRangeForRange(NSMakeRange(string.length - 1, 1))
+	}
+
+	private func removeEmptyLinesFromEnd(string: NSAttributedString) -> NSAttributedString {
+		if !string.string.hasSuffix("\n") {
+			return string
+		}
+		return removeEmptyLinesFromEnd(string.attributedSubstringFromRange(NSMakeRange(0, string.length - 1)))
+	}
+
+
+	public var html: String? {
+		didSet {
+			guard var html = html else {
+				attributedText = nil
+				return
+			}
+			let font = resolveFont()
+			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(font.pointSize)'>\(html)</div>"
+			let options: [String:AnyObject] = [
+				NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
+				NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding,
+			]
+			let attributed = try! NSAttributedString(data: html.dataUsingEncoding(NSUTF8StringEncoding)!, options: options, documentAttributes: nil)
+			let builder = removeEmptyLinesFromEnd(attributed).mutableCopy() as! NSMutableAttributedString
+			let lastParagraphRange = getLastParagraphRange(builder)
+			let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
+			let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
+			newLastParagraphStyle.paragraphSpacing = 0
+			builder.setAttributes([NSParagraphStyleAttributeName: newLastParagraphStyle], range: lastParagraphRange)
+			attributedText = (builder.copy() as! NSAttributedString)
+		}
+	}
+
+
+	public var attributedText: NSAttributedString? {
 		didSet {
 			if let label = view as? UILabel {
-				label.text = text
+				label.attributedText = attributedText
 			}
 			if autoHideEmptyText {
-				hidden = text == nil || text!.isEmpty
+				hidden = attributedText == nil || attributedText!.length == 0
 			}
 		}
 	}
@@ -73,11 +114,8 @@ public class UiText: UiContentElement {
 		label.textColor = color ?? defaultColor
 		label.numberOfLines = maxLines ?? defaultMaxLines
 		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
-		label.text = text
+		label.text = html
 	}
-
-
-	// MARK: - UiElement
 
 
 	public override func createView() -> UIView {
@@ -85,16 +123,19 @@ public class UiText: UiContentElement {
 	}
 
 
+	// MARK: - UiElement
+
+
 	public override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
-		if let textBinding = textDefinition.text {
-			text = textBinding.evaluate(values)
+		if let htmlBinding = htmlDefinition.html {
+			html = htmlBinding.evaluate(values)
 		}
 	}
 
 
 	public override var visible: Bool {
-		return !hidden && text != nil && !text!.isEmpty
+		return !hidden && html != nil && !html!.isEmpty
 	}
 
 
@@ -107,13 +148,13 @@ public class UiText: UiContentElement {
 		guard visible else {
 			return CGSizeZero
 		}
-		let measuredText = textForMeasure()
+		let measuredText = getAttributedText()
 		if nowrap {
 			return measureText(measuredText, CGFloat.max)
 		}
 		if maxLines > 0 {
-			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(singleLine, CGFloat.max).height + 1
+			let singleLine = measuredText.string.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
+			let singleLineHeight = measureText(NSAttributedString(string: singleLine), CGFloat.max).height + 1
 			var maxSize = measureText(measuredText, bounds.width)
 			let maxHeight = singleLineHeight * CGFloat(maxLines)
 			if maxSize.height > maxHeight {
@@ -132,13 +173,13 @@ public class UiText: UiContentElement {
 		guard visible else {
 			return CGSizeZero
 		}
-		let measuredText = textForMeasure()
+		let measuredText = getAttributedText()
 		if nowrap {
 			return measureText(measuredText, CGFloat.max)
 		}
 		if maxLines > 0 {
-			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(singleLine, CGFloat.max).height + 1
+			let singleLine = measuredText.string.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
+			let singleLineHeight = measureText(NSAttributedString(string: singleLine), CGFloat.max).height + 1
 			var size = measureText(measuredText, bounds.width)
 			let maxHeight = singleLineHeight * CGFloat(maxLines)
 			if size.height > maxHeight {
@@ -157,18 +198,17 @@ public class UiText: UiContentElement {
 	private var defaultFont: UIFont?
 	private var defaultColor: UIColor?
 
-	private func textForMeasure() -> String {
-		return text ?? ""
+	private func getAttributedText() -> NSAttributedString {
+		return attributedText ?? NSAttributedString(string: "")
 	}
 
 
 
 
-	private func measureText(text: String, _ width: CGFloat) -> CGSize {
+	private func measureText(text: NSAttributedString, _ width: CGFloat) -> CGSize {
 		let constraintSize = CGSize(width: width, height: CGFloat.max)
 		let size = text.boundingRectWithSize(constraintSize,
 			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
-			attributes: [NSFontAttributeName: resolveFont()],
 			context: nil).size
 		return size
 	}
@@ -181,13 +221,13 @@ public class UiText: UiContentElement {
 
 
 
-public class UiTextDefinition: UiContentElementDefinition {
+public class UiHtmlDefinition: UiContentElementDefinition {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
-	var text: UiBindings.Expression?
+	var html: UiBindings.Expression?
 
 
 	// MARK: - UiElementDefinition
@@ -203,8 +243,8 @@ public class UiTextDefinition: UiContentElementDefinition {
 				nowrap = try context.getBool(attribute)
 			case "color":
 				color = try context.getColor(attribute)
-			case "text":
-				text = try context.getExpression(attribute)
+			case "html":
+				html = try context.getExpression(attribute)
 			default:
 				try super.applyDeclarationAttribute(attribute, context: context)
 		}
@@ -212,26 +252,26 @@ public class UiTextDefinition: UiContentElementDefinition {
 
 
 	public override func createElement() -> UiElement {
-		return UiText()
+		return UiHtml()
 	}
 
 
 	public override func initialize(element: UiElement, children: [UiElement]) {
 		super.initialize(element, children: children)
 
-		let text = element as! UiText
+		let html = element as! UiHtml
 		if let name = fontName, size = fontSize {
-			text.font = font(name, size)
+			html.font = font(name, size)
 		}
 		else if let name = fontName {
-			text.font = font(name, UIFont.systemFontSize())
+			html.font = font(name, UIFont.systemFontSize())
 		}
 		else if let size = fontSize {
-			text.font = UIFont.systemFontOfSize(size)
+			html.font = UIFont.systemFontOfSize(size)
 		}
-		text.color = color
-		text.maxLines = maxLines
-		text.nowrap = nowrap
+		html.color = color
+		html.maxLines = maxLines
+		html.nowrap = nowrap
 	}
 
 

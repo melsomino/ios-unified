@@ -13,6 +13,8 @@ import UIKit
 public class Ui: RepositoryDependent, RepositoryListener {
 
 	public let modelType: Any.Type
+	public var layoutCacheKeyProvider: ((Any) -> String?)?
+	public var performLayoutInWidth = false
 
 	private var layoutName: String? {
 		didSet {
@@ -48,8 +50,10 @@ public class Ui: RepositoryDependent, RepositoryListener {
 						}
 					}
 				}
+			}
+			if definition.hasBindings {
 				rootElement?.traversal {
-					$0.bindValues(modelValues)
+					$0.bind(toModel: modelValues)
 				}
 			}
 			onModelChanged()
@@ -63,16 +67,36 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
+	public func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
+		let layoutCacheKey = getLayoutCacheKey(forModel: model)
+		if layoutCacheKey != nil {
+			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
+				return frames[0].height
+			}
+		}
+
+		self.model = model
+		performLayout(inWidth: width)
+		return frame.height
+	}
+
+
 	public func performLayout() {
 		if let bounds = container?.bounds.size {
-			performLayout(inBounds: bounds)
+			if performLayoutInWidth {
+				performLayout(inWidth: bounds.width)
+			}
+			else {
+				performLayout(inBounds: bounds)
+			}
 		}
 	}
 
 
 	public func performLayout(inWidth width: CGFloat) {
-		if let cache = layoutCache {
-			if let frames = cache.cachedFramesForWidth(width, key: layoutCacheKey) {
+		let layoutCacheKey = getLayoutCacheKey(forModel: model)
+		if layoutCacheKey != nil {
+			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
 				frame = frames[0]
 				for index in 0 ..< min(frames.count - 1, contentElements.count) {
 					contentElements[index].frame = frames[index + 1]
@@ -83,13 +107,13 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 		performLayout(inBounds: CGSizeMake(width, 10000))
 
-		if let cache = layoutCache {
+		if layoutCacheKey != nil {
 			var frames = [CGRect](count: 1 + contentElements.count, repeatedValue: CGRectZero)
 			frames[0] = frame
 			for index in 0 ..< contentElements.count {
 				frames[index + 1] = contentElements[index].frame
 			}
-			cache.setFrames(frames, forWidth: width, key: layoutCacheKey)
+			layoutCache!.setFrames(frames, forWidth: width, key: layoutCacheKey!)
 		}
 	}
 
@@ -113,15 +137,6 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	public func onModelChanged() {
 	}
 
-
-	public var layoutCacheKey: String {
-		if let modelObject = model as? AnyObject {
-			return String(ObjectIdentifier(modelObject).uintValue)
-		}
-		else {
-			return ""
-		}
-	}
 
 
 	// MARK: - RepositoryListener
@@ -151,6 +166,10 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	private var contentElements = [UiContentElement]()
 	private var modelValues = [Any?]()
 
+	private func getLayoutCacheKey(forModel model: Any?) -> String? {
+		return (model != nil && layoutCache != nil && layoutCacheKeyProvider != nil) ? layoutCacheKeyProvider!(model!) : nil;
+	}
+
 	private func setDefinition(definition: UiDefinition?) {
 		guard !sameObjects(definition, self.definition) else {
 			return
@@ -158,12 +177,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 		self.definition = definition
 
-		backgroundColor = definition?.containerBackgroundColor
-		cornerRadius = definition?.containerCornerRadius
-
 		detachFromContainer()
 
-		rootElement = definition?.rootElementDefinition.createElement(self)
+		rootElement = definition?.createRootElement(forUi: self)
 		contentElements.removeAll(keepCapacity: true)
 		rootElement.traversal {
 			dependency.resolve($0)
@@ -208,9 +224,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 	private func initializeContainer() {
-		container?.backgroundColor = backgroundColor
-		container?.layer.cornerRadius = cornerRadius ?? 0
-		if cornerRadius != nil {
+		container?.backgroundColor = definition?.containerBackgroundColor
+		container?.layer.cornerRadius = definition?.containerCornerRadius ?? 0
+		if definition?.containerCornerRadius != nil {
 			container?.clipsToBounds = true
 		}
 	}
@@ -245,16 +261,18 @@ public class Ui: RepositoryDependent, RepositoryListener {
 public class UiDefinition {
 	private let rootElementDefinition: UiElementDefinition
 	let bindings: UiBindings
+	let hasBindings: Bool
 	private let ids: Set<String>
 
 	let containerBackgroundColor: UIColor?
 	let containerCornerRadius: CGFloat?
 
 
-	init(rootElementDefinition: UiElementDefinition, bindings: UiBindings, ids: Set<String>,
-	     containerBackgroundColor: UIColor?, containerCornerRadius: CGFloat?) {
+	init(rootElementDefinition: UiElementDefinition, bindings: UiBindings, hasBindings: Bool, ids: Set<String>,
+		containerBackgroundColor: UIColor?, containerCornerRadius: CGFloat?) {
 		self.rootElementDefinition = rootElementDefinition
 		self.bindings = bindings
+		self.hasBindings = hasBindings
 		self.ids = ids
 		self.containerBackgroundColor = containerBackgroundColor
 		self.containerCornerRadius = containerCornerRadius
@@ -263,7 +281,7 @@ public class UiDefinition {
 
 	public func createRootElement(forUi ui: Any) -> UiElement {
 		let mirror = Mirror(reflecting: ui)
-		var existingElementById = [String:UiElement]()
+		var existingElementById = [String: UiElement]()
 		for member in mirror.children {
 			if let name = member.label {
 				if ids.contains(name) {
@@ -272,22 +290,23 @@ public class UiDefinition {
 			}
 		}
 
-		let rootElement = createOrReuseElement()
+		let rootElement = createOrReuseElement(rootElementDefinition, existingElementById: existingElementById)
 
 		return rootElement
 	}
 
 
 
-	private func createOrReuseElement(definition: UiElementDefinition, existingElementById: [String: UiElement]) -> UiElement {
+	private func createOrReuseElement(definition: UiElementDefinition, existingElementById: [String:UiElement]) -> UiElement {
 		var children = [UiElement]()
 		for childDefinition in definition.childrenDefinitions {
 			children.append(createOrReuseElement(childDefinition, existingElementById: existingElementById))
 		}
-		var element: UiElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
+		let element: UiElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
 		definition.initialize(element, children: children)
 		return element
 	}
+
 
 
 	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
@@ -311,7 +330,7 @@ public class UiDefinition {
 				ids.insert(id)
 			}
 		}
-		return UiDefinition(rootElementDefinition: rootElementDefinition, bindings: context.bindings, ids: ids,
+		return UiDefinition(rootElementDefinition: rootElementDefinition, bindings: context.bindings, hasBindings: context.hasBindings, ids: ids,
 			containerBackgroundColor: containerBackgroundColor,
 			containerCornerRadius: containerCornerRadius)
 	}

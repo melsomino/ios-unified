@@ -156,10 +156,10 @@ public class CloudApiPrimitiveTypeConverter {
 	public static func dateTimeFromJson(value: AnyObject) -> NSDate? {
 		switch value {
 			case let s as String:
-				if let date = dateTimeFormatter.dateFromString(s) {
+				if let date = dateTimeFormatterWithTimeZone.dateFromString(s) {
 					return date
 				}
-				if let date = dateTimeFormatterWithTimeZone.dateFromString(s) {
+				if let date = dateTimeFormatter.dateFromString(s) {
 					return date
 				}
 				print("can not convert date from string: \(s)")

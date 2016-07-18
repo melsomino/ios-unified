@@ -53,16 +53,16 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 
 
-public class UiLayeredContainerFactory: UiElementDefinition {
+public class UiLayeredContainerDefinition: UiElementDefinition {
 
-	public override func create() -> UiElement {
+	public override func createElement() -> UiElement {
 		return UiLayeredContainer()
 	}
 
-	public override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, children: content)
-		let layered = item as! UiLayeredContainer
-		layered.children = content
+	public override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+		let layered = element as! UiLayeredContainer
+		layered.children = children
 	}
 
 }

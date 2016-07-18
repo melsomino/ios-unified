@@ -65,15 +65,15 @@ public class UiAlignmentContainer: UiSingleElementContainer {
 public class UiAlignmentContainerFactory: UiElementDefinition {
 	var anchor = UiAlignmentAnchor.TopLeft
 
-	public override func create() -> UiElement {
+	public override func createElement() -> UiElement {
 		return UiAlignmentContainer()
 	}
 
-	public override func initialize(item: UiElement, content: [UiElement]) {
-		super.initialize(item, children: content)
-		let align = item as! UiAlignmentContainer
+	public override func initialize(element: UiElement, children: [UiElement]) {
+		super.initialize(element, children: children)
+		let align = element as! UiAlignmentContainer
 		align.anchor = anchor
-		align.child = content[0]
+		align.child = children[0]
 	}
 }
 
