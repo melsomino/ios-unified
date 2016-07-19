@@ -11,10 +11,11 @@ import UIKit
 
 public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
 
-	public let loadModels: (Execution, inout [Any]) throws -> Void
-	public var syncModels: (() throws -> Void)?
+	public weak var controller: UIViewController!
+	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
+	public final var modelsSync: ((Execution) throws -> Void)?
 
-	public var tableView: UITableView! {
+	public final var tableView: UITableView! {
 		didSet {
 			if let prev = oldValue {
 				prev.dataSource = nil
@@ -23,37 +24,52 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 			if let current = tableView {
 				current.delegate = self
 				current.dataSource = self
-				for registration in registrations {
-					current.registerClass(TableCellUi.self, forCellReuseIdentifier: registration.cellReuseId)
+				for cellFactory in cellFactories {
+					current.registerClass(TableCellUi.self, forCellReuseIdentifier: cellFactory.cellReuseId)
 				}
 			}
 		}
 	}
 
 
-	public func createController() -> UIViewController {
+	public func createController(useNavigation: Bool = true) -> UIViewController {
 		let controller = TableUiController()
 		controller.ui = self
-		return controller
+		self.controller = controller
+		return useNavigation ? UINavigationController(rootViewController: controller) : controller
 	}
 
 
-	public func ensureRegistration(forModelType modelType: Any.Type) -> ModelUiRegistration {
-		for registration in registrations {
-			if registration.modelType == modelType {
-				return registration
+	public final func ensureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactoryBase {
+		for cellFactory in cellFactories {
+			if cellFactory.modelType == modelType {
+				return cellFactory
 			}
 		}
 
-		let registration = ModelUiRegistration(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
-		registrations.append(registration)
-		tableView?.registerClass(TableCellUi.self, forCellReuseIdentifier: registration.cellReuseId)
-		return registration
+		let cellFactory = TableUiCellFactoryBase(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
+		cellFactories.append(cellFactory)
+		tableView?.registerClass(TableCellUi.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		return cellFactory
 	}
 
 
-	public init(dependency: DependencyResolver, loadModels: (Execution, inout [Any]) throws -> Void) {
-		self.loadModels = loadModels
+	public final func ensureCellFactory<Model>() -> TableUiCellFactory<Model> {
+		let modelType = Model.self
+		for cellFactory in cellFactories {
+			if cellFactory.modelType == modelType {
+				return cellFactory as! TableUiCellFactory<Model>
+			}
+		}
+
+		let cellFactory = TableUiCellFactory<Model>(layoutCache: layoutCache, dependency: dependency)
+		cellFactories.append(cellFactory)
+		tableView?.registerClass(TableCellUi.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		return cellFactory
+	}
+
+
+	public init(dependency: DependencyResolver) {
 		super.init()
 		dependency.resolve(self)
 	}
@@ -69,7 +85,7 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 			var loadError: ErrorType? = nil
 			var models = [Any]()
 			do {
-				try weakSelf?.loadModels(execution, &models)
+				try weakSelf?.loadModels(execution, models: &models)
 			} catch let error {
 				loadError = error
 			}
@@ -77,7 +93,7 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 				return
 			}
 			execution.continueOnUiQueue {
-				guard let strongSelf = weakSelf where models.count > 0 else {
+				guard let strongSelf = weakSelf else {
 					return
 				}
 				if let error = loadError {
@@ -91,6 +107,13 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 
 	}
 
+	public func loadModels(execution: Execution, inout models: [Any]) throws {
+		try modelsLoader?(execution, &models)
+	}
+
+	public func controllerViewDidLoad(controller: UIViewController) {
+
+	}
 
 	// MARK: - Dependency
 
@@ -106,6 +129,7 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 
 
 	public func repositoryChanged(repository: Repository) {
+		layoutCache.clear()
 		tableView.reloadData()
 	}
 
@@ -120,10 +144,10 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let model = models[indexPath.row]
-		let registration = ensureRegistration(forModelType: model.dynamicType)
-		let cell = tableView.dequeueReusableCellWithIdentifier(registration.cellReuseId, forIndexPath: indexPath) as! TableCellUi
+		let cellFactory = ensureCellFactory(forModelType: model.dynamicType)
+		let cell = tableView.dequeueReusableCellWithIdentifier(cellFactory.cellReuseId, forIndexPath: indexPath) as! TableCellUi
 		if cell.ui == nil {
-			cell.ui = registration.createUi()
+			cell.ui = cellFactory.createUi()
 			cell.ui.container = cell.contentView
 		}
 		cell.ui.model = model
@@ -133,14 +157,14 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 
 	public func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
 		let model = models[indexPath.row]
-		return ensureRegistration(forModelType: model.dynamicType).heightFor(model, inWidth: tableView.bounds.width)
+		return ensureCellFactory(forModelType: model.dynamicType).heightFor(model, inWidth: tableView.bounds.width)
 	}
 
 
 	// MARK: - Internals
 
 
-	private var registrations = [ModelUiRegistration]()
+	private var cellFactories = [TableUiCellFactoryBase]()
 	private var models = [Any]()
 	private var layoutCache = UiLayoutCache()
 
@@ -165,14 +189,13 @@ class TableCellUi: UITableViewCell {
 
 
 
-final public class ModelUiRegistration {
+public class TableUiCellFactoryBase {
 	let dependency: DependencyResolver
-	var uiFactory: UiDefinition!
 	let cellReuseId: String
 	let modelType: Any.Type
 	let layoutCache: UiLayoutCache?
+	var uiDefinition: UiDefinition!
 
-	public var layoutCacheKeyProvider: ((Any) -> String?)?
 
 	lazy var heightCalculator: Ui = {
 		[unowned self] in
@@ -193,11 +216,23 @@ final public class ModelUiRegistration {
 	}
 
 
+	public func getLayoutCacheKey(model: Any) -> String? {
+		return nil
+	}
+
+	public var selectable: Bool {
+		return false
+	}
+
+	public func select(model: Any) {
+	}
+
+
 	public func createUi() -> Ui {
 		let ui = Ui(forModelType: modelType)
 		ui.performLayoutInWidth = true
 		ui.layoutCache = layoutCache
-		ui.layoutCacheKeyProvider = layoutCacheKeyProvider
+		ui.layoutCacheKeyProvider = { self.getLayoutCacheKey($0) }
 		dependency.resolve(ui)
 		return ui
 	}
@@ -205,6 +240,32 @@ final public class ModelUiRegistration {
 
 	public func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
 		return heightCalculator.heightFor(model, inWidth: width)
+	}
+
+}
+
+
+
+public class TableUiCellFactory<Model>: TableUiCellFactoryBase {
+	public var onGetLayoutCacheKey: ((Model) -> String?)?
+	public var onSelect: ((Model) -> Void)?
+
+	public init(layoutCache: UiLayoutCache?, dependency: DependencyResolver) {
+		super.init(forModelType: Model.self, layoutCache: layoutCache, dependency: dependency)
+	}
+
+
+	public override func getLayoutCacheKey(model: Any) -> String? {
+		return onGetLayoutCacheKey?(model as! Model)
+	}
+
+	public override var selectable: Bool {
+		return onSelect != nil
+	}
+
+
+	public override func select(model: Any) {
+		onSelect?(model as! Model)
 	}
 
 }
@@ -224,6 +285,7 @@ class TableUiController: UIViewController {
 		view.addSubview(tableView)
 		ui.tableView = tableView
 		adjustTableInsets()
+		ui.controllerViewDidLoad(self)
 		ui.startLoad()
 	}
 

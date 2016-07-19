@@ -19,6 +19,9 @@ extension String {
 	}
 }
 
+
+
+
 public class CloudApiPrimitiveTypeConverter {
 
 	public static func uuidFromJson(value: AnyObject) -> Uuid? {

@@ -43,8 +43,6 @@ public struct UiBindings {
 			if let args = args {
 				formatter.dateFormat = args
 			}
-			formatter.calendar = NSCalendar.currentCalendar()
-			formatter.timeZone = NSCalendar.currentCalendar().timeZone
 			return formatter
 		}
 	]

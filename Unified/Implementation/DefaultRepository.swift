@@ -68,6 +68,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		}
 	}
 
+
 	private func loadRepositoryFromDevServer(repositoryString: String) throws {
 		lock.lock()
 		defer {
@@ -76,14 +77,20 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		try loadRepository(DeclarationElement.parse(repositoryString), overrideExisting: true)
 	}
 
+
 	public func websocketDidConnect(socket: WebSocket) {
 		let device = UIDevice.currentDevice()
 		socket.writeString("client-info`\(device.name), iOS \(device.systemVersion)")
+		print("dev server connected")
 	}
 
 
 	public func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
-		print("dev server disconnected")
+		print("dev server disconnected, trying to reconnet after 0.5 sec...")
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_MSEC*500)), dispatch_get_main_queue()) {
+			[weak self] in
+			self?.devServerWebSocket!.connect()
+		}
 	}
 
 
