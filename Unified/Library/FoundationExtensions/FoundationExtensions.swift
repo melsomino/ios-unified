@@ -5,6 +5,35 @@
 
 import Foundation
 
+public func sameObjects(a: AnyObject?, _ b: AnyObject?) -> Bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+	return a! === b!
+}
+
+extension String {
+	public static func same(a: String?, _ b: String?) -> Bool {
+		if a == nil && b == nil {
+			return true
+		}
+		if a == nil || b == nil {
+			return false
+		}
+		return a! == b!
+	}
+}
+
+
+
+
+
+
+
+
 
 extension Dictionary {
 	public mutating func getOrAdd(key: Key, @autoclosure _ createValue: () -> Value) -> Value {

@@ -14,74 +14,115 @@ public protocol UiDelegate: class {
 
 public class Ui: RepositoryDependent, RepositoryListener {
 
-	public let modelType: Any.Type
-	public var layoutCacheKeyProvider: ((Any) -> String?)?
-	public var performLayoutInWidth = false
-
-	public var definition: UiDefinition! {
-		definitionRequired()
-		return currentDefinition
+	public final let modelType: Any.Type
+	public final var layoutCacheKeyProvider: ((Any) -> String?)?
+	public final var performLayoutInWidth = false
+	public final var definition: UiDefinition! {
+		return internalDefinition
 	}
-
-	private var currentDefinition: UiDefinition?
-	private func definitionRequired() {
-		if currentDefinition == nil {
-			updateDefinitionFromRepository()
-		}
-	}
-
 	public weak var delegate: UiDelegate?
-
-	private var layoutName: String? {
-		didSet {
-			updateDefinitionFromRepository()
-		}
-	}
-
 	public var layoutCache: UiLayoutCache?
-
 	public var container: UIView? {
 		didSet {
-			detachFromContainer()
-			attachToContainer()
+			internalDidSetContainer()
 		}
 	}
-
 	public var model: Any? {
 		didSet {
-			definitionRequired()
-			if modelValues.count > 0 {
-				for i in 0 ..< modelValues.count {
-					modelValues[i] = nil
-				}
-				if let model = model {
-					let mirror = Mirror(reflecting: model)
-					for member in mirror.children {
-						if let name = member.label {
-							if let index = currentDefinition!.bindings.valueIndexByName[name] {
-								modelValues[index] = member.value
-							}
-						}
-					}
-				}
-			}
-			if currentDefinition!.hasBindings {
-				rootElement?.traversal {
-					$0.bind(toModel: modelValues)
-				}
-			}
-			onModelChanged()
-			performLayout()
+			internalDidSetModel()
 		}
 	}
+	public private(set) var frame = CGRectZero
 
+
+	public final func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
+		return internalHeightFor(model, inWidth: width)
+	}
+
+	public final func performLayout() {
+		internalPerformLayout()
+	}
+
+	public final func performLayout(inWidth width: CGFloat) {
+		internalPerformLayout(inWidth: width)
+	}
+
+	public final func performLayout(inBounds bounds: CGSize) {
+		internalPerformLayout(inBounds: bounds)
+	}
+
+	public final func tryExecuteAction(action: UiBindings.Expression?) {
+		internalTryExecuteAction(action)
+	}
 
 	public init(forModelType modelType: Any.Type) {
 		self.modelType = modelType
 	}
 
 
-	public func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
+	// MARK: - Overridable
+
+
+	public func onModelChanged() {
+	}
+
+
+	public func getLayoutCacheKey(forModel model: Any) -> String? {
+		return defaultGetLayoutCacheKey(forModel: model)
+	}
+
+
+	// MARK: - RepositoryListener
+
+
+	public func repositoryChanged(repository: Repository) {
+		updateDefinitionFromRepository()
+	}
+
+
+	// MARK: - Dependency
+
+
+	public var dependency: DependencyResolver! {
+		willSet {
+			optionalRepository?.removeListener(self)
+		}
+		didSet {
+			optionalRepository?.addListener(self)
+		}
+	}
+
+
+	// MARK: - Internals
+
+
+	private var rootElement: UiElement!
+	private var contentElements = [UiContentElement]()
+	private var modelValues = [Any?]()
+	private var currentDefinition: UiDefinition?
+	private func definitionRequired() {
+		if currentDefinition == nil {
+			updateDefinitionFromRepository()
+		}
+	}
+	private var layoutName: String? {
+		didSet {
+			updateDefinitionFromRepository()
+		}
+	}
+
+	private var internalDefinition: UiDefinition! {
+		definitionRequired()
+		return currentDefinition
+	}
+
+	private func internalDidSetContainer() {
+		detachFromContainer()
+		attachToContainer()
+	}
+
+
+	private func internalHeightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
 		let layoutCacheKey = getLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
@@ -95,7 +136,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
-	public func performLayout() {
+	private func internalPerformLayout() {
 		if let bounds = container?.bounds.size {
 			if performLayoutInWidth {
 				performLayout(inWidth: bounds.width)
@@ -107,7 +148,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
-	public func performLayout(inWidth width: CGFloat) {
+	private func internalPerformLayout(inWidth width: CGFloat) {
 		let layoutCacheKey = resolveLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
@@ -132,7 +173,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
-	public func performLayout(inBounds bounds: CGSize) {
+	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
 		rootElement!.measureMaxSize(bounds)
 		rootElement!.measureSize(bounds)
@@ -141,10 +182,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		print("perform layout")
 	}
 
-	public private(set) var frame = CGRectZero
 
 
-	public func tryExecuteAction(action: UiBindings.Expression?) {
+	private func internalTryExecuteAction(action: UiBindings.Expression?) {
 		guard let actionWithArgs = action?.evaluate(modelValues) else {
 			return
 		}
@@ -163,15 +203,34 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		delegate?.onAction(name, args: args)
 	}
 
-
-	// MARK: - Virtuals
-
-
-	public func onModelChanged() {
+	private func internalDidSetModel() {
+		definitionRequired()
+		if modelValues.count > 0 {
+			for i in 0 ..< modelValues.count {
+				modelValues[i] = nil
+			}
+			if let model = model {
+				let mirror = Mirror(reflecting: model)
+				for member in mirror.children {
+					if let name = member.label {
+						if let index = currentDefinition!.bindings.valueIndexByName[name] {
+							modelValues[index] = member.value
+						}
+					}
+				}
+			}
+		}
+		if currentDefinition!.hasBindings {
+			rootElement?.traversal {
+				$0.bind(toModel: modelValues)
+			}
+		}
+		onModelChanged()
+		performLayout()
 	}
 
 
-	public func getLayoutCacheKey(forModel model: Any) -> String? {
+	private func defaultGetLayoutCacheKey(forModel model: Any) -> String? {
 		definitionRequired()
 		guard let keyProvider = currentDefinition!.layoutCacheKey, definition = currentDefinition else {
 			return nil
@@ -188,39 +247,13 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		return keyProvider.evaluate(values)
 	}
 
-
-	// MARK: - RepositoryListener
-
-
-	public func repositoryChanged(repository: Repository) {
-		updateDefinitionFromRepository()
-	}
-
-
-	// MARK: - Dependency
-
-
-	public var dependency: DependencyResolver! {
-		didSet {
-			oldValue?.optional(RepositoryDependency)?.removeListener(self)
-			optionalRepository?.addListener(self)
-		}
-	}
-
-
-	// MARK: - Internals
-
-
-	private var rootElement: UiElement!
-	private var contentElements = [UiContentElement]()
-	private var modelValues = [Any?]()
-
 	private func resolveLayoutCacheKey(forModel model: Any?) -> String? {
 		guard let model = model else {
 			return nil
 		}
 		return getLayoutCacheKey(forModel: model)
 	}
+
 
 	private func setDefinition(definition: UiDefinition?) {
 		guard !sameObjects(definition, self.currentDefinition) else {
@@ -283,27 +316,6 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		}
 	}
 
-
-	private func same(a: String?, _ b: String?) -> Bool {
-		if a == nil && b == nil {
-			return true
-		}
-		if a == nil || b == nil {
-			return false
-		}
-		return a! == b!
-	}
-
-
-	private func sameObjects(a: AnyObject?, _ b: AnyObject?) -> Bool {
-		if a == nil && b == nil {
-			return true
-		}
-		if a == nil || b == nil {
-			return false
-		}
-		return a! === b!
-	}
 }
 
 
@@ -311,16 +323,26 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 public class UiDefinition {
-	private let rootElementDefinition: UiElementDefinition
-	let bindings: UiBindings
-	let hasBindings: Bool
-	private let ids: Set<String>
 
-	public let selectAction: UiBindings.Expression?
-	public let layoutCacheKey: UiBindings.Expression?
+	// MARK: - Public
 
-	let containerBackgroundColor: UIColor?
-	let containerCornerRadius: CGFloat?
+	public final let bindings: UiBindings
+	public final let hasBindings: Bool
+
+	public final let selectAction: UiBindings.Expression?
+	public final let layoutCacheKey: UiBindings.Expression?
+
+	public final let containerBackgroundColor: UIColor?
+	public final let containerCornerRadius: CGFloat?
+
+
+	public final func createRootElement(forUi ui: Any) -> UiElement {
+		return internalCreateRootElement(forUi: ui)
+	}
+
+	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
+		return try UiDefinition.internalFromDeclaration(declaration, context: context)
+	}
 
 	init(rootElementDefinition: UiElementDefinition,
 		bindings: UiBindings,
@@ -344,7 +366,14 @@ public class UiDefinition {
 	}
 
 
-	public func createRootElement(forUi ui: Any) -> UiElement {
+	// MARK: - Internals
+
+
+	private let rootElementDefinition: UiElementDefinition
+	private let ids: Set<String>
+
+
+	private func internalCreateRootElement(forUi ui: Any) -> UiElement {
 		let mirror = Mirror(reflecting: ui)
 		var existingElementById = [String: UiElement]()
 		for member in mirror.children {
@@ -361,20 +390,7 @@ public class UiDefinition {
 	}
 
 
-
-	private func createOrReuseElement(definition: UiElementDefinition, existingElementById: [String:UiElement]) -> UiElement {
-		var children = [UiElement]()
-		for childDefinition in definition.childrenDefinitions {
-			children.append(createOrReuseElement(childDefinition, existingElementById: existingElementById))
-		}
-		let element: UiElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
-		definition.initialize(element, children: children)
-		return element
-	}
-
-
-
-	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
+	private static func internalFromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
 		var containerBackgroundColor: UIColor?
 		var containerCornerRadius: CGFloat?
 		var selectAction: UiBindings.Expression?
@@ -410,5 +426,17 @@ public class UiDefinition {
 			layoutCacheKey: layoutCacheKey,
 			containerBackgroundColor: containerBackgroundColor,
 			containerCornerRadius: containerCornerRadius)
+	}
+
+
+
+	private func createOrReuseElement(definition: UiElementDefinition, existingElementById: [String:UiElement]) -> UiElement {
+		var children = [UiElement]()
+		for childDefinition in definition.childrenDefinitions {
+			children.append(createOrReuseElement(childDefinition, existingElementById: existingElementById))
+		}
+		let element: UiElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
+		definition.initialize(element, children: children)
+		return element
 	}
 }

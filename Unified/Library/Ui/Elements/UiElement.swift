@@ -65,16 +65,9 @@ public class UiElementDefinition {
 	public final var id: String?
 	public final var childrenDefinitions = [UiElementDefinition]()
 
-	public init() {
-
-	}
-
-
-
 	public static func register(name: String, definition: () -> UiElementDefinition) {
 		definitionFactoryByName[name] = definition
 	}
-
 
 	public final func traversal(@noescape visit: (UiElementDefinition) -> Void) {
 		visit(self)
@@ -83,8 +76,12 @@ public class UiElementDefinition {
 		}
 	}
 
+	public init() {
 
-	// MARK: - Virtuals
+	}
+
+
+	// MARK: - Overridable
 
 
 	public func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {

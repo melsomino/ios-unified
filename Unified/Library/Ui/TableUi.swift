@@ -1,3 +1,4 @@
+
 //
 // Created by Власов М.Ю. on 15.06.16.
 // Copyright (c) 2016 Tensor. All rights reserved.
@@ -11,48 +12,26 @@ import UIKit
 
 public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
 
-	public weak var controller: UIViewController!
+	public final weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
 	public final var modelsSync: ((Execution) throws -> Void)?
-
 	public final var tableView: UITableView! {
 		didSet {
-			if let prev = oldValue {
-				prev.dataSource = nil
-				prev.delegate = nil
-			}
-			if let current = tableView {
-				current.delegate = self
-				current.dataSource = self
-				for cellFactory in cellFactories {
-					current.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
-				}
-			}
+			internalDidSetTableView(oldValue)
 		}
 	}
 
-
-	public func createController(useNavigation useNavigation: Bool = true) -> UIViewController {
-		let controller = TableUiController()
-		controller.ui = self
-		self.controller = controller
-		return useNavigation ? UINavigationController(rootViewController: controller) : controller
+	public final func createController(useNavigation useNavigation: Bool = true) -> UIViewController {
+		return internalCreateController(useNavigation: useNavigation)
 	}
-
 
 	public final func ensureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactory {
-		for cellFactory in cellFactories {
-			if cellFactory.modelType == modelType {
-				return cellFactory
-			}
-		}
-
-		let cellFactory = TableUiCellFactory(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
-		cellFactories.append(cellFactory)
-		tableView?.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
-		return cellFactory
+		return internalEnsureCellFactory(forModelType: modelType)
 	}
 
+	public final func startLoad() {
+		internalStartLoad()
+	}
 
 	public init(dependency: DependencyResolver) {
 		super.init()
@@ -60,53 +39,19 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 	}
 
 
-	public final func startLoad() {
-		weak var weakSelf = self
-		dependency.required(ThreadingDependency).backgroundQueue.newExecution {
-			execution in
-			guard weakSelf != nil else {
-				return
-			}
-			var loadError: ErrorType? = nil
-			var models = [Any]()
-			do {
-				try weakSelf?.loadModels(execution, models: &models)
-			} catch let error {
-				loadError = error
-			}
-			guard weakSelf != nil else {
-				return
-			}
-			execution.continueOnUiQueue {
-				guard let strongSelf = weakSelf else {
-					return
-				}
-				if let error = loadError {
-					strongSelf.dependency.required(CentralUiDependency).pushAlert(.Error, message: String(error))
-					return
-				}
-				strongSelf.models = models
-				strongSelf.tableView?.reloadData()
-			}
-		}
-
-	}
-
-
 	// MARK: - Overridable
 
 
 	public func onAction(action: String, args: String?) {
-
 	}
 
 	public func loadModels(execution: Execution, inout models: [Any]) throws {
-		try modelsLoader?(execution, &models)
+		try defaultLoadModels(execution, models: &models)
 	}
 
 	public func controllerViewDidLoad(controller: UIViewController) {
-
 	}
+
 
 	// MARK: - Dependency
 
@@ -173,6 +118,75 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 	private var models = [Any]()
 	private var layoutCache = UiLayoutCache()
 
+	private func internalDidSetTableView(oldValue: UITableView!) {
+		if let prev = oldValue {
+			prev.dataSource = nil
+			prev.delegate = nil
+		}
+		if let current = tableView {
+			current.delegate = self
+			current.dataSource = self
+			for cellFactory in cellFactories {
+				current.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+			}
+		}
+	}
+
+	private func internalCreateController(useNavigation useNavigation: Bool = true) -> UIViewController {
+		let controller = TableUiController()
+		controller.ui = self
+		self.controller = controller
+		return useNavigation ? UINavigationController(rootViewController: controller) : controller
+	}
+
+	private func internalEnsureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactory {
+		for cellFactory in cellFactories {
+			if cellFactory.modelType == modelType {
+				return cellFactory
+			}
+		}
+
+		let cellFactory = TableUiCellFactory(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
+		cellFactories.append(cellFactory)
+		tableView?.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		return cellFactory
+	}
+
+
+	private func internalStartLoad() {
+		weak var weakSelf = self
+		dependency.required(ThreadingDependency).backgroundQueue.newExecution {
+			execution in
+			guard weakSelf != nil else {
+				return
+			}
+			var loadError: ErrorType? = nil
+			var models = [Any]()
+			do {
+				try weakSelf?.loadModels(execution, models: &models)
+			} catch let error {
+				loadError = error
+			}
+			guard weakSelf != nil else {
+				return
+			}
+			execution.continueOnUiQueue {
+				guard let strongSelf = weakSelf else {
+					return
+				}
+				if let error = loadError {
+					strongSelf.dependency.required(CentralUiDependency).pushAlert(.Error, message: String(error))
+					return
+				}
+				strongSelf.models = models
+				strongSelf.tableView?.reloadData()
+			}
+		}
+	}
+
+	private func defaultLoadModels(execution: Execution, inout models: [Any]) throws {
+		try modelsLoader?(execution, &models)
+	}
 
 }
 
@@ -182,12 +196,15 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 
 class TableUiCell: UITableViewCell {
 
+	final var ui: Ui!
+
+	// MARK: - UITableViewCell
+
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		ui?.performLayout(inWidth: contentView.bounds.width)
 	}
 
-	var ui: Ui!
 }
 
 
@@ -195,19 +212,24 @@ class TableUiCell: UITableViewCell {
 
 
 public class TableUiCellFactory {
-	let dependency: DependencyResolver
-	let cellReuseId: String
-	let modelType: Any.Type
-	let layoutCache: UiLayoutCache?
-	var uiDefinition: UiDefinition!
+	final let dependency: DependencyResolver
+	final let cellReuseId: String
+	final let modelType: Any.Type
+	final let layoutCache: UiLayoutCache?
+	final var uiDefinition: UiDefinition!
 
-
-	lazy var heightCalculator: Ui = {
+	final lazy var heightCalculator: Ui = {
 		[unowned self] in
-		let ui = self.createUi()
-		return ui
+		return self.createUi()
 	}()
 
+	public final func createUi() -> Ui {
+		return internalCreateUi()
+	}
+
+	public final func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
+		return heightCalculator.heightFor(model, inWidth: width)
+	}
 
 	public init(forModelType modelType: Any.Type, layoutCache: UiLayoutCache?, dependency: DependencyResolver) {
 		self.modelType = modelType
@@ -217,44 +239,28 @@ public class TableUiCellFactory {
 	}
 
 
-	public func supports(model: Any) -> Bool {
-		return model.dynamicType == modelType
-	}
+	// MARK: - Internals
 
 
-	public func getLayoutCacheKey(model: Any) -> String? {
-		return nil
-	}
-
-	public var selectable: Bool {
-		return false
-	}
-
-	public func select(model: Any) {
-	}
-
-
-	public func createUi() -> Ui {
+	private func internalCreateUi() -> Ui {
 		let ui = Ui(forModelType: modelType)
 		ui.performLayoutInWidth = true
 		ui.layoutCache = layoutCache
-		ui.layoutCacheKeyProvider = { self.getLayoutCacheKey($0) }
 		dependency.resolve(ui)
 		return ui
 	}
-
-
-	public func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
-		return heightCalculator.heightFor(model, inWidth: width)
-	}
-
 }
 
 
 
 
 class TableUiController: UIViewController {
-	var ui: TableUi!
+
+	final var ui: TableUi!
+
+
+	// MARK: - UIViewController
+
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -268,6 +274,15 @@ class TableUiController: UIViewController {
 		ui.startLoad()
 	}
 
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		adjustTableInsets()
+	}
+
+
+	// MARK: - Internals
+
+
 	private func adjustTableInsets() {
 		let isPortrait = view.bounds.width < view.bounds.height
 		var top = isPortrait ? CGFloat(20) : CGFloat(0)
@@ -277,15 +292,7 @@ class TableUiController: UIViewController {
 		ui.tableView.contentInset = UIEdgeInsetsMake(top, 0, 0, 0)
 	}
 
-	override func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
-		adjustTableInsets()
-	}
-
-
 }
-
-
 
 
 
