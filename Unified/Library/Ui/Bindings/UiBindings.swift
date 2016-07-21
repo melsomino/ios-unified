@@ -211,6 +211,12 @@ public struct UiBindings {
 				return nil
 			}
 			switch value {
+				case let v as Uuid:
+					return String.fromUuid(v)
+				case let v as Int:
+					return String(v)
+				case let v as Float:
+					return String(v)
 				case let string as String:
 					return string
 				case let date as NSDate:

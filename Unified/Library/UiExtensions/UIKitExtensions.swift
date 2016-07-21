@@ -45,9 +45,12 @@ extension UIViewController {
 			split.showDetailViewController(controller.wrapper, sender: nil)
 			return
 		}
+
 		if let navigation = navigationController {
 			navigation.pushViewController(controller.wrapper, animated: true)
+			return
 		}
+
 		presentViewController(controller.wrapper, animated: true, completion: nil)
 
 	}

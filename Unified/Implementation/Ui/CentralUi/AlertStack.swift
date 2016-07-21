@@ -139,7 +139,7 @@ class AlertPanel: UIView, Dependent, AlertUiDelegate {
 		userInteractionEnabled = true
 		autoresizingMask = [.FlexibleWidth]
 		ui.container = self
-		ui.delegate = self
+		ui.alertDelegate = self
 
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapOnPanelRecognized(_:))))
 	}
@@ -195,7 +195,7 @@ public class AlertUi: Ui {
 		return model as? Alert
 	}
 
-	weak var delegate: AlertUiDelegate?
+	weak var alertDelegate: AlertUiDelegate?
 
 	let icon = UiImage()
 	let message = UiText()

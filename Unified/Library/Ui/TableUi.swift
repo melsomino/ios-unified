@@ -9,7 +9,7 @@ import UIKit
 
 
 
-public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
+public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
 
 	public weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
@@ -25,14 +25,14 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 				current.delegate = self
 				current.dataSource = self
 				for cellFactory in cellFactories {
-					current.registerClass(TableCellUi.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+					current.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
 				}
 			}
 		}
 	}
 
 
-	public func createController(useNavigation: Bool = true) -> UIViewController {
+	public func createController(useNavigation useNavigation: Bool = true) -> UIViewController {
 		let controller = TableUiController()
 		controller.ui = self
 		self.controller = controller
@@ -40,31 +40,16 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 	}
 
 
-	public final func ensureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactoryBase {
+	public final func ensureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactory {
 		for cellFactory in cellFactories {
 			if cellFactory.modelType == modelType {
 				return cellFactory
 			}
 		}
 
-		let cellFactory = TableUiCellFactoryBase(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
+		let cellFactory = TableUiCellFactory(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
 		cellFactories.append(cellFactory)
-		tableView?.registerClass(TableCellUi.self, forCellReuseIdentifier: cellFactory.cellReuseId)
-		return cellFactory
-	}
-
-
-	public final func ensureCellFactory<Model>() -> TableUiCellFactory<Model> {
-		let modelType = Model.self
-		for cellFactory in cellFactories {
-			if cellFactory.modelType == modelType {
-				return cellFactory as! TableUiCellFactory<Model>
-			}
-		}
-
-		let cellFactory = TableUiCellFactory<Model>(layoutCache: layoutCache, dependency: dependency)
-		cellFactories.append(cellFactory)
-		tableView?.registerClass(TableCellUi.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		tableView?.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
 		return cellFactory
 	}
 
@@ -107,6 +92,14 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 
 	}
 
+
+	// MARK: - Overridable
+
+
+	public func onAction(action: String, args: String?) {
+
+	}
+
 	public func loadModels(execution: Execution, inout models: [Any]) throws {
 		try modelsLoader?(execution, &models)
 	}
@@ -145,10 +138,13 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
 		let model = models[indexPath.row]
 		let cellFactory = ensureCellFactory(forModelType: model.dynamicType)
-		let cell = tableView.dequeueReusableCellWithIdentifier(cellFactory.cellReuseId, forIndexPath: indexPath) as! TableCellUi
+		let cell = tableView.dequeueReusableCellWithIdentifier(cellFactory.cellReuseId, forIndexPath: indexPath) as! TableUiCell
 		if cell.ui == nil {
-			cell.ui = cellFactory.createUi()
-			cell.ui.container = cell.contentView
+			let ui = cellFactory.createUi()
+			cell.ui = ui
+			ui.delegate = self
+			ui.container = cell.contentView
+			cell.selectionStyle = ui.definition.selectAction != nil ? .Default : .None
 		}
 		cell.ui.model = model
 		return cell
@@ -161,10 +157,19 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 	}
 
 
+	public func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+		guard let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableUiCell else {
+			return
+		}
+
+		cell.ui.tryExecuteAction(cell.ui.definition.selectAction)
+	}
+
+
 	// MARK: - Internals
 
 
-	private var cellFactories = [TableUiCellFactoryBase]()
+	private var cellFactories = [TableUiCellFactory]()
 	private var models = [Any]()
 	private var layoutCache = UiLayoutCache()
 
@@ -175,7 +180,7 @@ public class TableUi: NSObject, RepositoryDependent, RepositoryListener, UITable
 
 
 
-class TableCellUi: UITableViewCell {
+class TableUiCell: UITableViewCell {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
@@ -189,7 +194,7 @@ class TableCellUi: UITableViewCell {
 
 
 
-public class TableUiCellFactoryBase {
+public class TableUiCellFactory {
 	let dependency: DependencyResolver
 	let cellReuseId: String
 	let modelType: Any.Type
@@ -199,7 +204,8 @@ public class TableUiCellFactoryBase {
 
 	lazy var heightCalculator: Ui = {
 		[unowned self] in
-		return self.createUi()
+		let ui = self.createUi()
+		return ui
 	}()
 
 
@@ -243,33 +249,6 @@ public class TableUiCellFactoryBase {
 	}
 
 }
-
-
-
-public class TableUiCellFactory<Model>: TableUiCellFactoryBase {
-	public var onGetLayoutCacheKey: ((Model) -> String?)?
-	public var onSelect: ((Model) -> Void)?
-
-	public init(layoutCache: UiLayoutCache?, dependency: DependencyResolver) {
-		super.init(forModelType: Model.self, layoutCache: layoutCache, dependency: dependency)
-	}
-
-
-	public override func getLayoutCacheKey(model: Any) -> String? {
-		return onGetLayoutCacheKey?(model as! Model)
-	}
-
-	public override var selectable: Bool {
-		return onSelect != nil
-	}
-
-
-	public override func select(model: Any) {
-		onSelect?(model as! Model)
-	}
-
-}
-
 
 
 
