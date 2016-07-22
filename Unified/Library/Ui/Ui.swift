@@ -20,6 +20,11 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	public final var definition: UiDefinition! {
 		return internalDefinition
 	}
+	public var layoutName: String? {
+		didSet {
+			updateDefinitionFromRepository()
+		}
+	}
 	public weak var delegate: UiDelegate?
 	public var layoutCache: UiLayoutCache?
 	public var container: UIView? {
@@ -105,11 +110,6 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			updateDefinitionFromRepository()
 		}
 	}
-	private var layoutName: String? {
-		didSet {
-			updateDefinitionFromRepository()
-		}
-	}
 
 	private var internalDefinition: UiDefinition! {
 		definitionRequired()
@@ -178,9 +178,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		rootElement!.measureMaxSize(bounds)
 		rootElement!.measureSize(bounds)
 		frame = rootElement!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
-
-		print("perform layout")
-	}
+0	}
 
 
 

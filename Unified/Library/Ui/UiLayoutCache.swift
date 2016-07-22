@@ -39,6 +39,8 @@ public class UiLayoutCache {
 		return cacheByWidth[width]?.frames[key]?[0].height
 	}
 
+	public init() {
+	}
 
 	// MARK: - Internals
 

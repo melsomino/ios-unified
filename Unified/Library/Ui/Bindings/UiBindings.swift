@@ -18,7 +18,6 @@ public struct UiBindings {
 
 	public mutating func parse(string: String?) -> Expression? {
 		let expression = parseString(string)
-		print("Binding: \(string) parsed to: \(expression)")
 		return expression
 	}
 
