@@ -154,7 +154,7 @@ public class UiText: UiContentElement {
 			}
 			return size
 		}
-		return measureText(measuredText, bounds.width)
+		return measureText(measuredText, inWidth: bounds.width)
 	}
 
 

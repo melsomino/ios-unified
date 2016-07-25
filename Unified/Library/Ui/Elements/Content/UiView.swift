@@ -7,8 +7,8 @@ import Foundation
 import UIKit
 
 public class UiView: UiContentElement {
-	var size = CGSizeZero
-	public var fixedSizeValue = false
+	var width: CGFloat?
+	var height: CGFloat?
 
 	var viewFactory: (() -> UIView)?
 
@@ -25,27 +25,40 @@ public class UiView: UiContentElement {
 	}
 
 
-	public override var fixedSize: Bool {
-		return fixedSizeValue
-	}
-
-	public override func measureMaxSize(bounds: CGSize) -> CGSize {
-		return visible ? size : CGSizeZero
-	}
-
-
-	public override func measureSize(bounds: CGSize) -> CGSize {
-		return visible ? size : CGSizeZero
-	}
-
-
-	public override func layout(bounds: CGRect) -> CGRect {
-		if fixedSize {
-			self.frame = CGRectMake(bounds.origin.x, bounds.origin.y, size.width, size.height)
+	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+		guard visible else {
+			return SizeRange.zero
 		}
-		else {
-			self.frame = bounds
+		var range = SizeRange(min: CGSizeZero, max: bounds)
+		if let width = width {
+			range.min.width = width
+			range.max.width = width
 		}
+		if let height = height {
+			range.min.height = height
+			range.max.height = height
+		}
+		return range
+	}
+
+
+	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
+		guard visible else {
+			return CGSizeZero
+		}
+		var size = bounds
+		if let width = width {
+			size.width = width
+		}
+		if let height = height {
+			size.height = height
+		}
+		return size
+	}
+
+
+	public override func layout(inBounds bounds: CGRect) -> CGRect {
+		self.frame = CGRect(origin: bounds.origin, size: measureSize(inBounds: bounds.size))
 		return frame
 	}
 
@@ -54,27 +67,31 @@ public class UiView: UiContentElement {
 
 
 
-class UiViewDefinition: UiContentElementDefinition {
-	var size = CGSizeZero
-	var fixedSize = false
+public class UiViewDefinition: UiContentElementDefinition {
+	public var width: CGFloat?
+	public var height: CGFloat?
 
-	override func createElement() -> UiElement {
+	public override func createElement() -> UiElement {
 		return UiView()
 	}
 
-	override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: UiElement, children: [UiElement]) {
 		super.initialize(element, children: children)
 		let view = element as! UiView
-		view.size = size
-		view.fixedSizeValue = fixedSize
+		view.width = width
+		view.height = height
 	}
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
 		switch attribute.name {
+			case "width":
+				width = try context.getFloat(attribute)
+			case "height":
+				height = try context.getFloat(attribute)
 			case "size":
-				size = try context.getSize(attribute)
-			case "fixed-size":
-				fixedSize = try context.getBool(attribute)
+				let size = try context.getSize(attribute)
+				width = size.width
+				height = size.height
 			default:
 				try super.applyDeclarationAttribute(attribute, context: context)
 		}
