@@ -160,7 +160,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			}
 		}
 
-		performLayout(inBounds: CGSizeMake(width, 10000))
+		definitionRequired()
+		let sizeRange = rootElement!.measure(inBounds: CGSizeMake(width, 0))
+		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, width, sizeRange.max.height))
 
 		if layoutCacheKey != nil {
 			var frames = [CGRect](count: 1 + contentElements.count, repeatedValue: CGRectZero)
@@ -175,8 +177,6 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
-		rootElement!.measureSizeRange(inBounds: bounds)
-		rootElement!.measureSize(inBounds: bounds)
 		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, bounds.width, bounds.height))
 	}
 

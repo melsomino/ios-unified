@@ -34,6 +34,8 @@ public class UiContentElement: UiElement {
 		}
 	}
 
+	public var defaultBackgroundColor: UIColor?
+
 	public override init() {
 		super.init()
 	}
@@ -80,8 +82,6 @@ public class UiContentElement: UiElement {
 	}
 
 	// MARK: - Internals
-
-	private var defaultBackgroundColor: UIColor?
 
 }
 

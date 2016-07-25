@@ -139,7 +139,7 @@ public class UiHtml: UiContentElement {
 	}
 
 
-	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+	public override func measure(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
 			return SizeRange.zero
 		}
@@ -148,12 +148,6 @@ public class UiHtml: UiContentElement {
 			return SizeRange(min: size, max: size)
 		}
 		return SizeRange(min: CGSizeZero, max: size)
-	}
-
-
-
-	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
-		return measureTextSize(inBounds: bounds)
 	}
 
 

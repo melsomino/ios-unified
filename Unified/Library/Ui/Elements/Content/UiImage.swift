@@ -46,13 +46,8 @@ public class UiImage: UiContentElement {
 	}
 
 
-	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+	public override func measure(inBounds bounds: CGSize) -> SizeRange {
 		return visible ? SizeRange(min: size, max: size) : SizeRange.zero
-	}
-
-
-	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
-		return visible ? size : CGSizeZero
 	}
 
 

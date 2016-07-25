@@ -1,6 +1,6 @@
 //
-// Created by Власов М.Ю. on 16.06.16.
-// Copyright (c) 2016 melsomino. All rights reserved.
+// Created by Michael Vlasov on 16.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
@@ -13,8 +13,6 @@ import UIKit
 public struct DeclarationAttribute {
 	public let name: String
 	public let value: DeclarationValue
-
-
 }
 
 
@@ -167,12 +165,12 @@ extension NSScanner {
 
 	func passNameOrValue() throws -> String? {
 		if pass("'", passWhitespaces: false) {
-			let value = passUntil("'")
+			let value = passUntil("'") ?? ""
 			try expect("'", passWhitespaces: true)
 			return value
 		}
 		if pass("\"", passWhitespaces: false) {
-			let value = passUntil("\"")
+			let value = passUntil("\"") ?? ""
 			try expect("\"", passWhitespaces: true)
 			return value
 		}

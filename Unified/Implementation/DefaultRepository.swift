@@ -10,7 +10,7 @@ import Starscream
 
 
 
-public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
+public class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUiDependent {
 
 
 	// MARK: - Repository
@@ -91,8 +91,14 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 			case "repository-changed":
 				socket.writeString("get-repository`\(parts[1])")
 			case "repository":
-				try! loadRepositoryFromDevServer(parts[1])
-				notify()
+				do {
+					try loadRepositoryFromDevServer(parts[1])
+					notify()
+				}
+					catch let error {
+					optionalCentralUi?.pushAlert(.Error, message: String(error))
+					print(error)
+				}
 			default:
 				break
 		}

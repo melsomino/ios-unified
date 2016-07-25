@@ -25,13 +25,6 @@ public class UiStackContainer: UiMultipleElementContainer {
 	var across = UiAlignment.Leading
 	var spacing = CGFloat(0)
 
-	private var measured = [Measured]()
-	private var measuredCount = 0
-	private var measuredRange = StackRange.zero
-	private var measuredSpacing: CGFloat = 0
-	private var measuredSize = StackPosition()
-
-
 	public override var visible: Bool {
 		for item in children {
 			if item.visible {
@@ -42,130 +35,15 @@ public class UiStackContainer: UiMultipleElementContainer {
 	}
 
 
-	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
-		let horizontal = direction == .Horizontal
-		let stackBounds = StackPosition(bounds, horizontal)
-		measuredCount = 0
-		measuredRange.min.clear()
-		measuredRange.max.clear()
-		measuredSpacing = 0
-		measuredSize.clear()
-		for child in children {
-			guard child.visible else {
-				continue
-			}
-			if measuredCount >= measured.count {
-				measured.append(Measured())
-			}
-			let childRange = measured[measuredCount].measureSizeRange(forElement: child, inBounds: stackBounds, horizontal: horizontal)
-			measuredCount += 1
-			if measuredCount > 1 {
-				measuredRange.min.along += spacing
-				measuredRange.max.along += spacing
-				measuredSpacing += spacing
-			}
-			measuredRange.min.along += childRange.min.along
-			measuredRange.min.across = max(childRange.min.across, measuredRange.min.across)
-
-			measuredRange.max.along += childRange.max.along
-			measuredRange.max.across = max(childRange.max.across, measuredRange.max.across)
-		}
-		return measuredRange.toSizeRange(horizontal)
-	}
-
-
-	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
-		let horizontal = direction == .Horizontal
-		let stackBounds = StackPosition(bounds, horizontal)
-		measuredSize.clear()
-		let measuredExtraSize = measuredRange.max.along - measuredSpacing
-		let extraSize = stackBounds.along - measuredRange.min.along
-		for index in 0 ..< measuredCount {
-			let item = measured[index]
-			let itemRange = item.sizeRange
-			var itemBounds = StackPosition()
-
-			itemBounds.across = stackBounds.across
-			let itemMeasuredExtraSize = itemRange.max.along - itemRange.min.along
-			if extraSize <= 0 {
-				itemBounds.along = itemRange.min.along
-			}
-			else {
-				itemBounds.along = along == .Fill ? extraSize * itemMeasuredExtraSize / measuredExtraSize : min(itemRange.max.along, stackBounds.along)
-				if itemBounds.along < itemRange.min.along {
-					itemBounds.along = itemRange.min.along
-				}
-			}
-			var itemSize = measured[index].measureSize(itemBounds, horizontal)
-			if itemSize.along < itemRange.min.along {
-				itemSize.along = itemRange.min.along
-			}
-			measured[index].size = itemSize
-			if index > 0 {
-				measuredSize.along += spacing
-			}
-			measuredSize.along += itemSize.along
-			measuredSize.across = max(itemSize.across, measuredSize.across)
-
-		}
-		return measuredSize.toSize(horizontal)
-	}
-
-
-	private func calcMeasuredAlongSize() -> CGFloat {
-		var size = CGFloat(0)
-		for index in 0 ..< measuredCount {
-			if index > 0 {
-				size += spacing
-			}
-			size += measured[index].size.along
-		}
-		return size
+	public override func measure(inBounds bounds: CGSize) -> SizeRange {
+		var measure = StackMeasure(stack: self, inLayoutBounds: bounds)
+		return measure.measure().toSizeRange(measure.horizontal)
 	}
 
 
 	public override func layout(inBounds bounds: CGRect) -> CGRect {
-		guard measuredCount > 0 else {
-			return bounds
-		}
-
-		let horizontal = direction == .Horizontal
-		var stackOrigin = StackPosition(bounds.origin, horizontal)
-		var stackBounds = StackPosition(bounds.size, horizontal)
-		if across != .Fill && measuredSize.across < stackBounds.across {
-			stackBounds.across = measuredSize.across
-		}
-		let spacing = self.spacing
-
-		switch along {
-			case .Center:
-				stackOrigin.along = stackOrigin.along + stackBounds.along / 2 - calcMeasuredAlongSize() / 2
-			case .Tailing:
-				stackOrigin.along = stackOrigin.along + stackBounds.along - calcMeasuredAlongSize()
-			default:
-				break
-		}
-
-		for index in 0 ..< measuredCount {
-			let item = measured[index]
-			var itemOrigin = stackOrigin
-			var itemSize = item.size
-
-			switch across {
-				case .Tailing:
-					itemOrigin.across = stackOrigin.across + stackBounds.across - itemSize.across
-				case .Center:
-					itemOrigin.across = stackOrigin.across + stackBounds.across / 2 - itemSize.across / 2
-				default:
-					itemSize.across = stackBounds.across
-			}
-
-			item.element.layout(inBounds: CGRect(origin: itemOrigin.toPoint(horizontal), size: itemSize.toSize(horizontal)))
-
-			stackOrigin.along += itemSize.along + spacing
-		}
-
-		return CGRect(origin: bounds.origin, size: measuredSize.toSize(horizontal))
+		var measure = StackMeasure(stack: self, inLayoutBounds: bounds.size)
+		return measure.layout(inLayoutBounds: bounds)
 	}
 
 }
@@ -242,31 +120,147 @@ private struct StackRange {
 
 
 
-private struct Measured {
-	var element: UiElement!
+private struct StackChildMeasure {
+	let element: UiElement
 	var sizeRange = StackRange.zero
 	var size = StackPosition()
 
-	init() {
+	init(element: UiElement) {
+		self.element = element
 	}
 
 
-	mutating func measureSizeRange(forElement element: UiElement, inBounds bounds: StackPosition, horizontal: Bool) -> StackRange {
-		self.element = element
-		let elementSizeRange = element.measureSizeRange(inBounds: bounds.toSize(horizontal))
+	mutating func measure(inBounds bounds: StackPosition, horizontal: Bool) -> StackRange {
+		let elementSizeRange = element.measure(inBounds: bounds.toSize(horizontal))
 		sizeRange = StackRange(sizeRange: elementSizeRange, horizontal: horizontal)
+		return sizeRange
+	}
+}
+
+private struct StackMeasure {
+	let stack: UiStackContainer
+	let horizontal: Bool
+	let bounds: StackPosition
+	let spacing: CGFloat
+
+	var children = [StackChildMeasure]()
+
+	init(stack: UiStackContainer, inLayoutBounds layoutBounds: CGSize) {
+		self.stack = stack
+		self.horizontal = stack.direction == .Horizontal
+		self.bounds = StackPosition(layoutBounds, horizontal)
+
+		for child in stack.children {
+			if child.visible {
+				children.append(StackChildMeasure(element: child))
+			}
+		}
+		spacing = CGFloat(children.count - 1)*stack.spacing
+	}
+
+	mutating func measure() -> StackRange {
+		var sizeRange = StackRange.zero
+		for i in 0 ..< children.count {
+			let childRange = children[i].measure(inBounds: bounds, horizontal: horizontal)
+			sizeRange.min.along += childRange.min.along
+			sizeRange.min.across = max(childRange.min.across, sizeRange.min.across)
+
+			sizeRange.max.along += childRange.max.along
+			sizeRange.max.across = max(childRange.max.across, sizeRange.max.across)
+		}
+		sizeRange.min.along += spacing
+		sizeRange.max.along += spacing
 		return sizeRange
 	}
 
 
-	mutating func measureSize(bounds: StackPosition, _ horizontal: Bool) -> StackPosition {
-		size = StackPosition(element.measureSize(inBounds: bounds.toSize(horizontal)), horizontal)
-		return size
+	mutating func layout(inLayoutBounds layoutBounds: CGRect) -> CGRect {
+		guard children.count > 0 else {
+			return CGRect(origin: layoutBounds.origin, size: CGSizeZero)
+		}
+
+		let sizeRange = measure()
+		let extraSize = sizeRange.max.along - sizeRange.min.along
+		let layoutExtraSize = bounds.along - sizeRange.min.along
+		var stackOrigin = StackPosition(layoutBounds.origin, horizontal)
+
+		var itemSpacing = stack.spacing
+		var maxSize = StackPosition.zero
+		for i in 0 ..< children.count {
+			let child: StackChildMeasure = children[i]
+			var itemBounds = StackPosition(bounds.along, 0)
+			if children.count == 1 && stack.along == .Fill {
+				itemBounds.along = bounds.along
+			}
+			else if children.count > 1 || stack.along != .Fill {
+				if layoutExtraSize <= 0 {
+					itemBounds.along = child.sizeRange.min.along
+				}
+				else {
+					let childExtraSize = child.sizeRange.max.along - child.sizeRange.min.along
+					itemBounds.along = stack.along == .Fill ? child.sizeRange.min.along + childExtraSize * layoutExtraSize / extraSize : bounds.along
+				}
+			}
+			if itemBounds.along < child.sizeRange.min.along {
+				itemBounds.along = child.sizeRange.min.along
+			}
+			if stack.across == .Fill {
+				itemBounds.across = bounds.across
+			}
+			let childRange = children[i].measure(inBounds: itemBounds, horizontal: horizontal)
+			maxSize.along += childRange.max.along
+			maxSize.across = max(maxSize.across, childRange.max.across)
+		}
+
+		var totalSpacing = spacing
+
+		if stack.along == .Fill && children.count > 1 && maxSize.along + spacing < bounds.along {
+			totalSpacing = bounds.along - maxSize.along
+			itemSpacing = totalSpacing / CGFloat(children.count - 1)
+		}
+
+		switch stack.along {
+			case .Center:
+				stackOrigin.along = stackOrigin.along + bounds.along / 2 - (maxSize.along + totalSpacing) / 2
+			case .Tailing:
+				stackOrigin.along = stackOrigin.along + bounds.along - (maxSize.along + totalSpacing)
+			default:
+				break
+		}
+
+
+		var size = StackPosition(totalSpacing, 0)
+		for index in 0 ..< children.count {
+			let child: StackChildMeasure = children[index]
+			var itemOrigin = stackOrigin
+			var itemSize = child.sizeRange.max
+
+			switch stack.across {
+				case .Tailing:
+					itemOrigin.across = stackOrigin.across + maxSize.across - itemSize.across
+				case .Center:
+					itemOrigin.across = stackOrigin.across + maxSize.across / 2 - itemSize.across / 2
+				default:
+					break
+			}
+
+			if stack.across == .Fill {
+				itemSize.across = bounds.across
+			}
+			if children.count == 1 && stack.along == .Fill {
+				itemSize.along = bounds.along
+			}
+			let itemFrame = child.element.layout(inBounds: CGRect(origin: itemOrigin.toPoint(horizontal), size: itemSize.toSize(horizontal)))
+			itemSize = StackPosition(itemFrame.size, horizontal)
+
+			stackOrigin.along += itemSize.along + itemSpacing
+			size.along += itemSize.along
+			size.across = max(size.across, itemSize.across)
+		}
+
+		return CGRect(origin: layoutBounds.origin, size: size.toSize(horizontal))
 	}
 }
-
-
-
 
 
 class UiStackContainerDefinition: UiElementDefinition {

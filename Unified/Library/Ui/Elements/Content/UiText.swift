@@ -71,7 +71,20 @@ public class UiText: UiContentElement {
 
 
 	public override func initializeView() {
-		super.initializeView()
+		guard let view = view else {
+			return
+		}
+
+		view.layer.backgroundColor = (backgroundColor ?? defaultBackgroundColor)?.CGColor
+
+		if let radius = cornerRadius {
+			view.clipsToBounds = true
+			view.layer.cornerRadius = radius
+		}
+		else {
+			view.layer.cornerRadius = 0
+		}
+
 		guard let label = view as? UiTextLabel else {
 			return
 		}
@@ -106,7 +119,7 @@ public class UiText: UiContentElement {
 
 
 
-	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+	public override func measure(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
 			return SizeRange.zero
 		}
@@ -114,14 +127,10 @@ public class UiText: UiContentElement {
 		if nowrap {
 			return SizeRange(min: size, max: size)
 		}
-		return SizeRange(min: CGSizeZero, max: size)
+		let min = CGSizeMake(1, size.height)
+		return SizeRange(min: min, max: size)
 	}
 
-
-
-	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
-		return measureTextSize(inBounds: bounds)
-	}
 
 
 	// MARK: - Internals
@@ -227,6 +236,7 @@ public class UiTextDefinition: UiContentElementDefinition {
 		super.initialize(element, children: children)
 
 		let text = element as! UiText
+
 		if let name = fontName, size = fontSize {
 			text.font = font(name, size)
 		}

@@ -25,7 +25,7 @@ public class UiView: UiContentElement {
 	}
 
 
-	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+	public override func measure(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
 			return SizeRange.zero
 		}
@@ -42,23 +42,8 @@ public class UiView: UiContentElement {
 	}
 
 
-	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		var size = bounds
-		if let width = width {
-			size.width = width
-		}
-		if let height = height {
-			size.height = height
-		}
-		return size
-	}
-
-
 	public override func layout(inBounds bounds: CGRect) -> CGRect {
-		self.frame = CGRect(origin: bounds.origin, size: measureSize(inBounds: bounds.size))
+		self.frame = CGRect(origin: bounds.origin, size: measure(inBounds: bounds.size).max)
 		return frame
 	}
 

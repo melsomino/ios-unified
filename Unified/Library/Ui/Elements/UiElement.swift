@@ -11,6 +11,10 @@ public struct SizeRange {
 	public var min: CGSize
 	public var max: CGSize
 
+	public init(min: CGSize, max: CGSize) {
+		self.min = min
+		self.max = max
+	}
 	public static let zero = SizeRange(min: CGSizeZero, max: CGSizeZero)
 }
 
@@ -36,13 +40,8 @@ public class UiElement {
 	}
 
 
-	public func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+	public func measure(inBounds bounds: CGSize) -> SizeRange {
 		return SizeRange(min: CGSizeZero, max: bounds)
-	}
-
-
-	public func measureSize(inBounds bounds: CGSize) -> CGSize {
-		return bounds
 	}
 
 
