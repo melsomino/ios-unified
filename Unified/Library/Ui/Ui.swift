@@ -175,10 +175,10 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
-		rootElement!.measureMaxSize(bounds)
-		rootElement!.measureSize(bounds)
-		frame = rootElement!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
-0	}
+		rootElement!.measureSizeRange(inBounds: bounds)
+		rootElement!.measureSize(inBounds: bounds)
+		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, bounds.width, bounds.height))
+	}
 
 
 
@@ -274,12 +274,12 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 		attachToContainer()
 
-		performLayout()
+		internalDidSetModel()
 	}
 
 
 	func updateDefinitionFromRepository() {
-		setDefinition(try! repository.uiFactory(forModelType: modelType, name: layoutName))
+		setDefinition(try! repository.uiDefinition(forModelType: modelType, name: layoutName))
 	}
 
 

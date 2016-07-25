@@ -8,7 +8,7 @@ import UIKit
 
 public class UiImage: UiContentElement {
 	var size = CGSizeZero
-	public var fixedSizeValue = false
+
 	public var imageAlignment = UIViewContentMode.Center {
 		didSet {
 			initializeView()
@@ -46,27 +46,18 @@ public class UiImage: UiContentElement {
 	}
 
 
-	public override var fixedSize: Bool {
-		return fixedSizeValue
+	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+		return visible ? SizeRange(min: size, max: size) : SizeRange.zero
 	}
 
-	public override func measureMaxSize(bounds: CGSize) -> CGSize {
+
+	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
 		return visible ? size : CGSizeZero
 	}
 
 
-	public override func measureSize(bounds: CGSize) -> CGSize {
-		return visible ? size : CGSizeZero
-	}
-
-
-	public override func layout(bounds: CGRect) -> CGRect {
-		if fixedSize {
-			self.frame = CGRectMake(bounds.origin.x, bounds.origin.y, size.width, size.height)
-		}
-		else {
-			self.frame = bounds
-		}
+	public override func layout(inBounds bounds: CGRect) -> CGRect {
+		self.frame = CGRect(origin: bounds.origin, size: size)
 		return frame
 	}
 }
@@ -103,7 +94,6 @@ class UiImageDefinition: UiContentElementDefinition {
 		let image = element as! UiImage
 		image.image = source
 		image.size = size
-		image.fixedSizeValue = fixedSize
 		image.imageAlignment = imageAlignment
 	}
 

@@ -139,56 +139,23 @@ public class UiHtml: UiContentElement {
 	}
 
 
-	public override var fixedSize: Bool {
-		return nowrap
-	}
-
-
-	public override func measureMaxSize(bounds: CGSize) -> CGSize {
+	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
-			return CGSizeZero
+			return SizeRange.zero
 		}
-		let measuredText = getAttributedText()
+		let size = measureTextSize(inBounds: bounds)
 		if nowrap {
-			return measureText(measuredText, CGFloat.max)
+			return SizeRange(min: size, max: size)
 		}
-		if maxLines > 0 {
-			let singleLine = measuredText.string.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(NSAttributedString(string: singleLine), CGFloat.max).height + 1
-			var maxSize = measureText(measuredText, bounds.width)
-			let maxHeight = singleLineHeight * CGFloat(maxLines)
-			if maxSize.height > maxHeight {
-				maxSize.height = maxHeight
-			}
-			return maxSize
-		}
-		return measureText(measuredText, bounds.width)
+		return SizeRange(min: CGSizeZero, max: size)
 	}
 
 
 
-
-
-	public override func measureSize(bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		let measuredText = getAttributedText()
-		if nowrap {
-			return measureText(measuredText, CGFloat.max)
-		}
-		if maxLines > 0 {
-			let singleLine = measuredText.string.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(NSAttributedString(string: singleLine), CGFloat.max).height + 1
-			var size = measureText(measuredText, bounds.width)
-			let maxHeight = singleLineHeight * CGFloat(maxLines)
-			if size.height > maxHeight {
-				size.height = maxHeight
-			}
-			return size
-		}
-		return measureText(measuredText, bounds.width)
+	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
+		return measureTextSize(inBounds: bounds)
 	}
+
 
 
 	// MARK: - Internals
@@ -198,14 +165,35 @@ public class UiHtml: UiContentElement {
 	private var defaultFont: UIFont?
 	private var defaultColor: UIColor?
 
-	private func getAttributedText() -> NSAttributedString {
+	private func attributedTextForMeasure() -> NSAttributedString {
 		return attributedText ?? NSAttributedString(string: "")
 	}
 
 
+	private func measureTextSize(inBounds bounds: CGSize) -> CGSize {
+		guard visible else {
+			return CGSizeZero
+		}
+		let measuredText = attributedTextForMeasure()
+		if nowrap {
+			return measureText(measuredText, inWidth: CGFloat.max)
+		}
+		if maxLines > 0 {
+			let singleLine = measuredText.string.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
+			let singleLineHeight = measureText(NSAttributedString(string: singleLine), inWidth: CGFloat.max).height + 1
+			var size = measureText(measuredText, inWidth: bounds.width)
+			let maxHeight = singleLineHeight * CGFloat(maxLines)
+			if size.height > maxHeight {
+				size.height = maxHeight
+			}
+			return size
+		}
+		return measureText(measuredText, inWidth: bounds.width)
+	}
 
 
-	private func measureText(text: NSAttributedString, _ width: CGFloat) -> CGSize {
+
+	private func measureText(text: NSAttributedString, inWidth width: CGFloat) -> CGSize {
 		let constraintSize = CGSize(width: width, height: CGFloat.max)
 		let size = text.boundingRectWithSize(constraintSize,
 			options: NSStringDrawingOptions.UsesLineFragmentOrigin,

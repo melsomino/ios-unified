@@ -7,7 +7,12 @@ import Foundation
 import UIKit
 
 
+public struct SizeRange {
+	public var min: CGSize
+	public var max: CGSize
 
+	public static let zero = SizeRange(min: CGSizeZero, max: CGSizeZero)
+}
 
 
 public class UiElement {
@@ -22,9 +27,6 @@ public class UiElement {
 		return true
 	}
 
-	public var fixedSize: Bool {
-		return false
-	}
 
 	public func traversal(@noescape visit: (UiElement) -> Void) {
 		visit(self)
@@ -34,22 +36,17 @@ public class UiElement {
 	}
 
 
-	public func measureSizeRange(bounds: CGSize) -> UiSizeRange {
-		return UiSizeRange.fromSize(bounds)
+	public func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+		return SizeRange(min: CGSizeZero, max: bounds)
 	}
 
 
-	public func measureMaxSize(bounds: CGSize) -> CGSize {
+	public func measureSize(inBounds bounds: CGSize) -> CGSize {
 		return bounds
 	}
 
 
-	public func measureSize(bounds: CGSize) -> CGSize {
-		return bounds
-	}
-
-
-	public func layout(bounds: CGRect) -> CGRect {
+	public func layout(inBounds bounds: CGRect) -> CGRect {
 		return bounds
 	}
 
@@ -204,13 +201,11 @@ public class UiElementDefinition {
 
 		mutating func append(decorator: UiElementDefinition) {
 			decorator.childrenDefinitions.append(target)
-			if last == nil {
-				last = decorator
+			if first == nil {
+				first = decorator
 			}
-			else {
-				last!.childrenDefinitions[0] = decorator
-			}
-			first = decorator
+			last?.childrenDefinitions[0] = decorator
+			last = decorator
 		}
 	}
 

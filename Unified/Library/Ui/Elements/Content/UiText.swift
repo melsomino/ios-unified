@@ -26,6 +26,12 @@ public class UiText: UiContentElement {
 		}
 	}
 
+	public var padding = UIEdgeInsetsZero {
+		didSet {
+			initializeView()
+		}
+	}
+
 	public var color: UIColor? {
 		didSet {
 			initializeView()
@@ -36,7 +42,7 @@ public class UiText: UiContentElement {
 
 	public var text: String? {
 		didSet {
-			if let label = view as? UILabel {
+			if let label = view as? UiTextLabel {
 				label.text = text
 			}
 			if autoHideEmptyText {
@@ -66,10 +72,11 @@ public class UiText: UiContentElement {
 
 	public override func initializeView() {
 		super.initializeView()
-		guard let label = view as? UILabel else {
+		guard let label = view as? UiTextLabel else {
 			return
 		}
 		label.font = font ?? defaultFont
+		label.padding = padding
 		label.textColor = color ?? defaultColor
 		label.numberOfLines = maxLines ?? defaultMaxLines
 		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
@@ -81,7 +88,7 @@ public class UiText: UiContentElement {
 
 
 	public override func createView() -> UIView {
-		return UILabel()
+		return UiTextLabel()
 	}
 
 
@@ -98,55 +105,22 @@ public class UiText: UiContentElement {
 	}
 
 
-	public override var fixedSize: Bool {
-		return nowrap
-	}
 
-
-	public override func measureMaxSize(bounds: CGSize) -> CGSize {
+	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
-			return CGSizeZero
+			return SizeRange.zero
 		}
-		let measuredText = textForMeasure()
+		let size = measureTextSize(inBounds: bounds)
 		if nowrap {
-			return measureText(measuredText, CGFloat.max)
+			return SizeRange(min: size, max: size)
 		}
-		if maxLines > 0 {
-			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(singleLine, CGFloat.max).height + 1
-			var maxSize = measureText(measuredText, bounds.width)
-			let maxHeight = singleLineHeight * CGFloat(maxLines)
-			if maxSize.height > maxHeight {
-				maxSize.height = maxHeight
-			}
-			return maxSize
-		}
-		return measureText(measuredText, bounds.width)
+		return SizeRange(min: CGSizeZero, max: size)
 	}
 
 
 
-
-
-	public override func measureSize(bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		let measuredText = textForMeasure()
-		if nowrap {
-			return measureText(measuredText, CGFloat.max)
-		}
-		if maxLines > 0 {
-			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(singleLine, CGFloat.max).height + 1
-			var size = measureText(measuredText, bounds.width)
-			let maxHeight = singleLineHeight * CGFloat(maxLines)
-			if size.height > maxHeight {
-				size.height = maxHeight
-			}
-			return size
-		}
-		return measureText(measuredText, bounds.width)
+	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
+		return measureTextSize(inBounds: bounds)
 	}
 
 
@@ -162,14 +136,36 @@ public class UiText: UiContentElement {
 	}
 
 
+	private func measureTextSize(inBounds bounds: CGSize) -> CGSize {
+		guard visible else {
+			return CGSizeZero
+		}
+		let measuredText = textForMeasure()
+		if nowrap {
+			return measureText(measuredText, inWidth: CGFloat.max)
+		}
+		if maxLines > 0 {
+			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
+			let singleLineHeight = measureText(singleLine, inWidth: CGFloat.max).height + 1
+			var size = measureText(measuredText, inWidth: bounds.width)
+			let maxHeight = singleLineHeight * CGFloat(maxLines)
+			if size.height > maxHeight {
+				size.height = maxHeight
+			}
+			return size
+		}
+		return measureText(measuredText, bounds.width)
+	}
 
 
-	private func measureText(text: String, _ width: CGFloat) -> CGSize {
+	private func measureText(text: String, inWidth width: CGFloat) -> CGSize {
 		let constraintSize = CGSize(width: width, height: CGFloat.max)
-		let size = text.boundingRectWithSize(constraintSize,
+		var size = text.boundingRectWithSize(constraintSize,
 			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
 			attributes: [NSFontAttributeName: resolveFont()],
 			context: nil).size
+		size.width += padding.left + padding.right
+		size.height += padding.top + padding.bottom
 		return size
 	}
 
@@ -184,6 +180,7 @@ public class UiText: UiContentElement {
 public class UiTextDefinition: UiContentElementDefinition {
 	var fontName: String?
 	var fontSize: CGFloat?
+	var padding: UIEdgeInsets = UIEdgeInsetsZero
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
@@ -205,6 +202,16 @@ public class UiTextDefinition: UiContentElementDefinition {
 				color = try context.getColor(attribute)
 			case "text":
 				text = try context.getExpression(attribute)
+			case "padding":
+				padding = try context.getInsets(attribute)
+			case "padding-top":
+				padding.top = try context.getFloat(attribute)
+			case "padding-bottom":
+				padding.bottom = try context.getFloat(attribute)
+			case "padding-left":
+				padding.left = try context.getFloat(attribute)
+			case "padding-right":
+				padding.right = try context.getFloat(attribute)
 			default:
 				try super.applyDeclarationAttribute(attribute, context: context)
 		}
@@ -229,6 +236,7 @@ public class UiTextDefinition: UiContentElementDefinition {
 		else if let size = fontSize {
 			text.font = UIFont.systemFontOfSize(size)
 		}
+		text.padding = padding
 		text.color = color
 		text.maxLines = maxLines
 		text.nowrap = nowrap
@@ -262,3 +270,16 @@ public class UiTextDefinition: UiContentElementDefinition {
 		return UIFont(name: name, size: size) ?? UIFont.systemFontOfSize(size)
 	}
 }
+
+
+
+public class UiTextLabel: UILabel {
+	public var padding = UIEdgeInsetsZero
+	public var gradientBack = false
+
+	public override func drawTextInRect(rect: CGRect) {
+		super.drawTextInRect(UIEdgeInsetsInsetRect(rect, padding))
+	}
+
+}
+

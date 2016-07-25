@@ -14,16 +14,15 @@ public class UiAlignmentContainer: UiSingleElementContainer {
 	var anchor = UiAlignmentAnchor.TopLeft
 
 
-	public override func measureMaxSize(bounds: CGSize) -> CGSize {
-		return child.measureMaxSize(bounds)
+	public override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+		return child.measureSizeRange(inBounds: bounds)
 	}
 
-	public override func measureSize(bounds: CGSize) -> CGSize {
-		contentSize = child.measureSize(bounds)
-		return contentSize
+	public override func measureSize(inBounds bounds: CGSize) -> CGSize {
+		return child.measureSize(inBounds: bounds)
 	}
 
-	public override func layout(bounds: CGRect) -> CGRect {
+	public override func layout(inBounds bounds: CGRect) -> CGRect {
 		var contentOrigin = CGPointZero
 		switch anchor {
 			case .TopLeft, .Left, .BottomLeft:
@@ -46,7 +45,7 @@ public class UiAlignmentContainer: UiSingleElementContainer {
 				contentOrigin.y = bounds.origin.y + bounds.size.height / 2 - contentSize.height / 2
 		}
 
-		child.layout(CGRectMake(contentOrigin.x, contentOrigin.y, contentSize.width, contentSize.height))
+		child.layout(inBounds: CGRect(origin: contentOrigin, size: contentSize))
 		return bounds
 	}
 

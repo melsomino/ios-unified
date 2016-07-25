@@ -136,6 +136,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
+	private static var dayMonthFormatter: NSDateFormatter = {
+		let formatter = NSDateFormatter()
+		formatter.dateFormat = "dd.MM"
+		return formatter
+	}()
+
+
 	private static var dateTimeFormatter: NSDateFormatter = {
 		let RFC3339 = NSDateFormatter()
 		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
@@ -144,6 +151,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 		return RFC3339
 	}()
+
 
 	private static var dateTimeFormatterWithTimeZone: NSDateFormatter = {
 		let formatter = NSDateFormatter()
@@ -164,6 +172,14 @@ public class CloudApiPrimitiveTypeConverter {
 				}
 				if let date = dateTimeFormatter.dateFromString(s) {
 					return date
+				}
+				if let date = dayMonthFormatter.dateFromString(s) {
+					let calendar = NSCalendar.currentCalendar()
+					let todayComponents = calendar.components([.Year], fromDate: NSDate())
+					let components = calendar.components([.Month, .Day], fromDate: date)
+					components.year = todayComponents.year
+					let resultDate = calendar.dateFromComponents(components)
+					return resultDate
 				}
 				print("can not convert date from string: \(s)")
 				return nil

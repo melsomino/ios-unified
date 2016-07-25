@@ -16,10 +16,6 @@ public class UiMultipleElementContainer: UiElement {
 		return children.contains({ $0.visible })
 	}
 
-	public override var fixedSize: Bool {
-		return children.contains({ $0.fixedSize })
-	}
-
 	public override func traversal(@noescape visit: (UiElement) -> Void) {
 		super.traversal(visit)
 		for item in children {

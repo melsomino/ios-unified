@@ -8,6 +8,8 @@ import UIKit
 
 
 
+
+
 public struct DeclarationAttribute {
 	public let name: String
 	public let value: DeclarationValue
@@ -26,6 +28,11 @@ public struct DeclarationElement {
 
 	public var name: String {
 		return attributes[0].name
+	}
+
+
+	public var value: String? {
+		return attributes.count > 1 ? attributes[1].name : nil
 	}
 
 	public static func load(path: String) throws -> [DeclarationElement] {
@@ -71,7 +78,13 @@ public struct DeclarationElement {
 }
 
 
+
+
+
 // MARK: - Scanner extension
+
+
+
 
 
 extension NSScanner {
@@ -92,6 +105,7 @@ extension NSScanner {
 			}
 		}
 	}
+
 
 	func passDeclarationIndent(expected: Int) -> Bool {
 		var indent = 0
@@ -177,9 +191,11 @@ extension NSScanner {
 	}
 
 
-
-
 }
+
+
+
+
 
 private let nameOrValueTerminator = NSCharacterSet.union(NSCharacterSet.whitespaceAndNewlineCharacterSet(), NSCharacterSet(charactersInString: "=()'~"))
 private let nameCharacters = NSCharacterSet.union(NSCharacterSet.alphanumericCharacterSet(), NSCharacterSet(charactersInString: "-."))

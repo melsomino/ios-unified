@@ -224,7 +224,11 @@ public struct UiBindings {
 					}
 					return String(date)
 				default:
-					return String(value)
+					let s = String(value)
+					if s == "nil" {
+						return nil
+					}
+					return s
 			}
 		}
 	}

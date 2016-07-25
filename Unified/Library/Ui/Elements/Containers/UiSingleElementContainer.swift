@@ -14,6 +14,7 @@ public class UiSingleElementContainer: UiElement {
 		return child.visible
 	}
 
+
 	public override func traversal(@noescape visit: (UiElement) -> Void) {
 		super.traversal(visit)
 		child.traversal(visit)

@@ -13,16 +13,17 @@ class UiPaddingContainer: UiSingleElementContainer {
 	// MARK: - UiElement
 
 
-	override func measureMaxSize(bounds: CGSize) -> CGSize {
-		return expandSize(child.measureMaxSize(reduceSize(bounds)))
+	override func measureSizeRange(inBounds bounds: CGSize) -> SizeRange {
+		let childRange = child.measureSizeRange(inBounds: reduceSize(bounds))
+		return SizeRange(min: expandSize(childRange.min), max: expandSize(childRange.max))
 	}
 
-	override func measureSize(bounds: CGSize) -> CGSize {
-		return expandSize(child.measureSize(reduceSize(bounds)))
+	override func measureSize(inBounds bounds: CGSize) -> CGSize {
+		return expandSize(child.measureSize(inBounds: reduceSize(bounds)))
 	}
 
-	override func layout(bounds: CGRect) -> CGRect {
-		return expandRect(child.layout(UIEdgeInsetsInsetRect(bounds, insets)))
+	override func layout(inBounds bounds: CGRect) -> CGRect {
+		return expandRect(child.layout(inBounds: UIEdgeInsetsInsetRect(bounds, insets)))
 	}
 
 
