@@ -1,11 +1,11 @@
 Pod::Spec.new do |spec|
   spec.name = 'Unified'
-  spec.version = '0.0.2'
+  spec.version = '0.1.5'
   spec.summary = 'Unified framework'
   spec.license = { :type => 'MIT' }
   spec.homepage = 'https://github.com/melsomino/unified-ios'
   spec.authors = 'Michael Vlasov'
-  spec.source = { :git => 'https://github.com/melsomino/unified-ios', :tag => spec.version }
+  spec.source = { :git => 'https://github.com/melsomino/unified-ios', :tag => 'rc-' + spec.version.to_s }
   
   spec.platform = :ios, '8.0'
   spec.requires_arc = true
