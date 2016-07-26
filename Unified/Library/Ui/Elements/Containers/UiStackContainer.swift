@@ -37,7 +37,11 @@ public class UiStackContainer: UiMultipleElementContainer {
 
 	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
 		var measure = StackMeasure(stack: self, inLayoutBounds: bounds)
-		return measure.measure().toSizeRange(measure.horizontal)
+		var sizeRange = measure.measure().toSizeRange(measure.horizontal)
+		if sizeRange.max.width > bounds.width {
+			sizeRange.max.width = bounds.width
+		}
+		return sizeRange
 	}
 
 
@@ -126,23 +130,32 @@ private struct StackRange {
 
 private struct StackChildMeasure {
 	let element: UiElement
+	let horizontal: Bool
+	let alongAlign: UiAlignment
 	var sizeRange = StackRange.zero
 	var size = StackPosition()
 
-	init(element: UiElement) {
+	init(element: UiElement, horizontal: Bool) {
 		self.element = element
+		self.horizontal = horizontal
+		alongAlign = horizontal ? element.halign : element.valign
 	}
 
 
 	mutating func measure(inBounds bounds: StackPosition, horizontal: Bool) -> StackRange {
 		let elementSizeRange = element.measure(inBounds: bounds.toSize(horizontal))
 		sizeRange = StackRange(sizeRange: elementSizeRange, horizontal: horizontal)
+		if alongAlign == .Fill {
+			sizeRange.max.along = bounds.along
+		}
 		return sizeRange
 	}
 
 
-	mutating func measureSize(stackMeasuredExtraAlong stackMeasuredExtraAlong: CGFloat, stackActualExtraAlong: CGFloat,
-				  horizontal: Bool, stackAlong: UiAlignment, stackAcross: UiAlignment, childrenCount: Int) -> StackPosition {
+	mutating func measureSize(stackBounds stackBounds: StackPosition,
+		stackMeasuredExtraAlong: CGFloat, stackActualExtraAlong: CGFloat,
+		horizontal: Bool, stackAlong: UiAlignment, stackAcross: UiAlignment, childrenCount: Int) -> StackPosition {
+
 		size = StackPosition(sizeRange.min.along, 0)
 		if stackActualExtraAlong > 0 {
 			if childrenCount == 1 && stackAlong == .Fill {
@@ -150,11 +163,13 @@ private struct StackChildMeasure {
 			}
 			else {
 				let measuredChildExtraAlong = sizeRange.max.along - sizeRange.min.along
-				size.along += stackActualExtraAlong * measuredChildExtraAlong / stackMeasuredExtraAlong
+				if stackMeasuredExtraAlong > 0 {
+					size.along += stackActualExtraAlong * measuredChildExtraAlong / stackMeasuredExtraAlong
+				}
 			}
 		}
 		if stackAcross == .Fill {
-			size.across = size.across
+			size.across = stackBounds.across
 		}
 		sizeRange = measure(inBounds: size, horizontal: horizontal)
 		size.across = sizeRange.max.across
@@ -182,9 +197,10 @@ private struct StackMeasure {
 
 		for child in stack.children {
 			if child.visible {
-				children.append(StackChildMeasure(element: child))
+				children.append(StackChildMeasure(element: child, horizontal: horizontal))
 			}
 		}
+
 		spacing = CGFloat(children.count - 1) * stack.spacing
 	}
 
@@ -218,7 +234,8 @@ private struct StackMeasure {
 		var itemSpacing = stack.spacing
 		var maxSize = StackPosition.zero
 		for i in 0 ..< children.count {
-			let itemSize = children[i].measureSize(stackMeasuredExtraAlong: measuredExtraSize, stackActualExtraAlong: actualExtraSize, horizontal: horizontal,
+			let itemSize = children[i].measureSize(stackBounds: bounds,
+				stackMeasuredExtraAlong: measuredExtraSize, stackActualExtraAlong: actualExtraSize, horizontal: horizontal,
 				stackAlong: stack.along, stackAcross: stack.across, childrenCount: children.count)
 			maxSize.along += itemSize.along
 			maxSize.across = max(maxSize.across, itemSize.across)
@@ -263,7 +280,11 @@ private struct StackMeasure {
 			if stack.across == .Fill {
 				itemBounds.across = maxSize.across
 			}
-			child.element.align(withSize: itemBounds.toSize(horizontal), inBounds: CGRect(origin: itemOrigin.toPoint(horizontal), size: itemBounds.toSize(horizontal)))
+			let childFrame = child.element.align(withSize: itemBounds.toSize(horizontal), inBounds: CGRect(origin: itemOrigin.toPoint(horizontal), size: itemBounds.toSize(horizontal)))
+			let childSize = StackPosition(childFrame.size, horizontal)
+			if childSize.along > itemBounds.along {
+				itemBounds.along = childSize.along
+			}
 
 			stackOrigin.along += itemBounds.along + itemSpacing
 			size.along += itemBounds.along
