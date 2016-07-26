@@ -46,12 +46,12 @@ public class UiImage: UiContentElement {
 	}
 
 
-	public override func measure(inBounds bounds: CGSize) -> SizeRange {
+	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
 		return visible ? SizeRange(min: size, max: size) : SizeRange.zero
 	}
 
 
-	public override func layout(inBounds bounds: CGRect) -> CGRect {
+	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		self.frame = CGRect(origin: bounds.origin, size: size)
 		return frame
 	}

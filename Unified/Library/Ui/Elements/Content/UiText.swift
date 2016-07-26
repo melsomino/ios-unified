@@ -119,7 +119,7 @@ public class UiText: UiContentElement {
 
 
 
-	public override func measure(inBounds bounds: CGSize) -> SizeRange {
+	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
 			return SizeRange.zero
 		}

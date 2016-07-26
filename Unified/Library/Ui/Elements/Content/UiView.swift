@@ -25,7 +25,7 @@ public class UiView: UiContentElement {
 	}
 
 
-	public override func measure(inBounds bounds: CGSize) -> SizeRange {
+	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
 		guard visible else {
 			return SizeRange.zero
 		}
@@ -42,7 +42,7 @@ public class UiView: UiContentElement {
 	}
 
 
-	public override func layout(inBounds bounds: CGRect) -> CGRect {
+	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		self.frame = CGRect(origin: bounds.origin, size: measure(inBounds: bounds.size).max)
 		return frame
 	}

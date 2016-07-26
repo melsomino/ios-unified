@@ -76,7 +76,7 @@ public class UiContentElement: UiElement {
 		return !hidden
 	}
 
-	public override func layout(inBounds bounds: CGRect) -> CGRect {
+	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		frame = bounds
 		return frame
 	}

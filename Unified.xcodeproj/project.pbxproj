@@ -18,7 +18,6 @@
 		EBE70060ACB555FB877FAA0E /* DeclarationValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70B8A67DBBAD23D9A077C /* DeclarationValue.swift */; };
 		EBE7007343D0C75134E7D85C /* Threading.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70FDE44360CB11B0F2D39 /* Threading.swift */; };
 		EBE700C117ABE4BB9B62B848 /* UiMultipleElementContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7045FDA8C35F6C55E5E07 /* UiMultipleElementContainer.swift */; };
-		EBE700E48699DF8848700BDD /* UiAlignmentContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7092E912C36FA6C60BEE7 /* UiAlignmentContainer.swift */; };
 		EBE700E59DCCA9671B88713A /* CentralUiSideController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE703A40A4B4050DC75865B /* CentralUiSideController.swift */; };
 		EBE700F3FC86E0D178AAC7C3 /* MainMenuItemCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EBE706902484F10D17B64616 /* MainMenuItemCell.xib */; };
 		EBE701237ED051202F216CE5 /* CentralUiDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70BC42F276614D2B9B0BD /* CentralUiDesign.swift */; };
@@ -68,7 +67,6 @@
 		EBE70A4A2F4F5301F6E4B2EB /* DefaultCloudFilesCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70DF593B0DF99F6692282 /* DefaultCloudFilesCache.swift */; };
 		EBE70A5ABA46864D8B70FB6A /* Component.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70385F01193484AE4EC1E /* Component.swift */; };
 		EBE70ABD17AB4A68A974C452 /* UiSingleElementContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7085BDCF91DB1E0F99256 /* UiSingleElementContainer.swift */; };
-		EBE70AF48AC4F5E5B3A9583A /* UiPaddingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70751B634E7E061865457 /* UiPaddingContainer.swift */; };
 		EBE70B177A373F633FA7D6AD /* UIKitExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70D95BA2D4AAF2F5B3A19 /* UIKitExtensions.swift */; };
 		EBE70B1DA9570E3EFFA677FC /* DefaultCloudFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70457BDF24AFA80836BFE /* DefaultCloudFile.swift */; };
 		EBE70B37FBD72EF6CB48A385 /* UiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE707CEDE6008ECC990AE89 /* UiView.swift */; };
@@ -136,7 +134,6 @@
 		EBE706DC9AFDD27FD5492706 /* Execution.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Execution.swift; sourceTree = "<group>"; };
 		EBE706EED44A86BD8D879292 /* StorageDatabase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageDatabase.swift; sourceTree = "<group>"; };
 		EBE7074F75EB3AB3B2791ECD /* CloudError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudError.swift; sourceTree = "<group>"; };
-		EBE70751B634E7E061865457 /* UiPaddingContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiPaddingContainer.swift; sourceTree = "<group>"; };
 		EBE7075A6ECAD3FCF686A9A1 /* DefaultStorageDatabase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultStorageDatabase.swift; sourceTree = "<group>"; };
 		EBE707A3313F36B1EE212871 /* UiHtml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiHtml.swift; sourceTree = "<group>"; };
 		EBE707CEDE6008ECC990AE89 /* UiView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiView.swift; sourceTree = "<group>"; };
@@ -149,7 +146,6 @@
 		EBE708F12FC630E6A85F0E02 /* AlertStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertStack.swift; sourceTree = "<group>"; };
 		EBE709234D6A9BAA81EF22F9 /* FoundationExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoundationExtensions.swift; sourceTree = "<group>"; };
 		EBE7092A17351B8D7367AFD3 /* StorageError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageError.swift; sourceTree = "<group>"; };
-		EBE7092E912C36FA6C60BEE7 /* UiAlignmentContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UiAlignmentContainer.swift; sourceTree = "<group>"; };
 		EBE709532FF9B3E725672E1A /* ListenerList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListenerList.swift; sourceTree = "<group>"; };
 		EBE70953ED6695560B2F482E /* CloudImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudImageView.swift; sourceTree = "<group>"; };
 		EBE7098F8C18D44E4CFE8637 /* DefaultExecutionControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultExecutionControl.swift; sourceTree = "<group>"; };
@@ -390,10 +386,8 @@
 		EBE7090FB012CDADC521412F /* Containers */ = {
 			isa = PBXGroup;
 			children = (
-				EBE7092E912C36FA6C60BEE7 /* UiAlignmentContainer.swift */,
 				EBE707EDD2D93E2F78E8E49D /* UiLayeredContainer.swift */,
 				EBE7045FDA8C35F6C55E5E07 /* UiMultipleElementContainer.swift */,
-				EBE70751B634E7E061865457 /* UiPaddingContainer.swift */,
 				EBE7085BDCF91DB1E0F99256 /* UiSingleElementContainer.swift */,
 				EBE70AF832808A571C755380 /* UiStackContainer.swift */,
 			);
@@ -647,10 +641,8 @@
 				EBE7057C66B8E91189B487F4 /* UiContentElement.swift in Sources */,
 				EBE705377C12925F3EE3C831 /* UiText.swift in Sources */,
 				EBE70B37FBD72EF6CB48A385 /* UiView.swift in Sources */,
-				EBE700E48699DF8848700BDD /* UiAlignmentContainer.swift in Sources */,
 				EBE70CAEBA7E9F9D6CEEB2AE /* UiLayeredContainer.swift in Sources */,
 				EBE700C117ABE4BB9B62B848 /* UiMultipleElementContainer.swift in Sources */,
-				EBE70AF48AC4F5E5B3A9583A /* UiPaddingContainer.swift in Sources */,
 				EBE70ABD17AB4A68A974C452 /* UiSingleElementContainer.swift in Sources */,
 				EBE70B6129B17D913BD78EFB /* UiStackContainer.swift in Sources */,
 				EBE70FE515F2D01B87396A67 /* UiLayoutCache.swift in Sources */,

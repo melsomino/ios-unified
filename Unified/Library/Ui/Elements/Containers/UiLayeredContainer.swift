@@ -10,7 +10,7 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 	// MARK: - UiElement
 
-	public override func measure(inBounds bounds: CGSize) -> SizeRange {
+	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
 		var range = SizeRange.zero
 		for element in children {
 			let itemSizeRange = element.measure(inBounds: bounds)
@@ -23,9 +23,10 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 	}
 
 
-	public override func layout(inBounds bounds: CGRect) -> CGRect {
-		for item in children {
-			item.layout(inBounds: bounds)
+	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
+		for child in children {
+			let childSizeRange = child.measure(inBounds: bounds.size)
+			child.align(withSize: childSizeRange.max, inBounds: bounds)
 		}
 		return bounds
 	}
