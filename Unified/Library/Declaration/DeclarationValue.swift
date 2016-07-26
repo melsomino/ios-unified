@@ -7,8 +7,9 @@ import Foundation
 import UIKit
 
 
-public struct DeclarationError: ErrorType {
+public struct DeclarationError: ErrorType, CustomStringConvertible {
 	let message: String
+
 	init(message: String, scanner: NSScanner?) {
 		if scanner != nil {
 			self.message = "\(message): \(scanner!.string.substringFromIndex(scanner!.string.startIndex.advancedBy(scanner!.scanLocation)))"
@@ -17,6 +18,13 @@ public struct DeclarationError: ErrorType {
 			self.message = message
 		}
 	}
+
+	// MARK: - CustomStringConvertible
+
+	public var description: String {
+		return message
+	}
+
 }
 
 
