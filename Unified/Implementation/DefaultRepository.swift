@@ -16,19 +16,17 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	// MARK: - Repository
 
 	public func load(repository name: String) throws -> [DeclarationElement] {
-		guard let path = NSBundle.mainBundle().pathForResource(name, ofType: ".uni") else {
-			throw DeclarationError(message: "Unable to locate unified repository file [\(name)] in main application bundle", scanner: nil)
-		}
-		return try DeclarationElement.load(path)
+		return try load(repository: name, from: NSBundle.mainBundle())
 	}
 
+	public func load(repository name: String, forType type: Any.Type) throws -> [DeclarationElement] {
+		return try load(repository: name, from: bundle(forType: type))
+	}
 
 	public func load(declarations name: String, fromModuleWithType type: Any.Type) throws -> [DeclarationElement] {
-		let typeName = makeTypeName(forType: type)
-		let typeNameParts = typeName.componentsSeparatedByString(".")
-		let bundle = typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
+		let repositoryBundle = bundle(forType: type)
 		var declarations = [DeclarationElement]()
-		for uniPath in bundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
+		for uniPath in repositoryBundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
 			let elements = try DeclarationElement.load(uniPath)
 			for declaration in elements.filter({ $0.name == name }) {
 				declarations.append(declaration)
@@ -189,6 +187,24 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 		}
 
 	}
+
+
+
+	private func bundle(forType type: Any.Type) -> NSBundle {
+		let typeName = makeTypeName(forType: type)
+		let typeNameParts = typeName.componentsSeparatedByString(".")
+		return typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
+	}
+
+	private func load(repository name: String, from bundle: NSBundle) throws -> [DeclarationElement] {
+		guard let path = bundle.pathForResource(name, ofType: ".uni") else {
+			throw DeclarationError(message: "Unable to locate unified repository file [\(name)] in bundle [\(bundle.bundleIdentifier ?? "")]", scanner: nil)
+		}
+		return try DeclarationElement.load(path)
+	}
+
+
+
 }
 
 

@@ -18,6 +18,7 @@ public protocol Repository: class {
 	func removeListener(listener: RepositoryListener)
 
 	func load(repository name: String) throws -> [DeclarationElement]
+	func load(repository name: String, forType: Any.Type) throws -> [DeclarationElement]
 	func load(declarations name: String, fromModuleWithType: Any.Type) throws -> [DeclarationElement]
 
 	func uiDefinition(forModelType modelType: Any.Type, name: String?) throws -> UiDefinition
