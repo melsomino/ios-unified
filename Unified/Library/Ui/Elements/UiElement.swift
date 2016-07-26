@@ -10,9 +10,44 @@ import UIKit
 
 
 
+public struct SizeRange {
+	public var min: CGSize
+	public var max: CGSize
+
+	public init(min: CGSize, max: CGSize) {
+		self.min = min
+		self.max = max
+	}
+	public static let zero = SizeRange(min: CGSizeZero, max: CGSizeZero)
+}
+
+
+
+
+
 public class UiElement {
 
 	public final var definition: UiElementDefinition!
+	public final var margin = UIEdgeInsetsZero
+	public final var valign = UiAlignment.Leading
+	public final var halign = UiAlignment.Leading
+
+
+	public final func measure(inBounds bounds: CGSize) -> SizeRange {
+		let sizeRange = measureContent(inBounds: reduce(size: bounds))
+		return SizeRange(min: expand(size: sizeRange.min), max: expand(size: sizeRange.max))
+	}
+
+
+	public final func layout(inBounds bounds: CGRect) -> CGRect {
+		let contentFrame = layoutContent(inBounds: reduce(rect: bounds))
+		return expand(rect: contentFrame)
+	}
+
+
+	public final func align(withSize size: CGSize, inBounds bounds: CGRect) -> CGRect {
+		return layout(inBounds: UiElement.layout(size: size, inBounds: bounds, halign: halign, valign: valign))
+	}
 
 
 	// MARK: - Overridable
@@ -22,38 +57,84 @@ public class UiElement {
 		return true
 	}
 
-	public var fixedSize: Bool {
-		return false
-	}
 
 	public func traversal(@noescape visit: (UiElement) -> Void) {
 		visit(self)
 	}
 
+
 	public func bind(toModel values: [Any?]) {
 	}
 
 
-	public func measureSizeRange(bounds: CGSize) -> UiSizeRange {
-		return UiSizeRange.fromSize(bounds)
+	public func measureContent(inBounds bounds: CGSize) -> SizeRange {
+		return SizeRange(min: CGSizeZero, max: bounds)
 	}
 
 
-	public func measureMaxSize(bounds: CGSize) -> CGSize {
+	public func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		return bounds
 	}
 
 
-	public func measureSize(bounds: CGSize) -> CGSize {
-		return bounds
+	// MARK: - Utility
+
+
+	public static func layout(size size: CGSize, inBounds bounds: CGRect, halign: UiAlignment, valign: UiAlignment) -> CGRect {
+		var frame = CGRect(origin: bounds.origin, size: size)
+		switch halign {
+			case .Center:
+				frame.origin.x = bounds.origin.x + bounds.size.width / 2 - size.width / 2
+			case .Tailing:
+				frame.origin.x = bounds.origin.x + bounds.size.width - size.width
+			case .Fill:
+				frame.size.width = bounds.width
+			default:
+				break
+		}
+		switch valign {
+			case .Center:
+				frame.origin.y = bounds.origin.y + bounds.size.height / 2 - size.height / 2
+			case .Tailing:
+				frame.origin.y = bounds.origin.y + bounds.size.height - size.height
+			case .Fill:
+				frame.size.height = bounds.height
+			default:
+				break
+		}
+		return frame
 	}
 
 
-	public func layout(bounds: CGRect) -> CGRect {
-		return bounds
+	// MARK: - Internals
+
+
+	private func reduce(size size: CGSize) -> CGSize {
+		return CGSizeMake(size.width - margin.left - margin.right, size.height - margin.top - margin.bottom)
 	}
 
 
+	private func expand(size size: CGSize) -> CGSize {
+		return CGSizeMake(size.width + margin.left + margin.right, size.height + margin.top + margin.bottom)
+	}
+
+
+	private func reduce(rect rect: CGRect) -> CGRect {
+		return CGRectMake(
+			rect.origin.x + margin.left,
+			rect.origin.y + margin.top,
+			rect.width - margin.left - margin.right,
+			rect.height - margin.top - margin.bottom)
+	}
+
+
+	private func expand(rect rect: CGRect) -> CGRect {
+		return CGRectMake(
+			rect.origin.x - margin.left,
+			rect.origin.y - margin.top,
+			rect.width + margin.left + margin.right,
+			rect.height + margin.top + margin.bottom)
+	}
 }
 
 
@@ -64,10 +145,14 @@ public class UiElementDefinition {
 
 	public final var id: String?
 	public final var childrenDefinitions = [UiElementDefinition]()
+	public final var margin = UIEdgeInsetsZero
+	public final var halign = UiAlignment.Leading
+	public final var valign = UiAlignment.Leading
 
 	public static func register(name: String, definition: () -> UiElementDefinition) {
 		definitionFactoryByName[name] = definition
 	}
+
 
 	public final func traversal(@noescape visit: (UiElementDefinition) -> Void) {
 		visit(self)
@@ -75,6 +160,7 @@ public class UiElementDefinition {
 			childDefinition.traversal(visit)
 		}
 	}
+
 
 	public init() {
 
@@ -98,6 +184,9 @@ public class UiElementDefinition {
 
 	public func initialize(element: UiElement, children: [UiElement]) {
 		element.definition = self
+		element.margin = margin
+		element.halign = halign
+		element.valign = valign
 	}
 
 
@@ -105,39 +194,40 @@ public class UiElementDefinition {
 
 
 	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
-		guard let createFactory = UiElementDefinition.definitionFactoryByName[element.name] else {
-			throw DeclarationError(message: "Unknown markup element \"\(element.name)\"", scanner: nil)
+		guard let definitionFactory = UiElementDefinition.definitionFactoryByName[element.name] else {
+			throw DeclarationError(message: "Unknown layout element \"\(element.name)\"", scanner: nil)
 		}
-		let factory = createFactory()
-
-		var decorators = Decorators(target: factory)
+		let definition = definitionFactory()
 
 		for index in 1 ..< element.attributes.count {
 			let attribute = element.attributes[index]
 			switch attribute.name {
 				case "margin":
-					decorators.padding.insets = try context.getInsets(attribute)
+					definition.margin = try context.getInsets(attribute)
 				case "margin-top":
-					decorators.padding.insets.top = try context.getFloat(attribute)
+					definition.margin.top = try context.getFloat(attribute)
 				case "margin-left":
-					decorators.padding.insets.left = try context.getFloat(attribute)
+					definition.margin.left = try context.getFloat(attribute)
 				case "margin-bottom":
-					decorators.padding.insets.bottom = try context.getFloat(attribute)
+					definition.margin.bottom = try context.getFloat(attribute)
 				case "margin-right":
-					decorators.padding.insets.right = try context.getFloat(attribute)
-				case "align":
-					decorators.align.anchor = try context.getEnum(attribute, UiElementDefinition.alignAnchors)
+					definition.margin.right = try context.getFloat(attribute)
+				case "halign":
+					definition.halign = try context.getEnum(attribute, UiElementDefinition.alignments)
+				case "valign":
+					definition.valign = try context.getEnum(attribute, UiElementDefinition.alignments)
 				default:
-					try factory.applyDeclarationAttribute(attribute, context: context)
+					try definition.applyDeclarationAttribute(attribute, context: context)
 			}
 		}
 
 		for child in element.children {
-			factory.childrenDefinitions.append(try UiElementDefinition.fromDeclaration(child, context: context))
+			definition.childrenDefinitions.append(try UiElementDefinition.fromDeclaration(child, context: context))
 		}
 
-		return decorators.result
+		return definition
 	}
+
 
 
 	static let alignments = [
@@ -146,75 +236,6 @@ public class UiElementDefinition {
 		"tailing": UiAlignment.Tailing,
 		"center": UiAlignment.Center
 	]
-
-
-	static let alignAnchors = [
-		"top-left": UiAlignmentAnchor.TopLeft,
-		"top": UiAlignmentAnchor.Top,
-		"top-right": UiAlignmentAnchor.TopRight,
-		"right": UiAlignmentAnchor.Right,
-		"bottom-right": UiAlignmentAnchor.BottomRight,
-		"bottom": UiAlignmentAnchor.Bottom,
-		"bottom-left": UiAlignmentAnchor.BottomLeft,
-		"left": UiAlignmentAnchor.Left,
-		"center": UiAlignmentAnchor.Center
-	]
-
-
-
-
-
-
-
-	private struct Decorators {
-		let target: UiElementDefinition
-		var first: UiElementDefinition?
-		var last: UiElementDefinition?
-
-		var cached_padding: UiPaddingContainerDefinition?
-		var cached_align: UiAlignmentContainerFactory?
-
-		init(target: UiElementDefinition) {
-			self.target = target
-		}
-
-		var result: UiElementDefinition {
-			return first ?? target
-		}
-
-		var padding: UiPaddingContainerDefinition {
-			mutating get {
-				if cached_padding == nil {
-					cached_padding = UiPaddingContainerDefinition()
-					append(cached_padding!)
-				}
-				return cached_padding!
-			}
-		}
-
-		var align: UiAlignmentContainerFactory {
-			mutating get {
-				if cached_align == nil {
-					cached_align = UiAlignmentContainerFactory()
-					append(cached_align!)
-				}
-				return cached_align!
-			}
-		}
-
-		mutating func append(decorator: UiElementDefinition) {
-			decorator.childrenDefinitions.append(target)
-			if last == nil {
-				last = decorator
-			}
-			else {
-				last!.childrenDefinitions[0] = decorator
-			}
-			first = decorator
-		}
-	}
-
-
 
 
 

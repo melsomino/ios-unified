@@ -8,6 +8,7 @@ import UIKit
 
 public class CloudImageView: UIImageView, CloudFileListener {
 
+	public var imageSize: CGSize?
 
 	public var imageFile: CloudFile! {
 		didSet {
@@ -69,7 +70,7 @@ public class CloudImageView: UIImageView, CloudFileListener {
 
 	private func startLoadImage(imageFilePath: String) {
 		pendingImageFilePath = imageFilePath
-		let bounds = self.bounds.size
+		let bounds = imageSize ?? self.bounds.size
 		weak var weakSelf = self
 		NSOperationQueue().addOperationWithBlock {
 			guard let strongSelf = weakSelf else {

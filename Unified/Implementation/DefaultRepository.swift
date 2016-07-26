@@ -6,9 +6,39 @@ import Foundation
 import UIKit
 import Starscream
 
-public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
-	public func uiFactory(forModelType modelType: Any.Type, name: String?) throws -> UiDefinition {
+
+
+
+public class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUiDependent {
+
+
+	// MARK: - Repository
+
+	public func load(repository name: String) throws -> [DeclarationElement] {
+		guard let path = NSBundle.mainBundle().pathForResource(name, ofType: ".uni") else {
+			throw DeclarationError(message: "Unable to locate unified repository file [\(name)] in main application bundle", scanner: nil)
+		}
+		return try DeclarationElement.load(path)
+	}
+
+
+	public func load(declarations name: String, fromModuleWithType type: Any.Type) throws -> [DeclarationElement] {
+		let typeName = makeTypeName(forType: type)
+		let typeNameParts = typeName.componentsSeparatedByString(".")
+		let bundle = typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
+		var declarations = [DeclarationElement]()
+		for uniPath in bundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
+			let elements = try DeclarationElement.load(uniPath)
+			for declaration in elements.filter({ $0.name == name }) {
+				declarations.append(declaration)
+			}
+		}
+		return declarations
+	}
+
+
+	public func uiDefinition(forModelType modelType: Any.Type, name: String?) throws -> UiDefinition {
 		let uiName = makeUiName(forModelType: modelType, name: name)
 
 		lock.lock()
@@ -16,26 +46,25 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 			lock.unlock()
 		}
 
-		if let factory = uiFactoryByName[uiName] {
+		if let factory = uiDefinitionByName[uiName] {
 			return factory
 		}
 		try loadRepositoriesInBundle(forType: modelType)
-		if let factory = uiFactoryByName[uiName] {
+		if let factory = uiDefinitionByName[uiName] {
 			return factory
 		}
 		fatalError("Repository does not contains ui definition: \(uiName)")
 	}
 
 
-
 	public var devServerUrl: NSURL? {
 		didSet {
-			devServerWebSocket?.disconnect()
-			devServerWebSocket = nil
+			devServerConnection?.disconnect()
+			devServerConnection = nil
 			if let url = devServerUrl {
-				devServerWebSocket = WebSocket(url: url)
-				devServerWebSocket!.delegate = self
-				devServerWebSocket!.connect()
+				devServerConnection = WebSocket(url: url)
+				devServerConnection!.delegate = self
+				devServerConnection!.connect()
 			}
 		}
 	}
@@ -43,6 +72,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 	public func addListener(listener: RepositoryListener) {
 		listeners.add(listener)
 	}
+
 
 	public func removeListener(listener: RepositoryListener) {
 		listeners.remove(listener)
@@ -61,20 +91,17 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 			case "repository-changed":
 				socket.writeString("get-repository`\(parts[1])")
 			case "repository":
-				try! loadRepositoryFromDevServer(parts[1])
-				notify()
+				do {
+					try loadRepositoryFromDevServer(parts[1])
+					notify()
+				}
+					catch let error {
+					optionalCentralUi?.pushAlert(.Error, message: String(error))
+					print(error)
+				}
 			default:
 				break
 		}
-	}
-
-
-	private func loadRepositoryFromDevServer(repositoryString: String) throws {
-		lock.lock()
-		defer {
-			lock.unlock()
-		}
-		try loadRepository(DeclarationElement.parse(repositoryString), overrideExisting: true)
 	}
 
 
@@ -86,10 +113,10 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 
 	public func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
-		print("dev server disconnected, trying to reconnet after 0.5 sec...")
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_MSEC*500)), dispatch_get_main_queue()) {
+		print("dev server disconnected, trying to reconnet after 1 second...")
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_MSEC * 1000)), dispatch_get_main_queue()) {
 			[weak self] in
-			self?.devServerWebSocket!.connect()
+			self?.devServerConnection?.connect()
 		}
 	}
 
@@ -100,11 +127,11 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 
 	// MARK: - Internals
 
-	private var devServerWebSocket: WebSocket?
+	private var devServerConnection: WebSocket?
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
-	private var uiFactoryByName = [String: UiDefinition]()
+	private var uiDefinitionByName = [String: UiDefinition]()
 	private var lock = FastLock()
 
 
@@ -123,6 +150,15 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		for listener in listeners.getLive() {
 			listener.repositoryChanged(self)
 		}
+	}
+
+
+	private func loadRepositoryFromDevServer(repositoryString: String) throws {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
+		try loadRepository(DeclarationElement.parse(repositoryString), overrideExisting: true)
 	}
 
 
@@ -145,15 +181,17 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate {
 		let context = DeclarationContext(elements)
 		for uiSection in elements.filter({ $0.name == "ui" }) {
 			for ui in uiSection.children {
-				if overrideExisting || uiFactoryByName[ui.name] == nil {
-					let factory = try UiDefinition.fromDeclaration(ui, context: context)
-					uiFactoryByName[ui.name] = factory
+				if overrideExisting || uiDefinitionByName[ui.name] == nil {
+					let uiDefinition = try UiDefinition.fromDeclaration(ui, context: context)
+					uiDefinitionByName[ui.name] = uiDefinition
 				}
 			}
 		}
 
 	}
 }
+
+
 
 
 

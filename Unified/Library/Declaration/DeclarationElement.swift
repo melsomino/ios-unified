@@ -1,6 +1,6 @@
 //
-// Created by Власов М.Ю. on 16.06.16.
-// Copyright (c) 2016 melsomino. All rights reserved.
+// Created by Michael Vlasov on 16.06.16.
+// Copyright (c) 2016 Michael Vlasov. All rights reserved.
 //
 
 import Foundation
@@ -8,11 +8,11 @@ import UIKit
 
 
 
+
+
 public struct DeclarationAttribute {
 	public let name: String
 	public let value: DeclarationValue
-
-
 }
 
 
@@ -26,6 +26,11 @@ public struct DeclarationElement {
 
 	public var name: String {
 		return attributes[0].name
+	}
+
+
+	public var value: String? {
+		return attributes.count > 1 ? attributes[1].name : nil
 	}
 
 	public static func load(path: String) throws -> [DeclarationElement] {
@@ -71,7 +76,13 @@ public struct DeclarationElement {
 }
 
 
+
+
+
 // MARK: - Scanner extension
+
+
+
 
 
 extension NSScanner {
@@ -92,6 +103,7 @@ extension NSScanner {
 			}
 		}
 	}
+
 
 	func passDeclarationIndent(expected: Int) -> Bool {
 		var indent = 0
@@ -153,12 +165,12 @@ extension NSScanner {
 
 	func passNameOrValue() throws -> String? {
 		if pass("'", passWhitespaces: false) {
-			let value = passUntil("'")
+			let value = passUntil("'") ?? ""
 			try expect("'", passWhitespaces: true)
 			return value
 		}
 		if pass("\"", passWhitespaces: false) {
-			let value = passUntil("\"")
+			let value = passUntil("\"") ?? ""
 			try expect("\"", passWhitespaces: true)
 			return value
 		}
@@ -177,9 +189,11 @@ extension NSScanner {
 	}
 
 
-
-
 }
+
+
+
+
 
 private let nameOrValueTerminator = NSCharacterSet.union(NSCharacterSet.whitespaceAndNewlineCharacterSet(), NSCharacterSet(charactersInString: "=()'~"))
 private let nameCharacters = NSCharacterSet.union(NSCharacterSet.alphanumericCharacterSet(), NSCharacterSet(charactersInString: "-."))

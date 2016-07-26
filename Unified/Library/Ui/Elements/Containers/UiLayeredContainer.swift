@@ -10,41 +10,23 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 	// MARK: - UiElement
 
-	public override func measureSizeRange(bounds: CGSize) -> UiSizeRange {
-		var maxSize = UiSizeRange.zero
+	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
+		var range = SizeRange.zero
 		for element in children {
-			let itemSize = element.measureSizeRange(bounds)
-			maxSize.width.min = max(maxSize.width.min, itemSize.width.min)
-			maxSize.width.max = max(maxSize.width.max, itemSize.width.max)
-			maxSize.height.min = max(maxSize.height.min, itemSize.height.min)
-			maxSize.height.max = max(maxSize.height.max, itemSize.height.max)
+			let itemSizeRange = element.measure(inBounds: bounds)
+			range.min.width = max(range.min.width, itemSizeRange.min.width)
+			range.min.height = max(range.min.height, itemSizeRange.min.height)
+			range.max.width = max(range.max.width, itemSizeRange.max.width)
+			range.max.height = max(range.max.height, itemSizeRange.max.height)
 		}
-		return maxSize
+		return range
 	}
 
-	public override func measureMaxSize(bounds: CGSize) -> CGSize {
-		var maxSize = CGSizeZero
-		for item in children {
-			let itemSize = item.measureMaxSize(bounds)
-			maxSize.width = max(maxSize.width, itemSize.width)
-			maxSize.height = max(maxSize.height, itemSize.height)
-		}
-		return maxSize
-	}
 
-	public override func measureSize(bounds: CGSize) -> CGSize {
-		var size = CGSizeZero
-		for item in children {
-			let itemSize = item.measureSize(bounds)
-			size.width = max(size.width, itemSize.width)
-			size.height = max(size.height, itemSize.height)
-		}
-		return size
-	}
-
-	public override func layout(bounds: CGRect) -> CGRect {
-		for item in children {
-			item.layout(bounds)
+	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
+		for child in children {
+			let childSizeRange = child.measure(inBounds: bounds.size)
+			child.align(withSize: childSizeRange.max, inBounds: bounds)
 		}
 		return bounds
 	}

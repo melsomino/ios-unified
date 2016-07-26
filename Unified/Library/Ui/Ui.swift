@@ -122,17 +122,22 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
+	private func heightWithMargin(frame: CGRect) -> CGFloat {
+		let margin = rootElement!.margin
+		return frame.height + margin.top + margin.bottom
+	}
+
 	private func internalHeightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
 		let layoutCacheKey = getLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
-				return frames[0].height
+				return heightWithMargin(frames[0])
 			}
 		}
 
 		self.model = model
 		performLayout(inWidth: width)
-		return frame.height
+		return heightWithMargin(frame)
 	}
 
 
@@ -160,7 +165,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			}
 		}
 
-		performLayout(inBounds: CGSizeMake(width, 10000))
+		definitionRequired()
+		let sizeRange = rootElement!.measure(inBounds: CGSizeMake(width, 0))
+		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, width, sizeRange.max.height))
 
 		if layoutCacheKey != nil {
 			var frames = [CGRect](count: 1 + contentElements.count, repeatedValue: CGRectZero)
@@ -175,10 +182,8 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
-		rootElement!.measureMaxSize(bounds)
-		rootElement!.measureSize(bounds)
-		frame = rootElement!.layout(CGRectMake(0, 0, bounds.width, bounds.height))
-0	}
+		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, bounds.width, bounds.height))
+	}
 
 
 
@@ -274,12 +279,12 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 		attachToContainer()
 
-		performLayout()
+		internalDidSetModel()
 	}
 
 
 	func updateDefinitionFromRepository() {
-		setDefinition(try! repository.uiFactory(forModelType: modelType, name: layoutName))
+		setDefinition(try! repository.uiDefinition(forModelType: modelType, name: layoutName))
 	}
 
 

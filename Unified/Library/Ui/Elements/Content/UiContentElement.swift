@@ -34,6 +34,8 @@ public class UiContentElement: UiElement {
 		}
 	}
 
+	public var defaultBackgroundColor: UIColor?
+
 	public override init() {
 		super.init()
 	}
@@ -74,14 +76,12 @@ public class UiContentElement: UiElement {
 		return !hidden
 	}
 
-	public override func layout(bounds: CGRect) -> CGRect {
+	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		frame = bounds
 		return frame
 	}
 
 	// MARK: - Internals
-
-	private var defaultBackgroundColor: UIColor?
 
 }
 
