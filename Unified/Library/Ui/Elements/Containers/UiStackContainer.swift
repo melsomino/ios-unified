@@ -308,11 +308,10 @@ private struct Stack_measure {
 			let child: Stack_child_measure = children[index]
 			let child_bounds = Stack_unit(child.bounds_along, size.across)
 			let child_bounds_frame = CGRect(origin: stack_origin.to_point(in_horizontal_direction), size: child_bounds.to_size(in_horizontal_direction))
-			child.element.align(withSize: child.size.to_size(in_horizontal_direction), inBounds: child_bounds_frame)
+			let child_frame = child.element.layout(inBounds: child_bounds_frame)
+			child.element.realign(layoutFrame: child_frame, inBounds: child_bounds_frame)
 
 			stack_origin.along += child_bounds.along + stack.spacing
-			size.along += child_bounds.along
-			size.across = max(size.across, child_bounds.across)
 		}
 
 		return CGRect(origin: layout_bounds.origin, size: size.to_size(in_horizontal_direction))

@@ -45,8 +45,15 @@ public class UiElement {
 	}
 
 
-	public final func align(withSize size: CGSize, inBounds bounds: CGRect) -> CGRect {
-		return UiAlignment.calcFrame(ofSize: size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
+	public final func realign(layoutFrame frame: CGRect, inBounds bounds: CGRect) {
+		let new_frame = UiAlignment.calcFrame(ofSize: frame.size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
+		let offset = CGPointMake(new_frame.origin.x - frame.origin.x, new_frame.origin.y - frame.origin.y)
+		guard offset.x != 0 || offset.y != 0 else {
+			return
+		}
+		traversal {
+			$0.offsetContent(offset)
+		}
 	}
 
 
@@ -76,6 +83,8 @@ public class UiElement {
 		return bounds
 	}
 
+	public func offsetContent(offset: CGPoint) {
+	}
 
 	// MARK: - Internals
 
@@ -186,9 +195,9 @@ public class UiElementDefinition {
 					definition.margin.bottom = try context.getFloat(attribute)
 				case "margin-right":
 					definition.margin.right = try context.getFloat(attribute)
-				case "horizontal-alignment", "h-align":
+				case "horizontal-alignment", "hor":
 					definition.horizontalAlignment = try context.getEnum(attribute, UiAlignment.horizontal_names)
-				case "vertical-alignment", "v-align":
+				case "vertical-alignment", "ver":
 					definition.verticalAlignment = try context.getEnum(attribute, UiAlignment.vertical_names)
 				default:
 					try definition.applyDeclarationAttribute(attribute, context: context)

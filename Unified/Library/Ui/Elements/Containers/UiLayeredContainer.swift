@@ -25,8 +25,8 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		for child in children {
-			let childSizeRange = child.measure(inBounds: bounds.size)
-			child.align(withSize: childSizeRange.max, inBounds: bounds)
+			let child_frame = child.layout(inBounds: bounds)
+			child.realign(layoutFrame: child_frame, inBounds: bounds)
 		}
 		return bounds
 	}

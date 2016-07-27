@@ -81,6 +81,11 @@ public class UiContentElement: UiElement {
 		return frame
 	}
 
+	public override func offsetContent(offset: CGPoint) {
+		frame = CGRectOffset(frame, offset.x, offset.y)
+	}
+
+
 	// MARK: - Internals
 
 }
