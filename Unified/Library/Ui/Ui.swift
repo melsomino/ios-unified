@@ -182,7 +182,10 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
-		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, bounds.width, bounds.height))
+		let size_range = rootElement!.measure(inBounds: bounds)
+		let bounds_frame = CGRectMake(0, 0, bounds.width, bounds.height)
+		rootElement!.layout(inBounds: rootElement!.align(withSize: size_range.max, inBounds: bounds_frame))
+		frame = bounds_frame
 	}
 
 
@@ -414,7 +417,7 @@ public class UiDefinition {
 					break
 			}
 		}
-		let rootElementDefinition = try UiElementDefinition.fromDeclaration(declaration.children[0], context: context)
+		let rootElementDefinition = try UiElementDefinition.from(declaration: declaration.children[0], context: context)
 		var ids = Set<String>()
 		rootElementDefinition.traversal {
 			if let id = $0.id {

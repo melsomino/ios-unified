@@ -29,24 +29,24 @@ public class UiElement {
 
 	public final var definition: UiElementDefinition!
 	public final var margin = UIEdgeInsetsZero
-	public final var valign = UiAlignment.Leading
-	public final var halign = UiAlignment.Leading
+	public final var horizontalAlignment = UiAlignment.Leading
+	public final var verticalAlignment = UiAlignment.Leading
 
 
 	public final func measure(inBounds bounds: CGSize) -> SizeRange {
-		let sizeRange = measureContent(inBounds: reduce(size: bounds))
-		return SizeRange(min: expand(size: sizeRange.min), max: expand(size: sizeRange.max))
+		let content_size_range = measureContent(inBounds: reduce(size: bounds))
+		return SizeRange(min: expand(size: content_size_range.min), max: expand(size: content_size_range.max))
 	}
 
 
 	public final func layout(inBounds bounds: CGRect) -> CGRect {
-		let contentFrame = layoutContent(inBounds: reduce(rect: bounds))
-		return expand(rect: contentFrame)
+		let content_frame = layoutContent(inBounds: reduce(rect: bounds))
+		return expand(rect: content_frame)
 	}
 
 
 	public final func align(withSize size: CGSize, inBounds bounds: CGRect) -> CGRect {
-		return layout(inBounds: UiElement.layout(size: size, inBounds: bounds, halign: halign, valign: valign))
+		return UiAlignment.calcFrame(ofSize: size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
 	}
 
 
@@ -74,35 +74,6 @@ public class UiElement {
 
 	public func layoutContent(inBounds bounds: CGRect) -> CGRect {
 		return bounds
-	}
-
-
-	// MARK: - Utility
-
-
-	public static func layout(size size: CGSize, inBounds bounds: CGRect, halign: UiAlignment, valign: UiAlignment) -> CGRect {
-		var frame = CGRect(origin: bounds.origin, size: size)
-		switch halign {
-			case .Center:
-				frame.origin.x = bounds.origin.x + bounds.size.width / 2 - size.width / 2
-			case .Tailing:
-				frame.origin.x = bounds.origin.x + bounds.size.width - size.width
-			case .Fill:
-				frame.size.width = bounds.width
-			default:
-				break
-		}
-		switch valign {
-			case .Center:
-				frame.origin.y = bounds.origin.y + bounds.size.height / 2 - size.height / 2
-			case .Tailing:
-				frame.origin.y = bounds.origin.y + bounds.size.height - size.height
-			case .Fill:
-				frame.size.height = bounds.height
-			default:
-				break
-		}
-		return frame
 	}
 
 
@@ -146,18 +117,21 @@ public class UiElementDefinition {
 	public final var id: String?
 	public final var childrenDefinitions = [UiElementDefinition]()
 	public final var margin = UIEdgeInsetsZero
-	public final var halign = UiAlignment.Leading
-	public final var valign = UiAlignment.Leading
+	public final var horizontalAlignment = UiAlignment.Leading
+	public final var verticalAlignment = UiAlignment.Leading
 
 	public static func register(name: String, definition: () -> UiElementDefinition) {
-		definitionFactoryByName[name] = definition
+		definition_factory_by_name[name] = definition
 	}
 
+	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
+		return try internal_from(declaration: element, context: context)
+	}
 
 	public final func traversal(@noescape visit: (UiElementDefinition) -> Void) {
 		visit(self)
-		for childDefinition in childrenDefinitions {
-			childDefinition.traversal(visit)
+		for child_definition in childrenDefinitions {
+			child_definition.traversal(visit)
 		}
 	}
 
@@ -185,19 +159,19 @@ public class UiElementDefinition {
 	public func initialize(element: UiElement, children: [UiElement]) {
 		element.definition = self
 		element.margin = margin
-		element.halign = halign
-		element.valign = valign
+		element.horizontalAlignment = horizontalAlignment
+		element.verticalAlignment = verticalAlignment
 	}
 
 
 	// MARK: - Internals
 
 
-	public static func fromDeclaration(element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
-		guard let definitionFactory = UiElementDefinition.definitionFactoryByName[element.name] else {
+	private static func internal_from(declaration element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
+		guard let definition_factory = UiElementDefinition.definition_factory_by_name[element.name] else {
 			throw DeclarationError(message: "Unknown layout element \"\(element.name)\"", scanner: nil)
 		}
-		let definition = definitionFactory()
+		let definition = definition_factory()
 
 		for index in 1 ..< element.attributes.count {
 			let attribute = element.attributes[index]
@@ -212,17 +186,17 @@ public class UiElementDefinition {
 					definition.margin.bottom = try context.getFloat(attribute)
 				case "margin-right":
 					definition.margin.right = try context.getFloat(attribute)
-				case "halign":
-					definition.halign = try context.getEnum(attribute, UiElementDefinition.alignments)
-				case "valign":
-					definition.valign = try context.getEnum(attribute, UiElementDefinition.alignments)
+				case "horizontal-alignment", "h-align":
+					definition.horizontalAlignment = try context.getEnum(attribute, UiAlignment.horizontal_names)
+				case "vertical-alignment", "v-align":
+					definition.verticalAlignment = try context.getEnum(attribute, UiAlignment.vertical_names)
 				default:
 					try definition.applyDeclarationAttribute(attribute, context: context)
 			}
 		}
 
 		for child in element.children {
-			definition.childrenDefinitions.append(try UiElementDefinition.fromDeclaration(child, context: context))
+			definition.childrenDefinitions.append(try UiElementDefinition.from(declaration: child, context: context))
 		}
 
 		return definition
@@ -230,16 +204,8 @@ public class UiElementDefinition {
 
 
 
-	static let alignments = [
-		"fill": UiAlignment.Fill,
-		"leading": UiAlignment.Leading,
-		"tailing": UiAlignment.Tailing,
-		"center": UiAlignment.Center
-	]
 
-
-
-	public static var definitionFactoryByName: [String:() -> UiElementDefinition] = [
+	private static var definition_factory_by_name: [String:() -> UiElementDefinition] = [
 		"vertical": {
 			UiStackContainerDefinition(direction: .Vertical)
 		},
