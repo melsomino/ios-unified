@@ -46,14 +46,13 @@ public class UiImage: UiContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
-		return visible ? SizeRange(min: size, max: size) : SizeRange.zero
+	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
+		return visible ? size : CGSizeZero
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
-		self.frame = CGRect(origin: bounds.origin, size: size)
-		return frame
+	public override func layoutContent(inBounds bounds: CGRect) {
+		frame = CGRect(origin: bounds.origin, size: size)
 	}
 }
 
@@ -64,18 +63,20 @@ class UiImageDefinition: UiContentElementDefinition {
 	var fixedSize = false
 	var imageAlignment = UIViewContentMode.Center
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+		if isElementValue {
+			source = try context.getImage(attribute, value: .Value(attribute.name))
+			return
+		}
 		switch attribute.name {
 			case "size":
 				size = try context.getSize(attribute)
 			case "fixed-size":
 				fixedSize = try context.getBool(attribute)
-			case "source":
-				source = try context.getImage(attribute)
 			case "image-alignment":
 				imageAlignment = try context.getEnum(attribute, UiImageDefinition.imageAlignments)
 			default:
-				try super.applyDeclarationAttribute(attribute, context: context)
+				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
 

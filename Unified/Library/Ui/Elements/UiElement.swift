@@ -33,29 +33,24 @@ public class UiElement {
 	public final var verticalAlignment = UiAlignment.Leading
 
 
-	public final func measure(inBounds bounds: CGSize) -> SizeRange {
-		let content_size_range = measureContent(inBounds: reduce(size: bounds))
-		return SizeRange(min: expand(size: content_size_range.min), max: expand(size: content_size_range.max))
-	}
-
-
-	public final func layout(inBounds bounds: CGRect) -> CGRect {
-		let content_frame = layoutContent(inBounds: reduce(rect: bounds))
-		return expand(rect: content_frame)
-	}
-
-
-	public final func realign(layoutFrame frame: CGRect, inBounds bounds: CGRect) {
-		let new_frame = UiAlignment.calcFrame(ofSize: frame.size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
-		let offset = CGPointMake(new_frame.origin.x - frame.origin.x, new_frame.origin.y - frame.origin.y)
-		guard offset.x != 0 || offset.y != 0 else {
-			return
+	public final func measure(inBounds bounds: CGSize) -> CGSize {
+		var measured = expand(size: measureContent(inBounds: reduce(size: bounds)))
+		if measured.width > bounds.width {
+			measured.width = bounds.width
 		}
-		traversal {
-			$0.offsetContent(offset)
-		}
+		return measured
 	}
 
+
+	public final func layout(inBounds bounds: CGRect) {
+		layoutContent(inBounds: reduce(rect: bounds))
+	}
+
+
+	public final func layout(inBounds bounds: CGRect, usingMeasured size: CGSize) {
+		let aligned_frame = UiAlignment.alignedFrame(ofSize: size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
+		layout(inBounds: aligned_frame)
+	}
 
 	// MARK: - Overridable
 
@@ -74,17 +69,14 @@ public class UiElement {
 	}
 
 
-	public func measureContent(inBounds bounds: CGSize) -> SizeRange {
-		return SizeRange(min: CGSizeZero, max: bounds)
-	}
-
-
-	public func layoutContent(inBounds bounds: CGRect) -> CGRect {
+	public func measureContent(inBounds bounds: CGSize) -> CGSize {
 		return bounds
 	}
 
-	public func offsetContent(offset: CGPoint) {
+
+	public func layoutContent(inBounds bounds: CGRect) {
 	}
+
 
 	// MARK: - Internals
 
@@ -153,7 +145,7 @@ public class UiElementDefinition {
 	// MARK: - Overridable
 
 
-	public func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if attribute.name.hasPrefix("@") {
 			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
 		}
@@ -184,6 +176,7 @@ public class UiElementDefinition {
 
 		for index in 1 ..< element.attributes.count {
 			let attribute = element.attributes[index]
+			let isElementValue = index == 1 && attribute.value.isMissing
 			switch attribute.name {
 				case "margin":
 					definition.margin = try context.getInsets(attribute)
@@ -200,7 +193,7 @@ public class UiElementDefinition {
 				case "vertical-alignment", "ver":
 					definition.verticalAlignment = try context.getEnum(attribute, UiAlignment.vertical_names)
 				default:
-					try definition.applyDeclarationAttribute(attribute, context: context)
+					try definition.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 			}
 		}
 
@@ -216,10 +209,10 @@ public class UiElementDefinition {
 
 	private static var definition_factory_by_name: [String:() -> UiElementDefinition] = [
 		"vertical": {
-			UiStackContainerDefinition(direction: .Vertical)
+			UiVerticalContainerDefinition()
 		},
 		"horizontal": {
-			UiStackContainerDefinition(direction: .Horizontal)
+			UiHorizontalContainerDefinition()
 		},
 		"layered": {
 			UiLayeredContainerDefinition()

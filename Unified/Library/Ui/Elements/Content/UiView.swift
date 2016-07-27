@@ -25,26 +25,30 @@ public class UiView: UiContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
+	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
 		guard visible else {
-			return SizeRange.zero
+			return CGSizeZero
 		}
-		var range = SizeRange(min: CGSizeZero, max: bounds)
+		var size = CGSizeZero
 		if let width = width {
-			range.min.width = width
-			range.max.width = width
+			size.width = width
 		}
 		if let height = height {
-			range.min.height = height
-			range.max.height = height
+			size.height = height
 		}
-		return range
+		return size
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
-		self.frame = CGRect(origin: bounds.origin, size: measure(inBounds: bounds.size).max)
-		return frame
+	public override func layoutContent(inBounds bounds: CGRect) {
+		var size = bounds.size
+		if let width = width {
+			size.width = width
+		}
+		if let height = height {
+			size.height = height
+		}
+		frame = CGRect(origin: bounds.origin, size: size)
 	}
 
 }
@@ -67,7 +71,7 @@ public class UiViewDefinition: UiContentElementDefinition {
 		view.height = height
 	}
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "width":
 				width = try context.getFloat(attribute)
@@ -78,7 +82,7 @@ public class UiViewDefinition: UiContentElementDefinition {
 				width = size.width
 				height = size.height
 			default:
-				try super.applyDeclarationAttribute(attribute, context: context)
+				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
 

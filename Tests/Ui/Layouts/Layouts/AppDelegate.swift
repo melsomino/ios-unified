@@ -78,26 +78,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 		dependency = DependencyContainer {
 			container in
+			container.createDefaultThreading()
 			container.createDefaultRepository()
 			container.createDefaultCentralUi()
 		}
 
 		repository.devServerUrl = RepositoryDefaultDevServerUrl
 
-
-		let ui = TableUi()
-		dependency.resolve(ui)
-//		ui.setModels(join(KissDestroyer, children: KissDestroyer.tracks))
-		ui.setModels([Header(title: "Требования ФНС", totalCount: "20")])
+		let ui = AlbumsUi(dependency: dependency)
 
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		window!.rootViewController = centralUi.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in UINavigationController(rootViewController: ui.createController()) }))
+		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in ui.createController() }))
 		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
 		return true
 	}
+
+
+}
+
+
+class AlbumsUi: TableUi {
+	override func loadModels(execution: Execution, inout models: [Any]) throws {
+		models.append(Header(title: "Требования ФНС", totalCount: "20"))
+		models.append(Header(title: "Задачи", totalCount: "21"))
+//		models = join(KissDestroyer, children: KissDestroyer.tracks)
+	}
+
 }
 
 

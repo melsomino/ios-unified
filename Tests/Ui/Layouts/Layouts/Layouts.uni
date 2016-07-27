@@ -1,22 +1,40 @@
 repository Layouts
+
 ui
 	Layouts.Header background-color=f0f0f0
-		vertical margin-top=40
-			horizontal along=tailing across=fill spacing=8 margin=12
-				text text={title} font=15
-				text text='{totalCount}' font=15 color=red
-			view size=1 background-color=ccc
+		horizontal hor=left spacing=12
+			text 'Text1' font=15 background-color=yellow max-lines=2
+				~  ver=center margin-top=12 
+			text Text2 font=60  background-color=yellow color=gray
+				~ ver=bottom
+			text 'Text1' font=15 background-color=yellow max-lines=2
+				~  ver=center margin-top=12 
+			text Text2 font=60  background-color=yellow color=gray
+				~ ver=bottom
+
+		# vertical
+		# 	horizontal margin=12 spacing=12
+		# 		view size=55 background-color=bbb
+		# 		vertical spacing=8 hor=fill
+		# 			text 'fjds fjkds afdklsa fkljdsa flkds fldsa' background-color=1ee font=15 max-lines=2 hor=right
+		# 			# text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
+		# 			# text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
+		# 			horizontal spacing=10 hor=right
+		# 				text {title} background-color=1ee font=15 max-lines=1 hor=right
+		# 				text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
+		# 				text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
+		# 	view height=1 background-color=red ver=bottom
 
 
 	Layouts.Album background-color=f1f1f1
 		horizontal margin=12 margin-top=25
 			vertical
-				text text={artist} font=40 color=red
-				text text={title} font=20 color=gray
-			text text={issued} font=12 color=gray align=top
+				text {artist} font=40 color=red
+				text {title} font=20 color=gray
+			text {issued} font=12 color=gray align=top
 
 	Layouts.AlbumTrack
 		horizontal margin=12
-			text text={title} color=e33 max-lines=3 font=20
-			text text={duration} font=8 color=333 align=right
+			text {title} color=e33 max-lines=3 font=20
+			text {duration} font=8 color=333 align=right
 

@@ -7,13 +7,11 @@ import UIKit
 
 
 
-
-
 public enum UiAlignment {
 	case Leading, Center, Tailing, Fill
 
 
-	public static func calcFrame(ofSize size: CGSize, inBounds bounds: CGRect, horizontalAlignment: UiAlignment, verticalAlignment: UiAlignment) -> CGRect {
+	public static func alignedFrame(ofSize size: CGSize, inBounds bounds: CGRect, horizontalAlignment: UiAlignment, verticalAlignment: UiAlignment) -> CGRect {
 		let (x, width) = horizontalAlignment.calc_frame(size.width, bounds.origin.x, bounds.width)
 		let (y, height) = verticalAlignment.calc_frame(size.height, bounds.origin.y, bounds.height)
 		return CGRectMake(x, y, width, height)

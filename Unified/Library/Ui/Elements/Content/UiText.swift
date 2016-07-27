@@ -119,16 +119,11 @@ public class UiText: UiContentElement {
 
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
+	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
 		guard visible else {
-			return SizeRange.zero
+			return CGSizeZero
 		}
-		let size = measureTextSize(inBounds: bounds)
-		if nowrap {
-			return SizeRange(min: size, max: size)
-		}
-		let min = CGSizeMake(1, size.height)
-		return SizeRange(min: min, max: size)
+		return measureTextSize(inBounds: bounds)
 	}
 
 
@@ -199,7 +194,11 @@ public class UiTextDefinition: UiContentElementDefinition {
 	// MARK: - UiElementDefinition
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+		if isElementValue {
+			text = try context.getExpression(attribute, .Value(attribute.name))
+			return
+		}
 		switch attribute.name {
 			case "font":
 				try applyFontValue(attribute, value: attribute.value, context: context)
@@ -209,8 +208,6 @@ public class UiTextDefinition: UiContentElementDefinition {
 				nowrap = try context.getBool(attribute)
 			case "color":
 				color = try context.getColor(attribute)
-			case "text":
-				text = try context.getExpression(attribute)
 			case "padding":
 				padding = try context.getInsets(attribute)
 			case "padding-top":
@@ -222,7 +219,7 @@ public class UiTextDefinition: UiContentElementDefinition {
 			case "padding-right":
 				padding.right = try context.getFloat(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute, context: context)
+				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
 

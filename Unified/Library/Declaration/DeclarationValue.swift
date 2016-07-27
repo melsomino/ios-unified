@@ -92,7 +92,12 @@ public class DeclarationContext {
 
 
 	public func getImage(attribute: DeclarationAttribute) throws -> UIImage {
-		switch attribute.value {
+		return try getImage(attribute, value: attribute.value)
+	}
+
+
+	public func getImage(attribute: DeclarationAttribute, value: DeclarationValue) throws -> UIImage {
+		switch value {
 			case .Value(let string):
 				let nameParts = string.componentsSeparatedByString(".")
 				var image: UIImage!

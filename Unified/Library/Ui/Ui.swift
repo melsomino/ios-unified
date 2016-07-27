@@ -131,13 +131,13 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		let layoutCacheKey = getLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
-				return heightWithMargin(frames[0])
+				return frames[0].height
 			}
 		}
 
 		self.model = model
 		performLayout(inWidth: width)
-		return heightWithMargin(frame)
+		return frame.height
 	}
 
 
@@ -166,7 +166,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		}
 
 		definitionRequired()
-		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, width, 0))
+		let size = rootElement!.measure(inBounds: CGSizeMake(width, 0))
+		frame = CGRectMake(0, 0, width, size.height)
+		rootElement!.layout(inBounds: frame, usingMeasured: size)
 
 		if layoutCacheKey != nil {
 			var frames = [CGRect](count: 1 + contentElements.count, repeatedValue: CGRectZero)
@@ -181,7 +183,9 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
-		frame = rootElement!.layout(inBounds: CGRectMake(0, 0, bounds.width, bounds.height))
+		frame = CGRect(origin: CGPointZero, size: bounds)
+		let size = rootElement!.measure(inBounds: bounds)
+		rootElement!.layout(inBounds: frame, usingMeasured: size)
 	}
 
 

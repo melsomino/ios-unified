@@ -10,30 +10,65 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 
 	// MARK: - UiElement
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
-		var range = SizeRange.zero
-		for element in children {
-			let itemSizeRange = element.measure(inBounds: bounds)
-			range.min.width = max(range.min.width, itemSizeRange.min.width)
-			range.min.height = max(range.min.height, itemSizeRange.min.height)
-			range.max.width = max(range.max.width, itemSizeRange.max.width)
-			range.max.height = max(range.max.height, itemSizeRange.max.height)
-		}
-		return range
+	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
+		var measure = Measure(elements: children)
+		measure.measure(inBounds: bounds)
+		return measure.measured
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
-		for child in children {
-			let child_frame = child.layout(inBounds: bounds)
-			child.realign(layoutFrame: child_frame, inBounds: bounds)
-		}
-		return bounds
+	public override func layoutContent(inBounds bounds: CGRect) {
+		var measure = Measure(elements: children)
+		measure.layout(inBounds: bounds)
 	}
 
 }
 
+private struct Child_measure {
+	let element: UiElement
+	var measured = CGSizeZero
 
+	init(element: UiElement) {
+		self.element = element
+	}
+
+	mutating func measure(inBounds bounds: CGSize) {
+		measured = element.measure(inBounds: bounds)
+	}
+}
+
+private struct Measure {
+	var children = [Child_measure]()
+	var measured = CGSizeZero
+
+	init(elements: [UiElement]) {
+		for element in elements {
+			if element.visible {
+				children.append(Child_measure(element: element))
+			}
+		}
+	}
+
+	mutating func measure(inBounds bounds: CGSize) {
+		measured = CGSizeZero
+		for i in 0 ..< children.count {
+			children[i].measure(inBounds: bounds)
+			let child_measured = children[i].measured
+			measured.width = max(measured.width, child_measured.width)
+			measured.height = max(measured.height, child_measured.height)
+		}
+		if measured.width > bounds.width {
+			measured.width = bounds.width
+		}
+	}
+
+	mutating func layout(inBounds bounds: CGRect) {
+		measure(inBounds: bounds.size)
+		for child in children {
+			child.element.layout(inBounds: bounds, usingMeasured: child.measured)
+		}
+	}
+}
 
 public class UiLayeredContainerDefinition: UiElementDefinition {
 

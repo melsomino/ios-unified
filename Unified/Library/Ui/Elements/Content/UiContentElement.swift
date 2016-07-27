@@ -76,15 +76,9 @@ public class UiContentElement: UiElement {
 		return !hidden
 	}
 
-	public override func layoutContent(inBounds bounds: CGRect) -> CGRect {
+	public override func layoutContent(inBounds bounds: CGRect) {
 		frame = bounds
-		return frame
 	}
-
-	public override func offsetContent(offset: CGPoint) {
-		frame = CGRectOffset(frame, offset.x, offset.y)
-	}
-
 
 	// MARK: - Internals
 
@@ -98,14 +92,14 @@ public class UiContentElementDefinition: UiElementDefinition {
 	public var cornerRadius: CGFloat?
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "background-color":
 				backgroundColor = try context.getColor(attribute)
 			case "corner-radius":
 				cornerRadius = try context.getFloat(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute, context: context)
+				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
 

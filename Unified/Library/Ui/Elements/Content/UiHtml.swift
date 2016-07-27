@@ -139,15 +139,8 @@ public class UiHtml: UiContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeRange {
-		guard visible else {
-			return SizeRange.zero
-		}
-		let size = measureTextSize(inBounds: bounds)
-		if nowrap {
-			return SizeRange(min: size, max: size)
-		}
-		return SizeRange(min: CGSizeZero, max: size)
+	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
+		return visible ? measureTextSize(inBounds: bounds) : CGSizeZero
 	}
 
 
@@ -215,7 +208,11 @@ public class UiHtmlDefinition: UiContentElementDefinition {
 	// MARK: - UiElementDefinition
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, context: DeclarationContext) throws {
+	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+		if isElementValue {
+			html = try context.getExpression(attribute, .Value(attribute.name))
+			return
+		}
 		switch attribute.name {
 			case "font":
 				try applyFontValue(attribute, value: attribute.value, context: context)
@@ -225,10 +222,8 @@ public class UiHtmlDefinition: UiContentElementDefinition {
 				nowrap = try context.getBool(attribute)
 			case "color":
 				color = try context.getColor(attribute)
-			case "html":
-				html = try context.getExpression(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute, context: context)
+				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
 
