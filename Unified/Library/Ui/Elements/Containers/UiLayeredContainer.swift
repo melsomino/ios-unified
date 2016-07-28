@@ -11,20 +11,20 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 	// MARK: - UiElement
 
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		var measure = Measure(elements: children)
-		measure.measure(inBounds: bounds)
+		var measure = Layered_measure(elements: children)
+		measure.measure(in_bounds: bounds)
 		return measure.measured
 	}
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
-		var measure = Measure(elements: children)
-		measure.layout(inBounds: bounds)
+		var measure = Layered_measure(elements: children)
+		measure.layout(in_bounds: bounds)
 	}
 
 }
 
-private struct Child_measure {
+private struct Layered_child_measure {
 	let element: UiElement
 	var measured = CGSizeZero
 
@@ -32,27 +32,27 @@ private struct Child_measure {
 		self.element = element
 	}
 
-	mutating func measure(inBounds bounds: CGSize) {
-		measured = element.measure(inBounds: bounds)
+	mutating func measure(in_bounds bounds: CGSize) {
+		measured = element.measure(in_bounds: bounds)
 	}
 }
 
-private struct Measure {
-	var children = [Child_measure]()
+private struct Layered_measure {
+	var children = [Layered_child_measure]()
 	var measured = CGSizeZero
 
 	init(elements: [UiElement]) {
 		for element in elements {
 			if element.visible {
-				children.append(Child_measure(element: element))
+				children.append(Layered_child_measure(element: element))
 			}
 		}
 	}
 
-	mutating func measure(inBounds bounds: CGSize) {
+	mutating func measure(in_bounds bounds: CGSize) {
 		measured = CGSizeZero
 		for i in 0 ..< children.count {
-			children[i].measure(inBounds: bounds)
+			children[i].measure(in_bounds: bounds)
 			let child_measured = children[i].measured
 			measured.width = max(measured.width, child_measured.width)
 			measured.height = max(measured.height, child_measured.height)
@@ -62,8 +62,8 @@ private struct Measure {
 		}
 	}
 
-	mutating func layout(inBounds bounds: CGRect) {
-		measure(inBounds: bounds.size)
+	mutating func layout(in_bounds bounds: CGRect) {
+		measure(in_bounds: bounds.size)
 		for child in children {
 			child.element.layout(inBounds: bounds, usingMeasured: child.measured)
 		}

@@ -166,7 +166,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		}
 
 		definitionRequired()
-		let size = rootElement!.measure(inBounds: CGSizeMake(width, 0))
+		let size = rootElement!.measure(in_bounds: CGSizeMake(width, 0))
 		frame = CGRectMake(0, 0, width, size.height)
 		rootElement!.layout(inBounds: frame, usingMeasured: size)
 
@@ -184,7 +184,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
 		frame = CGRect(origin: CGPointZero, size: bounds)
-		let size = rootElement!.measure(inBounds: bounds)
+		let size = rootElement!.measure(in_bounds: bounds)
 		rootElement!.layout(inBounds: frame, usingMeasured: size)
 	}
 

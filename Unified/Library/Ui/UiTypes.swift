@@ -8,7 +8,7 @@ import UIKit
 
 
 public enum UiAlignment {
-	case Leading, Center, Tailing, Fill
+	case leading, center, tailing, fill
 
 
 	public static func alignedFrame(ofSize size: CGSize, inBounds bounds: CGRect, horizontalAlignment: UiAlignment, verticalAlignment: UiAlignment) -> CGRect {
@@ -19,43 +19,43 @@ public enum UiAlignment {
 
 
 	public static let names = [
-		"fill": UiAlignment.Fill,
-		"leading": UiAlignment.Leading,
-		"tailing": UiAlignment.Tailing,
-		"center": UiAlignment.Center
+		"fill": UiAlignment.fill,
+		"leading": UiAlignment.leading,
+		"tailing": UiAlignment.tailing,
+		"center": UiAlignment.center
 	]
 
 
 	public static let horizontal_names = [
-		"fill": UiAlignment.Fill,
-		"leading": UiAlignment.Leading,
-		"tailing": UiAlignment.Tailing,
-		"center": UiAlignment.Center,
-		"left": UiAlignment.Leading,
-		"right": UiAlignment.Tailing,
+		"fill": UiAlignment.fill,
+		"leading": UiAlignment.leading,
+		"tailing": UiAlignment.tailing,
+		"center": UiAlignment.center,
+		"left": UiAlignment.leading,
+		"right": UiAlignment.tailing,
 	]
 
 
 	public static let vertical_names = [
-		"fill": UiAlignment.Fill,
-		"leading": UiAlignment.Leading,
-		"tailing": UiAlignment.Tailing,
-		"center": UiAlignment.Center,
-		"top": UiAlignment.Leading,
-		"bottom": UiAlignment.Tailing
+		"fill": UiAlignment.fill,
+		"leading": UiAlignment.leading,
+		"tailing": UiAlignment.tailing,
+		"center": UiAlignment.center,
+		"top": UiAlignment.leading,
+		"bottom": UiAlignment.tailing
 	]
 
 	// MARK: - Internals
 
 	private func calc_frame(size: CGFloat, _ bounds_origin: CGFloat, _ bounds_size: CGFloat) -> (CGFloat, CGFloat) {
 		switch self {
-			case .Leading:
+			case .leading:
 				return (bounds_origin, size)
-			case .Center:
+			case .center:
 				return (bounds_origin + bounds_size / 2 - size / 2, size)
-			case .Tailing:
+			case .tailing:
 				return (bounds_origin + bounds_size - size, size)
-			case .Fill:
+			case .fill:
 				return (bounds_origin, bounds_size)
 		}
 	}

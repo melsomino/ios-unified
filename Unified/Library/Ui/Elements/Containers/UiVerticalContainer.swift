@@ -8,20 +8,20 @@ public class UiVerticalContainer: UiMultipleElementContainer {
 	var spacing = CGFloat(0)
 
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		var measure = Measure(container: self)
-		measure.measure(inBounds: bounds)
+		var measure = Vertical_measure(container: self)
+		measure.measure(in_bounds: bounds)
 		return measure.measured
 	}
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
-		var measure = Measure(container: self)
-		measure.layout(inBounds: bounds)
+		var measure = Vertical_measure(container: self)
+		measure.layout(in_bounds: bounds)
 	}
 }
 
 
-private struct Child_measure {
+private struct Vertical_child_measure {
 	let element: UiElement
 	var measured = CGSizeZero
 
@@ -30,41 +30,48 @@ private struct Child_measure {
 	}
 
 	mutating func measure(inBounds bounds: CGSize) {
-		measured = element.measure(inBounds: bounds)
+		measured = element.measure(in_bounds: bounds)
 	}
 }
 
-private struct Measure {
+private struct Vertical_measure {
 	let container: UiVerticalContainer
 	let total_spacing: CGFloat
-	var children = [Child_measure]()
+	var children = [Vertical_child_measure]()
 	var measured = CGSizeZero
 
 	init(container: UiVerticalContainer) {
 		self.container = container
 		for element in container.children {
 			if element.visible {
-				children.append(Child_measure(element: element))
+				children.append(Vertical_child_measure(element: element))
 			}
 		}
 		total_spacing = children.count > 1 ? container.spacing * CGFloat(children.count - 1) : 0
 	}
 
-	mutating func measure(inBounds bounds: CGSize) {
+	mutating func measure(in_bounds bounds: CGSize) {
 		measured = CGSizeMake(0, total_spacing)
 		for i in 0 ..< children.count {
-			children[i].measure(inBounds: bounds)
+			children[i].measure(inBounds: CGSizeMake(10000, 0))
 			let child_measured = children[i].measured
 			measured.width = max(measured.width, child_measured.width)
 			measured.height += child_measured.height
 		}
-		if measured.width > bounds.width {
+		if measured.width > bounds.width || container.horizontalAlignment == .fill {
+			measured = CGSizeMake(0, total_spacing)
+			for i in 0 ..< children.count {
+				children[i].measure(inBounds: CGSizeMake(bounds.width, 0))
+				let child_measured = children[i].measured
+				measured.height += child_measured.height
+			}
+
 			measured.width = bounds.width
 		}
 	}
 
-	mutating func layout(inBounds bounds: CGRect) {
-		measure(inBounds: bounds.size)
+	mutating func layout(in_bounds bounds: CGRect) {
+		measure(in_bounds: bounds.size)
 		var y = bounds.origin.y
 		let x = bounds.origin.x
 		for child in children {
@@ -79,6 +86,11 @@ private struct Measure {
 class UiVerticalContainerDefinition: UiElementDefinition {
 
 	var spacing = CGFloat(0)
+
+	override init() {
+		super.init()
+		horizontalAlignment = .fill
+	}
 
 	override func createElement() -> UiElement {
 		return UiVerticalContainer()

@@ -42,7 +42,7 @@ public class DeclarationContext {
 			case .Value(let string):
 				return try parseFloat(string, attribute: attribute)
 			default:
-				throw DeclarationError(message: "Number value expected", scanner: nil)
+				throw DeclarationError(message: "Number value expected for attribute [\(attribute.name)]", scanner: nil)
 		}
 	}
 

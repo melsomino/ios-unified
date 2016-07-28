@@ -29,16 +29,12 @@ public class UiElement {
 
 	public final var definition: UiElementDefinition!
 	public final var margin = UIEdgeInsetsZero
-	public final var horizontalAlignment = UiAlignment.Leading
-	public final var verticalAlignment = UiAlignment.Leading
+	public final var horizontalAlignment = UiAlignment.leading
+	public final var verticalAlignment = UiAlignment.leading
 
 
-	public final func measure(inBounds bounds: CGSize) -> CGSize {
-		var measured = expand(size: measureContent(inBounds: reduce(size: bounds)))
-		if measured.width > bounds.width {
-			measured.width = bounds.width
-		}
-		return measured
+	public final func measure(in_bounds bounds: CGSize) -> CGSize {
+		return expand(size: measureContent(inBounds: reduce(size: bounds)))
 	}
 
 
@@ -118,8 +114,8 @@ public class UiElementDefinition {
 	public final var id: String?
 	public final var childrenDefinitions = [UiElementDefinition]()
 	public final var margin = UIEdgeInsetsZero
-	public final var horizontalAlignment = UiAlignment.Leading
-	public final var verticalAlignment = UiAlignment.Leading
+	public final var horizontalAlignment = UiAlignment.leading
+	public final var verticalAlignment = UiAlignment.leading
 
 	public static func register(name: String, definition: () -> UiElementDefinition) {
 		definition_factory_by_name[name] = definition
