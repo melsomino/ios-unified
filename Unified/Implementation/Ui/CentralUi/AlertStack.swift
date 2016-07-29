@@ -31,7 +31,7 @@ public class AlertStack: Dependent {
 			}
 		}
 		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUiDesign.informationPanelHeight, container.bounds.width, CentralUiDesign.informationPanelHeight))
-		dependency.resolve(newPanel)
+		newPanel.dependency = dependency
 		newPanel.stack = self
 		newPanel.ui.model = Alert(icon: icon!, message: message, actionArg: actionArg, action: action)
 
@@ -117,7 +117,7 @@ public struct Alert {
 
 
 
-class AlertPanel: UIView, Dependent, AlertUiDelegate {
+class AlertPanel: UIView, Dependent, UiDelegate {
 
 	weak var stack: AlertStack?
 	var ui = AlertUi()
@@ -139,7 +139,7 @@ class AlertPanel: UIView, Dependent, AlertUiDelegate {
 		userInteractionEnabled = true
 		autoresizingMask = [.FlexibleWidth]
 		ui.container = self
-		ui.alertDelegate = self
+		ui.delegate = self
 
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapOnPanelRecognized(_:))))
 	}
@@ -150,10 +150,11 @@ class AlertPanel: UIView, Dependent, AlertUiDelegate {
 		ui.performLayout(inBounds: bounds.size)
 	}
 
-	func onClose() {
-		stack?.hidePanelAnimated(self)
+	func onAction(action: String, args: String?) {
+		if action == "close" {
+			stack?.hidePanelAnimated(self)
+		}
 	}
-
 
 	@objc func tapOnPanelRecognized(sender: UITapGestureRecognizer) {
 		guard sender.state == .Ended else {
@@ -175,16 +176,10 @@ class AlertPanel: UIView, Dependent, AlertUiDelegate {
 
 	var dependency: DependencyResolver! {
 		didSet {
-			dependency.resolve(ui)
+			ui.dependency = dependency
 		}
 	}
 
-}
-
-
-
-protocol AlertUiDelegate: class {
-	func onClose()
 }
 
 
@@ -195,22 +190,13 @@ public class AlertUi: Ui {
 		return model as? Alert
 	}
 
-	weak var alertDelegate: AlertUiDelegate?
-
 	let icon = UiImage()
-	let message = UiText()
-	let closeButton = UiButton()
 
 	public convenience init() {
 		self.init(forModelType: Alert.self)
-//		closeButton.onTouchUpInside = {
-//			[unowned self] in
-//			self.delegate?.onClose()
-//		}
 	}
 
 	public override func onModelChanged() {
-		message.text = alert?.message
 		icon.image = alert?.icon
 	}
 

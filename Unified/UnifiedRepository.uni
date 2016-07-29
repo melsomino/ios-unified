@@ -4,5 +4,5 @@ ui
 	Unified.Alert background-color=ff7033
 		horizontal hor=fill ver=center spacing=12 margin=(30 12 7 12)
 			image Unified.CentralUiAlertError @icon size=(24 27) image-alignment=scale-aspect-fit
-			text '' @message font=13 color=white max-lines=2
-			button size=(12 12) image=Unified.CentralUiAlertClose image-size=6
+			text {message} font=13 color=white max-lines=2
+			button size=(12 12) image=Unified.CentralUiAlertClose image-size=6 action=close
