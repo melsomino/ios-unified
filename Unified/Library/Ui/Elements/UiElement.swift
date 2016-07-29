@@ -166,7 +166,7 @@ public class UiElementDefinition {
 
 	private static func internal_from(declaration element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
 		guard let definition_factory = UiElementDefinition.definition_factory_by_name[element.name] else {
-			throw DeclarationError(message: "Unknown layout element \"\(element.name)\"", scanner: nil)
+			throw DeclarationError("Unknown layout element", element, context)
 		}
 		let definition = definition_factory()
 

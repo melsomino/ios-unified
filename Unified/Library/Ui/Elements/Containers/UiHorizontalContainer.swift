@@ -21,6 +21,9 @@ public class UiHorizontalContainer: UiMultipleElementContainer {
 }
 
 
+
+
+
 private struct Horizontal_child_measure {
 	let element: UiElement
 	var measured_first_pass = CGSizeZero
@@ -40,11 +43,16 @@ private struct Horizontal_child_measure {
 	}
 }
 
+
+
+
+
 private struct Horizontal_measure {
 	let container: UiHorizontalContainer
 	let total_spacing: CGFloat
 	var children = [Horizontal_child_measure]()
 	var measured = CGSizeZero
+	var measured_total_width = CGFloat(0)
 	var min_width_without_spacing = CGFloat(0)
 
 	init(container: UiHorizontalContainer) {
@@ -58,40 +66,45 @@ private struct Horizontal_measure {
 	}
 
 	mutating func measure(in_bounds bounds: CGSize) {
-		let first_pass_total_width = measure_first_pass(in_bounds: bounds)
-		if first_pass_total_width <= bounds.width {
+		measure_first_pass(in_bounds: bounds)
+		if measured_total_width <= bounds.width {
 			return
 		}
 
-		let second_pass_total_width = measure_second_pass(in_bounds: bounds, first_pass_total_width: first_pass_total_width)
-		if second_pass_total_width <= bounds.width {
+		measure_second_pass(in_bounds: bounds)
+		if measured_total_width <= bounds.width {
 			return
 		}
 
-		measure_third_pass(in_bounds: bounds, second_pass_total_width: second_pass_total_width)
+		measure_third_pass(in_bounds: bounds)
 	}
 
 
-	mutating func measure_first_pass(in_bounds bounds: CGSize) -> CGFloat {
+	mutating func measure_first_pass(in_bounds bounds: CGSize) {
 		measured = CGSizeZero
-		var total_width = total_spacing
+		measured_total_width = total_spacing
 		let bounds_without_spacing = CGSizeMake(10000 - total_spacing, bounds.height)
 		for i in 0 ..< children.count {
 			children[i].measure_first_pass(in_bounds: bounds_without_spacing)
 			let child_measured = children[i].measured
 			measured.height = max(measured.height, child_measured.height)
-			total_width += child_measured.width
+			measured_total_width += child_measured.width
 		}
 
-		measured.width = min(total_width, bounds.width)
-		return total_width
+		if container.horizontalAlignment == .fill || measured_total_width > bounds.width {
+			measured.width = bounds.width
+		}
+		else {
+			measured.width = measured_total_width
+		}
 	}
 
 
-	mutating func measure_second_pass(in_bounds bounds: CGSize, first_pass_total_width: CGFloat) -> CGFloat {
+	mutating func measure_second_pass(in_bounds bounds: CGSize) {
+		let first_pass_total_width = measured_total_width
 		measured = CGSizeZero
 		let bounds_without_spacing = bounds.width - total_spacing
-		var total_width = total_spacing
+		measured_total_width = total_spacing
 		let width_ratio = bounds_without_spacing / (first_pass_total_width - total_spacing)
 		min_width_without_spacing = total_spacing
 		for i in 0 ..< children.count {
@@ -102,48 +115,61 @@ private struct Horizontal_measure {
 				min_width_without_spacing += child_measured.width
 			}
 			measured.height = max(measured.height, child_measured.height)
-			total_width += child_measured.width
+			measured_total_width += child_measured.width
 		}
 
-		if total_width <= bounds.width && min_width_without_spacing > 0 {
-			let flexible_width = total_width - total_spacing - min_width_without_spacing
+		if measured_total_width <= bounds.width && min_width_without_spacing > 0 {
+			let flexible_width = measured_total_width - total_spacing - min_width_without_spacing
 			if flexible_width > 0 {
 				let width_ratio = (bounds_without_spacing - min_width_without_spacing) / flexible_width
-				var total_width = total_spacing
+				measured_total_width = total_spacing
 				for i in 0 ..< children.count {
 					let child_bounds = CGSizeMake(children[i].measured.width * width_ratio, bounds.height)
 					children[i].measure_second_pass(in_bounds: child_bounds)
 					let child_measured = children[i].measured
 					measured.height = max(measured.height, child_measured.height)
-					total_width += child_measured.width
+					measured_total_width += child_measured.width
 				}
 			}
 		}
 
 		measured.width = bounds.width
-		return total_width
 	}
 
 
 
-	mutating func measure_third_pass(in_bounds bounds: CGSize, second_pass_total_width: CGFloat) -> CGFloat {
+	mutating func measure_third_pass(in_bounds bounds: CGSize) {
+		let second_pass_total_width = measured_total_width
 		measured = CGSizeZero
 		let bounds_without_spacing = bounds.width - total_spacing
 		let flexible_width = second_pass_total_width - total_spacing - min_width_without_spacing
-		let width_ratio = flexible_width > 0 ? (bounds_without_spacing - min_width_without_spacing) / flexible_width : 0
-		var total_width = total_spacing
+		var width_ratio: CGFloat
+		if flexible_width <= 0 {
+			width_ratio = 0
+		}
+		else if bounds_without_spacing - min_width_without_spacing < 0 {
+			width_ratio = 0
+		} else {
+			width_ratio = (bounds_without_spacing - min_width_without_spacing) / flexible_width
+		}
+		measured_total_width = total_spacing
 		for i in 0 ..< children.count {
-			let child_measured = children[i].measured
+			var child_measured = children[i].measured
 			if child_measured.width < children[i].measured_first_pass.width {
 				let child_bounds = CGSizeMake(children[i].measured.width * width_ratio, bounds.height)
-				children[i].measure_second_pass(in_bounds: child_bounds)
+				if child_bounds.width <= 0 {
+					children[i].measured = child_bounds
+				}
+				else {
+					children[i].measure_second_pass(in_bounds: child_bounds)
+				}
+				child_measured = children[i].measured
 			}
 			measured.height = max(measured.height, child_measured.height)
-			total_width += child_measured.width
+			measured_total_width += child_measured.width
 		}
 
-		measured.width = bounds.width
-		return total_width
+		measured.width = container.horizontalAlignment == .fill ? bounds.width : measured_total_width
 	}
 
 
@@ -153,10 +179,20 @@ private struct Horizontal_measure {
 
 		let y = bounds.origin.y
 		var x = bounds.origin.x
-		for child in children {
-			let child_bounds = CGRectMake(x, y, child.measured.width, measured.height)
-			child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
-			x += child.measured.width + container.spacing
+		if container.horizontalAlignment == .fill && measured_total_width < bounds.width {
+			let width_ratio = (bounds.width - total_spacing)/(measured_total_width - total_spacing)
+			for child in children {
+				let child_bounds = CGRectMake(x, y, child.measured.width*width_ratio, measured.height)
+				child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
+				x += child_bounds.width + container.spacing
+			}
+		}
+		else {
+			for child in children {
+				let child_bounds = CGRectMake(x, y, child.measured.width, measured.height)
+				child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
+				x += child.measured.width + container.spacing
+			}
 		}
 	}
 }

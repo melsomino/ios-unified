@@ -47,8 +47,7 @@ class DefaultExecutionQueue: ExecutionQueue {
 	}
 
 
-// MARK: - Internals
-
+	// MARK: - Internals
 
 	private weak var threading: DefaultThreading!
 	private let platformQueue: NSOperationQueue

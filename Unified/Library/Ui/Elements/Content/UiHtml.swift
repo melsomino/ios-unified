@@ -210,7 +210,7 @@ public class UiHtmlDefinition: UiContentElementDefinition {
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if isElementValue {
-			html = try context.getExpression(attribute, .Value(attribute.name))
+			html = try context.getExpression(attribute, .value(attribute.name))
 			return
 		}
 		switch attribute.name {
@@ -257,7 +257,7 @@ public class UiHtmlDefinition: UiContentElementDefinition {
 
 	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
-			case .Value(let string):
+			case .value(let string):
 				var size: Float = 0
 				if NSScanner(string: string).scanFloat(&size) {
 					fontSize = CGFloat(size)
@@ -265,12 +265,12 @@ public class UiHtmlDefinition: UiContentElementDefinition {
 				else {
 					fontName = string
 				}
-			case .List(let values):
+			case .list(let values):
 				for value in values {
 					try applyFontValue(attribute, value: value, context: context)
 				}
 			default:
-				throw DeclarationError(message: "Font attributes expected", scanner: nil)
+				throw DeclarationError("Font attributes expected", attribute, context)
 		}
 	}
 

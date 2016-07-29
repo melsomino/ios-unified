@@ -90,7 +90,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 				socket.writeString("get-repository`\(parts[1])")
 			case "repository":
 				do {
-					try loadRepositoryFromDevServer(parts[1])
+					try loadRepositoryFromDevServer(parts[0], repositoryString: parts[1])
 					notify()
 				}
 					catch let error {
@@ -151,12 +151,20 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	private func loadRepositoryFromDevServer(repositoryString: String) throws {
+	private func loadRepositoryFromDevServer(repositoryName: String, repositoryString: String) throws {
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
-		try loadRepository(DeclarationElement.parse(repositoryString), overrideExisting: true)
+		var elements: [DeclarationElement]
+		let context = DeclarationContext(repositoryName)
+		do {
+			elements = try DeclarationElement.parse(repositoryString)
+		}
+			catch let error as ParseError {
+			throw DeclarationError(error, context)
+		}
+		try loadRepository(elements, context: context, overrideExisting: true)
 	}
 
 
@@ -170,13 +178,20 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 				continue
 			}
 			loadedUniPaths.insert(uniPath)
-			try loadRepository(DeclarationElement.load(uniPath), overrideExisting: false)
+			var elements: [DeclarationElement]
+			let context = DeclarationContext((uniPath as NSString).lastPathComponent)
+			do {
+				elements = try DeclarationElement.load(uniPath)
+			}
+				catch let error as ParseError {
+				throw DeclarationError(error, context)
+			}
+			try loadRepository(elements, context: context, overrideExisting: false)
 		}
 	}
 
 
-	func loadRepository(elements: [DeclarationElement], overrideExisting: Bool) throws {
-		let context = DeclarationContext(elements)
+	func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
 		for uiSection in elements.filter({ $0.name == "ui" }) {
 			for ui in uiSection.children {
 				if overrideExisting || uiDefinitionByName[ui.name] == nil {
@@ -197,10 +212,16 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 	private func load(repository name: String, from bundle: NSBundle) throws -> [DeclarationElement] {
+		let context = DeclarationContext("[\(name).uni] in bundle [\(bundle.bundleIdentifier ?? "")]")
 		guard let path = bundle.pathForResource(name, ofType: ".uni") else {
-			throw DeclarationError(message: "Unable to locate unified repository file [\(name)] in bundle [\(bundle.bundleIdentifier ?? "")]", scanner: nil)
+			throw DeclarationError("Unable to locate unified repository", context)
 		}
-		return try DeclarationElement.load(path)
+		do {
+			return try DeclarationElement.load(path)
+		}
+			catch let error as ParseError {
+			throw DeclarationError(error, context)
+		}
 	}
 
 

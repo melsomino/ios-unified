@@ -10,9 +10,21 @@ import UIKit
 
 
 
-public struct DeclarationAttribute {
+public struct DeclarationAttribute: CustomStringConvertible {
 	public let name: String
 	public let value: DeclarationValue
+
+	// MARK: - CustomStringConvertible
+
+	public var description: String {
+		switch value {
+			case .missing:
+				return "\(name)"
+			default:
+				return "'\(name)'=\(value)"
+		}
+	}
+
 }
 
 
@@ -138,7 +150,7 @@ extension NSScanner {
 				}
 			}
 			let name = try expectName(passWhitespaces: true)
-			var value = DeclarationValue.Missing
+			var value = DeclarationValue.missing
 			if pass("=", passWhitespaces: true) {
 				value = try passAttributeValue()
 			}
@@ -153,13 +165,13 @@ extension NSScanner {
 			var values = [DeclarationValue]()
 			while !pass(")", passWhitespaces: true) {
 				guard let value = try passNameOrValue() else {
-					throw DeclarationError(message: "Invalid value list", scanner: self)
+					throw ParseError("Invalid value list", self)
 				}
-				values.append(.Value(value))
+				values.append(.value(value))
 			}
-			return .List(values)
+			return .list(values)
 		}
-		return try .Value(passNameOrValue()!)
+		return try .value(passNameOrValue()!)
 	}
 
 
@@ -180,7 +192,7 @@ extension NSScanner {
 
 	func expectName(passWhitespaces passWhitespaces: Bool) throws -> String {
 		guard let passed = try passNameOrValue() else {
-			throw DeclarationError(message: "name expected", scanner: self)
+			throw ParseError("name expected", self)
 		}
 		if passWhitespaces {
 			self.passWhitespaces()

@@ -92,6 +92,24 @@ extension NSDate {
 }
 
 
+public class ParseError: ErrorType, CustomStringConvertible {
+	public var message: String
+	public var scanner: NSScanner
+
+	public init(_ message: String, _ scanner: NSScanner) {
+		self.message = message
+		self.scanner = scanner
+	}
+
+	// MARK: - CustomStringConvertible
+
+	public var description: String {
+		return "\(message) at: \(scanner.string.substringFromIndex(scanner.string.startIndex.advancedBy(scanner.scanLocation)))"
+	}
+
+}
+
+
 extension NSScanner {
 
 	convenience init(source: String, passWhitespaces: Bool) {
@@ -124,7 +142,7 @@ extension NSScanner {
 
 	func expect(expected: String, passWhitespaces: Bool) throws {
 		if !pass(expected, passWhitespaces: passWhitespaces) {
-			throw DeclarationError(message: "\(expected) expected", scanner: self)
+			throw ParseError("\(expected) expected", self)
 		}
 	}
 
@@ -150,7 +168,7 @@ extension NSScanner {
 		if let passed = passCharacters(expected, passWhitespaces: passWhitespaces) {
 			return passed
 		}
-		throw DeclarationError(message: "\(expectedDescription) expected", scanner: self)
+		throw ParseError("\(expectedDescription) expected", self)
 	}
 
 
@@ -180,7 +198,7 @@ extension NSScanner {
 
 	func expectIdentifier(passWhitespaces passWhitespaces: Bool) throws -> String {
 		guard let passed = passIdentifier(passWhitespaces: passWhitespaces) else {
-			throw DeclarationError(message: "identifier expected", scanner: self)
+			throw ParseError("identifier expected", self)
 		}
 		return passed
 	}
@@ -218,7 +236,7 @@ extension NSScanner {
 
 	func expectUntil(terminator: String) throws -> String {
 		guard let passed = passUntil(terminator) else {
-			throw DeclarationError(message: "can not find terminator \"\(terminator)\"", scanner: self)
+			throw ParseError("can not find terminator \"\(terminator)\"", self)
 		}
 		return passed
 	}

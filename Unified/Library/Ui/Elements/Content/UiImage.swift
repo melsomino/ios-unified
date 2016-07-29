@@ -65,7 +65,7 @@ class UiImageDefinition: UiContentElementDefinition {
 
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if isElementValue {
-			source = try context.getImage(attribute, value: .Value(attribute.name))
+			source = try context.getImage(attribute, value: .value(attribute.name))
 			return
 		}
 		switch attribute.name {

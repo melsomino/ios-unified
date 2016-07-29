@@ -50,23 +50,27 @@ private struct Vertical_measure {
 		total_spacing = children.count > 1 ? container.spacing * CGFloat(children.count - 1) : 0
 	}
 
-	mutating func measure(in_bounds bounds: CGSize) {
+	mutating private func measure(in_width width: CGFloat) {
 		measured = CGSizeMake(0, total_spacing)
+
 		for i in 0 ..< children.count {
-			children[i].measure(inBounds: CGSizeMake(10000, 0))
+			children[i].measure(inBounds: CGSizeMake(width, 0))
 			let child_measured = children[i].measured
 			measured.width = max(measured.width, child_measured.width)
 			measured.height += child_measured.height
 		}
-		if measured.width > bounds.width || container.horizontalAlignment == .fill {
-			measured = CGSizeMake(0, total_spacing)
-			for i in 0 ..< children.count {
-				children[i].measure(inBounds: CGSizeMake(bounds.width, 0))
-				let child_measured = children[i].measured
-				measured.height += child_measured.height
-			}
+	}
 
+	mutating func measure(in_bounds bounds: CGSize) {
+		if container.horizontalAlignment == .fill {
+			measure(in_width: bounds.width)
 			measured.width = bounds.width
+		}
+		else {
+			measure(in_width: 10000)
+			if measured.width > bounds.width {
+				measure(in_width: bounds.width)
+			}
 		}
 	}
 

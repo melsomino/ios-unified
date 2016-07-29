@@ -6,23 +6,46 @@
 import Foundation
 import UIKit
 
+public enum DeclarationErrorSource {
+	case message(String, DeclarationContext)
+	case parser(ParseError, DeclarationContext)
+	case element(String, DeclarationElement, DeclarationContext)
+	case attribute(String, DeclarationAttribute, DeclarationContext)
+}
+
 
 public struct DeclarationError: ErrorType, CustomStringConvertible {
-	let message: String
+	let source: DeclarationErrorSource
 
-	init(message: String, scanner: NSScanner?) {
-		if scanner != nil {
-			self.message = "\(message): \(scanner!.string.substringFromIndex(scanner!.string.startIndex.advancedBy(scanner!.scanLocation)))"
-		}
-		else {
-			self.message = message
-		}
+	init(_ message: String, _ attribute: DeclarationAttribute, _ context: DeclarationContext) {
+		source = .attribute(message, attribute, context)
+	}
+
+	init(_ message: String, _ element: DeclarationElement, _ context: DeclarationContext) {
+		source = .element(message, element, context)
+	}
+
+	init(_ message: String, _ context: DeclarationContext) {
+		source = .message(message, context)
+	}
+
+	init(_ parseError: ParseError, _ context: DeclarationContext) {
+		source = .parser(parseError, context)
 	}
 
 	// MARK: - CustomStringConvertible
 
 	public var description: String {
-		return message
+		switch source {
+			case .message(let message, let context):
+				return "\(message) in \(context.source)"
+			case .parser(let parseError, let context):
+				return "\(parseError) in \(context.source)"
+			case .element(let message, let element, let context):
+				return "\(message) in element [\(element.name)] in \(context.source)"
+			case .attribute(let message, let attribute, let context):
+				return "\(message) in attribute [\(attribute)] in [\(context.source)]"
+		}
 	}
 
 }
@@ -30,19 +53,20 @@ public struct DeclarationError: ErrorType, CustomStringConvertible {
 
 public class DeclarationContext {
 
+	public var source: String
 	public var bindings = UiBindings()
 	public var hasBindings = false
 
-	init(_ elements: [DeclarationElement]) {
-
+	init(_ source: String) {
+		self.source = source
 	}
 
 	public func getFloat(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
 		switch value {
-			case .Value(let string):
+			case .value(let string):
 				return try parseFloat(string, attribute: attribute)
 			default:
-				throw DeclarationError(message: "Number value expected for attribute [\(attribute.name)]", scanner: nil)
+				throw DeclarationError("Number value expected", attribute, self)
 		}
 	}
 
@@ -52,22 +76,22 @@ public class DeclarationContext {
 
 	public func getEnum<Enum>(attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
 		switch attribute.value {
-			case .Value(let value):
+			case .value(let value):
 				if let resolved = valuesByLowercaseName[value.lowercaseString] {
 					return resolved
 				}
-				throw DeclarationError(message: "Invalid value \"\(value)\" for attribute \"\(attribute.name)\"", scanner: nil)
+				throw DeclarationError("Invalid value", attribute, self)
 			default:
-				throw DeclarationError(message: "Invalid value", scanner: nil)
+				throw DeclarationError("Missing required value", attribute, self)
 		}
 	}
 
 	public func getString(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> String {
 		switch value {
-			case .Value(let string):
+			case .value(let string):
 				return string
 			default:
-				throw DeclarationError(message: "String value expected", scanner: nil)
+				throw DeclarationError("String value expected", attribute, self)
 		}
 	}
 
@@ -78,11 +102,11 @@ public class DeclarationContext {
 
 	public func getExpression(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> UiBindings.Expression? {
 		switch value {
-			case .Value(let string):
+			case .value(let string):
 				hasBindings = true
 				return bindings.parse(string)
 			default:
-				throw DeclarationError(message: "String value expected", scanner: nil)
+				throw DeclarationError("String value expected", attribute, self)
 		}
 	}
 
@@ -98,7 +122,7 @@ public class DeclarationContext {
 
 	public func getImage(attribute: DeclarationAttribute, value: DeclarationValue) throws -> UIImage {
 		switch value {
-			case .Value(let string):
+			case .value(let string):
 				let nameParts = string.componentsSeparatedByString(".")
 				var image: UIImage!
 				if nameParts.count < 2 {
@@ -113,53 +137,53 @@ public class DeclarationContext {
 				if image != nil {
 					return image
 				}
-				throw DeclarationError(message: "Missing required image: \(string)", scanner: nil)
+				throw DeclarationError("Missing required image", attribute, self)
 			default:
-				throw DeclarationError(message: "Image name expected", scanner: nil)
+				throw DeclarationError("Image name expected", attribute, self)
 		}
 	}
 
 
 	public func getBool(attribute: DeclarationAttribute) throws -> Bool {
 		switch attribute.value {
-			case .Value(let string):
+			case .value(let string):
 				if "true".caseInsensitiveCompare(string) == NSComparisonResult.OrderedSame {
 					return true
 				}
 				if "false".caseInsensitiveCompare(string) == NSComparisonResult.OrderedSame {
 					return false
 				}
-				throw DeclarationError(message: "Boolean value expected (\"true\" or \"false\")", scanner: nil)
-			case .Missing:
+				throw DeclarationError("Boolean value expected (\"true\" or \"false\")", attribute, self)
+			case .missing:
 				return true
 			default:
-				throw DeclarationError(message: "Boolean value expected (\"true\" or \"false\")", scanner: nil)
+				throw DeclarationError("Boolean value expected (\"true\" or \"false\")", attribute, self)
 		}
 	}
 
 
 	public func getSize(attribute: DeclarationAttribute) throws -> CGSize {
 		switch attribute.value {
-			case .Value(let string):
+			case .value(let string):
 				let size = try parseFloat(string, attribute: attribute)
 				return CGSizeMake(size, size)
-			case .List(let values):
+			case .list(let values):
 				if values.count == 2 {
 					return CGSizeMake(try getFloat(attribute, values[0]), try getFloat(attribute, values[1]))
 				}
-				throw DeclarationError(message: "Size value must contains single number or two numbers (width, height)", scanner: nil)
+				throw DeclarationError("Size value must contains single number or two numbers (width, height)", attribute, self)
 			default:
-				throw DeclarationError(message: "Missing size value", scanner: nil)
+				throw DeclarationError("Missing size value", attribute, self)
 		}
 	}
 
 
 	public func getInsets(attribute: DeclarationAttribute) throws -> UIEdgeInsets {
 		switch attribute.value {
-			case .Value(let string):
+			case .value(let string):
 				let inset = try parseFloat(string, attribute: attribute)
 				return UIEdgeInsetsMake(inset, inset, inset, inset)
-			case .List(let values):
+			case .list(let values):
 				switch values.count {
 					case 2:
 						let x = try getFloat(attribute, values[0])
@@ -168,20 +192,20 @@ public class DeclarationContext {
 					case 4:
 						return UIEdgeInsetsMake(try getFloat(attribute, values[0]), try getFloat(attribute, values[1]), try getFloat(attribute, values[2]), try getFloat(attribute, values[3]))
 					default:
-						throw DeclarationError(message: "Inset values must contains single number or two numbers (horizontal, vertical) or four numbers (top, left, bottom, right)", scanner: nil)
+						throw DeclarationError("Inset values must contains single number or two numbers (horizontal, vertical) or four numbers (top, left, bottom, right)", attribute, self)
 				}
 			default:
-				throw DeclarationError(message: "Missing insets value", scanner: nil)
+				throw DeclarationError("Missing insets value", attribute, self)
 		}
 	}
 
 
 	public func getColor(attribute: DeclarationAttribute) throws -> UIColor {
 		switch attribute.value {
-			case .Value(let string):
+			case .value(let string):
 				return UIColor.parse(string)
 			default:
-				throw DeclarationError(message: "Missing color value", scanner: nil)
+				throw DeclarationError("Missing color value", attribute, self)
 		}
 	}
 
@@ -194,7 +218,7 @@ public class DeclarationContext {
 		if NSScanner(string: string).scanFloat(&value) {
 			return CGFloat(value)
 		}
-		throw DeclarationError(message: "Number expected", scanner: nil)
+		throw DeclarationError("Number expected", attribute, self)
 	}
 
 
@@ -204,17 +228,43 @@ public class DeclarationContext {
 
 
 
-public enum DeclarationValue {
-	case Missing
-	case Value(String)
-	case List([DeclarationValue])
+public enum DeclarationValue: CustomStringConvertible {
+	case missing
+	case value(String)
+	case list([DeclarationValue])
 
 	public var isMissing: Bool {
 		switch self {
-			case .Missing: return true
+			case .missing: return true
 			default: return false
 		}
 	}
 
+
+	// MARK: - CustomStringConvertible
+
+
+	public var description: String {
+		switch self {
+			case .missing:
+				return ""
+			case .value(let value):
+				return "'\(value)'"
+			case .list(let values):
+				var string = "("
+				var isFirst = false
+				for value in values {
+					if isFirst {
+						isFirst = false
+					}
+					else {
+						string += ", "
+					}
+					string += value.description
+				}
+				string += ")"
+				return string
+		}
+	}
 
 }

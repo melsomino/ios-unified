@@ -1,23 +1,11 @@
 repository Layouts
 
 ui
-	Layouts.Header background-color=f0f0f0
-		vertical
-			layered
-				view size=55 background-color=red margin-left=100 margin-top=100
-				# horizontal margin=12 spacing=12
-				# 	view size=55 background-color=bbb
-				# 	vertical spacing=8
-				# 		view height=2 background-color=red hor=fill
-				# 		text 'fjds fjkds afdklsa fdjlks ajflkdsa jlkfds ajlkfdjs afjdklsa gjdf jgklfdj slgjdfk jgdf' background-color=1ee font=15 max-lines=2 hor=left
-				# 		# text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
-				# 		# text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
-				# 		horizontal spacing=2 hor=right
-				# 			text '{title} gfd fds fds fds' background-color=1ee font=15 max-lines=1 hor=right
-				# 			text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
-				# 			text {totalCount} background-color=aaa font=15 nowrap hor=right ver=center
-				# text 'fjds fjkds afdklsa fdjlks ajflkdsa jlkfds ajlkfdjs afjdklsa gjdf jgklfdj slgjdfk jgdf' background-color=1ee font=15 max-lines=2 hor=left margin=12
-				# view height=1 background-color=red hor=fill
+	Layouts.Header background-color=white
+		horizontal spacing=8 hor=fill
+			text resultVersion font=14 max-lines=1
+			horizontal hor=right
+				text resultTextresultTextresultTextresultkkkkkkkkkfsdfdsfds font=15 hor=right nowrap
 
 
 	Layouts.Album background-color=f1f1f1
