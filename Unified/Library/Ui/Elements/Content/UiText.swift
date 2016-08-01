@@ -348,7 +348,7 @@ public class UiTextLabel: UILabel {
 
 		if let left = transparentGradientLeft, back_color = textBackgroundColor {
 			if gradient_layer == nil {
-				layer.backgroundColor = back_color.CGColor
+				layer.backgroundColor = default_background_color?.CGColor
 				gradient_layer = CAGradientLayer()
 				layer.addSublayer(gradient_layer!)
 			}

@@ -5,9 +5,14 @@
 
 import Foundation
 
+
+
+
+
 public class DefaultCloudFile: CloudFile {
-	init(url: NSURL, localPath: String) {
-		self.url = url
+	init(cloudConnector: CloudConnector, relativeUrl: String, localPath: String) {
+		self.cloudConnector = cloudConnector
+		self.url = cloudConnector.makeUrl(relativeUrl)
 		self.localPath = localPath
 
 		if NSFileManager.defaultManager().fileExistsAtPath(localPath) {
@@ -29,7 +34,6 @@ public class DefaultCloudFile: CloudFile {
 	}
 
 
-
 	public func removeListener(listener: CloudFileListener) {
 		lock.withLock {
 			self.listeners.remove(listener)
@@ -44,14 +48,13 @@ public class DefaultCloudFile: CloudFile {
 	}
 
 
-
 	public var localPath: String
-
 
 
 	// MARK: - Internals
 
 
+	private let cloudConnector: CloudConnector
 	private let url: NSURL
 	private var listeners = ListenerList<CloudFileListener>()
 	private var lock = FastLock()
@@ -71,37 +74,33 @@ public class DefaultCloudFile: CloudFile {
 
 
 	private func startDownload() {
-		let httpSession = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
 		weak var weakSelf = self
 
-		httpSession.downloadTaskWithURL(url) {
-			downloadedLocalUrl, httpResponse, httpError in
+		let request = NSURLRequest(URL: url)
+		cloudConnector.startDownload(request,
+			progress: nil,
+			error: {
+				error in
+				guard let strongSelf = weakSelf else {
+					return
+				}
+				strongSelf.setState(.Failed(error))
+			}) {
+			downloadedUrl in
 			guard let strongSelf = weakSelf else {
 				return
 			}
-
-			var downloadError: CloudError?
-			if httpError != nil {
-				downloadError = CloudError("Ошибка загрузки файла", httpError)
-			}
 			do {
-				let downloadedPath = downloadedLocalUrl!.path!
-				try NSFileManager.defaultManager().copyItemAtPath(downloadedPath, toPath: self.localPath)
-			}
-			catch let error {
-				downloadError = CloudError("Ошибка загрузки файла", error)
-			}
-
-			if downloadError != nil {
-				strongSelf.setState(.Failed(downloadError!))
-			}
-			else {
+				let downloadedPath = downloadedUrl.path!
+				try NSFileManager.defaultManager().copyItemAtPath(downloadedPath, toPath: strongSelf.localPath)
 				strongSelf.setState(.Loaded)
+			} catch let error {
+				strongSelf.setState(.Failed(CloudError("Ошибка загрузки файла", error)))
 			}
 		}
-		.resume()
 	}
-
-
-
 }
+
+
+
+

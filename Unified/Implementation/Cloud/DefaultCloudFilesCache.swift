@@ -24,7 +24,7 @@ public class DefaultCloudFilesCache: CloudFileCache {
 			return existing
 		}
 		let localFilePath = localPath + "/" + relativeUrlHash + (forceExtension ?? "")
-		let newFile = DefaultCloudFile(url: cloudConnector.makeUrl(relativeUrl), localPath: localFilePath)
+		let newFile = DefaultCloudFile(cloudConnector: cloudConnector, relativeUrl: relativeUrl, localPath: localFilePath)
 		fileFromRelativeUrlHash[relativeUrlHash] = newFile
 		return newFile
 	}

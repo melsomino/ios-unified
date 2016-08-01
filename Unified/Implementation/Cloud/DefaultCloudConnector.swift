@@ -16,6 +16,8 @@ public class DefaultCloudConnector: CloudConnector {
 
 	// MARK: - CloudConnector
 
+	var urlSession: NSURLSession = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+
 
 	public func getFileCache(localPath: String) -> CloudFileCache {
 		return DefaultCloudFilesCache(cloudConnector: self, localPath: localPath)
@@ -26,6 +28,26 @@ public class DefaultCloudConnector: CloudConnector {
 		return NSURL(string: relativePath, relativeToURL: baseUrl)!
 	}
 
+	public func startDownload(request: NSURLRequest, progress: ((Int64, Int64) -> Void)?, error: ((ErrorType) -> Void)?, complete: (NSURL) -> Void) {
+		let task = urlSession.downloadTaskWithRequest(request) {
+			downloadedUrl, httpResponse, httpResponseError in
+			if httpResponseError != nil {
+				if let onError = error {
+					onError(httpResponseError!)
+				}
+				return
+			}
+			if downloadedUrl == nil {
+				if let onError = error {
+					onError(CloudError("Ошибка загрузки файла", nil))
+				}
+				return
+			}
+			complete(downloadedUrl!)
+		}
+		task.resume()
+	}
+
 	public func invokeService(serviceUrl: NSURL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject {
 		var json = [String:AnyObject]()
 		json["jsonrpc"] = "2.0"
@@ -33,7 +55,6 @@ public class DefaultCloudConnector: CloudConnector {
 		json["method"] = method
 		json["params"] = params
 
-		let httpSession = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
 		let httpRequest = NSMutableURLRequest(URL: serviceUrl, cachePolicy: .UseProtocolCachePolicy, timeoutInterval: 60.0)
 		let httpRequestJson = ["jsonrpc": "2.0", "protocol": protocolVersion, "method": method, "params": params]
 		let httpRequestData = try! NSJSONSerialization.dataWithJSONObject(httpRequestJson, options: [])
@@ -49,7 +70,7 @@ public class DefaultCloudConnector: CloudConnector {
 
 		let semaphore = dispatch_semaphore_create(0)
 
-		let task = httpSession.dataTaskWithRequest(httpRequest) {
+		let task = urlSession.dataTaskWithRequest(httpRequest) {
 			httpResponseData, httpResponse, httpResponseError in
 			if httpResponseData != nil {
 				do {
@@ -79,7 +100,6 @@ public class DefaultCloudConnector: CloudConnector {
 			}
 			dispatch_semaphore_signal(semaphore)
 		}
-
 		task.resume()
 		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
 

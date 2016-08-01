@@ -7,8 +7,8 @@ import Foundation
 import UIKit
 
 public class UiView: UiContentElement {
-	var width: CGFloat?
-	var height: CGFloat?
+	public var width: CGFloat?
+	public var height: CGFloat?
 
 	var viewFactory: (() -> UIView)?
 

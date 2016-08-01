@@ -8,20 +8,12 @@ import Foundation
 
 public protocol CloudConnector {
 	func makeUrl(relativePath: String) -> NSURL
+
 	func invokeService(serviceUrl: NSURL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject
+	func startDownload(request: NSURLRequest, progress: ((Int64, Int64) -> Void)?, error: ((ErrorType) -> Void)?, complete: (NSURL) -> Void)
 
 	func getFileCache(localPath: String) -> CloudFileCache
 }
-
-public let CloudConnectorDependency = Dependency<CloudConnector>()
-
-
-public extension DependencyResolver {
-	public var cloudConnector: CloudConnector {
-		return required(CloudConnectorDependency)
-	}
-}
-
 
 public protocol CloudFileCache {
 	func getFile(relativeUrl: String, forceExtension: String?) -> CloudFile
@@ -57,5 +49,23 @@ public protocol CloudFileListener: class {
 
 
 
+
+
+public let CloudConnectorDependency = Dependency<CloudConnector>()
+
+public protocol CloudConnectorDependent: Dependent {
+
+}
+
+
+public extension CloudConnectorDependent {
+	public var optionalCloudConnector: CloudConnector? {
+		return dependency.optional(CloudConnectorDependency)
+	}
+
+	public var cloudConnector: CloudConnector {
+		return dependency.required(CloudConnectorDependency)
+	}
+}
 
 

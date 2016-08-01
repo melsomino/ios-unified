@@ -64,6 +64,33 @@ func join<Child>(head: Any, children: [Child]) -> [Any] {
 	return joined
 }
 
+func testAsync() {
+	var a = 0
+	var b = 0
+
+	Async.on(.background, with: nil) {
+		execution, owner in
+		execution.then(on: .background) {
+			execution, owner in
+			a = 1
+		}
+		execution.then(on: .background) {
+			execution, owner in
+			b = 2
+		}
+	}.then(on: .ui) {
+		execution, owner in
+		print(a + b)
+	}.catchError(on: .ui) {
+		owner, error in
+		print("error: \(error)")
+	}.always(on: .ui) {
+		owner in
+		print("always: \(a + b)")
+	}.start()
+
+}
+
 
 
 @UIApplicationMain
@@ -75,6 +102,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
+
+		testAsync()
 
 		dependency = DependencyContainer {
 			container in

@@ -217,6 +217,7 @@ public class TableUiCellFactory {
 	final let modelType: Any.Type
 	final let layoutCache: UiLayoutCache?
 	final var uiDefinition: UiDefinition!
+	public final var uiFactory: (() -> Ui)?
 	public final var layoutName: String?
 
 	final lazy var heightCalculator: Ui = {
@@ -244,7 +245,7 @@ public class TableUiCellFactory {
 
 
 	private func internalCreateUi() -> Ui {
-		let ui = Ui(forModelType: modelType)
+		let ui = uiFactory != nil ? uiFactory!() : Ui(forModelType: modelType)
 		ui.performLayoutInWidth = true
 		ui.layoutCache = layoutCache
 		dependency.resolve(ui)
