@@ -33,7 +33,7 @@ public class UiElement {
 	public final var verticalAlignment = UiAlignment.leading
 
 
-	public final func measure(in_bounds bounds: CGSize) -> CGSize {
+	public final func measure(inBounds bounds: CGSize) -> CGSize {
 		return expand(size: measureContent(inBounds: reduce(size: bounds)))
 	}
 
@@ -227,6 +227,9 @@ public class UiElementDefinition {
 		},
 		"button": {
 			UiButtonDefinition()
+		},
+		"decorator": {
+			UiDecoratorDefinition()
 		}
 	]
 

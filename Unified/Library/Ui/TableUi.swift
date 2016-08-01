@@ -8,6 +8,13 @@ import Foundation
 import UIKit
 
 
+public enum TableUiModelsState {
+	case predefined
+	case loading
+	case loaded
+	case failed(ErrorType)
+}
+
 
 
 public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
@@ -176,6 +183,7 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 				}
 				if let error = loadError {
 					strongSelf.dependency.required(CentralUiDependency).pushAlert(.Error, message: String(error))
+					print(error)
 					return
 				}
 				strongSelf.models = models

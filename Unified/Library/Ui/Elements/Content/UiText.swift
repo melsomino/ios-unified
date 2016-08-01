@@ -39,12 +39,6 @@ public class UiText: UiContentElement {
 		}
 	}
 
-	public var transparentGradientLeft: CGFloat? {
-		didSet {
-			initializeView()
-		}
-	}
-
 	public var autoHideEmptyText = true
 
 	public var text: String? {
@@ -94,7 +88,6 @@ public class UiText: UiContentElement {
 			return
 		}
 		label.textBackgroundColor = backgroundColor
-		label.transparentGradientLeft = transparentGradientLeft
 		label.font = font ?? defaultFont
 		label.padding = padding
 		label.textColor = color ?? defaultColor
@@ -195,7 +188,6 @@ public class UiTextDefinition: UiContentElementDefinition {
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
-	var transparentGradientLeft: CGFloat?
 	var text: UiBindings.Expression?
 
 
@@ -226,8 +218,6 @@ public class UiTextDefinition: UiContentElementDefinition {
 				padding.left = try context.getFloat(attribute)
 			case "padding-right":
 				padding.right = try context.getFloat(attribute)
-			case "transparent-gradient-left":
-				transparentGradientLeft = try context.getFloat(attribute)
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
@@ -255,7 +245,6 @@ public class UiTextDefinition: UiContentElementDefinition {
 		}
 		text.padding = padding
 		text.color = color
-		text.transparentGradientLeft = transparentGradientLeft
 		text.maxLines = maxLines
 		text.nowrap = nowrap
 	}

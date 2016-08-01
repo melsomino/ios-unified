@@ -33,7 +33,7 @@ private struct Layered_child_measure {
 	}
 
 	mutating func measure(in_bounds bounds: CGSize) {
-		measured = element.measure(in_bounds: bounds)
+		measured = element.measure(inBounds: bounds)
 	}
 }
 

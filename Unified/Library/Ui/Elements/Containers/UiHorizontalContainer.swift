@@ -34,12 +34,12 @@ private struct Horizontal_child_measure {
 	}
 
 	mutating func measure_first_pass(in_bounds bounds: CGSize) {
-		measured_first_pass = element.measure(in_bounds: bounds)
+		measured_first_pass = element.measure(inBounds: bounds)
 		measured = measured_first_pass
 	}
 
 	mutating func measure_second_pass(in_bounds bounds: CGSize) {
-		measured = element.measure(in_bounds: bounds)
+		measured = element.measure(inBounds: bounds)
 	}
 }
 
