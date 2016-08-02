@@ -61,6 +61,23 @@ public class CloudApiStructConverter<StructType> {
 
 
 
+	public func listFromJsonArray(source: AnyObject) -> [StructType] {
+		var objects = [StructType]()
+		guard let sourceArray = source as? [AnyObject] else {
+			return objects
+		}
+		for value in sourceArray {
+			if let object = objectFromJsonObject(value) {
+				objects.append(object)
+			}
+		}
+		return objects
+	}
+
+
+
+
+
 	public func objectFromJsonObject(source: AnyObject) -> StructType? {
 		guard let sourceObject = source as? [String:AnyObject] else {
 			return nil
@@ -118,6 +135,18 @@ public class CloudApiStructConverter<StructType> {
 		recordset["d"] = data
 		recordset["_type"] = "table"
 		return recordset
+	}
+
+
+
+
+
+	public func jsonArrayFromList(list: [StructType]) -> [AnyObject] {
+		var array = [AnyObject]()
+		for object in list {
+			array.append(jsonObjectFromObject(object))
+		}
+		return array
 	}
 
 
