@@ -9,9 +9,9 @@ import Foundation
 
 
 class AsyncWork: AsyncHandler {
-	private var work: (AsyncExecution, AnyObject?) throws -> Void
+	private var work: (AsyncExecution, AnyObject!) throws -> Void
 
-	init(execution: AsyncExecution, target: AsyncExecutionTarget, work: (AsyncExecution, AnyObject?) throws -> Void) {
+	init(execution: AsyncExecution, target: AsyncExecutionTarget, work: (AsyncExecution, AnyObject!) throws -> Void) {
 		self.work = work
 		super.init(execution: execution, target: target)
 	}

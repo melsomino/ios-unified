@@ -70,7 +70,6 @@ class AsyncHandler {
 
 
 	func onError(error: ErrorType) {
-
 	}
 
 
@@ -79,7 +78,7 @@ class AsyncHandler {
 	}
 
 
-	func doWork(execution: AsyncExecution, with owner: AnyObject?) throws {
+	func doWork(execution: AsyncExecution, with owner: AnyObject!) throws {
 
 	}
 
@@ -91,10 +90,10 @@ class AsyncHandler {
 
 class AsyncErrorHandler: AsyncHandler {
 
-	private let handler: (AnyObject?, ErrorType) -> Void
+	private let handler: (AnyObject!, ErrorType) -> Void
 	private let error: ErrorType
 
-	init(execution: AsyncExecution, target: AsyncExecutionTarget, error: ErrorType, handler: (AnyObject?, ErrorType) -> Void) {
+	init(execution: AsyncExecution, target: AsyncExecutionTarget, error: ErrorType, handler: (AnyObject!, ErrorType) -> Void) {
 		self.handler = handler
 		self.error = error
 		super.init(execution: execution, target: target)
@@ -106,7 +105,7 @@ class AsyncErrorHandler: AsyncHandler {
 	}
 
 
-	override func doWork(execution: AsyncExecution, with owner: AnyObject?) throws {
+	override func doWork(execution: AsyncExecution, with owner: AnyObject!) throws {
 		handler(owner, error)
 	}
 
@@ -118,7 +117,7 @@ class AsyncErrorHandler: AsyncHandler {
 
 class AsyncAlwaysHandler: AsyncHandler {
 
-	private let handler: (AnyObject?) -> Void
+	private let handler: (AnyObject!) -> Void
 
 	init(execution: AsyncExecution, target: AsyncExecutionTarget, handler: (AnyObject?) -> Void) {
 		self.handler = handler
