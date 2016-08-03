@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class UiImage: UiContentElement {
+public class ImageElement: ContentElement {
 	var size = CGSizeZero
 
 	public var imageAlignment = UIViewContentMode.Center {
@@ -57,7 +57,7 @@ public class UiImage: UiContentElement {
 }
 
 
-class UiImageDefinition: UiContentElementDefinition {
+class ImageElementDefinition: ContentElementDefinition {
 	var source: UIImage?
 	var size = CGSizeZero
 	var fixedSize = false
@@ -74,20 +74,20 @@ class UiImageDefinition: UiContentElementDefinition {
 			case "fixed-size":
 				fixedSize = try context.getBool(attribute)
 			case "image-alignment":
-				imageAlignment = try context.getEnum(attribute, UiImageDefinition.imageAlignments)
+				imageAlignment = try context.getEnum(attribute, ImageElementDefinition.imageAlignments)
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
 
-	override func createElement() -> UiElement {
-		return UiImage()
+	override func createElement() -> FragmentElement {
+		return ImageElement()
 	}
 
-	override func initialize(element: UiElement, children: [UiElement]) {
+	override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let image = element as! UiImage
+		let image = element as! ImageElement
 		image.image = source
 		image.size = size
 		image.imageAlignment = imageAlignment

@@ -5,8 +5,8 @@
 
 import Foundation
 
-public class UiSingleElementContainer: UiElement {
-	public var child: UiElement!
+public class SingleElementContainer: FragmentElement {
+	public var child: FragmentElement!
 
 	// MARK: - UiElement
 
@@ -15,7 +15,7 @@ public class UiSingleElementContainer: UiElement {
 	}
 
 
-	public override func traversal(@noescape visit: (UiElement) -> Void) {
+	public override func traversal(@noescape visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		child.traversal(visit)
 	}

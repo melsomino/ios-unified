@@ -7,9 +7,9 @@ import UIKit
 import QuartzCore
 
 
-public class UiDecorator: UiContentElement {
+public class DecoratorElement: ContentElement {
 
-	public var child: UiElement!
+	public var child: FragmentElement!
 
 	public var padding = UIEdgeInsetsZero {
 		didSet {
@@ -39,7 +39,7 @@ public class UiDecorator: UiContentElement {
 	// MARK: - UiContentElement
 
 	public override func createView() -> UIView {
-		return UiDecoratorView()
+		return DecoratorView()
 	}
 
 	public override func initializeView() {
@@ -58,7 +58,7 @@ public class UiDecorator: UiContentElement {
 			view.layer.cornerRadius = 0
 		}
 
-		guard let decorator = view as? UiDecoratorView else {
+		guard let decorator = view as? DecoratorView else {
 			return
 		}
 
@@ -71,11 +71,14 @@ public class UiDecorator: UiContentElement {
 
 
 	public override var visible: Bool {
-		return child?.visible ?? false
+		if let child = child {
+			return child.visible
+		}
+		return false
 	}
 
 
-	public override func traversal(@noescape visit: (UiElement) -> Void) {
+	public override func traversal(@noescape visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		child?.traversal(visit)
 	}
@@ -118,7 +121,7 @@ public class UiDecorator: UiContentElement {
 }
 
 
-public class UiDecoratorDefinition: UiContentElementDefinition {
+public class DecoratorElementDefinition: ContentElementDefinition {
 	var padding: UIEdgeInsets = UIEdgeInsetsZero
 	var transparentGradientLeft: CGFloat?
 	var borderWidth: CGFloat?
@@ -152,15 +155,15 @@ public class UiDecoratorDefinition: UiContentElementDefinition {
 	}
 
 
-	public override func createElement() -> UiElement {
-		return UiDecorator()
+	public override func createElement() -> FragmentElement {
+		return DecoratorElement()
 	}
 
 
-	public override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let decorator = element as! UiDecorator
+		let decorator = element as! DecoratorElement
 
 		decorator.borderWidth = borderWidth
 		decorator.borderColor = borderColor
@@ -172,7 +175,7 @@ public class UiDecoratorDefinition: UiContentElementDefinition {
 
 
 
-class UiDecoratorView: UIView {
+class DecoratorView: UIView {
 
 	var transparentGradientLeft: CGFloat? {
 		didSet {

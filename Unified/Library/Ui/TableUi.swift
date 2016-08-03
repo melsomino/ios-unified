@@ -8,7 +8,7 @@ import Foundation
 import UIKit
 
 
-public enum TableUiModelsState {
+public enum TableFragmentModelsState {
 	case predefined
 	case loading
 	case loaded
@@ -17,7 +17,7 @@ public enum TableUiModelsState {
 
 
 
-public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
+public class TableFragment: NSObject, FragmentDelegate, RepositoryDependent, RepositoryListener, UITableViewDataSource, UITableViewDelegate {
 
 	public final weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
@@ -32,7 +32,7 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 		return internalCreateController(useNavigation: useNavigation)
 	}
 
-	public final func ensureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactory {
+	public final func ensureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
 		return internalEnsureCellFactory(forModelType: modelType)
 	}
 
@@ -121,9 +121,9 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 	// MARK: - Internals
 
 
-	private var cellFactories = [TableUiCellFactory]()
+	private var cellFactories = [CellFragmentFactory]()
 	private var models = [Any]()
-	private var layoutCache = UiLayoutCache()
+	private var layoutCache = FragmentLayoutCache()
 
 	private func internalDidSetTableView(oldValue: UITableView!) {
 		if let prev = oldValue {
@@ -146,14 +146,14 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 		return useNavigation ? UINavigationController(rootViewController: controller) : controller
 	}
 
-	private func internalEnsureCellFactory(forModelType modelType: Any.Type) -> TableUiCellFactory {
+	private func internalEnsureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
 		for cellFactory in cellFactories {
 			if cellFactory.modelType == modelType {
 				return cellFactory
 			}
 		}
 
-		let cellFactory = TableUiCellFactory(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
+		let cellFactory = CellFragmentFactory(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
 		cellFactories.append(cellFactory)
 		tableView?.registerClass(TableUiCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
 		return cellFactory
@@ -204,7 +204,7 @@ public class TableUi: NSObject, UiDelegate, RepositoryDependent, RepositoryListe
 
 class TableUiCell: UITableViewCell {
 
-	final var ui: Ui!
+	final var ui: Fragment!
 
 	// MARK: - UITableViewCell
 
@@ -219,21 +219,21 @@ class TableUiCell: UITableViewCell {
 
 
 
-public class TableUiCellFactory {
+public class CellFragmentFactory {
 	final let dependency: DependencyResolver
 	final let cellReuseId: String
 	final let modelType: Any.Type
-	final let layoutCache: UiLayoutCache?
-	final var uiDefinition: UiDefinition!
-	public final var uiFactory: (() -> Ui)?
+	final let layoutCache: FragmentLayoutCache?
+	final var fragmentDefinition: FragmentDefinition!
+	public final var fragmentFactory: (() -> Fragment)?
 	public final var layoutName: String?
 
-	final lazy var heightCalculator: Ui = {
+	final lazy var heightCalculator: Fragment = {
 		[unowned self] in
 		return self.createUi()
 	}()
 
-	public final func createUi() -> Ui {
+	public final func createUi() -> Fragment {
 		return internalCreateUi()
 	}
 
@@ -241,7 +241,7 @@ public class TableUiCellFactory {
 		return heightCalculator.heightFor(model, inWidth: width)
 	}
 
-	public init(forModelType modelType: Any.Type, layoutCache: UiLayoutCache?, dependency: DependencyResolver) {
+	public init(forModelType modelType: Any.Type, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
 		self.modelType = modelType
 		self.layoutCache = layoutCache
 		self.dependency = dependency
@@ -252,8 +252,8 @@ public class TableUiCellFactory {
 	// MARK: - Internals
 
 
-	private func internalCreateUi() -> Ui {
-		let ui = uiFactory != nil ? uiFactory!() : Ui(forModelType: modelType)
+	private func internalCreateUi() -> Fragment {
+		let ui = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: modelType)
 		ui.performLayoutInWidth = true
 		ui.layoutCache = layoutCache
 		dependency.resolve(ui)
@@ -269,7 +269,7 @@ public class TableUiCellFactory {
 
 class TableUiController: UIViewController {
 
-	final var ui: TableUi!
+	final var ui: TableFragment!
 
 
 	// MARK: - UIViewController

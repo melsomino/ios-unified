@@ -7,17 +7,17 @@ import Foundation
 import UIKit
 
 
-public protocol UiDelegate: class {
+public protocol FragmentDelegate: class {
 	func onAction(action: String, args: String?)
 }
 
 
-public class Ui: RepositoryDependent, RepositoryListener {
+public class Fragment: RepositoryDependent, RepositoryListener {
 
 	public final let modelType: Any.Type
 	public final var layoutCacheKeyProvider: ((Any) -> String?)?
 	public final var performLayoutInWidth = false
-	public final var definition: UiDefinition! {
+	public final var definition: FragmentDefinition! {
 		return internalDefinition
 	}
 	public var layoutName: String? {
@@ -25,8 +25,8 @@ public class Ui: RepositoryDependent, RepositoryListener {
 			updateDefinitionFromRepository()
 		}
 	}
-	public weak var delegate: UiDelegate?
-	public var layoutCache: UiLayoutCache?
+	public weak var delegate: FragmentDelegate?
+	public var layoutCache: FragmentLayoutCache?
 	public var container: UIView? {
 		didSet {
 			internalDidSetContainer()
@@ -56,7 +56,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		internalPerformLayout(inBounds: bounds)
 	}
 
-	public final func tryExecuteAction(action: UiBindings.Expression?) {
+	public final func tryExecuteAction(action: DynamicBindings.Expression?) {
 		internalTryExecuteAction(action)
 	}
 
@@ -101,17 +101,17 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	// MARK: - Internals
 
 
-	private var rootElement: UiElement!
-	private var contentElements = [UiContentElement]()
+	private var rootElement: FragmentElement!
+	private var contentElements = [ContentElement]()
 	private var modelValues = [Any?]()
-	private var currentDefinition: UiDefinition?
+	private var currentDefinition: FragmentDefinition?
 	private func definitionRequired() {
 		if currentDefinition == nil {
 			updateDefinitionFromRepository()
 		}
 	}
 
-	private var internalDefinition: UiDefinition! {
+	private var internalDefinition: FragmentDefinition! {
 		definitionRequired()
 		return currentDefinition
 	}
@@ -190,7 +190,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 
-	private func internalTryExecuteAction(action: UiBindings.Expression?) {
+	private func internalTryExecuteAction(action: DynamicBindings.Expression?) {
 		guard let actionWithArgs = action?.evaluate(modelValues) else {
 			return
 		}
@@ -261,7 +261,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 	}
 
 
-	private func setDefinition(definition: UiDefinition?) {
+	private func setDefinition(definition: FragmentDefinition?) {
 		guard !sameObjects(definition, self.currentDefinition) else {
 			return
 		}
@@ -274,7 +274,7 @@ public class Ui: RepositoryDependent, RepositoryListener {
 		contentElements.removeAll(keepCapacity: true)
 		rootElement.traversal {
 			dependency.resolve($0)
-			if let element = $0 as? UiContentElement {
+			if let element = $0 as? ContentElement {
 				contentElements.append(element)
 			}
 		}
@@ -328,34 +328,34 @@ public class Ui: RepositoryDependent, RepositoryListener {
 
 
 
-public class UiDefinition {
+public class FragmentDefinition {
 
 	// MARK: - Public
 
-	public final let bindings: UiBindings
+	public final let bindings: DynamicBindings
 	public final let hasBindings: Bool
 
-	public final let selectAction: UiBindings.Expression?
-	public final let layoutCacheKey: UiBindings.Expression?
+	public final let selectAction: DynamicBindings.Expression?
+	public final let layoutCacheKey: DynamicBindings.Expression?
 
 	public final let containerBackgroundColor: UIColor?
 	public final let containerCornerRadius: CGFloat?
 
 
-	public final func createRootElement(forUi ui: Any) -> UiElement {
+	public final func createRootElement(forUi ui: Any) -> FragmentElement {
 		return internalCreateRootElement(forUi: ui)
 	}
 
-	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
-		return try UiDefinition.internalFromDeclaration(declaration, context: context)
+	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
+		return try FragmentDefinition.internalFromDeclaration(declaration, context: context)
 	}
 
-	init(rootElementDefinition: UiElementDefinition,
-		bindings: UiBindings,
+	init(rootElementDefinition: FragmentElementDefinition,
+		bindings: DynamicBindings,
 		hasBindings: Bool,
 		ids: Set<String>,
-		selectAction: UiBindings.Expression?,
-		layoutCacheKey: UiBindings.Expression?,
+		selectAction: DynamicBindings.Expression?,
+		layoutCacheKey: DynamicBindings.Expression?,
 		containerBackgroundColor: UIColor?,
 		containerCornerRadius: CGFloat?) {
 
@@ -375,17 +375,17 @@ public class UiDefinition {
 	// MARK: - Internals
 
 
-	private let rootElementDefinition: UiElementDefinition
+	private let rootElementDefinition: FragmentElementDefinition
 	private let ids: Set<String>
 
 
-	private func internalCreateRootElement(forUi ui: Any) -> UiElement {
+	private func internalCreateRootElement(forUi ui: Any) -> FragmentElement {
 		let mirror = Mirror(reflecting: ui)
-		var existingElementById = [String: UiElement]()
+		var existingElementById = [String: FragmentElement]()
 		for member in mirror.children {
 			if let name = member.label {
 				if ids.contains(name) {
-					existingElementById[name] = member.value as? UiElement
+					existingElementById[name] = member.value as? FragmentElement
 				}
 			}
 		}
@@ -396,11 +396,11 @@ public class UiDefinition {
 	}
 
 
-	private static func internalFromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> UiDefinition {
+	private static func internalFromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
 		var containerBackgroundColor: UIColor?
 		var containerCornerRadius: CGFloat?
-		var selectAction: UiBindings.Expression?
-		var layoutCacheKey: UiBindings.Expression?
+		var selectAction: DynamicBindings.Expression?
+		var layoutCacheKey: DynamicBindings.Expression?
 
 		for index in 1 ..< declaration.attributes.count {
 			let attribute = declaration.attributes[index]
@@ -417,14 +417,14 @@ public class UiDefinition {
 					break
 			}
 		}
-		let rootElementDefinition = try UiElementDefinition.from(declaration: declaration.children[0], context: context)
+		let rootElementDefinition = try FragmentElementDefinition.from(declaration: declaration.children[0], context: context)
 		var ids = Set<String>()
 		rootElementDefinition.traversal {
 			if let id = $0.id {
 				ids.insert(id)
 			}
 		}
-		return UiDefinition(rootElementDefinition: rootElementDefinition,
+		return FragmentDefinition(rootElementDefinition: rootElementDefinition,
 			bindings: context.bindings,
 			hasBindings: context.hasBindings,
 			ids: ids,
@@ -436,12 +436,12 @@ public class UiDefinition {
 
 
 
-	private func createOrReuseElement(definition: UiElementDefinition, existingElementById: [String:UiElement]) -> UiElement {
-		var children = [UiElement]()
+	private func createOrReuseElement(definition: FragmentElementDefinition, existingElementById: [String:FragmentElement]) -> FragmentElement {
+		var children = [FragmentElement]()
 		for childDefinition in definition.childrenDefinitions {
 			children.append(createOrReuseElement(childDefinition, existingElementById: existingElementById))
 		}
-		let element: UiElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
+		let element: FragmentElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
 		definition.initialize(element, children: children)
 		return element
 	}

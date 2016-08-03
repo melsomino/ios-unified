@@ -5,9 +5,9 @@
 
 import Foundation
 
-public class UiMultipleElementContainer: UiElement {
+public class MultipleElementContainer: FragmentElement {
 
-	public var children: [UiElement]!
+	public var children: [FragmentElement]!
 
 	// MARK: - LayoutItem
 
@@ -16,7 +16,7 @@ public class UiMultipleElementContainer: UiElement {
 		return children.contains({ $0.visible })
 	}
 
-	public override func traversal(@noescape visit: (UiElement) -> Void) {
+	public override func traversal(@noescape visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		for item in children {
 			item.traversal(visit)

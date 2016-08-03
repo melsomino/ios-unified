@@ -1,10 +1,10 @@
 //
-// Created by Власов М.Ю. on 27.07.16.
+// Created by Michael Vlasov on 27.07.16.
 //
 
 import Foundation
 
-public class UiHorizontalContainer: UiMultipleElementContainer {
+public class HorizontalContainer: MultipleElementContainer {
 	var spacing = CGFloat(0)
 
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
@@ -25,11 +25,11 @@ public class UiHorizontalContainer: UiMultipleElementContainer {
 
 
 private struct Horizontal_child_measure {
-	let element: UiElement
+	let element: FragmentElement
 	var measured_first_pass = CGSizeZero
 	var measured = CGSizeZero
 
-	init(element: UiElement) {
+	init(element: FragmentElement) {
 		self.element = element
 	}
 
@@ -48,14 +48,14 @@ private struct Horizontal_child_measure {
 
 
 private struct Horizontal_measure {
-	let container: UiHorizontalContainer
+	let container: HorizontalContainer
 	let total_spacing: CGFloat
 	var children = [Horizontal_child_measure]()
 	var measured = CGSizeZero
 	var measured_total_width = CGFloat(0)
 	var min_width_without_spacing = CGFloat(0)
 
-	init(container: UiHorizontalContainer) {
+	init(container: HorizontalContainer) {
 		self.container = container
 		for element in container.children {
 			if element.visible {
@@ -198,18 +198,18 @@ private struct Horizontal_measure {
 }
 
 
-class UiHorizontalContainerDefinition: UiElementDefinition {
+class HorizontalContainerDefinition: FragmentElementDefinition {
 
 	var spacing = CGFloat(0)
 
-	override func createElement() -> UiElement {
-		return UiHorizontalContainer()
+	override func createElement() -> FragmentElement {
+		return HorizontalContainer()
 	}
 
 
-	override func initialize(element: UiElement, children: [UiElement]) {
+	override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
-		let horizontal = element as! UiHorizontalContainer
+		let horizontal = element as! HorizontalContainer
 		horizontal.children = children
 		horizontal.spacing = spacing
 	}

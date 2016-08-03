@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class UiLayeredContainer: UiMultipleElementContainer {
+public class LayeredContainer: MultipleElementContainer {
 
 	// MARK: - UiElement
 
@@ -25,10 +25,10 @@ public class UiLayeredContainer: UiMultipleElementContainer {
 }
 
 private struct Layered_child_measure {
-	let element: UiElement
+	let element: FragmentElement
 	var measured = CGSizeZero
 
-	init(element: UiElement) {
+	init(element: FragmentElement) {
 		self.element = element
 	}
 
@@ -41,7 +41,7 @@ private struct Layered_measure {
 	var children = [Layered_child_measure]()
 	var measured = CGSizeZero
 
-	init(elements: [UiElement]) {
+	init(elements: [FragmentElement]) {
 		for element in elements {
 			if element.visible {
 				children.append(Layered_child_measure(element: element))
@@ -70,15 +70,15 @@ private struct Layered_measure {
 	}
 }
 
-public class UiLayeredContainerDefinition: UiElementDefinition {
+public class LayeredContainerDefinition: FragmentElementDefinition {
 
-	public override func createElement() -> UiElement {
-		return UiLayeredContainer()
+	public override func createElement() -> FragmentElement {
+		return LayeredContainer()
 	}
 
-	public override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
-		let layered = element as! UiLayeredContainer
+		let layered = element as! LayeredContainer
 		layered.children = children
 	}
 

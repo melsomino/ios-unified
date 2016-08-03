@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class UiContentElement: UiElement {
+public class ContentElement: FragmentElement {
 
 	public var view: UIView!
 
@@ -87,7 +87,7 @@ public class UiContentElement: UiElement {
 
 
 
-public class UiContentElementDefinition: UiElementDefinition {
+public class ContentElementDefinition: FragmentElementDefinition {
 	public var backgroundColor: UIColor?
 	public var cornerRadius: CGFloat?
 
@@ -103,9 +103,9 @@ public class UiContentElementDefinition: UiElementDefinition {
 		}
 	}
 
-	public override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
-		let contentElement = element as! UiContentElement
+		let contentElement = element as! ContentElement
 		contentElement.backgroundColor = backgroundColor
 		contentElement.cornerRadius = cornerRadius
 	}

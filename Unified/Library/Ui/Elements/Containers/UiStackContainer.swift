@@ -18,7 +18,7 @@ public enum UiStackDirection {
 
 
 
-public class UiStackContainer: UiMultipleElementContainer {
+public class UiStackContainer: MultipleElementContainer {
 //
 //	var direction = UiStackDirection.Vertical
 //	var along = UiAlignment.Fill
@@ -324,7 +324,7 @@ public class UiStackContainer: UiMultipleElementContainer {
 
 
 
-class UiStackContainerDefinition: UiElementDefinition {
+class UiStackContainerDefinition: FragmentElementDefinition {
 //	let direction: UiStackDirection
 //	var along = UiAlignment.Fill
 //	var across = UiAlignment.Leading

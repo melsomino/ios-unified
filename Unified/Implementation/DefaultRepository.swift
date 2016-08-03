@@ -36,7 +36,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	public func uiDefinition(forModelType modelType: Any.Type, name: String?) throws -> UiDefinition {
+	public func uiDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
 		let uiName = makeUiName(forModelType: modelType, name: name)
 
 		lock.lock()
@@ -129,7 +129,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
-	private var uiDefinitionByName = [String: UiDefinition]()
+	private var uiDefinitionByName = [String: FragmentDefinition]()
 	private var lock = FastLock()
 
 
@@ -195,7 +195,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 		for uiSection in elements.filter({ $0.name == "ui" }) {
 			for ui in uiSection.children {
 				if overrideExisting || uiDefinitionByName[ui.name] == nil {
-					let uiDefinition = try UiDefinition.fromDeclaration(ui, context: context)
+					let uiDefinition = try FragmentDefinition.fromDeclaration(ui, context: context)
 					uiDefinitionByName[ui.name] = uiDefinition
 				}
 			}

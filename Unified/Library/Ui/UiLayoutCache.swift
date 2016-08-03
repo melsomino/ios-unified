@@ -10,7 +10,7 @@ private class UiFramesByKey {
 	var frames = [String: [CGRect]]()
 }
 
-public class UiLayoutCache {
+public class FragmentLayoutCache {
 
 	public func clear() {
 		cacheByWidth.removeAll(keepCapacity: true)

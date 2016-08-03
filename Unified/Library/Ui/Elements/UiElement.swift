@@ -25,9 +25,9 @@ public struct SizeRange {
 
 
 
-public class UiElement {
+public class FragmentElement {
 
-	public final var definition: UiElementDefinition!
+	public final var definition: FragmentElementDefinition!
 	public final var margin = UIEdgeInsetsZero
 	public final var horizontalAlignment = UiAlignment.leading
 	public final var verticalAlignment = UiAlignment.leading
@@ -56,7 +56,7 @@ public class UiElement {
 	}
 
 
-	public func traversal(@noescape visit: (UiElement) -> Void) {
+	public func traversal(@noescape visit: (FragmentElement) -> Void) {
 		visit(self)
 	}
 
@@ -109,23 +109,23 @@ public class UiElement {
 
 
 
-public class UiElementDefinition {
+public class FragmentElementDefinition {
 
 	public final var id: String?
-	public final var childrenDefinitions = [UiElementDefinition]()
+	public final var childrenDefinitions = [FragmentElementDefinition]()
 	public final var margin = UIEdgeInsetsZero
 	public final var horizontalAlignment = UiAlignment.leading
 	public final var verticalAlignment = UiAlignment.leading
 
-	public static func register(name: String, definition: () -> UiElementDefinition) {
+	public static func register(name: String, definition: () -> FragmentElementDefinition) {
 		definition_factory_by_name[name] = definition
 	}
 
-	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
+	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		return try internal_from(declaration: element, context: context)
 	}
 
-	public final func traversal(@noescape visit: (UiElementDefinition) -> Void) {
+	public final func traversal(@noescape visit: (FragmentElementDefinition) -> Void) {
 		visit(self)
 		for child_definition in childrenDefinitions {
 			child_definition.traversal(visit)
@@ -148,12 +148,12 @@ public class UiElementDefinition {
 	}
 
 
-	public func createElement() -> UiElement {
-		return UiElement()
+	public func createElement() -> FragmentElement {
+		return FragmentElement()
 	}
 
 
-	public func initialize(element: UiElement, children: [UiElement]) {
+	public func initialize(element: FragmentElement, children: [FragmentElement]) {
 		element.definition = self
 		element.margin = margin
 		element.horizontalAlignment = horizontalAlignment
@@ -164,8 +164,8 @@ public class UiElementDefinition {
 	// MARK: - Internals
 
 
-	private static func internal_from(declaration element: DeclarationElement, context: DeclarationContext) throws -> UiElementDefinition {
-		guard let definition_factory = UiElementDefinition.definition_factory_by_name[element.name] else {
+	private static func internal_from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
+		guard let definition_factory = FragmentElementDefinition.definition_factory_by_name[element.name] else {
 			throw DeclarationError("Unknown layout element", element, context)
 		}
 		let definition = definition_factory()
@@ -194,7 +194,7 @@ public class UiElementDefinition {
 		}
 
 		for child in element.children {
-			definition.childrenDefinitions.append(try UiElementDefinition.from(declaration: child, context: context))
+			definition.childrenDefinitions.append(try FragmentElementDefinition.from(declaration: child, context: context))
 		}
 
 		return definition
@@ -203,33 +203,33 @@ public class UiElementDefinition {
 
 
 
-	private static var definition_factory_by_name: [String:() -> UiElementDefinition] = [
+	private static var definition_factory_by_name: [String:() -> FragmentElementDefinition] = [
 		"vertical": {
-			UiVerticalContainerDefinition()
+			VerticalContainerDefinition()
 		},
 		"horizontal": {
-			UiHorizontalContainerDefinition()
+			HorizontalContainerDefinition()
 		},
 		"layered": {
-			UiLayeredContainerDefinition()
+			LayeredContainerDefinition()
 		},
 		"view": {
-			UiViewDefinition()
+			ViewElementDefinition()
 		},
 		"text": {
-			UiTextDefinition()
+			TextElementDefinition()
 		},
 		"html": {
-			UiHtmlDefinition()
+			HtmlElementDefinition()
 		},
 		"image": {
-			UiImageDefinition()
+			ImageElementDefinition()
 		},
 		"button": {
-			UiButtonDefinition()
+			ButtonElementDefinition()
 		},
 		"decorator": {
-			UiDecoratorDefinition()
+			DecoratorElementDefinition()
 		}
 	]
 

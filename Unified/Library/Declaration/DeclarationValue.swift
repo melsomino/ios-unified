@@ -54,7 +54,7 @@ public struct DeclarationError: ErrorType, CustomStringConvertible {
 public class DeclarationContext {
 
 	public var source: String
-	public var bindings = UiBindings()
+	public var bindings = DynamicBindings()
 	public var hasBindings = false
 
 	init(_ source: String) {
@@ -100,7 +100,7 @@ public class DeclarationContext {
 	}
 
 
-	public func getExpression(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> UiBindings.Expression? {
+	public func getExpression(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> DynamicBindings.Expression? {
 		switch value {
 			case .value(let string):
 				hasBindings = true
@@ -110,7 +110,7 @@ public class DeclarationContext {
 		}
 	}
 
-	public func getExpression(attribute: DeclarationAttribute) throws -> UiBindings.Expression? {
+	public func getExpression(attribute: DeclarationAttribute) throws -> DynamicBindings.Expression? {
 		return try getExpression(attribute, attribute.value)
 	}
 

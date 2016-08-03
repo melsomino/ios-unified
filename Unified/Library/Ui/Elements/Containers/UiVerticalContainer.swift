@@ -4,7 +4,7 @@
 
 import Foundation
 
-public class UiVerticalContainer: UiMultipleElementContainer {
+public class VerticalContainer: MultipleElementContainer {
 	var spacing = CGFloat(0)
 
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
@@ -22,10 +22,10 @@ public class UiVerticalContainer: UiMultipleElementContainer {
 
 
 private struct Vertical_child_measure {
-	let element: UiElement
+	let element: FragmentElement
 	var measured = CGSizeZero
 
-	init(element: UiElement) {
+	init(element: FragmentElement) {
 		self.element = element
 	}
 
@@ -35,12 +35,12 @@ private struct Vertical_child_measure {
 }
 
 private struct Vertical_measure {
-	let container: UiVerticalContainer
+	let container: VerticalContainer
 	let total_spacing: CGFloat
 	var children = [Vertical_child_measure]()
 	var measured = CGSizeZero
 
-	init(container: UiVerticalContainer) {
+	init(container: VerticalContainer) {
 		self.container = container
 		for element in container.children {
 			if element.visible {
@@ -87,7 +87,7 @@ private struct Vertical_measure {
 }
 
 
-class UiVerticalContainerDefinition: UiElementDefinition {
+class VerticalContainerDefinition: FragmentElementDefinition {
 
 	var spacing = CGFloat(0)
 
@@ -96,14 +96,14 @@ class UiVerticalContainerDefinition: UiElementDefinition {
 		horizontalAlignment = .fill
 	}
 
-	override func createElement() -> UiElement {
-		return UiVerticalContainer()
+	override func createElement() -> FragmentElement {
+		return VerticalContainer()
 	}
 
 
-	override func initialize(element: UiElement, children: [UiElement]) {
+	override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
-		let vertical = element as! UiVerticalContainer
+		let vertical = element as! VerticalContainer
 		vertical.children = children
 		vertical.spacing = spacing
 	}

@@ -117,7 +117,7 @@ public struct Alert {
 
 
 
-class AlertPanel: UIView, Dependent, UiDelegate {
+class AlertPanel: UIView, Dependent, FragmentDelegate {
 
 	weak var stack: AlertStack?
 	var ui = AlertUi()
@@ -184,13 +184,13 @@ class AlertPanel: UIView, Dependent, UiDelegate {
 
 
 
-public class AlertUi: Ui {
+public class AlertUi: Fragment {
 
 	var alert: Alert? {
 		return model as? Alert
 	}
 
-	let icon = UiImage()
+	let icon = ImageElement()
 
 	public convenience init() {
 		self.init(forModelType: Alert.self)

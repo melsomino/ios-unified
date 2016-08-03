@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-public class UiView: UiContentElement {
+public class ViewElement: ContentElement {
 	public var width: CGFloat?
 	public var height: CGFloat?
 
@@ -56,17 +56,17 @@ public class UiView: UiContentElement {
 
 
 
-public class UiViewDefinition: UiContentElementDefinition {
+public class ViewElementDefinition: ContentElementDefinition {
 	public var width: CGFloat?
 	public var height: CGFloat?
 
-	public override func createElement() -> UiElement {
-		return UiView()
+	public override func createElement() -> FragmentElement {
+		return ViewElement()
 	}
 
-	public override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
-		let view = element as! UiView
+		let view = element as! ViewElement
 		view.width = width
 		view.height = height
 	}

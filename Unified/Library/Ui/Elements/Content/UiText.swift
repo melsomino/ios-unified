@@ -7,10 +7,10 @@ import Foundation
 import UIKit
 import QuartzCore
 
-public class UiText: UiContentElement {
+public class TextElement: ContentElement {
 
-	public var textDefinition: UiTextDefinition {
-		return definition as! UiTextDefinition
+	public var textDefinition: TextElementDefinition {
+		return definition as! TextElementDefinition
 	}
 
 	public var maxLines = 0 {
@@ -114,7 +114,7 @@ public class UiText: UiContentElement {
 
 
 	public override var visible: Bool {
-		return !hidden && text != nil && !text!.isEmpty
+		return !hidden
 	}
 
 
@@ -181,14 +181,14 @@ public class UiText: UiContentElement {
 
 
 
-public class UiTextDefinition: UiContentElementDefinition {
+public class TextElementDefinition: ContentElementDefinition {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var padding: UIEdgeInsets = UIEdgeInsetsZero
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
-	var text: UiBindings.Expression?
+	var text: DynamicBindings.Expression?
 
 
 	// MARK: - UiElementDefinition
@@ -224,15 +224,15 @@ public class UiTextDefinition: UiContentElementDefinition {
 	}
 
 
-	public override func createElement() -> UiElement {
-		return UiText()
+	public override func createElement() -> FragmentElement {
+		return TextElement()
 	}
 
 
-	public override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let text = element as! UiText
+		let text = element as! TextElement
 
 		if let name = fontName, size = fontSize {
 			text.font = font(name, size)

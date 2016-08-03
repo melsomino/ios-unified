@@ -7,10 +7,10 @@ import Foundation
 import Foundation
 import UIKit
 
-public class UiHtml: UiContentElement {
+public class HtmlElement: ContentElement {
 
-	public var htmlDefinition: UiHtmlDefinition {
-		return definition as! UiHtmlDefinition
+	public var htmlDefinition: HtmlElementDefinition {
+		return definition as! HtmlElementDefinition
 	}
 
 	public var maxLines = 0 {
@@ -196,13 +196,13 @@ public class UiHtml: UiContentElement {
 
 
 
-public class UiHtmlDefinition: UiContentElementDefinition {
+public class HtmlElementDefinition: ContentElementDefinition {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
-	var html: UiBindings.Expression?
+	var html: DynamicBindings.Expression?
 
 
 	// MARK: - UiElementDefinition
@@ -228,15 +228,15 @@ public class UiHtmlDefinition: UiContentElementDefinition {
 	}
 
 
-	public override func createElement() -> UiElement {
-		return UiHtml()
+	public override func createElement() -> FragmentElement {
+		return HtmlElement()
 	}
 
 
-	public override func initialize(element: UiElement, children: [UiElement]) {
+	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let html = element as! UiHtml
+		let html = element as! HtmlElement
 		if let name = fontName, size = fontSize {
 			html.font = font(name, size)
 		}

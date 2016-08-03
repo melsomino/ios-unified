@@ -9,7 +9,7 @@ import Foundation
 
 
 
-public struct UiBindings {
+public struct DynamicBindings {
 
 	public init() {
 
@@ -47,8 +47,8 @@ public struct UiBindings {
 	]
 
 	private mutating func parseString(string: String?) -> Expression? {
-		let (literal, nonLiteral) = UiBindings.split(string, UiBindings.openingBrace)
-		let (expression, rest) = UiBindings.split(nonLiteral, UiBindings.closingBrace)
+		let (literal, nonLiteral) = DynamicBindings.split(string, DynamicBindings.openingBrace)
+		let (expression, rest) = DynamicBindings.split(nonLiteral, DynamicBindings.closingBrace)
 		if literal != nil && expression != nil && rest != nil {
 			return Literal(value: literal!, next: parseExpression(expression!, parse(rest)))
 		}
@@ -111,7 +111,7 @@ public struct UiBindings {
 				return nil
 			}
 		}
-		guard let factory = UiBindings.formatterFactoryByName[formatterName!] else {
+		guard let factory = DynamicBindings.formatterFactoryByName[formatterName!] else {
 			return nil
 		}
 		return factory(formatterArgs)

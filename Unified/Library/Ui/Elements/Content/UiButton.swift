@@ -6,10 +6,10 @@
 import Foundation
 import UIKit
 
-public class UiButton: UiText {
+public class ButtonElement: TextElement {
 }
 
 
 
-public class UiButtonDefinition: UiTextDefinition {
+public class ButtonElementDefinition: TextElementDefinition {
 }
