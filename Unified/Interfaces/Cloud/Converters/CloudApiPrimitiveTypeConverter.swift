@@ -64,6 +64,26 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
+	public static func integerArrayFromJsonArray(array: AnyObject) -> [Int] {
+		return arrayFromJson(array) {
+			item in integerFromJson(item) ?? 0
+		}
+	}
+
+
+
+
+
+	public static func jsonArrayFromIntegerArray(array: [Int]) -> AnyObject {
+		return jsonFromArray(array) {
+			item in jsonFromInteger(item)
+		}
+	}
+
+
+
+
+
 	public static func int64FromJson(value: AnyObject) -> Int64? {
 		switch value {
 			case let s as String: return Int64(s)
@@ -153,6 +173,16 @@ public class CloudApiPrimitiveTypeConverter {
 	}()
 
 
+	private static var dateFormatter: NSDateFormatter = {
+		let RFC3339 = NSDateFormatter()
+		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+		RFC3339.dateFormat = "yyyy-MM-dd"
+		RFC3339.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+
+		return RFC3339
+	}()
+
+
 	private static var dateTimeFormatterWithTimeZone: NSDateFormatter = {
 		let formatter = NSDateFormatter()
 		formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
@@ -171,6 +201,9 @@ public class CloudApiPrimitiveTypeConverter {
 					return date
 				}
 				if let date = dateTimeFormatter.dateFromString(s) {
+					return date
+				}
+				if let date = dateFormatter.dateFromString(s) {
 					return date
 				}
 				if let date = dayMonthFormatter.dateFromString(s) {
@@ -197,11 +230,14 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func arrayFromJson<T>(source: AnyObject, _ loadItem: (_:AnyObject) -> T?) -> [T?] {
-		var result = [T?]()
+
+	public static func arrayFromJson<T>(source: AnyObject, _ loadItem: (_:AnyObject) -> T) -> [T] {
+		var result = [T]()
 		if let sourceArray = source as? [AnyObject] {
 			for sourceItem in sourceArray {
-				result.append(sourceItem is NSNull ? nil : loadItem(sourceItem))
+				if !(sourceItem is NSNull) {
+					result.append(loadItem(sourceItem))
+				}
 			}
 		}
 		return result
@@ -211,10 +247,10 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromArray<T>(source: [T?], _ saveItem: (_:T) -> AnyObject) -> [AnyObject] {
+	public static func jsonFromArray<T>(source: [T], _ saveItem: (_:T) -> AnyObject) -> [AnyObject] {
 		var array = [AnyObject]()
 		for sourceItem in source {
-			array.append(sourceItem == nil ? NSNull() : saveItem(sourceItem!))
+			array.append(saveItem(sourceItem))
 		}
 		return array
 	}

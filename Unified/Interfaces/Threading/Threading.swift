@@ -13,8 +13,14 @@ public protocol Threading {
 
 public let ThreadingDependency = Dependency<Threading>()
 
-public extension DependencyResolver {
+public protocol ThreadingDependent: Dependent {
+
+}
+public extension ThreadingDependent {
 	public var threading: Threading {
-		return required(ThreadingDependency)
+		return dependency.required(ThreadingDependency)
+	}
+	public var optionalThreading: Threading? {
+		return dependency.optional(ThreadingDependency)
 	}
 }

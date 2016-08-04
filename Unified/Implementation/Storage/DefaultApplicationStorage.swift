@@ -5,7 +5,7 @@
 import Foundation
 
 
-public class DefaultApplicationStorage: ApplicationStorage, Dependent {
+public class DefaultApplicationStorage: ApplicationStorage, ThreadingDependent {
 
 
 	// MARK: - ApplicationStorage
@@ -38,10 +38,6 @@ public class DefaultApplicationStorage: ApplicationStorage, Dependent {
 
 	// MARK: - Internals
 
-
-	private var threading: Threading! {
-		return dependency.threading
-	}
 
 	private var moduleStorages = [String: DefaultModuleStorage]()
 	private var accountName: String?

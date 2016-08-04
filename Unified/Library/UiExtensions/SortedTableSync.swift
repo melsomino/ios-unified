@@ -32,11 +32,13 @@ public struct SortedTableSync<Item> {
 		for key in deletedKeys {
 			if let oldIndex = oldIndexByKey[key] {
 				deletions.append(oldIndex)
-				newItems.removeAtIndex(oldIndex)
 			}
 		}
-
 		deletions.sortInPlace({ a, b in b < a })
+		print(deletions)
+		for deletionIndex in deletions {
+			newItems.removeAtIndex(deletionIndex)
+		}
 
 		var insertions = [Insertion<Item>]()
 		for item in inserted {
