@@ -57,6 +57,10 @@ public class HtmlElement: ContentElement {
 				attributedText = nil
 				return
 			}
+			guard !html.isEmpty else {
+				attributedText = nil
+				return
+			}
 			let font = resolveFont()
 			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(font.pointSize)'>\(html)</div>"
 			let options: [String:AnyObject] = [

@@ -38,6 +38,9 @@ public class CloudApiStructConverter<StructType> {
 		guard let data = sourceObject["d"] as? [AnyObject] else {
 			return nil
 		}
+		if data.count == 0 {
+			return nil
+		}
 		return objectFromJsonRecordData(data, createFieldBindings(sourceObject))
 	}
 
