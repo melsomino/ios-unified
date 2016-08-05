@@ -7,11 +7,11 @@ import UIKit
 
 
 
-public enum UiAlignment {
+public enum FragmentAlignment {
 	case leading, center, tailing, fill
 
 
-	public static func alignedFrame(ofSize size: CGSize, inBounds bounds: CGRect, horizontalAlignment: UiAlignment, verticalAlignment: UiAlignment) -> CGRect {
+	public static func alignedFrame(ofSize size: CGSize, inBounds bounds: CGRect, horizontalAlignment: FragmentAlignment, verticalAlignment: FragmentAlignment) -> CGRect {
 		let (x, width) = horizontalAlignment.calc_frame(size.width, bounds.origin.x, bounds.width)
 		let (y, height) = verticalAlignment.calc_frame(size.height, bounds.origin.y, bounds.height)
 		return CGRectMake(x, y, width, height)
@@ -19,30 +19,30 @@ public enum UiAlignment {
 
 
 	public static let names = [
-		"fill": UiAlignment.fill,
-		"leading": UiAlignment.leading,
-		"tailing": UiAlignment.tailing,
-		"center": UiAlignment.center
+		"fill": FragmentAlignment.fill,
+		"leading": FragmentAlignment.leading,
+		"tailing": FragmentAlignment.tailing,
+		"center": FragmentAlignment.center
 	]
 
 
 	public static let horizontal_names = [
-		"fill": UiAlignment.fill,
-		"leading": UiAlignment.leading,
-		"tailing": UiAlignment.tailing,
-		"center": UiAlignment.center,
-		"left": UiAlignment.leading,
-		"right": UiAlignment.tailing,
+		"fill": FragmentAlignment.fill,
+		"leading": FragmentAlignment.leading,
+		"tailing": FragmentAlignment.tailing,
+		"center": FragmentAlignment.center,
+		"left": FragmentAlignment.leading,
+		"right": FragmentAlignment.tailing,
 	]
 
 
 	public static let vertical_names = [
-		"fill": UiAlignment.fill,
-		"leading": UiAlignment.leading,
-		"tailing": UiAlignment.tailing,
-		"center": UiAlignment.center,
-		"top": UiAlignment.leading,
-		"bottom": UiAlignment.tailing
+		"fill": FragmentAlignment.fill,
+		"leading": FragmentAlignment.leading,
+		"tailing": FragmentAlignment.tailing,
+		"center": FragmentAlignment.center,
+		"top": FragmentAlignment.leading,
+		"bottom": FragmentAlignment.tailing
 	]
 
 	// MARK: - Internals

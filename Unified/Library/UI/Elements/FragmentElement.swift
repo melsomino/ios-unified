@@ -29,8 +29,8 @@ public class FragmentElement {
 
 	public final var definition: FragmentElementDefinition!
 	public final var margin = UIEdgeInsetsZero
-	public final var horizontalAlignment = UiAlignment.leading
-	public final var verticalAlignment = UiAlignment.leading
+	public final var horizontalAlignment = FragmentAlignment.leading
+	public final var verticalAlignment = FragmentAlignment.leading
 
 
 	public final func measure(inBounds bounds: CGSize) -> CGSize {
@@ -44,7 +44,7 @@ public class FragmentElement {
 
 
 	public final func layout(inBounds bounds: CGRect, usingMeasured size: CGSize) {
-		let aligned_frame = UiAlignment.alignedFrame(ofSize: size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
+		let aligned_frame = FragmentAlignment.alignedFrame(ofSize: size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
 		layout(inBounds: aligned_frame)
 	}
 
@@ -114,8 +114,8 @@ public class FragmentElementDefinition {
 	public final var id: String?
 	public final var childrenDefinitions = [FragmentElementDefinition]()
 	public final var margin = UIEdgeInsetsZero
-	public final var horizontalAlignment = UiAlignment.leading
-	public final var verticalAlignment = UiAlignment.leading
+	public final var horizontalAlignment = FragmentAlignment.leading
+	public final var verticalAlignment = FragmentAlignment.leading
 
 	public static func register(name: String, definition: () -> FragmentElementDefinition) {
 		definition_factory_by_name[name] = definition
@@ -185,9 +185,9 @@ public class FragmentElementDefinition {
 				case "margin-right":
 					definition.margin.right = try context.getFloat(attribute)
 				case "horizontal-alignment", "hor":
-					definition.horizontalAlignment = try context.getEnum(attribute, UiAlignment.horizontal_names)
+					definition.horizontalAlignment = try context.getEnum(attribute, FragmentAlignment.horizontal_names)
 				case "vertical-alignment", "ver":
-					definition.verticalAlignment = try context.getEnum(attribute, UiAlignment.vertical_names)
+					definition.verticalAlignment = try context.getEnum(attribute, FragmentAlignment.vertical_names)
 				default:
 					try definition.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 			}

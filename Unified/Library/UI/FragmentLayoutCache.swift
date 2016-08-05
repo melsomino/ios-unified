@@ -6,7 +6,7 @@
 import Foundation
 import UIKit
 
-private class UiFramesByKey {
+private class FragmentFramesByKey {
 	var frames = [String: [CGRect]]()
 }
 
@@ -28,7 +28,7 @@ public class FragmentLayoutCache {
 			existing.frames[key] = frames
 		}
 		else {
-			let framesByKey = UiFramesByKey()
+			let framesByKey = FragmentFramesByKey()
 			framesByKey.frames[key] = frames
 			cacheByWidth[width] = framesByKey
 		}
@@ -45,7 +45,7 @@ public class FragmentLayoutCache {
 	// MARK: - Internals
 
 
-	private var cacheByWidth = [CGFloat: UiFramesByKey]()
+	private var cacheByWidth = [CGFloat: FragmentFramesByKey]()
 
 
 
