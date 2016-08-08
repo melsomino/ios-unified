@@ -5,6 +5,7 @@
 
 import Foundation
 
+
 public class DefaultCloudConnector: CloudConnector {
 
 	public var debugResponseTracePath: String?
@@ -49,7 +50,8 @@ public class DefaultCloudConnector: CloudConnector {
 	}
 
 	public func invokeService(serviceUrl: NSURL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject {
-		var json = [String:AnyObject]()
+		var json = [String: AnyObject]()
+
 		json["jsonrpc"] = "2.0"
 		json["protocol"] = protocolVersion
 		json["method"] = method
@@ -72,6 +74,7 @@ public class DefaultCloudConnector: CloudConnector {
 
 		let task = urlSession.dataTaskWithRequest(httpRequest) {
 			httpResponseData, httpResponse, httpResponseError in
+
 			if httpResponseData != nil {
 				do {
 					let responseDict = try NSJSONSerialization.JSONObjectWithData(httpResponseData!, options: []) as! [String:AnyObject]
@@ -121,3 +124,7 @@ extension DependencyContainer {
 		register(CloudConnectorDependency, DefaultCloudConnector(baseUrl: baseUrl))
 	}
 }
+
+
+
+

@@ -93,6 +93,13 @@ func testAsync() {
 
 
 
+
+func testHtmlParser(i: Int, _ v: UIView) {
+
+//	HtmlParser.parse("12345")
+}
+
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, RepositoryDependent {
 
@@ -103,7 +110,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
 
-		testAsync()
+
+		let a = MyVariant.AsInt(15)
+		let b = MyVariant.AsString("45")
+
+		let c = a
+
+		switch c {
+			case .AsInt(let i):
+				print(i)
+			case .AsString(let s):
+				print(s)
+		}
+
+		let c = UIColor.redColor()
+		let c = Color.red
+
+//		testAsync()
+		testHtmlParser()
 
 		dependency = DependencyContainer {
 			container in
@@ -114,13 +138,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 		repository.devServerUrl = RepositoryDefaultDevServerUrl
 
-		let ui = AlbumsUi(dependency: dependency)
+		let fragment = AlbumsFragment(dependency: dependency)
 
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
 		window!.rootViewController = centralUi.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in ui.createController() }))
+		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in fragment.createController() }))
 		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
 		return true
 	}
@@ -129,7 +153,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 }
 
 
-class AlbumsUi: TableUi {
+class AlbumsFragment: TableFragment {
 	override func loadModels(execution: Execution, inout models: [Any]) throws {
 		models.append(Header(title: "Требования ФНС", totalCount: "20"))
 		models.append(Header(title: "Задачи", totalCount: "21"))

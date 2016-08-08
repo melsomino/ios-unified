@@ -190,6 +190,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 	private func internalStartLoad(showLoadingIndicator showLoadingIndicator: Bool) {
 		if showLoadingIndicator {
+			tableView.setContentOffset(CGPointMake(0, tableView.contentOffset.y - loadingIndicator.frame.size.height), animated: true)
 			loadingIndicator.beginRefreshing()
 		}
 		weak var weakSelf = self

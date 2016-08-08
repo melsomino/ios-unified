@@ -1,11 +1,13 @@
 repository Layouts
 
 ui
-	Layouts.Header background-color=white
-		horizontal spacing=8 hor=fill
-			text resultVersion font=14 max-lines=1
-			horizontal hor=right
-				text resultTextresultTextresultTextresultkkkkkkkkkfsdfdsfds font=15 hor=right nowrap
+	Layouts.Header
+		vertical
+			horizontal spacing=8 hor=right margin=12
+				text '1' font=12 max-lines=2
+				text '2' font=12 max-lines=2
+				text '3' font=12 max-lines=2
+			view height=2 hor=fill background-color=blue
 
 
 	Layouts.Album background-color=f1f1f1

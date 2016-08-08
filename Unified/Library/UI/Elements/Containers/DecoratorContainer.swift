@@ -36,11 +36,14 @@ public class DecoratorElement: ContentElement {
 	}
 
 
+
 	// MARK: - UiContentElement
+
 
 	public override func createView() -> UIView {
 		return DecoratorView()
 	}
+
 
 	public override func initializeView() {
 		guard let view = view else {
