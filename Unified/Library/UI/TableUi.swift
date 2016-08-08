@@ -16,7 +16,7 @@ public enum TableFragmentModelsState {
 
 
 
-public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener {
+public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUiDependent {
 
 	public final weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
@@ -216,18 +216,27 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 				}
 				strongSelf.loadingIndicator.endRefreshing()
 				if let error = loadError {
-					strongSelf.dependency.required(CentralUiDependency).pushAlert(.Error, message: String(error))
+					strongSelf.optionalCentralUi?.pushAlert(.Error, message: strongSelf.errorUserMessage(error))
 					print(error)
 					return
 				}
 				strongSelf.models = models
-				strongSelf.tableView?.reloadSections(NSIndexSet(index: 0), withRowAnimation: .Fade)
+				strongSelf.tableView?.reloadData()
 			}
 		}
 	}
 
 	private func defaultLoadModels(execution: Execution, inout models: [Any]) throws {
 		try modelsLoader?(execution, &models)
+	}
+
+	private func errorUserMessage(error: ErrorType) -> String {
+		switch error {
+			case let error as NSError:
+				return error.localizedDescription
+			default:
+				return String(error)
+		}
 	}
 
 }
