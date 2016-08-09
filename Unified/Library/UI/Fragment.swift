@@ -64,6 +64,9 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 		self.modelType = modelType
 	}
 
+	public final func reflectCellHighlight(highlight: Bool) {
+		internalUpdateBackgroundSensitiveElements(toBackgroundColor: highlight ? UIColor.parse("dadada") : UIColor.whiteColor())
+	}
 
 	// MARK: - Overridable
 
@@ -233,6 +236,20 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 		}
 		onModelChanged()
 		performLayout()
+	}
+
+
+	private func internalUpdateBackgroundSensitiveElements(toBackgroundColor color: UIColor) {
+		rootElement.traversal {
+			element in
+			guard let decorator = element as? DecoratorElement else {
+				return
+			}
+			guard decorator.transparentGradientLeft != nil else {
+				return
+			}
+			decorator.backgroundColor = color
+		}
 	}
 
 

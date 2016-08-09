@@ -143,6 +143,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
+
 	public func onTableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		guard let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell else {
 			return
@@ -150,6 +151,22 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		cell.fragment.tryExecuteAction(cell.fragment.definition.selectAction)
 	}
 
+
+
+	public func onTableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+		if let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell {
+			cell.fragment.reflectCellHighlight(true)
+		}
+		return true
+	}
+
+
+
+	public func onTableView(tableView: UITableView, didUnhighlightRowAtIndexPath indexPath: NSIndexPath) {
+		if let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell {
+			cell.fragment.reflectCellHighlight(false)
+		}
+	}
 
 	// MARK: - Internals
 
@@ -272,6 +289,7 @@ class TableFragmentCell: UITableViewCell {
 		fragment?.performLayout(inWidth: contentView.bounds.width)
 	}
 
+
 }
 
 
@@ -372,6 +390,17 @@ class TableFragmentController: UITableViewController {
 
 	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 		return fragment.onTableView(tableView, didSelectRowAtIndexPath: indexPath)
+	}
+
+
+	override func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+		return fragment.onTableView(tableView, shouldHighlightRowAtIndexPath: indexPath)
+	}
+
+
+
+	override func tableView(tableView: UITableView, didUnhighlightRowAtIndexPath indexPath: NSIndexPath) {
+		fragment.onTableView(tableView, didUnhighlightRowAtIndexPath: indexPath)
 	}
 
 
