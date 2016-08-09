@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 
 
-public class CentralUiRootController: UIViewController {
+public class CentralUIRootController: UIViewController {
 
 	public lazy var contentContainer: UIView = {
 		[unowned self] in
@@ -19,14 +19,14 @@ public class CentralUiRootController: UIViewController {
 
 
 
-	public func setContentController(newController: UIViewController!, animation: CentralUiContentAnimation, completion: (() -> Void)?) {
+	public func setContentController(newController: UIViewController!, animation: CentralUIContentAnimation, completion: (() -> Void)?) {
 		guard newController != contentController else {
 			return
 		}
 		let oldController = contentController
 		contentController = newController
 
-		CentralUiAnimations.contentTransition(from: oldController, to: newController, containerController: self, containerView: contentContainer,
+		CentralUIAnimations.contentTransition(from: oldController, to: newController, containerController: self, containerView: contentContainer,
 			animation: animation, completion: completion)
 	}
 

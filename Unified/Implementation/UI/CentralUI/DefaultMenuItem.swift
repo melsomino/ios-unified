@@ -10,14 +10,14 @@ protocol DefaultMenuItemDelegate: AnyObject {
 	func onMenuItemChanged(menuItem: DefaultMenuItem)
 }
 
-class DefaultMenuItem: CentralUiMenuItem {
+class DefaultMenuItem: CentralUIMenuItem {
 	let delegate: DefaultMenuItemDelegate?
 	let index: Int
 	let name: String
-	let action: CentralUiAction
+	let action: CentralUIAction
 	var contentController: UIViewController?
 
-	init(delegate: DefaultMenuItemDelegate?, index: Int, name: String, action: CentralUiAction) {
+	init(delegate: DefaultMenuItemDelegate?, index: Int, name: String, action: CentralUIAction) {
 		self.delegate = delegate
 		self.index = index
 		self.name = name

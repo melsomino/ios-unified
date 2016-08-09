@@ -18,19 +18,19 @@ public class AlertStack: Dependent {
 
 
 
-	public func pushInContainer(container: UIView, alert: CentralUiAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?) {
+	public func pushInContainer(container: UIView, alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?) {
 		var icon = icon
 		if icon == nil {
 			switch alert {
-				case .Error:
-					icon = CentralUiDesign.alertErrorIcon
-				case .Warning:
-					icon = CentralUiDesign.alertWarningIcon
-				case .Information:
-					icon = CentralUiDesign.alertInformationIcon
+				case .error:
+					icon = CentralUIDesign.alertErrorIcon
+				case .warning:
+					icon = CentralUIDesign.alertWarningIcon
+				case .information:
+					icon = CentralUIDesign.alertInformationIcon
 			}
 		}
-		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUiDesign.informationPanelHeight, container.bounds.width, CentralUiDesign.informationPanelHeight))
+		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUIDesign.informationPanelHeight, container.bounds.width, CentralUIDesign.informationPanelHeight))
 		newPanel.dependency = dependency
 		newPanel.stack = self
 		newPanel.ui.model = Alert(icon: icon!, message: message, actionArg: actionArg, action: action)
@@ -63,7 +63,7 @@ public class AlertStack: Dependent {
 				requiresRealign = true
 				break
 			}
-			y += CentralUiDesign.informationPanelHeight
+			y += CentralUIDesign.informationPanelHeight
 		}
 
 		guard requiresRealign else {
@@ -71,10 +71,10 @@ public class AlertStack: Dependent {
 		}
 
 		UIView.animateWithDuration(NSTimeInterval(0.25)) {
-			var frame = CGRectMake(0, 0, width, CentralUiDesign.informationPanelHeight)
+			var frame = CGRectMake(0, 0, width, CentralUIDesign.informationPanelHeight)
 			for panel in self.stack {
 				panel.frame = frame
-				frame.origin.y += CentralUiDesign.informationPanelHeight
+				frame.origin.y += CentralUIDesign.informationPanelHeight
 			}
 		}
 	}

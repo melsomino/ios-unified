@@ -287,7 +287,7 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 
 
 	func updateDefinitionFromRepository() {
-		setDefinition(try! repository.uiDefinition(forModelType: modelType, name: layoutName))
+		setDefinition(try! repository.fragmentDefinition(forModelType: modelType, name: layoutName))
 	}
 
 

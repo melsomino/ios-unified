@@ -17,7 +17,7 @@ class MainMenuItemCell: UITableViewCell {
 
 
 
-	static func cellForItem(item: CentralUiMenuItem, selected: Bool, tableView: UITableView, indexPath: NSIndexPath) -> MainMenuItemCell {
+	static func cellForItem(item: CentralUIMenuItem, selected: Bool, tableView: UITableView, indexPath: NSIndexPath) -> MainMenuItemCell {
 		let cell = tableView.dequeueReusableCellWithIdentifier(reuseId, forIndexPath: indexPath) as! MainMenuItemCell
 		cell.setItem(item, selected: selected)
 		return cell
@@ -38,11 +38,11 @@ class MainMenuItemCell: UITableViewCell {
 
 	override func awakeFromNib() {
 		super.awakeFromNib()
-		backgroundColor = CentralUiDesign.backgroundColor
+		backgroundColor = CentralUIDesign.backgroundColor
 		let selectionBackground = UIView()
-		selectionBackground.backgroundColor = CentralUiDesign.selectionBackgroundColor
+		selectionBackground.backgroundColor = CentralUIDesign.selectionBackgroundColor
 		selectedBackgroundView = selectionBackground
-		selectedItemIndicator.backgroundColor = CentralUiDesign.selectedItemIndicatorColor
+		selectedItemIndicator.backgroundColor = CentralUIDesign.selectedItemIndicatorColor
 		var frame = selectedItemIndicator.frame
 		switch round(UIScreen.mainScreen().scale) {
 			case 1: frame.size.width = 2
@@ -57,7 +57,7 @@ class MainMenuItemCell: UITableViewCell {
 	// MARK: - Internals
 
 
-	private func setItem(item: CentralUiMenuItem, selected: Bool) {
+	private func setItem(item: CentralUIMenuItem, selected: Bool) {
 		itemImage.image = item.icon
 		itemTitle.text = item.title
 		itemCounts.text = ""

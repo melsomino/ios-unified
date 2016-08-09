@@ -8,7 +8,7 @@
         <!--Central Ui Side Controller-->
         <scene sceneID="Z6t-Yn-VL8">
             <objects>
-                <viewController restorationIdentifier="MainMenuSideController" storyboardIdentifier="MainMenuSideController" id="7fM-md-44B" customClass="CentralUiSideController" customModule="SbisNotifications" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController restorationIdentifier="MainMenuSideController" storyboardIdentifier="MainMenuSideController" id="7fM-md-44B" customClass="CentralUISideController" customModule="SbisNotifications" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="wHc-6b-3rh">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

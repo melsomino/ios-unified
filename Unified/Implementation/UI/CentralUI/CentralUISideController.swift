@@ -6,17 +6,17 @@
 import Foundation
 import UIKit
 
-public class CentralUiSideController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
+public class CentralUISideController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
 
-	public static func show(centralUi: CentralUi) {
-		let storyboard = UIStoryboard(name: "MainMenu", bundle: NSBundle(forClass: DefaultCentralUi.self))
-		let sideController = storyboard.instantiateViewControllerWithIdentifier("MainMenuSideController") as! CentralUiSideController
+	public static func show(centralUi: CentralUI) {
+		let storyboard = UIStoryboard(name: "MainMenu", bundle: NSBundle(forClass: DefaultCentralUI.self))
+		let sideController = storyboard.instantiateViewControllerWithIdentifier("MainMenuSideController") as! CentralUISideController
 		sideController.setCentralUi(centralUi)
 		sideController.showAnimated()
 	}
 
 
-	public func setCentralUi(centralUi: CentralUi) {
+	public func setCentralUi(centralUi: CentralUI) {
 		self.centralUi = centralUi
 	}
 
@@ -102,7 +102,7 @@ public class CentralUiSideController: UIViewController, UITableViewDelegate, UIT
 	public func handleSwipeGesture() {
 		let rootController = centralUi.rootController
 		let rootBounds = rootController.view.bounds
-		let menuWidth = CentralUiSideController.menuWidth
+		let menuWidth = CentralUISideController.menuWidth
 		let location = swipeRecognizer.locationInView(centralUi.rootController.view)
 		switch swipeRecognizer.state {
 			case .Possible:
@@ -164,7 +164,7 @@ public class CentralUiSideController: UIViewController, UITableViewDelegate, UIT
 	// MARK: - Internals
 
 
-	private var centralUi: CentralUi!
+	private var centralUi: CentralUI!
 
 	private var swipeRecognizer: UIPanGestureRecognizer!
 	private var swipeStartLocation = CGPointZero
@@ -175,7 +175,7 @@ public class CentralUiSideController: UIViewController, UITableViewDelegate, UIT
 	func showAnimated() {
 		let rootController = centralUi.rootController
 		let rootBounds = rootController.view.bounds
-		let menuWidth = CentralUiSideController.menuWidth
+		let menuWidth = CentralUISideController.menuWidth
 
 		rootController.addChildViewController(self)
 		view.frame = CGRectOffset(rootBounds, -menuWidth, 0)
@@ -200,7 +200,7 @@ public class CentralUiSideController: UIViewController, UITableViewDelegate, UIT
 		willMoveToParentViewController(nil)
 		UIView.animateWithDuration(NSTimeInterval(0.25),
 			animations: {
-				self.view.frame = CGRectOffset(rootBounds, -CentralUiSideController.menuWidth, 0)
+				self.view.frame = CGRectOffset(rootBounds, -CentralUISideController.menuWidth, 0)
 				self.centralUi.contentContainer.frame = rootBounds
 			},
 			completion: {

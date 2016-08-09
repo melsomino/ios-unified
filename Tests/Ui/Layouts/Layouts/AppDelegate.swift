@@ -144,7 +144,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 		window!.rootViewController = centralUi.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .SetContent({ dependency in fragment.createController() }))
+		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .setContent({ dependency in fragment.createController() }))
 		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
 		return true
 	}

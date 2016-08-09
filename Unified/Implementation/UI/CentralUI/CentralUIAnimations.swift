@@ -11,12 +11,12 @@ private enum AnimationStage {
 }
 
 
-class CentralUiAnimations {
+class CentralUIAnimations {
 
 	private static let duration = NSTimeInterval(0.25)
 
 	static func contentTransition(from oldController: UIViewController?, to newController: UIViewController?,
-		containerController: UIViewController, containerView: UIView, animation: CentralUiContentAnimation, completion: (() -> Void)? = nil) {
+		containerController: UIViewController, containerView: UIView, animation: CentralUIContentAnimation, completion: (() -> Void)? = nil) {
 
 		guard newController != oldController else {
 			return
@@ -69,15 +69,15 @@ class CentralUiAnimations {
 	}
 
 
-	private static func animationStage(stage: AnimationStage, _ view: UIView, _ bounds: CGRect, _ animation: CentralUiContentAnimation) {
+	private static func animationStage(stage: AnimationStage, _ view: UIView, _ bounds: CGRect, _ animation: CentralUIContentAnimation) {
 		switch animation {
-			case .Fade:
+			case .fade:
 				fadeAnimation(stage, view, bounds)
 				break
-			case .FromDown:
+			case .fromDown:
 				fromDownAnimation(stage, view, bounds)
 				break
-			case .FromUp:
+			case .fromUp:
 				fromUpAnimation(stage, view, bounds)
 				break
 			default:

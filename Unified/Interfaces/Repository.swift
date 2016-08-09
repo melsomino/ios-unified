@@ -21,7 +21,7 @@ public protocol Repository: class {
 	func load(repository name: String, forType: Any.Type) throws -> [DeclarationElement]
 	func load(declarations name: String, fromModuleWithType: Any.Type) throws -> [DeclarationElement]
 
-	func uiDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition
+	func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition
 
 }
 

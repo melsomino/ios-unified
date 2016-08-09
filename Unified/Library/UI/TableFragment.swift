@@ -16,12 +16,13 @@ public enum TableFragmentModelsState {
 
 
 
-public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUiDependent {
+public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
 	public final weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
 	public final var modelsSync: ((Execution) throws -> Void)?
 	public final var tableView: UITableView! { return (controller as? TableFragmentController)?.tableView }
+	public private(set) final var models = [Any]()
 
 
 	public final func createController(useNavigation useNavigation: Bool = true) -> UIViewController {
@@ -55,14 +56,18 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Overridable
 
 
-	public func onAction(action: String, args: String?) {
-	}
-
 	public func loadModels(execution: Execution, inout models: [Any]) throws {
 		try defaultLoadModels(execution, models: &models)
 	}
 
-	public func onAttachToController(controller: UIViewController) {
+
+	public func onAction(action: String, args: String?) {
+	}
+
+	public func onControllerAttached() {
+	}
+
+	public func onModelsLoaded() {
 	}
 
 
@@ -142,7 +147,6 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 	private var cellFactories = [CellFragmentFactory]()
-	private var models = [Any]()
 	private var layoutCache = FragmentLayoutCache()
 	private var loadingIndicator: UIRefreshControl!
 
@@ -216,12 +220,13 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 				}
 				strongSelf.loadingIndicator.endRefreshing()
 				if let error = loadError {
-					strongSelf.optionalCentralUi?.pushAlert(.Error, message: strongSelf.errorUserMessage(error))
+					strongSelf.optionalCentralUI?.pushAlert(.error, message: strongSelf.errorUserMessage(error))
 					print(error)
 					return
 				}
 				strongSelf.models = models
 				strongSelf.tableView?.reloadData()
+				strongSelf.onModelsLoaded()
 			}
 		}
 	}
@@ -326,7 +331,7 @@ class TableFragmentController: UITableViewController {
 		fragment.loadingIndicator = UIRefreshControl()
 		refreshControl = fragment.loadingIndicator
 		fragment.loadingIndicator.addTarget(self, action: #selector(onLoadingIndicatorRefresh), forControlEvents: .ValueChanged)
-		fragment.onAttachToController(self)
+		fragment.onControllerAttached()
 		fragment.startLoad()
 	}
 

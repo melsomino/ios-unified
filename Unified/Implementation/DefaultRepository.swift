@@ -10,7 +10,7 @@ import Starscream
 
 
 
-public class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUiDependent {
+public class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUIDependent {
 
 
 	// MARK: - Repository
@@ -36,22 +36,22 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	public func uiDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
-		let uiName = makeUiName(forModelType: modelType, name: name)
+	public func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
+		let fragmentName = makeFragmentName(forModelType: modelType, name: name)
 
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
 
-		if let factory = uiDefinitionByName[uiName] {
+		if let factory = fragmentDefinitionByName[fragmentName] {
 			return factory
 		}
 		try loadRepositoriesInBundle(forType: modelType)
-		if let factory = uiDefinitionByName[uiName] {
+		if let factory = fragmentDefinitionByName[fragmentName] {
 			return factory
 		}
-		fatalError("Repository does not contains ui definition: \(uiName)")
+		fatalError("Repository does not contains fragment definition: \(fragmentName)")
 	}
 
 
@@ -94,7 +94,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 					notify()
 				}
 					catch let error {
-					optionalCentralUi?.pushAlert(.Error, message: String(error))
+					optionalCentralUI?.pushAlert(.error, message: String(error))
 					print(error)
 				}
 			default:
@@ -129,7 +129,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
-	private var uiDefinitionByName = [String: FragmentDefinition]()
+	private var fragmentDefinitionByName = [String: FragmentDefinition]()
 	private var lock = FastLock()
 
 
@@ -138,7 +138,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	private func makeUiName(forModelType modelType: Any.Type, name: String?) -> String {
+	private func makeFragmentName(forModelType modelType: Any.Type, name: String?) -> String {
 		let modelTypeName = makeTypeName(forType: modelType)
 		return name != nil ? "\(modelTypeName).\(name!)" : modelTypeName
 	}
@@ -192,11 +192,11 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 
 
 	func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
-		for uiSection in elements.filter({ $0.name == "ui" }) {
-			for ui in uiSection.children {
-				if overrideExisting || uiDefinitionByName[ui.name] == nil {
-					let uiDefinition = try FragmentDefinition.fromDeclaration(ui, context: context)
-					uiDefinitionByName[ui.name] = uiDefinition
+		for fragmentsSection in elements.filter({ $0.name == "ui" || $0.name == "fragment" }) {
+			for fragment in fragmentsSection.children {
+				if overrideExisting || fragmentDefinitionByName[fragment.name] == nil {
+					let fragmentDefinition = try FragmentDefinition.fromDeclaration(fragment, context: context)
+					fragmentDefinitionByName[fragment.name] = fragmentDefinition
 				}
 			}
 		}
@@ -210,6 +210,9 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 		let typeNameParts = typeName.componentsSeparatedByString(".")
 		return typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
 	}
+
+
+
 
 	private func load(repository name: String, from bundle: NSBundle) throws -> [DeclarationElement] {
 		let context = DeclarationContext("[\(name).uni] in bundle [\(bundle.bundleIdentifier ?? "")]")
