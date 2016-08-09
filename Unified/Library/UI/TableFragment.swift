@@ -15,12 +15,20 @@ public enum TableFragmentModelsState {
 }
 
 
+public class EmptyTableFragment {
+	public var message: String
+	public init(message: String) {
+		self.message = message
+	}
+}
+
 
 public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
 	public final weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
 	public final var modelsSync: ((Execution) throws -> Void)?
+	public final var emptyMessage = "Нет данных"
 	public final var tableView: UITableView! { return (controller as? TableFragmentController)?.tableView }
 	public private(set) final var models = [Any]()
 
@@ -223,6 +231,9 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 					strongSelf.optionalCentralUI?.pushAlert(.error, message: strongSelf.errorUserMessage(error))
 					print(error)
 					return
+				}
+				if models.count == 0 {
+					models.append(EmptyTableFragment(message: strongSelf.emptyMessage))
 				}
 				strongSelf.models = models
 				strongSelf.tableView?.reloadData()

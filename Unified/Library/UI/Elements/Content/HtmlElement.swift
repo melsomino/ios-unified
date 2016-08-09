@@ -68,13 +68,14 @@ public class HtmlElement: ContentElement {
 				NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding,
 			]
 			let attributed = try! NSAttributedString(data: html.dataUsingEncoding(NSUTF8StringEncoding)!, options: options, documentAttributes: nil)
-			let builder = removeEmptyLinesFromEnd(attributed).mutableCopy() as! NSMutableAttributedString
-			let lastParagraphRange = getLastParagraphRange(builder)
-			let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
-			let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
-			newLastParagraphStyle.paragraphSpacing = 0
-			builder.setAttributes([NSParagraphStyleAttributeName: newLastParagraphStyle], range: lastParagraphRange)
-			attributedText = (builder.copy() as! NSAttributedString)
+//			let builder = removeEmptyLinesFromEnd(attributed).mutableCopy() as! NSMutableAttributedString
+//			let lastParagraphRange = getLastParagraphRange(builder)
+//			let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
+//			let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
+//			newLastParagraphStyle.paragraphSpacing = 0
+//			builder.setAttributes([NSParagraphStyleAttributeName: newLastParagraphStyle], range: lastParagraphRange)
+//			attributedText = (builder.copy() as! NSAttributedString)
+			attributedText = attributed
 		}
 	}
 
