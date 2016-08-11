@@ -33,6 +33,11 @@ public class TextElement: ContentElement {
 		}
 	}
 
+	public var textAlignment: NSTextAlignment? {
+		didSet {
+			initializeView()
+		}
+	}
 	public var color: UIColor? {
 		didSet {
 			initializeView()
@@ -87,6 +92,7 @@ public class TextElement: ContentElement {
 		guard let label = view as? UiTextLabel else {
 			return
 		}
+		label.textAlignment = textAlignment ?? .Natural
 		label.textBackgroundColor = backgroundColor
 		label.font = font ?? defaultFont
 		label.padding = padding
@@ -188,6 +194,7 @@ public class TextElementDefinition: ContentElementDefinition {
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
+	var textAlignment: NSTextAlignment?
 	var text: DynamicBindings.Expression?
 
 
@@ -218,6 +225,8 @@ public class TextElementDefinition: ContentElementDefinition {
 				padding.left = try context.getFloat(attribute)
 			case "padding-right":
 				padding.right = try context.getFloat(attribute)
+			case "text-alignment":
+				textAlignment = try context.getEnum(attribute, TextElementDefinition.textAlignmentByName)
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
@@ -247,6 +256,7 @@ public class TextElementDefinition: ContentElementDefinition {
 		text.color = color
 		text.maxLines = maxLines
 		text.nowrap = nowrap
+		text.textAlignment = textAlignment
 	}
 
 
@@ -276,6 +286,14 @@ public class TextElementDefinition: ContentElementDefinition {
 	func font(name: String, _ size: CGFloat) -> UIFont {
 		return UIFont(name: name, size: size) ?? UIFont.systemFontOfSize(size)
 	}
+
+	static var textAlignmentByName: [String: NSTextAlignment] = [
+		"left": NSTextAlignment.Left,
+		"right": NSTextAlignment.Right,
+		"center": NSTextAlignment.Center,
+		"justified": NSTextAlignment.Justified,
+		"natural": NSTextAlignment.Natural
+	]
 }
 
 

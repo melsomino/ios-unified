@@ -71,6 +71,9 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 	// MARK: - Overridable
 
 
+	public func onBeforePerformLayoutInBounds(inBounds bounds: CGSize) {
+	}
+
 	public func onModelChanged() {
 	}
 
@@ -186,6 +189,7 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
+		onBeforePerformLayoutInBounds(inBounds: bounds)
 		frame = CGRect(origin: CGPointZero, size: bounds)
 		let size = rootElement!.measure(inBounds: bounds)
 		rootElement!.layout(inBounds: frame, usingMeasured: size)
