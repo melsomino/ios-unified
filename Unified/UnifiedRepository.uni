@@ -6,7 +6,7 @@ ui
 			image Unified.CentralUiAlertError @icon size=(24 27) image-alignment=scale-aspect-fit
 			horizontal hor=fill ver=center
 				text {message} font=13 color=white max-lines=2 hor=left ver=center
-				button size=(12 12) image=Unified.CentralUiAlertClose image-size=6 action=close
+				# button size=(12 12) image=Unified.CentralUiAlertClose image-size=6 action=close
 
 
 	Unified.EmptyTableFragment background-color=white

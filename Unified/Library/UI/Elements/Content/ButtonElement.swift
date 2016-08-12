@@ -87,20 +87,20 @@ public class ButtonElement: ContentElement {
 			return
 		}
 
-		button.contentEdgeInsets = padding
-		button.imageEdgeInsets = imageMargin
-		button.titleEdgeInsets = titleMargin
+//		button.contentEdgeInsets = padding
+//		button.imageEdgeInsets = imageMargin
+//		button.titleEdgeInsets = titleMargin
 		button.setImage(image, forState: .Normal)
 		button.setTitle(title, forState: .Normal)
-		button.tintColor = color
+//		button.tintColor = color
 	}
 
 
-	// MARK: - UiElement
+	// MARK: - FragmentElement
 
 
 	public override func createView() -> UIView {
-		return UIButton()
+		return UIButton(type: .Custom)
 	}
 
 
@@ -122,9 +122,13 @@ public class ButtonElement: ContentElement {
 		guard visible else {
 			return CGSizeZero
 		}
-		return CGSizeMake(20, 20)
+		return CGSizeMake(200, 200)
 	}
 
+
+	public override func layoutContent(inBounds bounds: CGRect) {
+		super.layoutContent(inBounds: bounds)
+	}
 
 
 	// MARK: - Internals
