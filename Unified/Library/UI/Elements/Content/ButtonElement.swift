@@ -88,8 +88,8 @@ public class ButtonElement: ContentElement {
 		}
 
 		button.contentEdgeInsets = padding
-		button.imageEdgeInsets = imagePadding
-		button.titleEdgeInsets = titlePadding
+		button.imageEdgeInsets = imageMargin
+		button.titleEdgeInsets = titleMargin
 		button.setImage(image, forState: .Normal)
 		button.setTitle(title, forState: .Normal)
 		button.tintColor = color
@@ -122,7 +122,7 @@ public class ButtonElement: ContentElement {
 		guard visible else {
 			return CGSizeZero
 		}
-		return measureTextSize(inBounds: bounds)
+		return CGSizeMake(20, 20)
 	}
 
 
@@ -130,48 +130,6 @@ public class ButtonElement: ContentElement {
 	// MARK: - Internals
 
 
-	private func textForMeasure() -> String {
-		return text ?? ""
-	}
-
-
-	private func measureTextSize(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		let measuredText = textForMeasure()
-		if nowrap {
-			return measureText(measuredText, inWidth: CGFloat.max)
-		}
-		if maxLines > 0 {
-			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(singleLine, inWidth: CGFloat.max).height + 1
-			var size = measureText(measuredText, inWidth: bounds.width)
-			let maxHeight = singleLineHeight * CGFloat(maxLines)
-			if size.height > maxHeight {
-				size.height = maxHeight
-			}
-			return size
-		}
-		return measureText(measuredText, inWidth: bounds.width)
-	}
-
-
-	private func measureText(text: String, inWidth width: CGFloat) -> CGSize {
-		let constraintSize = CGSize(width: width, height: CGFloat.max)
-		var size = text.boundingRectWithSize(constraintSize,
-			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
-			attributes: [NSFontAttributeName: resolveFont()],
-			context: nil).size
-		size.width += padding.left + padding.right
-		size.height += padding.top + padding.bottom
-		return size
-	}
-
-
-	private func resolveFont() -> UIFont {
-		return font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
-	}
 
 }
 
@@ -215,7 +173,8 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "font":
-				try applyFontValue(attribute, value: attribute.value, context: context)
+//				try applyFontValue(attribute, value: attribute.value, context: context)
+				break
 			case "color":
 				color = try context.getColor(attribute)
 			case "title":
@@ -273,59 +232,13 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let text = element as! TextElement
-
-		if let name = fontName, size = fontSize {
-			text.font = font(name, size)
-		}
-		else if let name = fontName {
-			text.font = font(name, UIFont.systemFontSize())
-		}
-		else if let size = fontSize {
-			text.font = UIFont.systemFontOfSize(size)
-		}
-		text.padding = padding
-		text.color = color
-		text.maxLines = maxLines
-		text.nowrap = nowrap
-		text.textAlignment = textAlignment
+		let button = element as! ButtonElement
 	}
 
 
 	// MARK: - Internals
 
 
-	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
-		switch value {
-			case .value(let string):
-				var size: Float = 0
-				if NSScanner(string: string).scanFloat(&size) {
-					fontSize = CGFloat(size)
-				}
-				else {
-					fontName = string
-				}
-			case .list(let values):
-				for value in values {
-					try applyFontValue(attribute, value: value, context: context)
-				}
-			default:
-				throw DeclarationError("Font attributes expected", attribute, context)
-		}
-	}
-
-
-	func font(name: String, _ size: CGFloat) -> UIFont {
-		return UIFont(name: name, size: size) ?? UIFont.systemFontOfSize(size)
-	}
-
-	static var textAlignmentByName: [String: NSTextAlignment] = [
-		"left": NSTextAlignment.Left,
-		"right": NSTextAlignment.Right,
-		"center": NSTextAlignment.Center,
-		"justified": NSTextAlignment.Justified,
-		"natural": NSTextAlignment.Natural
-	]
 }
 
 
