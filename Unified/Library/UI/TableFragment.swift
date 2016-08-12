@@ -33,8 +33,8 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	public private(set) final var models = [Any]()
 
 
-	public final func createController(useNavigation useNavigation: Bool = true) -> UIViewController {
-		return internalCreateController(useNavigation: useNavigation)
+	public final func createController() -> UIViewController {
+		return internalCreateController()
 	}
 
 
@@ -189,11 +189,11 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	private func internalCreateController(useNavigation useNavigation: Bool = true) -> UIViewController {
+	private func internalCreateController() -> UIViewController {
 		let controller = TableFragmentController()
 		controller.fragment = self
 		self.controller = controller
-		return useNavigation ? UINavigationController(rootViewController: controller) : controller
+		return controller
 	}
 
 

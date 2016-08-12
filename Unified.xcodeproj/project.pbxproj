@@ -41,6 +41,7 @@
 		EBE70338A9CFBE871538918E /* CloudApiPrimitiveTypeConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70666E01B07ECE402F862 /* CloudApiPrimitiveTypeConverter.swift */; };
 		EBE7033CD14626DA7656BF2A /* Dependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE708A2C28BBFD77B3FFCA1 /* Dependency.swift */; };
 		EBE703670D45E0BF671B2DF8 /* MainMenu.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBE700FAF79E52F3A083D28F /* MainMenu.storyboard */; };
+		EBE703BA9A7440E71B908FF5 /* ButtonElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70178E7A87D83084FA5E3 /* ButtonElement.swift */; };
 		EBE7041AF9F4763ECC394E02 /* DefaultDatabaseReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70BA5C939812F8F0DC053 /* DefaultDatabaseReader.swift */; };
 		EBE70457624697DA21BF96F5 /* DatabaseMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7029D3005280707E4993F /* DatabaseMaintenance.swift */; };
 		EBE704763F59FB842D8A6A98 /* CloudApiParameterValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7065F25809655D1E07F1C /* CloudApiParameterValue.swift */; };
@@ -80,6 +81,7 @@
 		EBE70B37FBD72EF6CB48A385 /* ViewElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE707CEDE6008ECC990AE89 /* ViewElement.swift */; };
 		EBE70BEF25E005D3DD9D1335 /* DefaultRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7062A18972A57DF2E1AAA /* DefaultRepository.swift */; };
 		EBE70C38B13CC6D07569A357 /* FragmentElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70357E7CD76C4D431BCF0 /* FragmentElement.swift */; };
+		EBE70C39EDBFAED88A484C01 /* ImageElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE700CEF0F47FC9DDC0048D /* ImageElement.swift */; };
 		EBE70C3D900DC74F54BC375F /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE702F7444B2E6C58000576 /* Executor.swift */; };
 		EBE70CAEBA7E9F9D6CEEB2AE /* LayeredContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE707EDD2D93E2F78E8E49D /* LayeredContainer.swift */; };
 		EBE70CD1B34186056B70B566 /* CloudApiStructConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70CC8D28B65361DBC2E1A /* CloudApiStructConverter.swift */; };
@@ -115,8 +117,10 @@
 		CF7B9CC97B296480396F71AD /* CentralUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUI.swift; sourceTree = "<group>"; };
 		CF7B9F19541CAF5A65A30AE7 /* HtmlParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HtmlParser.swift; sourceTree = "<group>"; };
 		EBE700B83AC86CBE7C6D92E1 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
+		EBE700CEF0F47FC9DDC0048D /* ImageElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageElement.swift; sourceTree = "<group>"; };
 		EBE700FAF79E52F3A083D28F /* MainMenu.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = MainMenu.storyboard; sourceTree = "<group>"; };
 		EBE7016326DCBA0EBEC34911 /* FragmentLayoutCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FragmentLayoutCache.swift; sourceTree = "<group>"; };
+		EBE70178E7A87D83084FA5E3 /* ButtonElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonElement.swift; sourceTree = "<group>"; };
 		EBE701A89D442FCEF2E00FF2 /* JsonParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonParser.swift; sourceTree = "<group>"; };
 		EBE701B46FD34928AD11DC90 /* SortedTableSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SortedTableSync.swift; sourceTree = "<group>"; };
 		EBE701E56AECB6B6A05A92AF /* DefaultMenuItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuItem.swift; sourceTree = "<group>"; };
@@ -351,6 +355,8 @@
 				EBE707CEDE6008ECC990AE89 /* ViewElement.swift */,
 				EBE707A3313F36B1EE212871 /* HtmlElement.swift */,
 				CF7B9E4273A77967CF0B9571 /* Html */,
+				EBE70178E7A87D83084FA5E3 /* ButtonElement.swift */,
+				EBE700CEF0F47FC9DDC0048D /* ImageElement.swift */,
 			);
 			path = Content;
 			sourceTree = "<group>";
@@ -690,6 +696,8 @@
 				EBE70E8506792F20FAB74B8D /* DecoratorContainer.swift in Sources */,
 				CF7B94897BAE9A00082B48AF /* HtmlParser.swift in Sources */,
 				CF7B9E8379EE47F02904E039 /* TableFragment.swift in Sources */,
+				EBE703BA9A7440E71B908FF5 /* ButtonElement.swift in Sources */,
+				EBE70C39EDBFAED88A484C01 /* ImageElement.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

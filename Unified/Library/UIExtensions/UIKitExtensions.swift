@@ -6,6 +6,22 @@
 import Foundation
 import UIKit
 
+public enum DetailsDecorations {
+	case none
+	case navigation
+
+	public func decorate(controller: UIViewController) -> UIViewController {
+		switch self {
+			case none:
+				return controller
+			case navigation:
+				return UINavigationController(rootViewController: controller)
+		}
+	}
+}
+
+
+
 
 public enum PopoverAnchor {
 	case None
@@ -13,6 +29,9 @@ public enum PopoverAnchor {
 	case Frame(CGRect)
 	case View(UIView)
 }
+
+
+
 
 extension UIViewController {
 	public var wrapper: UIViewController {
@@ -40,18 +59,18 @@ extension UIViewController {
 	}
 
 
-	public func showDetails(controller: UIViewController) {
+	public func showDetails(controller: UIViewController, decorations: DetailsDecorations) {
 		if let split = splitViewController {
-			split.showDetailViewController(controller.wrapper, sender: nil)
+			split.showDetailViewController(decorations.decorate(controller), sender: nil)
 			return
 		}
 
 		if let navigation = navigationController {
-			navigation.pushViewController(controller.wrapper, animated: true)
+			navigation.pushViewController(controller, animated: true)
 			return
 		}
 
-		presentViewController(controller.wrapper, animated: true, completion: nil)
+		presentViewController(decorations.decorate(controller), animated: true, completion: nil)
 
 	}
 
