@@ -21,6 +21,17 @@ public class DefaultCloudConnector: CloudConnector {
 
 
 	public func getFileCache(localPath: String) -> CloudFileCache {
+		if !sessionCacheLocalPaths.contains(localPath) {
+			let fm = NSFileManager.defaultManager()
+			do {
+				for file in try fm.contentsOfDirectoryAtPath(localPath) {
+					let _ = try? fm.removeItemAtPath(localPath + "/" + file)
+				}
+			}
+			catch {
+			}
+			sessionCacheLocalPaths.insert(localPath)
+		}
 		return DefaultCloudFilesCache(cloudConnector: self, localPath: localPath)
 	}
 
@@ -116,6 +127,7 @@ public class DefaultCloudConnector: CloudConnector {
 	// MARK: - Internals
 
 	var baseUrl: NSURL!
+	var sessionCacheLocalPaths = Set<String>()
 }
 
 

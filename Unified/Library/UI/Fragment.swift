@@ -175,6 +175,9 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 		let size = rootElement!.measure(inBounds: CGSizeMake(width, 0))
 		frame = CGRectMake(0, 0, width, size.height)
 		rootElement!.layout(inBounds: frame, usingMeasured: size)
+		if rootElement != nil {
+			checkVisibilityOfContentElements(rootElement, parentHidden: false)
+		}
 
 		if layoutCacheKey != nil {
 			var frames = [CGRect](count: 1 + contentElements.count, repeatedValue: CGRectZero)
@@ -193,8 +196,33 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 		frame = CGRect(origin: CGPointZero, size: bounds)
 		let size = rootElement!.measure(inBounds: bounds)
 		rootElement!.layout(inBounds: frame, usingMeasured: size)
+		if rootElement != nil {
+			checkVisibilityOfContentElements(rootElement, parentHidden: false)
+		}
 	}
 
+
+	private func checkVisibilityOfContentElements(parent: FragmentElement!, parentHidden: Bool) {
+		if parent == nil {
+			return
+		}
+		if let content = parent as? ContentElement {
+			if let view = content.view {
+				view.hidden = parentHidden || !content.visible
+			}
+			if let decorator = parent as? DecoratorElement {
+				checkVisibilityOfContentElements(decorator.child, parentHidden: parentHidden || decorator.hidden)
+			}
+		}
+		else if let multipleContainer = parent as? MultipleElementContainer {
+			for child in multipleContainer.children {
+				checkVisibilityOfContentElements(child, parentHidden: parentHidden || multipleContainer.hidden)
+			}
+		}
+		else if let singleContainer = parent as? SingleElementContainer {
+			checkVisibilityOfContentElements(singleContainer.child, parentHidden: parentHidden)
+		}
+	}
 
 
 	private func internalTryExecuteAction(action: DynamicBindings.Expression?) {

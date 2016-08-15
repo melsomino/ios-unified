@@ -7,12 +7,20 @@ import Foundation
 
 public class MultipleElementContainer: FragmentElement {
 
+	public var hidden = false
 	public var children: [FragmentElement]!
+
 
 	// MARK: - LayoutItem
 
+	public override required init() {
+		super.init()
+	}
 
 	public override var visible: Bool {
+		if hidden {
+			return false
+		}
 		return children.contains({ $0.visible })
 	}
 

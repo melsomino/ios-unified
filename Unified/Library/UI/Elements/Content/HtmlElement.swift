@@ -67,14 +67,17 @@ public class HtmlElement: ContentElement {
 				NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
 				NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding,
 			]
-			let attributed = try! NSAttributedString(data: html.dataUsingEncoding(NSUTF8StringEncoding)!, options: options, documentAttributes: nil)
+			var attributed = try! NSAttributedString(data: html.dataUsingEncoding(NSUTF8StringEncoding)!, options: options, documentAttributes: nil)
 //			let builder = removeEmptyLinesFromEnd(attributed).mutableCopy() as! NSMutableAttributedString
-//			let lastParagraphRange = getLastParagraphRange(builder)
-//			let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
-//			let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
-//			newLastParagraphStyle.paragraphSpacing = 0
-//			builder.setAttributes([NSParagraphStyleAttributeName: newLastParagraphStyle], range: lastParagraphRange)
-//			attributedText = (builder.copy() as! NSAttributedString)
+			let builder = attributed.mutableCopy() as! NSMutableAttributedString
+			let lastParagraphRange = getLastParagraphRange(builder)
+			if lastParagraphRange.location  >= 0 && lastParagraphRange.location < attributed.string.characters.count && lastParagraphRange.length > 0 {
+				let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
+				let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
+				newLastParagraphStyle.paragraphSpacing = 0
+				builder.setAttributes([NSParagraphStyleAttributeName: newLastParagraphStyle], range: lastParagraphRange)
+				attributed = (builder.copy() as! NSAttributedString)
+			}
 			attributedText = attributed
 		}
 	}

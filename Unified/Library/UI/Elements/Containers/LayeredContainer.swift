@@ -8,7 +8,9 @@ import UIKit
 
 public class LayeredContainer: MultipleElementContainer {
 
-	// MARK: - UiElement
+
+
+	// MARK: - FragmentElement
 
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
 		var measure = Layered_measure(elements: children)

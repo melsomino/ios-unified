@@ -168,12 +168,14 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		}
 	}
 
+
 	// MARK: - Internals
 
 
 	private var cellFactories = [CellFragmentFactory]()
 	private var layoutCache = FragmentLayoutCache()
 	private var loadingIndicator: UIRefreshControl!
+	private var reloadingIndicator: UIActivityIndicatorView!
 
 
 
@@ -219,8 +221,14 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 	private func internalStartLoad(showLoadingIndicator showLoadingIndicator: Bool) {
 		if showLoadingIndicator {
-			tableView.setContentOffset(CGPointMake(0, tableView.contentOffset.y - loadingIndicator.frame.size.height), animated: true)
-			loadingIndicator.beginRefreshing()
+			reloadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
+			reloadingIndicator.color = UIColor.darkGrayColor()
+			let bounds = tableView.bounds
+			let size = reloadingIndicator.bounds.size
+			reloadingIndicator.frame = CGRectMake(bounds.width / 2 - size.width / 2, tableView.contentInset.top + size.height / 2, size.width, size.height)
+			reloadingIndicator.autoresizingMask = [.FlexibleLeftMargin, .FlexibleRightMargin]
+			tableView.addSubview(reloadingIndicator)
+			reloadingIndicator.startAnimating()
 		}
 		weak var weakSelf = self
 		threading.backgroundQueue.newExecution {
@@ -243,7 +251,13 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 				guard let strongSelf = weakSelf else {
 					return
 				}
-				strongSelf.loadingIndicator.endRefreshing()
+				if showLoadingIndicator {
+					strongSelf.reloadingIndicator?.removeFromSuperview()
+					strongSelf.reloadingIndicator = nil
+				}
+				else {
+					strongSelf.loadingIndicator.endRefreshing()
+				}
 				if let error = loadError {
 					strongSelf.optionalCentralUI?.pushAlert(.error, message: strongSelf.errorUserMessage(error))
 					print(error)
@@ -282,13 +296,47 @@ class TableFragmentCell: UITableViewCell {
 
 	final var fragment: Fragment!
 
+
 	// MARK: - UITableViewCell
+
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
 		fragment?.performLayout(inWidth: contentView.bounds.width)
 	}
 
+
+	override func setSelected(selected: Bool, animated: Bool) {
+		super.setSelected(selected, animated: animated)
+		change(highlight: currentHighlight, select: selected)
+	}
+
+
+	override func setHighlighted(highlighted: Bool, animated: Bool) {
+		super.setHighlighted(highlighted, animated: animated)
+		change(highlight: highlighted, select: currentSelect)
+	}
+
+
+	// MARK: - Internals
+
+
+	private var currentHighlight = false
+	private var currentSelect = false
+
+
+	private func change(highlight highlight: Bool, select: Bool) {
+		let prevHighlight = currentHighlight || currentSelect
+		currentHighlight = highlight
+		currentSelect = select
+		let newHighlight = highlight || select
+		guard prevHighlight != newHighlight else {
+			return
+		}
+		if let fragment = fragment {
+			fragment.reflectCellHighlight(newHighlight)
+		}
+	}
 
 }
 
@@ -354,9 +402,12 @@ class TableFragmentController: UITableViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		navigationController?.navigationBar.translucent = false
+//		automaticallyAdjustsScrollViewInsets = false
+
 		fragment.registerTableView(tableView)
 		tableView.separatorStyle = .None
-//		adjustTableInsets()
+		adjustTableInsets()
 		fragment.loadingIndicator = UIRefreshControl()
 		refreshControl = fragment.loadingIndicator
 		fragment.loadingIndicator.addTarget(self, action: #selector(onLoadingIndicatorRefresh), forControlEvents: .ValueChanged)
@@ -366,7 +417,7 @@ class TableFragmentController: UITableViewController {
 
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-//		adjustTableInsets()
+		adjustTableInsets()
 	}
 
 
@@ -411,12 +462,15 @@ class TableFragmentController: UITableViewController {
 	}
 
 	private func adjustTableInsets() {
-		let isPortrait = view.bounds.width < view.bounds.height
-		var top = isPortrait ? CGFloat(20) : CGFloat(0)
-		if let navigationBarFrame = self.navigationController?.navigationBar.frame {
-			top += navigationBarFrame.size.height
-		}
-		fragment.tableView.contentInset = UIEdgeInsetsMake(top, 0, 0, 0)
+//		let isPortrait = view.bounds.width < view.bounds.height
+//		var top = isPortrait ? CGFloat(20) : CGFloat(0)
+//		if let navigationBarFrame = self.navigationController?.navigationBar.frame {
+//			top += navigationBarFrame.size.height
+//		}
+//		if let superview = tableView?.superview {
+//			tableView.frame = UIEdgeInsetsInsetRect(superview.bounds, UIEdgeInsetsMake(top, 0, 0, 0))
+//		}
+//		fragment.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0)
 	}
 
 }
