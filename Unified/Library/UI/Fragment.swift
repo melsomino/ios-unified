@@ -8,6 +8,7 @@ import UIKit
 
 
 public protocol FragmentDelegate: class {
+	var controller: UIViewController! { get }
 	func onAction(action: String, args: String?)
 }
 
@@ -27,16 +28,22 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 	}
 	public weak var delegate: FragmentDelegate?
 	public var layoutCache: FragmentLayoutCache?
+	public var controller: UIViewController! {
+		return delegate?.controller
+	}
+
 	public var container: UIView? {
 		didSet {
 			internalDidSetContainer()
 		}
 	}
+
 	public var model: Any? {
 		didSet {
 			internalDidSetModel()
 		}
 	}
+
 	public private(set) var frame = CGRectZero
 
 
@@ -77,6 +84,10 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 	public func onModelChanged() {
 	}
 
+
+	public func onAction(action: String, args: String?) {
+		delegate?.onAction(action, args: args)
+	}
 
 	public func getLayoutCacheKey(forModel model: Any) -> String? {
 		return defaultGetLayoutCacheKey(forModel: model)
@@ -241,7 +252,7 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 		else {
 			name = actionWithArgs
 		}
-		delegate?.onAction(name, args: args)
+		onAction(name, args: args)
 	}
 
 	private func internalDidSetModel() {

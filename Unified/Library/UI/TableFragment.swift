@@ -30,6 +30,8 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	public final var modelsSync: ((Execution) throws -> Void)?
 	public final var emptyMessage = "Нет данных"
 	public final var tableView: UITableView! { return (controller as? TableFragmentController)?.tableView }
+
+
 	public private(set) final var models = [Any]()
 
 
@@ -52,6 +54,18 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		models = [Any]()
 		tableView.reloadData()
 		internalStartLoad(showLoadingIndicator: true)
+	}
+
+
+	public final func findModel<Model>(test: (Model) -> Bool) -> Model? {
+		for model in models {
+			if let typed = model as? Model {
+				if test(typed) {
+					return typed
+				}
+			}
+		}
+		return nil
 	}
 
 

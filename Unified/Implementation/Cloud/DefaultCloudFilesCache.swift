@@ -14,17 +14,18 @@ public class DefaultCloudFilesCache: CloudFileCache {
 	// MARK: - CloudFilesCache
 
 
-	public func getFile(relativeUrl: String, forceExtension: String?) -> CloudFile {
+	public func getFile(forUrl url: NSURL, forceExtension: String?) -> CloudFile {
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
-		let relativeUrlHash = calcHash(relativeUrl)
+		let relativeUrlHash = calcHash(url.absoluteString)
 		if let existing = fileFromRelativeUrlHash[relativeUrlHash] {
 			return existing
 		}
-		let localFilePath = localPath + "/" + relativeUrlHash + (forceExtension ?? "")
-		let newFile = DefaultCloudFile(cloudConnector: cloudConnector, relativeUrl: relativeUrl, localPath: localFilePath)
+		let fileExtension = forceExtension != nil ? forceExtension! : getFileExtension(url)
+		let localFilePath = "\(localPath)/\(relativeUrlHash)\(fileExtension)"
+		let newFile = DefaultCloudFile(cloudConnector: cloudConnector, url: url, localPath: localFilePath)
 		fileFromRelativeUrlHash[relativeUrlHash] = newFile
 		return newFile
 	}
@@ -42,5 +43,13 @@ public class DefaultCloudFilesCache: CloudFileCache {
 		return StringHashes.getHash(url)
 	}
 
+	private func getFileExtension(url: NSURL) -> String {
+		let path = url.absoluteString
+		guard let lastDotPos = path.rangeOfString(".", options: .BackwardsSearch) else {
+			return ""
+		}
+		let ext = path.substringFromIndex(lastDotPos.startIndex)
+		return ext.characters.count < 6 ? ext : ""
+	}
 
 }

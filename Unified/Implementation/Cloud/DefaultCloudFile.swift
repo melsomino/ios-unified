@@ -10,9 +10,10 @@ import Foundation
 
 
 public class DefaultCloudFile: CloudFile {
-	init(cloudConnector: CloudConnector, relativeUrl: String, localPath: String) {
+
+	init(cloudConnector: CloudConnector, url: NSURL, localPath: String) {
 		self.cloudConnector = cloudConnector
-		self.url = cloudConnector.makeUrl(relativeUrl)
+		self.url = url
 		self.localPath = localPath
 
 		if NSFileManager.defaultManager().fileExistsAtPath(localPath) {
@@ -58,7 +59,7 @@ public class DefaultCloudFile: CloudFile {
 	private let url: NSURL
 	private var listeners = ListenerList<CloudFileListener>()
 	private var lock = FastLock()
-	private var _state = CloudFileState.Loading
+	private var _state = CloudFileState.Loading(0)
 
 
 	private func setState(newState: CloudFileState) {
@@ -78,7 +79,13 @@ public class DefaultCloudFile: CloudFile {
 
 		let request = NSURLRequest(URL: url)
 		cloudConnector.startDownload(request,
-			progress: nil,
+			progress: {
+				(downloaded, expected) in
+				guard let strongSelf = weakSelf else {
+					return
+				}
+				strongSelf.setState(.Loading(expected > 0 ? Float(downloaded) / Float(expected) : 0.5))
+			},
 			error: {
 				error in
 				guard let strongSelf = weakSelf else {

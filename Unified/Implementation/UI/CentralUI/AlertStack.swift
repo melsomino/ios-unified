@@ -150,6 +150,10 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 		ui.performLayout(inBounds: bounds.size)
 	}
 
+	var controller: UIViewController! {
+		return nil
+	}
+
 	func onAction(action: String, args: String?) {
 		if action == "close" {
 			stack?.hidePanelAnimated(self)

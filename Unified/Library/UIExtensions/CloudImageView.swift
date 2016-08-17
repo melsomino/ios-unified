@@ -40,7 +40,7 @@ public class CloudImageView: UIImageView, CloudFileListener {
 	// MARK: - Internals
 
 
-	private var currentState = CloudFileState.Loading
+	private var currentState = CloudFileState.Loading(0)
 	private var pendingImageFilePath = ""
 
 
@@ -53,7 +53,7 @@ public class CloudImageView: UIImageView, CloudFileListener {
 
 
 	private func reflectImageState(animated animated: Bool) {
-		let state = imageFile?.state ?? .Loading
+		let state = imageFile?.state ?? .Loading(0)
 		switch state {
 			case .Loaded:
 				startLoadImage(imageFile.localPath)

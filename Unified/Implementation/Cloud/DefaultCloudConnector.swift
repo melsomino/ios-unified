@@ -36,29 +36,52 @@ public class DefaultCloudConnector: CloudConnector {
 	}
 
 
+
 	public func makeUrl(relativePath: String) -> NSURL {
 		return NSURL(string: relativePath, relativeToURL: baseUrl)!
 	}
 
-	public func startDownload(request: NSURLRequest, progress: ((Int64, Int64) -> Void)?, error: ((ErrorType) -> Void)?, complete: (NSURL) -> Void) {
-		let task = urlSession.downloadTaskWithRequest(request) {
-			downloadedUrl, httpResponse, httpResponseError in
-			if httpResponseError != nil {
-				if let onError = error {
-					onError(httpResponseError!)
-				}
-				return
-			}
-			if downloadedUrl == nil {
-				if let onError = error {
-					onError(CloudError("Ошибка загрузки файла", nil))
-				}
-				return
-			}
-			complete(downloadedUrl!)
+
+	private class DownloadProgressReporter: NSObject, NSURLSessionDownloadDelegate {
+
+		var progressHandler: ((Int64, Int64) -> Void)?
+		var errorHandler: (ErrorType -> Void)?
+		var completionHandler: NSURL -> Void
+
+		@objc func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
+			completionHandler(location)
 		}
+
+		@objc func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+			if let handler = errorHandler {
+				if let downloadError = error {
+					handler(downloadError)
+				}
+			}
+		}
+
+		@objc func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+			if let handler = progressHandler {
+				handler(totalBytesWritten, totalBytesExpectedToWrite)
+			}
+		}
+
+		init(progress: ((Int64, Int64) -> Void)?,  error: (ErrorType -> Void)?, completion: NSURL -> Void) {
+			progressHandler = progress
+			errorHandler = error
+			completionHandler = completion
+		}
+	}
+
+	public func startDownload(request: NSURLRequest, progress: ((Int64, Int64) -> Void)?, error: (ErrorType -> Void)?, complete: NSURL -> Void) {
+		let progressReporter = DownloadProgressReporter(progress: progress, error: error, completion: complete)
+		progressReporter.progressHandler = progress
+		let session = NSURLSession(configuration: urlSession.configuration, delegate: progressReporter, delegateQueue: NSOperationQueue())
+		let task = session.downloadTaskWithRequest(request)
 		task.resume()
 	}
+
+
 
 	public func invokeService(serviceUrl: NSURL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject {
 		var json = [String: AnyObject]()

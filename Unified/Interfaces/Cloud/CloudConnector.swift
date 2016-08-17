@@ -15,8 +15,12 @@ public protocol CloudConnector {
 	func getFileCache(localPath: String) -> CloudFileCache
 }
 
+
+
+
+
 public protocol CloudFileCache {
-	func getFile(relativeUrl: String, forceExtension: String?) -> CloudFile
+	func getFile(forUrl url: NSURL, forceExtension: String?) -> CloudFile
 }
 
 
@@ -36,7 +40,9 @@ public protocol CloudFile {
 
 
 public enum CloudFileState {
-	case Loading, Loaded, Failed(ErrorType)
+	case Loading(Float)
+	case Loaded
+	case Failed(ErrorType)
 }
 
 
