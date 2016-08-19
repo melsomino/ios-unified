@@ -236,7 +236,7 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let button = element as! ButtonElement
+//		let button = element as! ButtonElement
 	}
 
 

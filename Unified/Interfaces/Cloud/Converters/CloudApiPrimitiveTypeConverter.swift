@@ -156,6 +156,26 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
+	public static func stringArrayFromJsonArray(array: AnyObject) -> [String] {
+		return arrayFromJson(array) {
+			item in stringFromJson(item) ?? ""
+		}
+	}
+
+
+
+
+
+	public static func jsonArrayFromStringArray(array: [String]) -> AnyObject {
+		return jsonFromArray(array) {
+			item in jsonFromString(item)
+		}
+	}
+
+
+
+
+
 	private static var dayMonthFormatter: NSDateFormatter = {
 		let formatter = NSDateFormatter()
 		formatter.dateFormat = "dd.MM"
