@@ -75,7 +75,7 @@ public class HtmlElement: ContentElement {
 				let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
 				let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
 				newLastParagraphStyle.paragraphSpacing = 0
-				builder.setAttributes([NSParagraphStyleAttributeName: newLastParagraphStyle], range: lastParagraphRange)
+				builder.addAttribute(NSParagraphStyleAttributeName, value: newLastParagraphStyle, range: lastParagraphRange)
 				attributed = (builder.copy() as! NSAttributedString)
 			}
 			attributedText = attributed
@@ -122,7 +122,7 @@ public class HtmlElement: ContentElement {
 		label.textColor = color ?? defaultColor
 		label.numberOfLines = maxLines ?? defaultMaxLines
 		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
-		label.text = html
+		label.attributedText = attributedText
 	}
 
 

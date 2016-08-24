@@ -35,7 +35,11 @@ public class DecoratorElement: ContentElement {
 		}
 	}
 
-
+	public final func reflectParentBackgroundTo(color: UIColor?) {
+		if let view = view as? DecoratorView {
+			view.reflectParentBackgroundTo(color)
+		}
+	}
 
 	// MARK: - UiContentElement
 
@@ -68,6 +72,8 @@ public class DecoratorElement: ContentElement {
 		decorator.decoratorBackgroundColor = backgroundColor
 		decorator.transparentGradientLeft = transparentGradientLeft
 	}
+
+
 
 
 	// MARK: - UiElement
@@ -245,9 +251,20 @@ class DecoratorView: UIView {
 		else {
 			if let gradient = gradient_layer {
 				gradient.removeFromSuperlayer()
+				gradient_layer = nil
 			}
 			layer.backgroundColor = resolve_background_color().CGColor
 		}
+	}
+
+	final func reflectParentBackgroundTo(color: UIColor?) {
+		guard transparentGradientLeft != nil else {
+			return
+		}
+		guard let gradient = gradient_layer, back_color = color ?? decoratorBackgroundColor else {
+			return
+		}
+		gradient.colors = [back_color.colorWithAlphaComponent(0).CGColor, back_color.CGColor, back_color.CGColor]
 	}
 
 }

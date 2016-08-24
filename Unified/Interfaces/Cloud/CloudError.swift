@@ -16,16 +16,16 @@ public class CloudError: ErrorType, CustomStringConvertible, CustomDebugStringCo
 
 	public var description: String {
 		if let error = source as? NSError {
-			return "Ошибка доступа к облаку: \(error.domain)"
+			return "Ошибка сервера: \(error.domain)"
 		}
-		return "Ошибка доступа к облаку: " + (message ?? "")
+		return message ?? ""
 	}
 
 	public var debugDescription: String {
 		if let error = source as? NSError {
-			return "Ошибка доступа к облаку: \(error)"
+			return "Ошибка сервера: \(error)"
 		}
-		return "Ошибка доступа к облаку: " + (message ?? "")
+		return message ?? ""
 	}
 
 }

@@ -178,6 +178,9 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 				for index in 0 ..< min(frames.count - 1, contentElements.count) {
 					contentElements[index].frame = frames[index + 1]
 				}
+				if rootElement != nil {
+					checkVisibilityOfContentElements(rootElement, parentHidden: false)
+				}
 				return
 			}
 		}
@@ -288,10 +291,7 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 			guard let decorator = element as? DecoratorElement else {
 				return
 			}
-			guard decorator.transparentGradientLeft != nil else {
-				return
-			}
-			decorator.backgroundColor = color
+			decorator.reflectParentBackgroundTo(color)
 		}
 	}
 

@@ -438,6 +438,11 @@ class TableFragmentController: UITableViewController {
 	// MARK: - UITableViewController
 
 
+	override func preferredStatusBarStyle() -> UIStatusBarStyle {
+		return .LightContent
+	}
+
+
 	override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return fragment.onTableView(tableView, numberOfRowsInSection: section)
 	}
