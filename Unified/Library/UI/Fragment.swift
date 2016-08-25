@@ -13,7 +13,7 @@ public protocol FragmentDelegate: class {
 }
 
 
-public class Fragment: RepositoryDependent, RepositoryListener {
+public class Fragment: RepositoryDependent, RepositoryListener, FragmentElementDelegate {
 
 	public final let modelType: Any.Type
 	public final var layoutCacheKeyProvider: ((Any) -> String?)?
@@ -330,7 +330,7 @@ public class Fragment: RepositoryDependent, RepositoryListener {
 
 		detachFromContainer()
 
-		rootElement = definition?.createRootElement(forUi: self)
+		rootElement = definition?.createRootElement(forFragment: self)
 		contentElements.removeAll(keepCapacity: true)
 		rootElement.traversal {
 			dependency.resolve($0)
@@ -402,8 +402,8 @@ public class FragmentDefinition {
 	public final let containerCornerRadius: CGFloat?
 
 
-	public final func createRootElement(forUi ui: Any) -> FragmentElement {
-		return internalCreateRootElement(forUi: ui)
+	public final func createRootElement(forFragment fragment: Fragment) -> FragmentElement {
+		return internalCreateRootElement(forFragment: fragment)
 	}
 
 	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
@@ -439,8 +439,8 @@ public class FragmentDefinition {
 	private let ids: Set<String>
 
 
-	private func internalCreateRootElement(forUi ui: Any) -> FragmentElement {
-		let mirror = Mirror(reflecting: ui)
+	private func internalCreateRootElement(forFragment fragment: Fragment) -> FragmentElement {
+		let mirror = Mirror(reflecting: fragment)
 		var existingElementById = [String: FragmentElement]()
 		for member in mirror.children {
 			if let name = member.label {
@@ -450,7 +450,8 @@ public class FragmentDefinition {
 			}
 		}
 
-		let rootElement = createOrReuseElement(rootElementDefinition, existingElementById: existingElementById)
+		let rootElement = createOrReuseElement(fragment, definition: rootElementDefinition, existingElementById: existingElementById)
+
 
 		return rootElement
 	}
@@ -496,12 +497,13 @@ public class FragmentDefinition {
 
 
 
-	private func createOrReuseElement(definition: FragmentElementDefinition, existingElementById: [String:FragmentElement]) -> FragmentElement {
+	private func createOrReuseElement(fragment: Fragment, definition: FragmentElementDefinition, existingElementById: [String:FragmentElement]) -> FragmentElement {
 		var children = [FragmentElement]()
 		for childDefinition in definition.childrenDefinitions {
-			children.append(createOrReuseElement(childDefinition, existingElementById: existingElementById))
+			children.append(createOrReuseElement(fragment, definition: childDefinition, existingElementById: existingElementById))
 		}
 		let element: FragmentElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
+		element.delegate = fragment
 		definition.initialize(element, children: children)
 		return element
 	}

@@ -10,6 +10,13 @@ import UIKit
 
 public class ButtonElement: ContentElement {
 
+	class ActionDelegate: NSObject {
+		weak var element: ButtonElement?
+		func onTouchUpInside() {
+			element?.onTouchUpInside()
+		}
+	}
+
 	public var buttonDefinition: ButtonElementDefinition {
 		return definition as! ButtonElementDefinition
 	}
@@ -92,7 +99,7 @@ public class ButtonElement: ContentElement {
 //		button.titleEdgeInsets = titleMargin
 		button.setImage(image, forState: .Normal)
 		button.setTitle(title, forState: .Normal)
-//		button.tintColor = color
+		button.tintColor = color
 	}
 
 
@@ -100,9 +107,17 @@ public class ButtonElement: ContentElement {
 
 
 	public override func createView() -> UIView {
-		return UIButton(type: .Custom)
+		let button = UIButton(type: .System)
+		actionDelegate.element = self
+		button.addTarget(actionDelegate, action: #selector(ActionDelegate.onTouchUpInside), forControlEvents: .TouchUpInside)
+		return button
 	}
 
+	func onTouchUpInside() {
+		if let action = (definition as? ButtonElementDefinition)?.action, delegate = delegate {
+			delegate.tryExecuteAction(action)
+		}
+	}
 
 	public override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
@@ -122,7 +137,7 @@ public class ButtonElement: ContentElement {
 		guard visible else {
 			return CGSizeZero
 		}
-		return CGSizeMake(200, 200)
+		return CGSizeMake(25, 25)
 	}
 
 
@@ -133,7 +148,7 @@ public class ButtonElement: ContentElement {
 
 	// MARK: - Internals
 
-
+	var actionDelegate = ActionDelegate()
 
 }
 
@@ -169,6 +184,7 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	var color: UIColor?
 	var image: UIImage?
 	var title: DynamicBindings.Expression?
+	var action: DynamicBindings.Expression?
 
 
 	// MARK: - UiElementDefinition
@@ -183,6 +199,8 @@ public class ButtonElementDefinition: ContentElementDefinition {
 				color = try context.getColor(attribute)
 			case "title":
 				title = try context.getExpression(attribute)
+			case "action":
+				action = try context.getExpression(attribute)
 			case "image":
 				image = try context.getImage(attribute)
 			default:
@@ -236,7 +254,9 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-//		let button = element as! ButtonElement
+		let button = element as! ButtonElement
+		button.image = image
+		button.color = color
 	}
 
 

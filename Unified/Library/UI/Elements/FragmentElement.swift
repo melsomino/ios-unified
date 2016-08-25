@@ -22,11 +22,14 @@ public struct SizeRange {
 }
 
 
-
+public protocol FragmentElementDelegate: class {
+	func tryExecuteAction(action: DynamicBindings.Expression?)
+}
 
 
 public class FragmentElement {
 
+	public final weak var delegate: FragmentElementDelegate?
 	public final var definition: FragmentElementDefinition!
 	public final var margin = UIEdgeInsetsZero
 	public final var horizontalAlignment = FragmentAlignment.leading

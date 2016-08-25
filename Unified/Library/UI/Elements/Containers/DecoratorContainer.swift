@@ -186,6 +186,7 @@ public class DecoratorElementDefinition: ContentElementDefinition {
 
 class DecoratorView: UIView {
 
+
 	var transparentGradientLeft: CGFloat? {
 		didSet {
 			background_properties_changed()
