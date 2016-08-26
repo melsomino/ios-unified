@@ -143,20 +143,21 @@ private struct Horizontal_measure {
 		measured = CGSizeZero
 		let bounds_without_spacing = bounds.width - total_spacing
 		let flexible_width = second_pass_total_width - total_spacing - min_width_without_spacing
-		var width_ratio: CGFloat
+		var flexible_width_ratio: CGFloat
 		if flexible_width <= 0 {
-			width_ratio = 0
+			flexible_width_ratio = 0
 		}
 		else if bounds_without_spacing - min_width_without_spacing < 0 {
-			width_ratio = 0
+			flexible_width_ratio = 0
 		} else {
-			width_ratio = (bounds_without_spacing - min_width_without_spacing) / flexible_width
+			flexible_width_ratio = (bounds_without_spacing - min_width_without_spacing) / flexible_width
 		}
+		let fixed_width_ratio = (min_width_without_spacing > bounds_without_spacing && min_width_without_spacing > 0) ? bounds_without_spacing / min_width_without_spacing : 1
 		measured_total_width = total_spacing
 		for i in 0 ..< children.count {
 			var child_measured = children[i].measured
 			if child_measured.width < children[i].measured_first_pass.width {
-				let child_bounds = CGSizeMake(children[i].measured.width * width_ratio, bounds.height)
+				let child_bounds = CGSizeMake(child_measured.width * flexible_width_ratio, bounds.height)
 				if child_bounds.width <= 0 {
 					children[i].measured = child_bounds
 				}
@@ -164,6 +165,10 @@ private struct Horizontal_measure {
 					children[i].measure_second_pass(in_bounds: child_bounds)
 				}
 				child_measured = children[i].measured
+			}
+			else if fixed_width_ratio < 1 {
+				child_measured.width *= fixed_width_ratio
+				children[i].measured = child_measured
 			}
 			measured.height = max(measured.height, child_measured.height)
 			measured_total_width += child_measured.width

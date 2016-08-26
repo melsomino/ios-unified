@@ -5,6 +5,7 @@
 
 import Foundation
 import UIKit
+import QuartzCore
 
 
 
@@ -82,6 +83,7 @@ public class ButtonElement: ContentElement {
 			return
 		}
 
+		view.layer.backgroundColor = backgroundColor?.CGColor
 		if let radius = cornerRadius {
 			view.clipsToBounds = true
 			view.layer.cornerRadius = radius
@@ -100,6 +102,7 @@ public class ButtonElement: ContentElement {
 		button.setImage(image, forState: .Normal)
 		button.setTitle(title, forState: .Normal)
 		button.tintColor = color
+		button.titleLabel?.font = font
 	}
 
 
@@ -193,8 +196,7 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "font":
-//				try applyFontValue(attribute, value: attribute.value, context: context)
-				break
+				try applyFontValue(attribute, value: attribute.value, context: context)
 			case "color":
 				color = try context.getColor(attribute)
 			case "title":
@@ -218,6 +220,27 @@ public class ButtonElementDefinition: ContentElementDefinition {
 
 
 
+	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
+		switch value {
+			case .value(let string):
+				var size: Float = 0
+				if string == "bold" {
+					font = UIFont(descriptor: font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits.TraitBold), size: font.pointSize)
+				}
+				else if NSScanner(string: string).scanFloat(&size) {
+					font = font.fontWithSize(CGFloat(size))
+				}
+				else {
+					font = UIFont(name: string, size: font.pointSize) ?? font
+				}
+			case .list(let values):
+				for value in values {
+					try applyFontValue(attribute, value: value, context: context)
+				}
+			default:
+				throw DeclarationError("Font attributes expected", attribute, context)
+		}
+	}
 
 
 	private func applyInsets(inout insets: UIEdgeInsets, name: String, attribute: DeclarationAttribute, context: DeclarationContext) throws -> Bool {
@@ -257,6 +280,7 @@ public class ButtonElementDefinition: ContentElementDefinition {
 		let button = element as! ButtonElement
 		button.image = image
 		button.color = color
+		button.font = font
 	}
 
 
