@@ -2,8 +2,8 @@ repository Layouts
 
 ui
 	Layouts.Header
-		picker height=100 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
-			~ font=14 color=red
+		picker height=200 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
+			~ font=12 row-height=40 max-lines=2
 			section 
 				'Неправильно указаны реквизиты gfd gfds gfds gfds gfs dgfds gfds gfds gfds gfds gfs dgfds gfds f '
 				'Требование отправлено по ошибке'

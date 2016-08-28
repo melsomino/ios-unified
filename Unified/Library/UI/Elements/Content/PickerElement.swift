@@ -20,6 +20,22 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 		}
 	}
 
+	public var maxLines: Int? {
+		didSet {
+			if let view = view as? PickerElementView {
+				view.maxLines = maxLines
+			}
+		}
+	}
+
+	public var rowHeight: CGFloat? {
+		didSet {
+			if let view = view as? PickerElementView {
+				view.rowHeight = rowHeight
+			}
+		}
+	}
+
 	public var color: UIColor? {
 		didSet {
 			if let view = view as? PickerElementView {
@@ -70,6 +86,8 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 		view.sections = sections
 		view.font = font
 		view.color = color
+		view.maxLines = maxLines
+		view.rowHeight = rowHeight
 	}
 
 
@@ -133,6 +151,8 @@ public class PickerSection {
 
 public class PickerElementDefinition: ViewElementDefinition {
 
+	public var maxLines: Int?
+	public var rowHeight: CGFloat?
 	public var font: UIFont?
 	public var color: UIColor?
 	public var sections = [PickerSection]()
@@ -152,11 +172,17 @@ public class PickerElementDefinition: ViewElementDefinition {
 		element.sections = sections
 		element.font = font
 		element.color = color
+		element.maxLines = maxLines
+		element.rowHeight = rowHeight
 	}
 
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
+			case "max-lines":
+				maxLines = Int(try context.getFloat(attribute))
+			case "row-height":
+				rowHeight = try context.getFloat(attribute)
 			case "font":
 				font = try context.getFont(attribute, defaultFont: font)
 			case "color":
@@ -192,6 +218,8 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 
 	public weak var pickerDelegate: PickerElementDelegate?
 
+	public var maxLines: Int?
+	public var rowHeight: CGFloat?
 	public var color: UIColor?
 	public var font: UIFont?
 
@@ -247,12 +275,11 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 		paraStyle.headIndent = horPadding
 		paraStyle.tailIndent = -horPadding
 		paraStyle.alignment = .Center
-		paraStyle.lineBreakMode = .ByTruncatingTail
+//		paraStyle.lineBreakMode = .ByTruncatingTail
 		attributes[NSParagraphStyleAttributeName] = paraStyle
-		label!.numberOfLines = 1
-		label!.lineBreakMode = .ByTruncatingTail
-
 		label!.attributedText = NSAttributedString(string: sections[component].items[row].title, attributes: attributes)
+		label!.numberOfLines = maxLines ?? 1
+		label!.lineBreakMode = .ByTruncatingTail
 		return label!
 	}
 
@@ -263,6 +290,11 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 			return width
 		}
 		return bounds.width
+	}
+
+
+	public func pickerView(pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+		return rowHeight ?? 0
 	}
 
 
