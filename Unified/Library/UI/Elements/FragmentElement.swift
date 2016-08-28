@@ -174,6 +174,10 @@ public class FragmentElementDefinition {
 		}
 	}
 
+	public func applyDeclarationElement(element: DeclarationElement, context: DeclarationContext) throws -> Bool {
+		return false
+	}
+
 
 	public func createElement() -> FragmentElement {
 		return FragmentElement()
@@ -204,7 +208,11 @@ public class FragmentElementDefinition {
 		}
 
 		for child in element.children {
-			definition.childrenDefinitions.append(try FragmentElementDefinition.from(declaration: child, context: context))
+			if try definition.applyDeclarationElement(child, context: context) {
+			}
+			else {
+				definition.childrenDefinitions.append(try FragmentElementDefinition.from(declaration: child, context: context))
+			}
 		}
 
 		return definition
@@ -240,6 +248,12 @@ public class FragmentElementDefinition {
 		},
 		"decorator": {
 			DecoratorElementDefinition()
+		},
+		"picker": {
+			PickerElementDefinition()
+		},
+		"edit": {
+			TextEditDefinition()
 		}
 	]
 

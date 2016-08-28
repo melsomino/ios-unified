@@ -2,26 +2,48 @@ repository Layouts
 
 ui
 	Layouts.Header
-		horizontal hor=fill margin=12 spacing=12
-			view size=55 background-color=eee corner-radius=6
-			vertical spacing=12
-				text '{title}' font=15
-				text '{totalCount}' font=15
-				horizontal spacing=8 hor=fill
-					# text 'v' font=12 max-lines=1
-					# horizontal hor=right spacing=8
-					# 	text '09.09' font=12 nowrap
-					# 	text 'conclusion' font=12 nowrap
-					text 'version number and revision' font=12 max-lines=1
-					horizontal hor=right spacing=8
-						text '09.09' font=12 nowrap
-						text 'This is a conclusion (long version)' font=12 nowrap
-				horizontal spacing=4 visible='{totalCount}'
-					button image=Layouts.instant_selection_phone title='like +1' type=system padding=(8 4)
-						~ color=white corner-radius=5 border-width=1 border-color=green background-color=green
+		picker height=100 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
+			~ font=14 color=red
+			section 
+				'Неправильно указаны реквизиты gfd gfds gfds gfds gfs dgfds gfds gfds gfds gfds gfs dgfds gfds f '
+				'Требование отправлено по ошибке'
+				'Необходима дополнительная информация'
+
+		# vertical margin-top=20 spacing=8
+		# 	text 'Введите код активации сертификата' font=15 hor=center
+		# 	edit height=42 hor=fill border-color=ddd border-width=1 margin=(24 0) corner-radius=4
+		# 		~ placeholder='Введите код' max-lines=1 padding=(8 6) font=25 text-alignment=center
+		# 	picker height=100 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
+		# 		~ font=15
+		# 		section 
+		# 			'Неправильно указаны реквизиты'
+		# 			'Требование отправлено по ошибке'
+		# 			'Необходима дополнительная информация'
+		# 	view background-color=gray height=1 hor=fill
+
+		# horizontal hor=fill margin=12 spacing=12
+		# 	view size=55 background-color=eee corner-radius=6
+		# 	vertical spacing=12
+		# 		decorator hor=fill border-width=1 border-color=red background-color=green
+		# 			vertical
+		# 				text input font=15
+		# 		text '{title}' font=15
+		# 		text '{totalCount}' font=15
+		# 		horizontal spacing=8 hor=fill
+		# 			# text 'v' font=12 max-lines=1
+		# 			# horizontal hor=right spacing=8
+		# 			# 	text '09.09' font=12 nowrap
+		# 			# 	text 'conclusion' font=12 nowrap
+		# 			text 'version number and revision' font=12 max-lines=1
+		# 			horizontal hor=right spacing=8
+		# 				text '09.09' font=12 nowrap
+		# 				text 'This is a conclusion (long version)' font=12 nowrap
+		# 		horizontal spacing=4 visible='{totalCount}'
+		# 			button image=Layouts.instant_selection_phone title='like +1' type=system padding=(8 4)
+		# 				~ color=white corner-radius=5 border-width=1 border-color=green background-color=green
 					
-					button title='dislike + 1' type=system ver=fill background-color1=red color=red 
-						~ padding=12 corner-radius=4 border-width=1 border-color=red padding=(8 4)
+		# 			button title='dislike + 1' type=system ver=fill background-color1=red color=red 
+		# 				~ padding=12 corner-radius=4 border-width=1 border-color=red padding=(8 4)
 					
 					
 
