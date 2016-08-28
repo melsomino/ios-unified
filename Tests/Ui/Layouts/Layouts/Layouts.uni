@@ -2,24 +2,17 @@ repository Layouts
 
 ui
 	Layouts.Header
-		picker height=200 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
-			~ font=12 row-height=40 max-lines=2
-			section 
-				'Неправильно указаны реквизиты gfd gfds gfds gfds gfs dgfds gfds gfds gfds gfds gfs dgfds gfds f '
-				'Требование отправлено по ошибке'
-				'Необходима дополнительная информация'
-
-		# vertical margin-top=20 spacing=8
-		# 	text 'Введите код активации сертификата' font=15 hor=center
-		# 	edit height=42 hor=fill border-color=ddd border-width=1 margin=(24 0) corner-radius=4
-		# 		~ placeholder='Введите код' max-lines=1 padding=(8 6) font=25 text-alignment=center
-		# 	picker height=100 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
-		# 		~ font=15
-		# 		section 
-		# 			'Неправильно указаны реквизиты'
-		# 			'Требование отправлено по ошибке'
-		# 			'Необходима дополнительная информация'
-		# 	view background-color=gray height=1 hor=fill
+		vertical margin-top=20 spacing=8
+			text 'Введите код активации сертификата' font=15 hor=center
+			edit height=42 hor=fill border-color=ddd border-width=1 margin=(24 0) corner-radius=4 color=blue
+				~ placeholder='Введите код' max-lines=1 padding=(8 6) font=25 text-alignment=center
+			picker height=150 hor=fill border-width=1 border-color=ddd corner-radius=4 margin=(12 0)
+				~ font=12 row-height=25 max-lines=1 color=blue
+				section 
+					'Неправильно указаны реквизиты gfs gfds gfd sgfds gfds gfds gfds gfsd gfds gfds gfds'
+					'Требование отправлено по ошибке'
+					'Необходима дополнительная информация'
+			view background-color=gray height=1 hor=fill 
 
 		# horizontal hor=fill margin=12 spacing=12
 		# 	view size=55 background-color=eee corner-radius=6

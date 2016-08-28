@@ -275,7 +275,6 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 		paraStyle.headIndent = horPadding
 		paraStyle.tailIndent = -horPadding
 		paraStyle.alignment = .Center
-//		paraStyle.lineBreakMode = .ByTruncatingTail
 		attributes[NSParagraphStyleAttributeName] = paraStyle
 		label!.attributedText = NSAttributedString(string: sections[component].items[row].title, attributes: attributes)
 		label!.numberOfLines = maxLines ?? 1
@@ -294,7 +293,7 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 
 
 	public func pickerView(pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-		return rowHeight ?? 0
+		return rowHeight ?? 20
 	}
 
 
