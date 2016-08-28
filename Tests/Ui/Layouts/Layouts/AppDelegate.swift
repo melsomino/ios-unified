@@ -55,53 +55,9 @@ let KissDestroyer = Album(artist: "Kiss", title: "Destroyer", issued: makeDate(5
 
 
 
-func join<Child>(head: Any, children: [Child]) -> [Any] {
-	var joined = [Any]()
-	joined.append(head)
-	for child in children {
-		joined.append(child)
-	}
-	return joined
-}
-
-func testAsync() {
-	var a = 0
-	var b = 0
-
-	Async.on(.background, with: nil) {
-		execution, owner in
-		execution.then(on: .background) {
-			execution, owner in
-			a = 1
-		}
-		execution.then(on: .background) {
-			execution, owner in
-			b = 2
-		}
-	}.then(on: .ui) {
-		execution, owner in
-		print(a + b)
-	}.catchError(on: .ui) {
-		owner, error in
-		print("error: \(error)")
-	}.always(on: .ui) {
-		owner in
-		print("always: \(a + b)")
-	}.start()
-
-}
-
-
-
-
-func testHtmlParser(i: Int, _ v: UIView) {
-
-//	HtmlParser.parse("12345")
-}
-
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, RepositoryDependent {
+class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, RepositoryDependent {
 
 
 	var window: UIWindow?
@@ -110,30 +66,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
 
-
-		let a = MyVariant.AsInt(15)
-		let b = MyVariant.AsString("45")
-
-		let c = a
-
-		switch c {
-			case .AsInt(let i):
-				print(i)
-			case .AsString(let s):
-				print(s)
-		}
-
-		let c = UIColor.redColor()
-		let c = Color.red
-
-//		testAsync()
-		testHtmlParser()
-
 		dependency = DependencyContainer {
 			container in
 			container.createDefaultThreading()
 			container.createDefaultRepository()
-			container.createDefaultCentralUi()
+			container.createDefaultCentralUI()
 		}
 
 		repository.devServerUrl = RepositoryDefaultDevServerUrl
@@ -141,11 +78,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUiDependent, Repos
 		let fragment = AlbumsFragment(dependency: dependency)
 
 		window = UIWindow(frame: UIScreen.mainScreen().bounds)
-		window!.rootViewController = centralUi.rootController
+		window!.rootViewController = centralUI.rootController
 		window!.makeKeyAndVisible()
 
-		centralUi.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .setContent({ dependency in fragment.createController() }))
-		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(0)
+		centralUI.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .setContent({ dependency in fragment.createController() }))
+		centralUI.selectedMenuItem = centralUI.menuItemAtIndex(0)
 		return true
 	}
 

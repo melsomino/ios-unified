@@ -35,6 +35,18 @@ public class ContentElement: FragmentElement {
 		}
 	}
 
+	public var borderWidth: CGFloat? {
+		didSet {
+			initializeView()
+		}
+	}
+
+	public var borderColor: UIColor? {
+		didSet {
+			initializeView()
+		}
+	}
+
 	public var corners = UIRectCorner.AllCorners {
 		didSet {
 			initializeView()
@@ -73,6 +85,8 @@ public class ContentElement: FragmentElement {
 		else {
 			view.layer.cornerRadius = 0
 		}
+		view.layer.borderWidth = borderWidth ?? 0
+		view.layer.borderColor = (borderColor ?? UIColor.clearColor()).CGColor
 	}
 
 
@@ -87,6 +101,14 @@ public class ContentElement: FragmentElement {
 		frame = bounds
 	}
 
+
+	public override func bind(toModel values: [Any?]) {
+		super.bind(toModel: values)
+		if let boundHidden = definition.boundHidden(values) {
+			hidden = boundHidden
+		}
+	}
+
 	// MARK: - Internals
 
 	var cornersLayer: CAShapeLayer?
@@ -99,6 +121,8 @@ public class ContentElementDefinition: FragmentElementDefinition {
 	public var backgroundColor: UIColor?
 	public var cornerRadius: CGFloat?
 	public var corners = UIRectCorner.AllCorners
+	public var borderWidth: CGFloat?
+	public var borderColor: UIColor?
 
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
@@ -107,6 +131,10 @@ public class ContentElementDefinition: FragmentElementDefinition {
 				backgroundColor = try context.getColor(attribute)
 			case "corner-radius":
 				cornerRadius = try context.getFloat(attribute)
+			case "border-width":
+				borderWidth = try context.getFloat(attribute)
+			case "border-color":
+				borderColor = try context.getColor(attribute)
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
@@ -148,11 +176,15 @@ public class ContentElementDefinition: FragmentElementDefinition {
 		"left": [.TopLeft, .BottomLeft],
 		"right": [.TopRight, .BottomRight]
 	]
+
+
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let contentElement = element as! ContentElement
 		contentElement.backgroundColor = backgroundColor
 		contentElement.cornerRadius = cornerRadius
+		contentElement.borderWidth = borderWidth
+		contentElement.borderColor = borderColor
 	}
 
 }

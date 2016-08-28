@@ -9,7 +9,13 @@ import QuartzCore
 
 
 
+
+
 public class ButtonElement: ContentElement {
+
+
+
+
 
 	class ActionDelegate: NSObject {
 		weak var element: ButtonElement?
@@ -17,6 +23,10 @@ public class ButtonElement: ContentElement {
 			element?.onTouchUpInside()
 		}
 	}
+
+
+
+
 
 	public var buttonDefinition: ButtonElementDefinition {
 		return definition as! ButtonElementDefinition
@@ -79,30 +89,22 @@ public class ButtonElement: ContentElement {
 
 
 	public override func initializeView() {
-		guard let view = view else {
-			return
-		}
-
-		view.layer.backgroundColor = backgroundColor?.CGColor
-		if let radius = cornerRadius {
-			view.clipsToBounds = true
-			view.layer.cornerRadius = radius
-		}
-		else {
-			view.layer.cornerRadius = 0
-		}
+		super.initializeView()
 
 		guard let button = view as? UIButton else {
 			return
 		}
 
-//		button.contentEdgeInsets = padding
-//		button.imageEdgeInsets = imageMargin
-//		button.titleEdgeInsets = titleMargin
 		button.setImage(image, forState: .Normal)
 		button.setTitle(title, forState: .Normal)
-		button.tintColor = color
+		if type == .Custom {
+			button.setTitleColor(color, forState: .Normal)
+		}
+		else {
+			button.tintColor = color
+		}
 		button.titleLabel?.font = font
+		button.contentEdgeInsets = padding
 	}
 
 
@@ -110,17 +112,19 @@ public class ButtonElement: ContentElement {
 
 
 	public override func createView() -> UIView {
-		let button = UIButton(type: .System)
+		let button = UIButton(type: type)
 		actionDelegate.element = self
 		button.addTarget(actionDelegate, action: #selector(ActionDelegate.onTouchUpInside), forControlEvents: .TouchUpInside)
 		return button
 	}
+
 
 	func onTouchUpInside() {
 		if let action = (definition as? ButtonElementDefinition)?.action, delegate = delegate {
 			delegate.tryExecuteAction(action)
 		}
 	}
+
 
 	public override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
@@ -135,12 +139,15 @@ public class ButtonElement: ContentElement {
 	}
 
 
-
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
 		guard visible else {
 			return CGSizeZero
 		}
-		return CGSizeMake(25, 25)
+		let imageSize = image?.size ?? CGSizeZero
+		let titleSize = TextElement.measureText(title, font: font, padding: UIEdgeInsetsZero, inWidth: CGFloat.max)
+		let spacing = CGFloat(0)
+		let measured = CGSizeMake(imageSize.width + spacing + titleSize.width, max(imageSize.height, titleSize.height))
+		return FragmentElement.expand(size: measured, edges: padding)
 	}
 
 
@@ -151,9 +158,10 @@ public class ButtonElement: ContentElement {
 
 	// MARK: - Internals
 
+	var type = UIButtonType.System
 	var actionDelegate = ActionDelegate()
-
 }
+
 
 
 
@@ -164,15 +172,21 @@ class DefaultButtonMetrics {
 	let imageMargin: UIEdgeInsets
 	let titleMargin: UIEdgeInsets
 
-	init() {
-		let button = UIButton(type: .Custom)
+	init(type: UIButtonType) {
+		let button = UIButton(type: type)
 		padding = button.contentEdgeInsets
 		imageMargin = button.imageEdgeInsets
 		titleMargin = button.titleEdgeInsets
 		font = button.titleLabel?.font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
 	}
 
-	static let metrics = DefaultButtonMetrics()
+
+	static func from(type: UIButtonType) -> DefaultButtonMetrics {
+		return type == .Custom ? custom : system
+	}
+
+	static let system = DefaultButtonMetrics(type: .System)
+	static let custom = DefaultButtonMetrics(type: .Custom)
 }
 
 
@@ -180,10 +194,11 @@ class DefaultButtonMetrics {
 
 
 public class ButtonElementDefinition: ContentElementDefinition {
-	var font = DefaultButtonMetrics.metrics.font
-	var padding = DefaultButtonMetrics.metrics.padding
-	var imageMargin = DefaultButtonMetrics.metrics.imageMargin
-	var titleMargin = DefaultButtonMetrics.metrics.titleMargin
+	var font = DefaultButtonMetrics.system.font
+	var padding = DefaultButtonMetrics.system.padding
+	var imageMargin = DefaultButtonMetrics.system.imageMargin
+	var titleMargin = DefaultButtonMetrics.system.titleMargin
+	var type = UIButtonType.System
 	var color: UIColor?
 	var image: UIImage?
 	var title: DynamicBindings.Expression?
@@ -195,8 +210,10 @@ public class ButtonElementDefinition: ContentElementDefinition {
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
+			case "type":
+				type = try context.getEnum(attribute, ButtonElementDefinition.typesByName)
 			case "font":
-				try applyFontValue(attribute, value: attribute.value, context: context)
+				font = try context.getFont(attribute, defaultFont: font)
 			case "color":
 				color = try context.getColor(attribute)
 			case "title":
@@ -206,11 +223,11 @@ public class ButtonElementDefinition: ContentElementDefinition {
 			case "image":
 				image = try context.getImage(attribute)
 			default:
-				if try applyInsets(&padding, name: "padding", attribute: attribute, context: context) {
+				if try context.applyInsets(&padding, name: "padding", attribute: attribute) {
 				}
-				else if try applyInsets(&imageMargin, name: "image-margin", attribute: attribute, context: context) {
+				else if try context.applyInsets(&imageMargin, name: "image-margin", attribute: attribute) {
 				}
-				else if try applyInsets(&titleMargin, name: "title-margin", attribute: attribute, context: context) {
+				else if try context.applyInsets(&titleMargin, name: "title-margin", attribute: attribute) {
 				}
 				else {
 					try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
@@ -219,73 +236,29 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	}
 
 
-
-	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
-		switch value {
-			case .value(let string):
-				var size: Float = 0
-				if string == "bold" {
-					font = UIFont(descriptor: font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits.TraitBold), size: font.pointSize)
-				}
-				else if NSScanner(string: string).scanFloat(&size) {
-					font = font.fontWithSize(CGFloat(size))
-				}
-				else {
-					font = UIFont(name: string, size: font.pointSize) ?? font
-				}
-			case .list(let values):
-				for value in values {
-					try applyFontValue(attribute, value: value, context: context)
-				}
-			default:
-				throw DeclarationError("Font attributes expected", attribute, context)
-		}
-	}
-
-
-	private func applyInsets(inout insets: UIEdgeInsets, name: String, attribute: DeclarationAttribute, context: DeclarationContext) throws -> Bool {
-		if name == "padding" {
-			insets = try context.getInsets(attribute)
-		}
-		else if name == "\(name)-top" {
-			insets.top = try context.getFloat(attribute)
-		}
-		else if name == "\(name)-bottom" {
-			insets.bottom = try context.getFloat(attribute)
-		}
-		else if name == "\(name)-left" {
-			insets.left = try context.getFloat(attribute)
-		}
-		else if name == "\(name)-right" {
-			insets.right = try context.getFloat(attribute)
-		}
-		else {
-			return false
-		}
-		return true
-	}
-
-
-
-
 	public override func createElement() -> FragmentElement {
 		return ButtonElement()
 	}
-
 
 
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
 		let button = element as! ButtonElement
+		button.type = type
 		button.image = image
 		button.color = color
 		button.font = font
+		button.padding = padding
 	}
 
 
 	// MARK: - Internals
 
+	static let typesByName: [String:UIButtonType] = [
+		"system": .System,
+		"custom": .Custom
+	]
 
 }
 

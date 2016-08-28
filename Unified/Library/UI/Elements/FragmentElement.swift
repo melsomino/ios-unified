@@ -37,12 +37,12 @@ public class FragmentElement {
 
 
 	public final func measure(inBounds bounds: CGSize) -> CGSize {
-		return expand(size: measureContent(inBounds: reduce(size: bounds)))
+		return FragmentElement.expand(size: measureContent(inBounds: FragmentElement.reduce(size: bounds, edges: margin)), edges: margin)
 	}
 
 
 	public final func layout(inBounds bounds: CGRect) {
-		layoutContent(inBounds: reduce(rect: bounds))
+		layoutContent(inBounds: FragmentElement.reduce(rect: bounds, edges: margin))
 	}
 
 
@@ -50,6 +50,10 @@ public class FragmentElement {
 		let aligned_frame = FragmentAlignment.alignedFrame(ofSize: size, inBounds: bounds, horizontalAlignment: horizontalAlignment, verticalAlignment: verticalAlignment)
 		layout(inBounds: aligned_frame)
 	}
+
+
+
+
 
 	// MARK: - Overridable
 
@@ -77,35 +81,37 @@ public class FragmentElement {
 	}
 
 
-	// MARK: - Internals
+	// MARK: - Helpers
 
 
-	private func reduce(size size: CGSize) -> CGSize {
-		return CGSizeMake(size.width - margin.left - margin.right, size.height - margin.top - margin.bottom)
+	public static func reduce(size size: CGSize, edges: UIEdgeInsets) -> CGSize {
+		return CGSizeMake(size.width - edges.left - edges.right, size.height - edges.top - edges.bottom)
 	}
 
 
-	private func expand(size size: CGSize) -> CGSize {
-		return CGSizeMake(size.width + margin.left + margin.right, size.height + margin.top + margin.bottom)
+	public static func expand(size size: CGSize, edges: UIEdgeInsets) -> CGSize {
+		return CGSizeMake(size.width + edges.left + edges.right, size.height + edges.top + edges.bottom)
 	}
 
 
-	private func reduce(rect rect: CGRect) -> CGRect {
+	public static func reduce(rect rect: CGRect, edges: UIEdgeInsets) -> CGRect {
 		return CGRectMake(
-			rect.origin.x + margin.left,
-			rect.origin.y + margin.top,
-			rect.width - margin.left - margin.right,
-			rect.height - margin.top - margin.bottom)
+			rect.origin.x + edges.left,
+			rect.origin.y + edges.top,
+			rect.width - edges.left - edges.right,
+			rect.height - edges.top - edges.bottom)
 	}
 
 
-	private func expand(rect rect: CGRect) -> CGRect {
+	public static func expand(rect rect: CGRect, edges: UIEdgeInsets) -> CGRect {
 		return CGRectMake(
-			rect.origin.x - margin.left,
-			rect.origin.y - margin.top,
-			rect.width + margin.left + margin.right,
-			rect.height + margin.top + margin.bottom)
+			rect.origin.x - edges.left,
+			rect.origin.y - edges.top,
+			rect.width + edges.left + edges.right,
+			rect.height + edges.top + edges.bottom)
 	}
+
+
 }
 
 
@@ -119,13 +125,15 @@ public class FragmentElementDefinition {
 	public final var margin = UIEdgeInsetsZero
 	public final var horizontalAlignment = FragmentAlignment.leading
 	public final var verticalAlignment = FragmentAlignment.leading
+	public final var visible: DynamicBindings.Expression?
+
 
 	public static func register(name: String, definition: () -> FragmentElementDefinition) {
 		definition_factory_by_name[name] = definition
 	}
 
 	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
-		return try internal_from(declaration: element, context: context)
+		return try loadFrom(declaration: element, context: context)
 	}
 
 	public final func traversal(@noescape visit: (FragmentElementDefinition) -> Void) {
@@ -140,6 +148,12 @@ public class FragmentElementDefinition {
 
 	}
 
+	public final func boundHidden(values: [Any?]) -> Bool? {
+		if let visible = visible {
+			return !visible.evaluateBool(values)
+		}
+		return nil
+	}
 
 	// MARK: - Overridable
 
@@ -147,6 +161,16 @@ public class FragmentElementDefinition {
 	public func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if attribute.name.hasPrefix("@") {
 			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
+		}
+		switch attribute.name {
+			case "horizontal-alignment", "hor":
+				horizontalAlignment = try context.getEnum(attribute, FragmentAlignment.horizontal_names)
+			case "vertical-alignment", "ver":
+				verticalAlignment = try context.getEnum(attribute, FragmentAlignment.vertical_names)
+			case "visible":
+				visible = try context.getExpression(attribute)
+			default:
+				try context.applyInsets(&margin, name: "margin", attribute: attribute)
 		}
 	}
 
@@ -167,7 +191,7 @@ public class FragmentElementDefinition {
 	// MARK: - Internals
 
 
-	private static func internal_from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
+	private static func loadFrom(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		guard let definition_factory = FragmentElementDefinition.definition_factory_by_name[element.name] else {
 			throw DeclarationError("Unknown layout element", element, context)
 		}
@@ -176,24 +200,7 @@ public class FragmentElementDefinition {
 		for index in 1 ..< element.attributes.count {
 			let attribute = element.attributes[index]
 			let isElementValue = index == 1 && attribute.value.isMissing
-			switch attribute.name {
-				case "margin":
-					definition.margin = try context.getInsets(attribute)
-				case "margin-top":
-					definition.margin.top = try context.getFloat(attribute)
-				case "margin-left":
-					definition.margin.left = try context.getFloat(attribute)
-				case "margin-bottom":
-					definition.margin.bottom = try context.getFloat(attribute)
-				case "margin-right":
-					definition.margin.right = try context.getFloat(attribute)
-				case "horizontal-alignment", "hor":
-					definition.horizontalAlignment = try context.getEnum(attribute, FragmentAlignment.horizontal_names)
-				case "vertical-alignment", "ver":
-					definition.verticalAlignment = try context.getEnum(attribute, FragmentAlignment.vertical_names)
-				default:
-					try definition.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
-			}
+			try definition.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 
 		for child in element.children {

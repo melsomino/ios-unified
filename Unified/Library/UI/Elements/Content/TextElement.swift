@@ -169,10 +169,19 @@ public class TextElement: ContentElement {
 
 
 	private func measureText(text: String, inWidth width: CGFloat) -> CGSize {
+		return TextElement.measureText(text, font: resolveFont(), padding: padding, inWidth: width)
+	}
+
+
+	public static func measureText(text: String?, font: UIFont?, padding: UIEdgeInsets, inWidth width: CGFloat) -> CGSize {
+	        guard let text = text where !text.isEmpty else {
+			return CGSizeZero
+		}
+		let font = font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
 		let constraintSize = CGSize(width: width, height: CGFloat.max)
 		var size = text.boundingRectWithSize(constraintSize,
 			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
-			attributes: [NSFontAttributeName: resolveFont()],
+			attributes: [NSFontAttributeName: font],
 			context: nil).size
 		size.width += padding.left + padding.right
 		size.height += padding.top + padding.bottom

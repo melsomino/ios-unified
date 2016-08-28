@@ -13,6 +13,7 @@ public class MultipleElementContainer: FragmentElement {
 
 	// MARK: - LayoutItem
 
+
 	public override required init() {
 		super.init()
 	}
@@ -30,5 +31,14 @@ public class MultipleElementContainer: FragmentElement {
 			item.traversal(visit)
 		}
 	}
+
+
+	public override func bind(toModel values: [Any?]) {
+		super.bind(toModel: values)
+		if let boundHidden = definition.boundHidden(values) {
+			hidden = boundHidden
+		}
+	}
+
 
 }

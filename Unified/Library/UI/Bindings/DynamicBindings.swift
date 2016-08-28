@@ -149,7 +149,7 @@ public struct DynamicBindings {
 		}
 
 
-		public func evaluate(values: [Any?]) -> String? {
+		public final func evaluate(values: [Any?]) -> String? {
 			var expression: Expression? = self
 			var result: String?
 			while expression != nil {
@@ -167,9 +167,77 @@ public struct DynamicBindings {
 			return result
 		}
 
+
+		public final func evaluateBool(values: [Any?]) -> Bool {
+			// not {a}
+			if let a = Expression.tryGetRightOperand(self, "!") {
+				return !Expression.stringToBool(a.evaluateOwnValue(values))
+			}
+
+			// {a} == {b}
+			if let b = Expression.tryGetRightOperand(next, "==") {
+				return Expression.sameOwnValues(self, b, values: values)
+			}
+
+			// {a} == {b}
+			if let b = Expression.tryGetRightOperand(next, "!=") {
+				return !Expression.sameOwnValues(self, b, values: values)
+			}
+
+			return Expression.stringToBool(evaluate(values))
+		}
+
+
 		func evaluateOwnValue(values: [Any?]) -> String? {
 			return nil
 		}
+
+
+		// MARK: - Internals
+
+
+		// false if nil OR empty OR false OR 0
+		private static func stringToBool(string: String?) -> Bool {
+			guard let string = string where !string.isEmpty else {
+				return false
+			}
+			return string != "false" && string != "0"
+		}
+
+		private static func isEmpty(string: String?) -> Bool {
+			return string == nil || string!.isEmpty
+		}
+
+		private static func tryGetRightOperand(operation: Expression?, _ op: String) -> Expression? {
+			guard let operation = operation as? Literal else {
+				return nil
+			}
+			let operationName = operation.value.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+			if let right = operation.next {
+				return (operationName == op && right.next == nil) ? right : nil
+			}
+			guard operationName.hasPrefix(op) else {
+				return nil
+			}
+			let right = operationName.substringFromIndex(operationName.startIndex.advancedBy(op.characters.count))
+			return Literal(value: right.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()), next: nil)
+		}
+
+		private static func sameOwnValues(a: Expression, _ b: Expression, values: [Any?]) -> Bool {
+			let aValue = a.evaluateOwnValue(values)
+			let bValue = b.evaluateOwnValue(values)
+			let aEmpty = isEmpty(aValue)
+			let bEmpty = isEmpty(bValue)
+			if aEmpty && bEmpty {
+				return true
+			}
+			if aEmpty || bEmpty {
+				return false
+			}
+			return aValue! == bValue!
+		}
+
+
 	}
 
 

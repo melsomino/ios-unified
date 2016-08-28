@@ -7,23 +7,14 @@ import UIKit
 import QuartzCore
 
 
+
+
+
 public class DecoratorElement: ContentElement {
 
 	public var child: FragmentElement!
 
 	public var padding = UIEdgeInsetsZero {
-		didSet {
-			initializeView()
-		}
-	}
-
-	public var borderWidth: CGFloat? {
-		didSet {
-			initializeView()
-		}
-	}
-
-	public var borderColor: UIColor? {
 		didSet {
 			initializeView()
 		}
@@ -92,49 +83,30 @@ public class DecoratorElement: ContentElement {
 		child?.traversal(visit)
 	}
 
+
 	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
 		guard visible else {
 			return CGSizeZero
 		}
-		return expand(size: child.measure(inBounds: reduce(size: bounds)))
+		return FragmentElement.expand(size: child.measure(inBounds: FragmentElement.reduce(size: bounds, edges: padding)), edges: padding)
 	}
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
 		frame = bounds
-		child.layout(inBounds: reduce(rect: bounds))
+		child.layout(inBounds: FragmentElement.reduce(rect: bounds, edges: padding))
 	}
 
-
-	// MARK: - Internals
-
-
-	private func reduce(size size: CGSize) -> CGSize {
-		return CGSizeMake(size.width - padding.left - padding.right, size.height - padding.top - padding.bottom)
-	}
-
-
-	private func expand(size size: CGSize) -> CGSize {
-		return CGSizeMake(size.width + padding.left + padding.right, size.height + padding.top + padding.bottom)
-	}
-
-
-	private func reduce(rect rect: CGRect) -> CGRect {
-		return CGRectMake(
-			rect.origin.x + padding.left,
-			rect.origin.y + padding.top,
-			rect.width - padding.left - padding.right,
-			rect.height - padding.top - padding.bottom)
-	}
 
 }
+
+
+
 
 
 public class DecoratorElementDefinition: ContentElementDefinition {
 	var padding: UIEdgeInsets = UIEdgeInsetsZero
 	var transparentGradientLeft: CGFloat?
-	var borderWidth: CGFloat?
-	var borderColor: UIColor?
 
 
 	// MARK: - UiElementDefinition
@@ -142,24 +114,14 @@ public class DecoratorElementDefinition: ContentElementDefinition {
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
-			case "padding":
-				padding = try context.getInsets(attribute)
-			case "padding-top":
-				padding.top = try context.getFloat(attribute)
-			case "padding-bottom":
-				padding.bottom = try context.getFloat(attribute)
-			case "padding-left":
-				padding.left = try context.getFloat(attribute)
-			case "padding-right":
-				padding.right = try context.getFloat(attribute)
 			case "transparent-gradient-left":
 				transparentGradientLeft = try context.getFloat(attribute)
-			case "border-width":
-				borderWidth = try context.getFloat(attribute)
-			case "border-color":
-				borderColor = try context.getColor(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
+				if try context.applyInsets(&padding, name: "padding", attribute: attribute) {
+				}
+				else {
+					try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
+				}
 		}
 	}
 
@@ -180,7 +142,11 @@ public class DecoratorElementDefinition: ContentElementDefinition {
 		decorator.transparentGradientLeft = transparentGradientLeft
 		decorator.child = children[0]
 	}
+
+
 }
+
+
 
 
 
@@ -227,10 +193,12 @@ class DecoratorView: UIView {
 		}
 	}
 
+
 	private func resolve_background_color() -> UIColor {
 		check_default_background_color_assigned()
 		return decoratorBackgroundColor ?? default_background_color ?? UIColor.clearColor()
 	}
+
 
 	private func background_properties_changed() {
 		check_default_background_color_assigned()
@@ -257,6 +225,7 @@ class DecoratorView: UIView {
 			layer.backgroundColor = resolve_background_color().CGColor
 		}
 	}
+
 
 	final func reflectParentBackgroundTo(color: UIColor?) {
 		guard transparentGradientLeft != nil else {

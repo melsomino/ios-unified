@@ -2,12 +2,29 @@ repository Layouts
 
 ui
 	Layouts.Header
-		vertical
-			horizontal spacing=8 hor=right margin=12
-				text '1' font=12 max-lines=2
-				text '2' font=12 max-lines=2
-				text '3' font=12 max-lines=2
-			view height=2 hor=fill background-color=blue
+		horizontal hor=fill margin=12 spacing=12
+			view size=55 background-color=eee corner-radius=6
+			vertical spacing=12
+				text '{title}' font=15
+				text '{totalCount}' font=15
+				horizontal spacing=8 hor=fill
+					# text 'v' font=12 max-lines=1
+					# horizontal hor=right spacing=8
+					# 	text '09.09' font=12 nowrap
+					# 	text 'conclusion' font=12 nowrap
+					text 'version number and revision' font=12 max-lines=1
+					horizontal hor=right spacing=8
+						text '09.09' font=12 nowrap
+						text 'This is a conclusion (long version)' font=12 nowrap
+				horizontal spacing=4 visible='{totalCount}'
+					button image=Layouts.instant_selection_phone title='like +1' type=system padding=(8 4)
+						~ color=white corner-radius=5 border-width=1 border-color=green background-color=green
+					
+					button title='dislike + 1' type=system ver=fill background-color1=red color=red 
+						~ padding=12 corner-radius=4 border-width=1 border-color=red padding=(8 4)
+					
+					
+
 
 
 	Layouts.Album background-color=f1f1f1

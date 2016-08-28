@@ -6,12 +6,19 @@
 import Foundation
 import UIKit
 
+
+
+
+
 public enum DeclarationErrorSource {
 	case message(String, DeclarationContext)
 	case parser(ParseError, DeclarationContext)
 	case element(String, DeclarationElement, DeclarationContext)
 	case attribute(String, DeclarationAttribute, DeclarationContext)
 }
+
+
+
 
 
 public struct DeclarationError: ErrorType, CustomStringConvertible {
@@ -51,6 +58,9 @@ public struct DeclarationError: ErrorType, CustomStringConvertible {
 }
 
 
+
+
+
 public class DeclarationContext {
 
 	public var source: String
@@ -61,6 +71,7 @@ public class DeclarationContext {
 		self.source = source
 	}
 
+
 	public func getFloat(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
 		switch value {
 			case .value(let string):
@@ -70,9 +81,11 @@ public class DeclarationContext {
 		}
 	}
 
+
 	public func getFloat(attribute: DeclarationAttribute) throws -> CGFloat {
 		return try getFloat(attribute, attribute.value)
 	}
+
 
 	public func getEnum<Enum>(attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
 		switch attribute.value {
@@ -86,6 +99,7 @@ public class DeclarationContext {
 		}
 	}
 
+
 	public func getString(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> String {
 		switch value {
 			case .value(let string):
@@ -94,6 +108,7 @@ public class DeclarationContext {
 				throw DeclarationError("String value expected", attribute, self)
 		}
 	}
+
 
 	public func getString(attribute: DeclarationAttribute) throws -> String {
 		return try getString(attribute, attribute.value)
@@ -109,6 +124,7 @@ public class DeclarationContext {
 				throw DeclarationError("String value expected", attribute, self)
 		}
 	}
+
 
 	public func getExpression(attribute: DeclarationAttribute) throws -> DynamicBindings.Expression? {
 		return try getExpression(attribute, attribute.value)
@@ -200,6 +216,30 @@ public class DeclarationContext {
 	}
 
 
+	public final func applyInsets(inout insets: UIEdgeInsets, name: String, attribute: DeclarationAttribute) throws -> Bool {
+		if attribute.name == name {
+			insets = try getInsets(attribute)
+		}
+		else if attribute.name == "\(name)-top" {
+			insets.top = try getFloat(attribute)
+		}
+		else if attribute.name == "\(name)-bottom" {
+			insets.bottom = try getFloat(attribute)
+		}
+		else if attribute.name == "\(name)-left" {
+			insets.left = try getFloat(attribute)
+		}
+		else if attribute.name == "\(name)-right" {
+			insets.right = try getFloat(attribute)
+		}
+		else {
+			return false
+		}
+		return true
+	}
+
+
+
 	public func getColor(attribute: DeclarationAttribute) throws -> UIColor {
 		switch attribute.value {
 			case .value(let string):
@@ -210,7 +250,37 @@ public class DeclarationContext {
 	}
 
 
+	public final func getFont(attribute: DeclarationAttribute, defaultFont: UIFont?) throws -> UIFont {
+		return try getFont(attribute, value: attribute.value, defaultFont: defaultFont ?? UIFont.systemFontOfSize(UIFont.systemFontSize()))
+	}
+
+
 	// MARK: - Internals
+
+
+	public final func getFont(attribute: DeclarationAttribute, value: DeclarationValue, defaultFont: UIFont) throws -> UIFont {
+		switch value {
+			case .value(let string):
+				var size: Float = 0
+				if string == "bold" {
+					return UIFont(descriptor: defaultFont.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits.TraitBold), size: defaultFont.pointSize)
+				}
+				else if NSScanner(string: string).scanFloat(&size) {
+					return defaultFont.fontWithSize(CGFloat(size))
+				}
+				else {
+					return UIFont(name: string, size: defaultFont.pointSize) ?? defaultFont
+				}
+			case .list(let values):
+				var font = defaultFont
+				for value in values {
+					font = try getFont(attribute, value: value, defaultFont: font)
+				}
+				return font
+			default:
+				throw DeclarationError("Font attributes expected", attribute, self)
+		}
+	}
 
 
 	private func parseFloat(string: String, attribute: DeclarationAttribute) throws -> CGFloat {
@@ -222,9 +292,9 @@ public class DeclarationContext {
 	}
 
 
-
-
 }
+
+
 
 
 
