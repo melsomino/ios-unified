@@ -73,9 +73,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 
 
 	public override func createView() -> UIView {
-		let view = TextEditView(frame: CGRectZero, textContainer: nil)
-		view.delegate = view
-		return view
+		return TextEditView(frame: CGRectZero, textContainer: nil)
 	}
 
 
@@ -84,6 +82,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		guard let view = view as? TextEditView else {
 			return
 		}
+		view.delegate = view
 		view.textEditDelegate = self
 		view.font = font
 		view.textAlignment = textAlignment

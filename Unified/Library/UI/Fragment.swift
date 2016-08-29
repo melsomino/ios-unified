@@ -13,7 +13,7 @@ public protocol FragmentDelegate: class {
 }
 
 
-public class Fragment: RepositoryDependent, RepositoryListener, FragmentElementDelegate {
+public class Fragment: NSObject, RepositoryDependent, RepositoryListener, FragmentElementDelegate {
 
 	public final let modelType: Any.Type
 	public final var layoutCacheKeyProvider: ((Any) -> String?)?
@@ -79,6 +79,10 @@ public class Fragment: RepositoryDependent, RepositoryListener, FragmentElementD
 
 
 	public func onBeforePerformLayoutInBounds(inBounds bounds: CGSize) {
+	}
+
+	public func onPerformLayoutCompleteAfterModelChange() {
+
 	}
 
 	public func onModelChanged() {
@@ -282,6 +286,7 @@ public class Fragment: RepositoryDependent, RepositoryListener, FragmentElementD
 		}
 		onModelChanged()
 		performLayout()
+		onPerformLayoutCompleteAfterModelChange()
 	}
 
 
