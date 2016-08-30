@@ -22,6 +22,11 @@ public class EmptyTableFragment {
 	}
 }
 
+public protocol TableModelUpdates {
+	func insert(model: Any, at index: Int)
+	func update(model: Any, at index: Int)
+	func delete(index: Int)
+}
 
 public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
@@ -32,7 +37,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	public final var tableView: UITableView! { return (controller as? TableFragmentController)?.tableView }
 
 
-	public private(set) final var models = [Any]()
+	public final var models = [Any]()
 
 
 	public final func createController() -> UIViewController {
@@ -44,6 +49,41 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		return internalEnsureCellFactory(forModelType: modelType)
 	}
 
+	private class ModelUpdates: TableModelUpdates {
+		let owner: TableFragment
+		init(owner: TableFragment) {
+			self.owner = owner
+		}
+
+
+
+		func insert(model: Any, at index: Int) {
+			owner.models.insert(model, atIndex: index)
+			owner.tableView.insertRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
+		}
+
+
+
+		func update(model: Any, at index: Int) {
+			owner.models[index] = model
+			owner.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
+		}
+
+
+
+		func delete(index: Int) {
+			owner.models.removeAtIndex(index)
+			owner.tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
+		}
+
+	}
+
+	public final func updateModels(update: (TableModelUpdates) -> Void) {
+		let updates = ModelUpdates(owner: self)
+		tableView.beginUpdates()
+		update(updates)
+		tableView.endUpdates()
+	}
 
 	public final func registerFragmentClass(for modelType: Any.Type, fragmentClass: () -> Fragment) {
 		return ensureCellFactory(forModelType: modelType).fragmentFactory = fragmentClass
