@@ -62,12 +62,21 @@ public class HtmlElement: ContentElement {
 				return
 			}
 			let font = resolveFont()
-			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(font.pointSize)'>\(html)</div>"
+			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(Int(font.pointSize))'>\(html)</div>"
 			let options: [String:AnyObject] = [
 				NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
 				NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding,
 			]
-			var attributed = try! NSAttributedString(data: html.dataUsingEncoding(NSUTF8StringEncoding)!, options: options, documentAttributes: nil)
+
+			var attributed: NSAttributedString!
+
+			if let utf8Data = html.dataUsingEncoding(NSUTF8StringEncoding) {
+				attributed = try? NSAttributedString(data: utf8Data, options: options, documentAttributes: nil)
+			}
+			if attributed == nil {
+				attributed = NSAttributedString(string: "")
+			}
+
 //			let builder = removeEmptyLinesFromEnd(attributed).mutableCopy() as! NSMutableAttributedString
 			let builder = attributed.mutableCopy() as! NSMutableAttributedString
 			let lastParagraphRange = getLastParagraphRange(builder)
