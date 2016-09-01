@@ -94,7 +94,9 @@ public class DecoratorElement: ContentElement {
 
 	public override func layoutContent(inBounds bounds: CGRect) {
 		frame = bounds
-		child.layout(inBounds: FragmentElement.reduce(rect: bounds, edges: padding))
+		let childBounds = FragmentElement.reduce(rect: bounds, edges: padding)
+		let childSize = child.measure(inBounds: childBounds.size)
+		child.layout(inBounds: childBounds, usingMeasured: childSize)
 	}
 
 

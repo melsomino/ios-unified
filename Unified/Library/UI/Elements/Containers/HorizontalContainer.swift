@@ -193,6 +193,16 @@ private struct Horizontal_measure {
 			}
 		}
 		else {
+			if measured_total_width < bounds.width {
+				switch container.horizontalAlignment {
+					case .tailing:
+						x += bounds.size.width - measured_total_width
+					case .center:
+						x += (bounds.size.width - measured_total_width) / 2
+					default:
+						break
+				}
+			}
 			for child in children {
 				let child_bounds = CGRectMake(x, y, child.measured.width, measured.height)
 				child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
