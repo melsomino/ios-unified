@@ -31,10 +31,6 @@ extension String {
 
 
 
-
-
-
-
 extension Dictionary {
 	public mutating func getOrAdd(key: Key, @autoclosure _ createValue: () -> Value) -> Value {
 		if let existing = self[key] {
@@ -50,19 +46,23 @@ extension Dictionary {
 extension Array {
 
 	public func copyFirst(amount: Int) -> [Element] {
-		return self.count <= amount ? self :[Element](prefix(amount))
+		return self.count <= amount ? self : [Element](prefix(amount))
 	}
+
+
 
 	func insertionIndexOf(elem: Element, @noescape isOrderedBefore: (Element, Element) -> Bool) -> Int {
 		var lo = 0
 		var hi = self.count - 1
 		while lo <= hi {
-			let mid = (lo + hi)/2
+			let mid = (lo + hi) / 2
 			if isOrderedBefore(self[mid], elem) {
 				lo = mid + 1
-			} else if isOrderedBefore(elem, self[mid]) {
+			}
+			else if isOrderedBefore(elem, self[mid]) {
 				hi = mid - 1
-			} else {
+			}
+			else {
 				return mid
 			}
 		}
@@ -85,6 +85,8 @@ extension NSDate {
 		}
 		return a!.compare(b!)
 	}
+
+
 
 	public static func isOrderedBefore(a: NSDate?, _ b: NSDate?) -> Bool {
 		return orderOf(a, b) == .OrderedAscending
@@ -121,9 +123,11 @@ extension NSScanner {
 	}
 
 
+
 	func passWhitespaces() {
 		scanCharactersFromSet(NSCharacterSet.whitespaceCharacterSet(), intoString: nil)
 	}
+
 
 
 	func pass(expected: String, passWhitespaces: Bool) -> Bool {
@@ -135,9 +139,11 @@ extension NSScanner {
 	}
 
 
+
 	func pass(expected: String) -> Bool {
 		return pass(expected, passWhitespaces: false)
 	}
+
 
 
 	func expect(expected: String, passWhitespaces: Bool) throws {
@@ -145,6 +151,7 @@ extension NSScanner {
 			throw ParseError("\(expected) expected", self)
 		}
 	}
+
 
 
 	func passCharacters(expected: NSCharacterSet, passWhitespaces: Bool) -> String? {
@@ -159,9 +166,11 @@ extension NSScanner {
 	}
 
 
+
 	func passCharacters(expected: NSCharacterSet) -> String? {
 		return passCharacters(expected, passWhitespaces: false)
 	}
+
 
 
 	func expectCharacters(expected: NSCharacterSet, passWhitespaces: Bool, expectedDescription: String) throws -> String {
@@ -170,6 +179,7 @@ extension NSScanner {
 		}
 		throw ParseError("\(expectedDescription) expected", self)
 	}
+
 
 
 	func expectCharacters(expected: NSCharacterSet, expectedDescription: String) throws -> String {
@@ -196,12 +206,14 @@ extension NSScanner {
 	}
 
 
+
 	func expectIdentifier(passWhitespaces passWhitespaces: Bool) throws -> String {
 		guard let passed = passIdentifier(passWhitespaces: passWhitespaces) else {
 			throw ParseError("identifier expected", self)
 		}
 		return passed
 	}
+
 
 
 	func passFloat(passWhitespaces passWhitespaces: Bool) -> CGFloat? {
@@ -216,10 +228,12 @@ extension NSScanner {
 	}
 
 
+
 	func passUntil(terminator: String) -> String? {
 		var value: NSString?
 		return scanUpToString(terminator, intoString: &value) ? String(value!) : nil
 	}
+
 
 
 	func passUntilEndOrOneOf(terminator: NSCharacterSet, passWhitespaces: Bool) -> String? {
@@ -232,6 +246,7 @@ extension NSScanner {
 		}
 		return nil
 	}
+
 
 
 	func expectUntil(terminator: String) throws -> String {
@@ -262,28 +277,37 @@ extension NSCharacterSet {
 
 extension NSBundle {
 
-	private static var bundleIdByModuleName: [String:String]?
-
-	public static func fromModuleName(moduleName: String) -> NSBundle? {
-		if bundleIdByModuleName == nil {
-			bundleIdByModuleName = [String: String]()
-			for bundle in NSBundle.allBundles() {
-				if let id = bundle.bundleIdentifier {
-					let idParts = id.componentsSeparatedByString(".")
-					let moduleName = idParts[idParts.count - 1]
-					bundleIdByModuleName![moduleName] = id
-				}
-			}
-			for bundle in NSBundle.allFrameworks() {
-				if let id = bundle.bundleIdentifier {
-					let idParts = id.componentsSeparatedByString(".")
-					let moduleName = idParts[idParts.count - 1]
-					bundleIdByModuleName![moduleName] = id
-				}
+	private static let bundleIdByModuleName: [String:String] = {
+		var bundles = [String: String]()
+		for bundle in NSBundle.allBundles() {
+			if let id = bundle.bundleIdentifier {
+				let idParts = id.componentsSeparatedByString(".")
+				let moduleName = idParts[idParts.count - 1]
+				bundles[moduleName] = id
 			}
 		}
-		let id = bundleIdByModuleName![moduleName]
+		for bundle in NSBundle.allFrameworks() {
+			if let id = bundle.bundleIdentifier {
+				let idParts = id.componentsSeparatedByString(".")
+				let moduleName = idParts[idParts.count - 1]
+				bundles[moduleName] = id
+			}
+		}
+		return bundles
+	}()
+
+	public static func fromModuleName(moduleName: String) -> NSBundle? {
+		let id = bundleIdByModuleName[moduleName]
 		return id != nil ? NSBundle(identifier: id!) : nil
+	}
+
+
+
+	public static func requiredFromModuleName(moduleName: String) -> NSBundle {
+		if let bundle = fromModuleName(moduleName) {
+			return bundle
+		}
+		fatalError("Can'not find bundle with module name [\(moduleName)]")
 	}
 
 

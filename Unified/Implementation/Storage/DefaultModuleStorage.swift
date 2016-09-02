@@ -28,7 +28,12 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 	public func getFileStoragePath(relativePath: String) -> String {
-		return ensureDirectoryPath("Files/\(relativePath)")
+		do {
+			return try ensureDirectoryPath("Files/\(relativePath)")
+		}
+		catch let error {
+			fatalError(String(error))
+		}
 	}
 
 	public func readDatabase(read: (StorageDatabase) throws -> Void) throws {
@@ -67,16 +72,20 @@ public class DefaultModuleStorage: ModuleStorage {
 
 	private lazy var platformDatabase: DatabasePool = {
 		[unowned self] in
-		return try! DatabasePool(path: self.ensureDirectoryPath("") + "/Database.sqlite")
+		do {
+			return try DatabasePool(path: self.ensureDirectoryPath("") + "/Database.sqlite")
+		} catch let error {
+			fatalError(String(error))
+		}
 	}()
 
-	private func ensureDirectoryPath(relativePath: String) -> String {
+	private func ensureDirectoryPath(relativePath: String) throws -> String {
 		guard !(accountName ?? "").isEmpty else {
 			fatalError("Required storage access failed due to missing account")
 		}
 		let appDataPath = NSSearchPathForDirectoriesInDomains(.ApplicationSupportDirectory, .UserDomainMask, true)[0]
 		let path = "\(appDataPath)/\(accountName ?? "")/\(moduleName)/\(relativePath)"
-		try! NSFileManager.defaultManager().createDirectoryAtPath(path, withIntermediateDirectories: true, attributes: nil)
+		try NSFileManager.defaultManager().createDirectoryAtPath(path, withIntermediateDirectories: true, attributes: nil)
 		return path
 	}
 
@@ -102,7 +111,7 @@ public class DefaultModuleStorage: ModuleStorage {
 			throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified")
 		}
 
-		try! platformDatabase.write {
+		try platformDatabase.write {
 			platformDatabase in
 			let database = DefaultModuleDatabase(platformDatabase)
 			if let info = try self.selectDatabaseInfo(database) {

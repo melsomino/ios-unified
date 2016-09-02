@@ -171,7 +171,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	func loadRepositoriesInBundle(forType type: Any.Type) throws {
 		let typeName = makeTypeName(forType: type)
 		let typeNameParts = typeName.componentsSeparatedByString(".")
-		let bundle = typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
+		let bundle = typeNameParts.count > 1 ? NSBundle.requiredFromModuleName(typeNameParts[0]) : NSBundle(forClass: type as! AnyClass)
 
 		for uniPath in bundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
 			guard !loadedUniPaths.contains(uniPath) else {
@@ -208,7 +208,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	private func bundle(forType type: Any.Type) -> NSBundle {
 		let typeName = makeTypeName(forType: type)
 		let typeNameParts = typeName.componentsSeparatedByString(".")
-		return typeNameParts.count > 1 ? NSBundle.fromModuleName(typeNameParts[0])! : NSBundle(forClass: type as! AnyClass)
+		return typeNameParts.count > 1 ? NSBundle.requiredFromModuleName(typeNameParts[0]) : NSBundle(forClass: type as! AnyClass)
 	}
 
 
