@@ -4,213 +4,30 @@
 
 import Foundation
 
+
+
+
+
 public class HorizontalContainer: MultipleElementContainer {
 	var spacing = CGFloat(0)
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		var measure = Horizontal_measure(container: self)
-		measure.measure(in_bounds: bounds)
-		return measure.measured
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		var measure = Horizontal_layout(container: self, bounds: bounds)
+		measure.measure()
+		return measure.size
 	}
+
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
-		var measure = Horizontal_measure(container: self)
-		measure.layout(in_bounds: bounds)
+		var measure = Horizontal_layout(container: self, bounds: bounds.size)
+		measure.measure()
+		measure.layout(with_origin: bounds.origin)
 	}
 }
 
 
 
-
-
-private struct Horizontal_child_measure {
-	let element: FragmentElement
-	var measured_first_pass = CGSizeZero
-	var measured = CGSizeZero
-
-	init(element: FragmentElement) {
-		self.element = element
-	}
-
-	mutating func measure_first_pass(in_bounds bounds: CGSize) {
-		measured_first_pass = element.measure(inBounds: bounds)
-		measured = measured_first_pass
-	}
-
-	mutating func measure_second_pass(in_bounds bounds: CGSize) {
-		measured = element.measure(inBounds: bounds)
-	}
-}
-
-
-
-
-
-private struct Horizontal_measure {
-	let container: HorizontalContainer
-	let total_spacing: CGFloat
-	var children = [Horizontal_child_measure]()
-	var measured = CGSizeZero
-	var measured_total_width = CGFloat(0)
-	var min_width_without_spacing = CGFloat(0)
-
-	init(container: HorizontalContainer) {
-		self.container = container
-		for element in container.children {
-			if element.visible {
-				children.append(Horizontal_child_measure(element: element))
-			}
-		}
-		total_spacing = children.count > 1 ? container.spacing * CGFloat(children.count - 1) : 0
-	}
-
-	mutating func measure(in_bounds bounds: CGSize) {
-		measure_first_pass(in_bounds: bounds)
-		if measured_total_width <= bounds.width {
-			return
-		}
-
-		measure_second_pass(in_bounds: bounds)
-		if measured_total_width <= bounds.width {
-			return
-		}
-
-		measure_third_pass(in_bounds: bounds)
-	}
-
-
-	mutating func measure_first_pass(in_bounds bounds: CGSize) {
-		measured = CGSizeZero
-		measured_total_width = total_spacing
-		let bounds_without_spacing = CGSizeMake(10000 - total_spacing, bounds.height)
-		for i in 0 ..< children.count {
-			children[i].measure_first_pass(in_bounds: bounds_without_spacing)
-			let child_measured = children[i].measured
-			measured.height = max(measured.height, child_measured.height)
-			measured_total_width += child_measured.width
-		}
-
-		if container.horizontalAlignment == .fill || measured_total_width > bounds.width {
-			measured.width = bounds.width
-		}
-		else {
-			measured.width = measured_total_width
-		}
-	}
-
-
-	mutating func measure_second_pass(in_bounds bounds: CGSize) {
-		let first_pass_total_width = measured_total_width
-		measured = CGSizeZero
-		let bounds_without_spacing = bounds.width - total_spacing
-		measured_total_width = total_spacing
-		let width_ratio = bounds_without_spacing / (first_pass_total_width - total_spacing)
-		min_width_without_spacing = total_spacing
-		for i in 0 ..< children.count {
-			let child_bounds = CGSizeMake(children[i].measured.width*width_ratio, bounds.height)
-			children[i].measure_second_pass(in_bounds: child_bounds)
-			let child_measured = children[i].measured
-			if child_measured.width >= children[i].measured_first_pass.width {
-				min_width_without_spacing += child_measured.width
-			}
-			measured.height = max(measured.height, child_measured.height)
-			measured_total_width += child_measured.width
-		}
-
-		if measured_total_width <= bounds.width && min_width_without_spacing > 0 {
-			let flexible_width = measured_total_width - total_spacing - min_width_without_spacing
-			if flexible_width > 0 {
-				let width_ratio = (bounds_without_spacing - min_width_without_spacing) / flexible_width
-				measured_total_width = total_spacing
-				for i in 0 ..< children.count {
-					let child_bounds = CGSizeMake(children[i].measured.width * width_ratio, bounds.height)
-					children[i].measure_second_pass(in_bounds: child_bounds)
-					let child_measured = children[i].measured
-					measured.height = max(measured.height, child_measured.height)
-					measured_total_width += child_measured.width
-				}
-			}
-		}
-
-		measured.width = bounds.width
-	}
-
-
-
-	mutating func measure_third_pass(in_bounds bounds: CGSize) {
-		let second_pass_total_width = measured_total_width
-		measured = CGSizeZero
-		let bounds_without_spacing = bounds.width - total_spacing
-		let flexible_width = second_pass_total_width - total_spacing - min_width_without_spacing
-		var flexible_width_ratio: CGFloat
-		if flexible_width <= 0 {
-			flexible_width_ratio = 0
-		}
-		else if bounds_without_spacing - min_width_without_spacing < 0 {
-			flexible_width_ratio = 0
-		} else {
-			flexible_width_ratio = (bounds_without_spacing - min_width_without_spacing) / flexible_width
-		}
-		let fixed_width_ratio = (min_width_without_spacing > bounds_without_spacing && min_width_without_spacing > 0) ? bounds_without_spacing / min_width_without_spacing : 1
-		measured_total_width = total_spacing
-		for i in 0 ..< children.count {
-			var child_measured = children[i].measured
-			if child_measured.width < children[i].measured_first_pass.width {
-				let child_bounds = CGSizeMake(child_measured.width * flexible_width_ratio, bounds.height)
-				if child_bounds.width <= 0 {
-					children[i].measured = child_bounds
-				}
-				else {
-					children[i].measure_second_pass(in_bounds: child_bounds)
-				}
-				child_measured = children[i].measured
-			}
-			else if fixed_width_ratio < 1 {
-				child_measured.width *= fixed_width_ratio
-				children[i].measured = child_measured
-			}
-			measured.height = max(measured.height, child_measured.height)
-			measured_total_width += child_measured.width
-		}
-
-		measured.width = container.horizontalAlignment == .fill ? bounds.width : measured_total_width
-	}
-
-
-
-	mutating func layout(in_bounds bounds: CGRect) {
-		measure(in_bounds: bounds.size)
-
-		let y = bounds.origin.y
-		var x = bounds.origin.x
-		if container.horizontalAlignment == .fill && measured_total_width < bounds.width {
-			let width_ratio = (bounds.width - total_spacing)/(measured_total_width - total_spacing)
-			for child in children {
-				let child_bounds = CGRectMake(x, y, child.measured.width*width_ratio, measured.height)
-				child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
-				x += child_bounds.width + container.spacing
-			}
-		}
-		else {
-			if measured_total_width < bounds.width {
-				switch container.horizontalAlignment {
-					case .tailing:
-						x += bounds.size.width - measured_total_width
-					case .center:
-						x += (bounds.size.width - measured_total_width) / 2
-					default:
-						break
-				}
-			}
-			for child in children {
-				let child_bounds = CGRectMake(x, y, child.measured.width, measured.height)
-				child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
-				x += child.measured.width + container.spacing
-			}
-		}
-	}
-}
 
 
 class HorizontalContainerDefinition: FragmentElementDefinition {
@@ -222,12 +39,14 @@ class HorizontalContainerDefinition: FragmentElementDefinition {
 	}
 
 
+
 	override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let horizontal = element as! HorizontalContainer
 		horizontal.children = children
 		horizontal.spacing = spacing
 	}
+
 
 
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
@@ -240,4 +59,224 @@ class HorizontalContainerDefinition: FragmentElementDefinition {
 	}
 
 }
+
+
+
+
+
+//  Horizontal_measure
+//
+//  Incorporates measurements and layouting logic of horizontal container
+//
+
+
+
+
+
+private struct Horizontal_layout {
+
+
+
+
+
+	private struct Element_layout {
+		let element: FragmentElement
+		var size = SizeMeasure.zero
+		var bounds_width = CGFloat(0)
+
+		init(element: FragmentElement) {
+			self.element = element
+		}
+
+
+
+		mutating func measure(in_bounds bounds: CGSize) -> SizeMeasure {
+			size = element.measure(inBounds: bounds)
+			return size
+		}
+
+
+
+		mutating func set_bounds_width(fill_width_ratio fill: CGFloat, non_fill_width_ratio non_fill: CGFloat) {
+			bounds_width = size.width.max * (element.horizontalAlignment == .fill ? fill : non_fill)
+		}
+
+		var fill: Bool {
+			return element.horizontalAlignment == .fill
+		}
+
+		var fixed: Bool {
+			return size.width.min >= size.width.max
+		}
+
+		var flexible: Bool {
+			return size.width.max > size.width.min
+		}
+	}
+
+
+
+
+
+	let container: HorizontalContainer
+	let bounds: CGSize
+	let total_spacing: CGFloat
+	var children = [Element_layout]()
+	var size = SizeMeasure.zero
+	var has_fill = false
+
+	init(container: HorizontalContainer, bounds: CGSize) {
+		self.container = container
+		self.bounds = bounds
+		for element in container.children {
+			if element.visible {
+				if element.horizontalAlignment == .fill {
+					has_fill = true
+				}
+				children.append(Element_layout(element: element))
+			}
+		}
+		total_spacing = children.count > 1 ? container.spacing * CGFloat(children.count - 1) : 0
+	}
+
+
+
+	func width_of(@noescape predicate: (Element_layout) -> Bool) -> (min:CGFloat, max:CGFloat) {
+		var width = (min: CGFloat(0), max: (CGFloat(0)))
+		for child in children {
+			if predicate(child) {
+				width.min += child.size.width.min
+				width.max += child.size.width.max
+			}
+		}
+		return width
+	}
+
+
+
+	mutating func measure() {
+		pre_measure()
+		if size.width.max <= bounds.width {
+			set_children_bounds_width_when_max_inside_bounds()
+		}
+		else if size.width.min >= bounds.width {
+			remeasure_when_min_exceed_bounds()
+		}
+		else if size.width.max > bounds.width {
+			remeasure_when_max_exceed_bounds()
+		}
+	}
+
+
+
+	mutating func pre_measure() {
+		let max_child_bounds = CGSizeMake(bounds.width - total_spacing, bounds.height)
+		size = SizeMeasure(width: total_spacing, height: 0)
+		measure_children {
+			return $0.measure(in_bounds: max_child_bounds)
+		}
+	}
+
+
+
+	mutating func set_children_bounds_width(fill_width_ratio fill: CGFloat, non_fill_width_ratio non_fill: CGFloat) {
+		for i in 0 ..< children.count {
+			children[i].set_bounds_width(fill_width_ratio: fill, non_fill_width_ratio: non_fill)
+		}
+	}
+
+
+
+	mutating func set_children_bounds_width_when_max_inside_bounds() {
+		if has_fill {
+			var fill_space = bounds.width - total_spacing
+			var fill_width = CGFloat(0)
+			for child in children {
+				if child.element.horizontalAlignment == .fill {
+					fill_width += child.size.width.max
+				}
+				else {
+					fill_space -= child.size.width.max
+				}
+			}
+			set_children_bounds_width(fill_width_ratio: fill_space / fill_width, non_fill_width_ratio: 1)
+			size.width.max = bounds.width
+		}
+		else if size.width.max > total_spacing {
+			set_children_bounds_width(fill_width_ratio: 1, non_fill_width_ratio: (bounds.width - total_spacing) / (size.width.max - total_spacing))
+		}
+	}
+
+
+
+	mutating func remeasure_when_min_exceed_bounds() {
+		if has_fill {
+			let not_fill_width = width_of({ !$0.fill }).min
+			let fill_width = width_of({ $0.fill }).max
+			let fill_space = bounds.width - not_fill_width - total_spacing
+			if fill_space > 0 {
+				let fill_with_ratio = fill_space / fill_width
+				measure_children {
+					$0.bounds_width = $0.element.horizontalAlignment == .fill ? $0.size.width.max * fill_with_ratio : $0.size.width.min
+					return $0.measure(in_bounds: CGSizeMake($0.bounds_width, 0))
+				}
+				return
+			}
+		}
+		let with_ratio = bounds.width / size.width.min
+		measure_children {
+			$0.bounds_width = $0.size.width.min * with_ratio
+			return $0.measure(in_bounds: CGSizeMake($0.bounds_width, 0))
+		}
+	}
+
+
+
+	mutating func remeasure_when_max_exceed_bounds() {
+		let width_ratio = (bounds.width - size.width.min) / (size.width.max - size.width.min)
+		measure_children {
+			let width = $0.size.width
+			if width.max > width.min {
+				$0.bounds_width = width.min + (width.max - width.min) * width_ratio
+				return $0.measure(in_bounds: CGSizeMake($0.bounds_width, 0))
+			}
+			else {
+				$0.bounds_width = width.min
+			}
+			return $0.size
+		}
+	}
+
+
+
+	mutating func measure_children(@noescape measure_child: (inout child:Element_layout) -> SizeMeasure) {
+		size = SizeMeasure(width: total_spacing, height: 0)
+		for i in 0 ..< children.count {
+			let child = measure_child(child: &children[i])
+			size.width.min += child.width.min
+			size.width.max += child.width.max
+			size.height = max(size.height, child.height)
+		}
+	}
+
+
+
+	mutating func layout(with_origin origin: CGPoint) {
+		let y = origin.y
+		var x = origin.x
+		for child in children {
+			let child_bounds = CGRectMake(x, y, child.bounds_width, size.height)
+			var child_size = child.size.maxSize
+			if child_size.width > child_bounds.width {
+				child_size.width = child_bounds.width
+			}
+			if child_size.height > child_bounds.height {
+				child_size.height = child_bounds.height
+			}
+			child.element.layout(inBounds: child_bounds, usingMeasured: child_size)
+			x += child_bounds.width + container.spacing
+		}
+	}
+}
+
 

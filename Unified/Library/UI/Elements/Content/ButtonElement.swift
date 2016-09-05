@@ -139,20 +139,17 @@ public class ButtonElement: ContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let imageSize = image?.size ?? CGSizeZero
 		let titleSize = TextElement.measureText(title, font: font, padding: UIEdgeInsetsZero, inWidth: CGFloat.max)
 		let spacing = CGFloat(0)
-		let measured = CGSizeMake(imageSize.width + spacing + titleSize.width, max(imageSize.height, titleSize.height))
-		return FragmentElement.expand(size: measured, edges: padding)
+		let measured = SizeMeasure(width: imageSize.width + spacing + titleSize.width, height: max(imageSize.height, titleSize.height))
+		return FragmentElement.expand(measure: measured, edges: padding)
 	}
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
-		super.layoutContent(inBounds: bounds)
+		super.layoutContent(inBounds: FragmentElement.reduce(rect: bounds, edges: padding))
 	}
 
 

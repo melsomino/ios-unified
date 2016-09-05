@@ -4,14 +4,18 @@
 
 import Foundation
 
+
+
+
+
 public class VerticalContainer: MultipleElementContainer {
 	var spacing = CGFloat(0)
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		var measure = Vertical_measure(container: self)
-		measure.measure(in_bounds: bounds)
-		return measure.measured
+		return measure.measure(in_bounds: bounds)
 	}
+
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
@@ -21,58 +25,65 @@ public class VerticalContainer: MultipleElementContainer {
 }
 
 
-private struct Vertical_child_measure {
-	let element: FragmentElement
-	var measured = CGSizeZero
 
-	init(element: FragmentElement) {
-		self.element = element
-	}
 
-	mutating func measure(inBounds bounds: CGSize) {
-		measured = element.measure(inBounds: bounds)
-	}
-}
 
 private struct Vertical_measure {
+
+
+
+
+
+	private struct Element_measure {
+		let element: FragmentElement
+		var measured = SizeMeasure.zero
+
+		init(element: FragmentElement) {
+			self.element = element
+		}
+
+
+
+		mutating func measure(in_bounds bounds: CGSize) -> SizeMeasure {
+			measured = element.measure(inBounds: bounds)
+			return measured
+		}
+	}
+
+
+
+
+
 	let container: VerticalContainer
 	let total_spacing: CGFloat
-	var children = [Vertical_child_measure]()
-	var measured = CGSizeZero
+	var children = [Element_measure]()
+	var measured = SizeMeasure.zero
 
 	init(container: VerticalContainer) {
 		self.container = container
 		for element in container.children {
 			if element.visible {
-				children.append(Vertical_child_measure(element: element))
+				children.append(Element_measure(element: element))
 			}
 		}
 		total_spacing = children.count > 1 ? container.spacing * CGFloat(children.count - 1) : 0
 	}
 
-	mutating private func measure(in_width width: CGFloat) {
-		measured = CGSizeMake(0, total_spacing)
+
+
+	mutating func measure(in_bounds bounds: CGSize) -> SizeMeasure {
+		measured = SizeMeasure(width: 0, height: total_spacing)
 
 		for i in 0 ..< children.count {
-			children[i].measure(inBounds: CGSizeMake(width, 0))
-			let child_measured = children[i].measured
-			measured.width = max(measured.width, child_measured.width)
-			measured.height += child_measured.height
+			let child = children[i].measure(in_bounds: CGSizeMake(bounds.width, 0))
+			measured.width.min = max(measured.width.min, child.width.min)
+			measured.width.max = max(measured.width.max, child.width.max)
+			measured.height += child.height
 		}
+		return measured
 	}
 
-	mutating func measure(in_bounds bounds: CGSize) {
-		if container.horizontalAlignment == .fill {
-			measure(in_width: bounds.width)
-			measured.width = bounds.width
-		}
-		else {
-			measure(in_width: 10000)
-			if measured.width > bounds.width {
-				measure(in_width: bounds.width)
-			}
-		}
-	}
+
 
 	mutating func layout(in_bounds bounds: CGRect) {
 		measure(in_bounds: bounds.size)
@@ -80,11 +91,14 @@ private struct Vertical_measure {
 		let x = bounds.origin.x
 		for child in children {
 			let child_bounds = CGRectMake(x, y, bounds.width, child.measured.height)
-			child.element.layout(inBounds: child_bounds, usingMeasured: child.measured)
+			child.element.layout(inBounds: child_bounds, usingMeasured: child.measured.maxSize)
 			y += child.measured.height + container.spacing
 		}
 	}
 }
+
+
+
 
 
 class VerticalContainerDefinition: FragmentElementDefinition {
@@ -96,9 +110,12 @@ class VerticalContainerDefinition: FragmentElementDefinition {
 		horizontalAlignment = .fill
 	}
 
+
+
 	override func createElement() -> FragmentElement {
 		return VerticalContainer()
 	}
+
 
 
 	override func initialize(element: FragmentElement, children: [FragmentElement]) {
@@ -107,6 +124,7 @@ class VerticalContainerDefinition: FragmentElementDefinition {
 		vertical.children = children
 		vertical.spacing = spacing
 	}
+
 
 
 	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {

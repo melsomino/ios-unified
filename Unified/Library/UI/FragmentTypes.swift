@@ -7,6 +7,38 @@ import UIKit
 
 
 
+
+
+public struct SizeMeasure {
+	public var width: (min:CGFloat, max:CGFloat) = (0, 0)
+	public var height: CGFloat = 0
+
+	public init(width: (CGFloat, CGFloat), height: CGFloat) {
+		self.width = width
+		self.height = height
+	}
+
+	public init(width: CGFloat, height: CGFloat) {
+		self.width = (width, width)
+		self.height = height
+	}
+
+	public init(size: CGSize) {
+		self.width = (size.width, size.width)
+		self.height = size.height
+	}
+
+	public var maxSize: CGSize {
+		return CGSizeMake(width.max, height)
+	}
+
+	public static let zero = SizeMeasure(width: 0, height: 0)
+}
+
+
+
+
+
 public enum FragmentAlignment {
 	case leading, center, tailing, fill
 

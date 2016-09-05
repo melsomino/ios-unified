@@ -84,11 +84,10 @@ public class DecoratorElement: ContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		return FragmentElement.expand(size: child.measure(inBounds: FragmentElement.reduce(size: bounds, edges: padding)), edges: padding)
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		let childBounds = FragmentElement.reduce(size: bounds, edges: padding)
+		let childMeasure = child.measure(inBounds: childBounds)
+		return FragmentElement.expand(measure: childMeasure, edges: padding)
 	}
 
 
@@ -96,7 +95,7 @@ public class DecoratorElement: ContentElement {
 		frame = bounds
 		let childBounds = FragmentElement.reduce(rect: bounds, edges: padding)
 		let childSize = child.measure(inBounds: childBounds.size)
-		child.layout(inBounds: childBounds, usingMeasured: childSize)
+		child.layout(inBounds: childBounds, usingMeasured: childSize.maxSize)
 	}
 
 

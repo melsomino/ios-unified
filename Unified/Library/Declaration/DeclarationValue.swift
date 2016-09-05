@@ -258,12 +258,20 @@ public class DeclarationContext {
 	// MARK: - Internals
 
 
+	private func font(font: UIFont, withTrait trait: UIFontDescriptorSymbolicTraits) -> UIFont {
+		let descriptor = font.fontDescriptor()
+		return UIFont(descriptor: descriptor.fontDescriptorWithSymbolicTraits(descriptor.symbolicTraits.union(trait)), size: font.pointSize)
+	}
+
 	public final func getFont(attribute: DeclarationAttribute, value: DeclarationValue, defaultFont: UIFont) throws -> UIFont {
 		switch value {
 			case .value(let string):
 				var size: Float = 0
 				if string == "bold" {
-					return UIFont(descriptor: defaultFont.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits.TraitBold), size: defaultFont.pointSize)
+					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.TraitBold)
+				}
+				if string == "italic" {
+					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.TraitItalic)
 				}
 				else if NSScanner(string: string).scanFloat(&size) {
 					return defaultFont.fontWithSize(CGFloat(size))

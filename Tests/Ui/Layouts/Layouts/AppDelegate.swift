@@ -8,16 +8,29 @@
 
 import UIKit
 import Unified
+import Fuzi
+
+
+
+
 
 struct Header {
 	let title: String
 	let totalCount: String
 }
 
+
+
+
+
 struct AlbumTrack {
 	let title: String
 	let duration: NSTimeInterval
 }
+
+
+
+
 
 struct Album {
 	let artist: String
@@ -25,6 +38,9 @@ struct Album {
 	let issued: NSDate
 	let tracks: [AlbumTrack]
 }
+
+
+
 
 
 func makeDate(d: Int, _ m: Int, _ y: Int) -> NSDate {
@@ -36,9 +52,11 @@ func makeDate(d: Int, _ m: Int, _ y: Int) -> NSDate {
 }
 
 
+
 func makeDuration(m: Int, _ s: Int) -> NSTimeInterval {
 	return NSTimeInterval(m) + NSTimeInterval(s) / 60
 }
+
 
 
 let KissDestroyer = Album(artist: "Kiss", title: "Destroyer", issued: makeDate(5, 3, 1976), tracks: [
@@ -56,6 +74,20 @@ let KissDestroyer = Album(artist: "Kiss", title: "Destroyer", issued: makeDate(5
 
 
 
+
+
+
+
+
+func test_html() {
+	let text = HtmlParser.parse("<p>Параграф <a href='sdsfds'>fdsfds</a> <b>1</b></p><p>Параграф<br><i>2</i></p>")
+	print(text)
+}
+
+
+
+
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, RepositoryDependent {
 
@@ -65,6 +97,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 
 	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
+
+		test_html()
 
 		dependency = DependencyContainer {
 			container in
@@ -81,7 +115,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 		window!.rootViewController = centralUI.rootController
 		window!.makeKeyAndVisible()
 
-		centralUI.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .setContent({ dependency in fragment.createController() }))
+		centralUI.addMenuItem("Layouts", title: "Layouts", icon: nil, action: .setContent({
+			dependency in
+			UINavigationController(rootViewController: fragment.createController())
+		}))
 		centralUI.selectedMenuItem = centralUI.menuItemAtIndex(0)
 		return true
 	}
@@ -90,11 +127,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 }
 
 
+
+
+
 class AlbumsFragment: TableFragment {
 	override func loadModels(execution: Execution, inout models: [Any]) throws {
 		models.append(Header(title: "Требования ФНС", totalCount: "20"))
-		models.append(Header(title: "Задачи", totalCount: "21"))
+//		models.append(Header(title: "Задачи", totalCount: "21"))
 //		models = join(KissDestroyer, children: KissDestroyer.tracks)
+	}
+
+
+
+	override func onControllerAttached() {
+		super.onControllerAttached()
+		controller.navigationItem.title = "Layouts"
+		controller.navigationItem.leftBarButtonItem = centralUI.createMenuIntegrationBarButtonItem()
 	}
 
 }

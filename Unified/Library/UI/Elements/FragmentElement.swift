@@ -10,21 +10,12 @@ import UIKit
 
 
 
-public struct SizeRange {
-	public var min: CGSize
-	public var max: CGSize
-
-	public init(min: CGSize, max: CGSize) {
-		self.min = min
-		self.max = max
-	}
-	public static let zero = SizeRange(min: CGSizeZero, max: CGSizeZero)
-}
-
-
 public protocol FragmentElementDelegate: class {
 	func tryExecuteAction(action: DynamicBindings.Expression?)
 }
+
+
+
 
 
 public class FragmentElement {
@@ -36,8 +27,9 @@ public class FragmentElement {
 	public final var verticalAlignment = FragmentAlignment.leading
 
 
-	public final func measure(inBounds bounds: CGSize) -> CGSize {
-		return FragmentElement.expand(size: measureContent(inBounds: FragmentElement.reduce(size: bounds, edges: margin)), edges: margin)
+	public final func measure(inBounds bounds: CGSize) -> SizeMeasure {
+		let contentMeasure = measureContent(inBounds: FragmentElement.reduce(size: bounds, edges: margin))
+		return FragmentElement.expand(measure: contentMeasure, edges: margin)
 	}
 
 
@@ -72,8 +64,8 @@ public class FragmentElement {
 	}
 
 
-	public func measureContent(inBounds bounds: CGSize) -> CGSize {
-		return bounds
+	public func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		return SizeMeasure(width: (0, bounds.width), height: bounds.height)
 	}
 
 
@@ -112,6 +104,13 @@ public class FragmentElement {
 	}
 
 
+	public static func expand(measure size: SizeMeasure, edges: UIEdgeInsets) -> SizeMeasure {
+		let hor = edges.left + edges.right
+		let ver = edges.top + edges.bottom
+		return SizeMeasure(width: (size.width.min + hor, size.width.max + hor), height: size.height + ver)
+	}
+
+
 }
 
 
@@ -132,9 +131,11 @@ public class FragmentElementDefinition {
 		definition_factory_by_name[name] = definition
 	}
 
+
 	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		return try loadFrom(declaration: element, context: context)
 	}
+
 
 	public final func traversal(@noescape visit: (FragmentElementDefinition) -> Void) {
 		visit(self)
@@ -147,6 +148,7 @@ public class FragmentElementDefinition {
 	public init() {
 
 	}
+
 
 	public final func boundHidden(values: [Any?]) -> Bool? {
 		if let visible = visible {
@@ -173,6 +175,7 @@ public class FragmentElementDefinition {
 				try context.applyInsets(&margin, name: "margin", attribute: attribute)
 		}
 	}
+
 
 	public func applyDeclarationElement(element: DeclarationElement, context: DeclarationContext) throws -> Bool {
 		return false
@@ -217,8 +220,6 @@ public class FragmentElementDefinition {
 
 		return definition
 	}
-
-
 
 
 	private static var definition_factory_by_name: [String:() -> FragmentElementDefinition] = [

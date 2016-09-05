@@ -190,9 +190,9 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		}
 
 		definitionRequired()
-		let size = rootElement!.measure(inBounds: CGSizeMake(width, 0))
-		frame = CGRectMake(0, 0, width, size.height)
-		rootElement!.layout(inBounds: frame, usingMeasured: size)
+		let measure = rootElement!.measure(inBounds: CGSizeMake(width, 0))
+		frame = CGRectMake(0, 0, width, measure.height)
+		rootElement!.layout(inBounds: frame, usingMeasured: measure.maxSize)
 		if rootElement != nil {
 			checkVisibilityOfContentElements(rootElement, parentHidden: false)
 		}
@@ -212,8 +212,8 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		definitionRequired()
 		onBeforePerformLayoutInBounds(inBounds: bounds)
 		frame = CGRect(origin: CGPointZero, size: bounds)
-		let size = rootElement!.measure(inBounds: bounds)
-		rootElement!.layout(inBounds: frame, usingMeasured: size)
+		let measure = rootElement!.measure(inBounds: bounds)
+		rootElement!.layout(inBounds: frame, usingMeasured: measure.maxSize)
 		if rootElement != nil {
 			checkVisibilityOfContentElements(rootElement, parentHidden: false)
 		}

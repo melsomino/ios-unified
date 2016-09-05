@@ -6,17 +6,20 @@
 import Foundation
 import UIKit
 
-public class LayeredContainer: MultipleElementContainer {
 
+
+
+
+public class LayeredContainer: MultipleElementContainer {
 
 
 	// MARK: - FragmentElement
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		var measure = Layered_measure(elements: children)
-		measure.measure(in_bounds: bounds)
-		return measure.measured
+		return measure.measure(in_bounds: bounds)
 	}
+
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
@@ -26,57 +29,81 @@ public class LayeredContainer: MultipleElementContainer {
 
 }
 
-private struct Layered_child_measure {
-	let element: FragmentElement
-	var measured = CGSizeZero
 
-	init(element: FragmentElement) {
-		self.element = element
-	}
 
-	mutating func measure(in_bounds bounds: CGSize) {
-		measured = element.measure(inBounds: bounds)
-	}
-}
+
 
 private struct Layered_measure {
-	var children = [Layered_child_measure]()
-	var measured = CGSizeZero
+
+
+
+
+
+	private struct Element_measure {
+		let element: FragmentElement
+		var measured = SizeMeasure.zero
+
+		init(element: FragmentElement) {
+			self.element = element
+		}
+
+
+
+		mutating func measure(in_bounds bounds: CGSize) -> SizeMeasure {
+			measured = element.measure(inBounds: bounds)
+			return measured
+		}
+	}
+
+
+
+
+
+	var children = [Element_measure]()
+	var measured = SizeMeasure.zero
 
 	init(elements: [FragmentElement]) {
 		for element in elements {
 			if element.visible {
-				children.append(Layered_child_measure(element: element))
+				children.append(Element_measure(element: element))
 			}
 		}
 	}
 
-	mutating func measure(in_bounds bounds: CGSize) {
-		measured = CGSizeZero
+
+
+	mutating func measure(in_bounds bounds: CGSize) -> SizeMeasure {
+		measured = SizeMeasure.zero
 		for i in 0 ..< children.count {
-			children[i].measure(in_bounds: bounds)
-			let child_measured = children[i].measured
-			measured.width = max(measured.width, child_measured.width)
-			measured.height = max(measured.height, child_measured.height)
+			let child = children[i].measure(in_bounds: bounds)
+			measured.width.min = max(measured.width.min, child.width.min)
+			measured.width.max = max(measured.width.max, child.width.max)
+			measured.height = max(measured.height, child.height)
 		}
-		if measured.width > bounds.width {
-			measured.width = bounds.width
-		}
+		return measured
 	}
+
+
 
 	mutating func layout(in_bounds bounds: CGRect) {
 		measure(in_bounds: bounds.size)
 		for child in children {
-			child.element.layout(inBounds: bounds, usingMeasured: child.measured)
+			child.element.layout(inBounds: bounds, usingMeasured: child.measured.maxSize)
 		}
 	}
 }
+
+
+
+
 
 public class LayeredContainerDefinition: FragmentElementDefinition {
 
 	public override func createElement() -> FragmentElement {
 		return LayeredContainer()
 	}
+
+
 
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)

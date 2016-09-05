@@ -6,6 +6,10 @@
 import Foundation
 import UIKit
 
+
+
+
+
 public class ImageElement: ContentElement {
 	var size = CGSizeZero
 
@@ -46,8 +50,8 @@ public class ImageElement: ContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		return visible ? size : CGSizeZero
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		return SizeMeasure(width: size.width, height: size.height)
 	}
 
 
@@ -55,6 +59,9 @@ public class ImageElement: ContentElement {
 		frame = CGRect(origin: bounds.origin, size: size)
 	}
 }
+
+
+
 
 
 class ImageElementDefinition: ContentElementDefinition {
@@ -80,9 +87,11 @@ class ImageElementDefinition: ContentElementDefinition {
 		}
 	}
 
+
 	override func createElement() -> FragmentElement {
 		return ImageElement()
 	}
+
 
 	override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
@@ -94,7 +103,7 @@ class ImageElementDefinition: ContentElementDefinition {
 	}
 
 
-	private static let imageAlignments: [String: UIViewContentMode] = [
+	private static let imageAlignments: [String:UIViewContentMode] = [
 		"scale-to-fill": .ScaleToFill,
 		"scale-aspect-fit": .ScaleAspectFit,
 		"scale-aspect-fill": .ScaleAspectFill,

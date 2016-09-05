@@ -7,6 +7,9 @@ import Foundation
 import UIKit
 import QuartzCore
 
+
+
+
 public class TextElement: ContentElement {
 
 	public var textDefinition: TextElementDefinition {
@@ -19,18 +22,57 @@ public class TextElement: ContentElement {
 		}
 	}
 
-	public var nowrap = false
+	var nowrap = false
 
 	public var font: UIFont? {
 		didSet {
+			effectivePaddingDirty = true
+			initializeView()
+		}
+	}
+
+	public var baselineFontBottom: UIFont? {
+		didSet {
+			effectivePaddingDirty = true
+			initializeView()
+		}
+	}
+
+	public var baselineFontTop: UIFont? {
+		didSet {
+			effectivePaddingDirty = true
 			initializeView()
 		}
 	}
 
 	public var padding = UIEdgeInsetsZero {
 		didSet {
+			effectivePaddingDirty = true
 			initializeView()
 		}
+	}
+
+	public var effectivePadding: UIEdgeInsets {
+		if effectivePaddingDirty {
+			let effectiveFont = font ?? TextElement.defaultFont
+			effectivePaddingValue = padding
+			if let refFont = baselineFontTop {
+				let ownAscender = abs(effectiveFont.ascender)
+				let refAscender = abs(refFont.ascender)
+				if refAscender > ownAscender {
+					effectivePaddingValue.top += refAscender - ownAscender
+				}
+			}
+			if let refFont = baselineFontBottom {
+				let ownDescender = abs(effectiveFont.descender)
+				let refDescender = abs(refFont.descender)
+				if refDescender > ownDescender {
+					effectivePaddingValue.bottom += refDescender - ownDescender
+				}
+			}
+			effectivePaddingDirty = false
+		}
+		return effectivePaddingValue
 	}
 
 	public var textAlignment: NSTextAlignment? {
@@ -48,7 +90,7 @@ public class TextElement: ContentElement {
 
 	public var text: String? {
 		didSet {
-			if let label = view as? UiTextLabel {
+			if let label = view as? TextElementLabel {
 				label.text = text
 			}
 			if autoHideEmptyText {
@@ -62,53 +104,32 @@ public class TextElement: ContentElement {
 		super.init()
 	}
 
-	// MARK: - UiContentElement
-
-
-	public override func onViewCreated() {
-		super.onViewCreated()
-		guard let label = view as? UILabel else {
-			return
-		}
-		defaultMaxLines = label.numberOfLines
-		defaultFont = label.font
-		defaultColor = label.textColor
-	}
+	// MARK: - ContentElement
 
 
 	public override func initializeView() {
-		guard let view = view else {
+		super.initializeView()
+		guard let view = view as? TextElementLabel else {
 			return
 		}
-
-		if let radius = cornerRadius {
-			view.clipsToBounds = true
-			view.layer.cornerRadius = radius
-		}
-		else {
-			view.layer.cornerRadius = 0
-		}
-
-		guard let label = view as? UiTextLabel else {
-			return
-		}
-		label.textAlignment = textAlignment ?? .Natural
-		label.textBackgroundColor = backgroundColor
-		label.font = font ?? defaultFont
-		label.padding = padding
-		label.textColor = color ?? defaultColor
-		label.numberOfLines = maxLines ?? defaultMaxLines
-		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
-		label.text = text
+		view.textAlignment = textAlignment ?? .Natural
+		view.backgroundColor = backgroundColor ?? UIColor.clearColor()
+		view.font = font ?? TextElement.defaultFont
+		view.padding = effectivePadding
+		view.textColor = color ?? UIColor.darkTextColor()
+		view.numberOfLines = maxLines ?? 0
+		view.lineBreakMode = .ByTruncatingTail
+		view.text = text
 	}
 
 
-	// MARK: - UiElement
+	// MARK: - FragmentElement
 
 
 	public override func createView() -> UIView {
-		return UiTextLabel()
+		return TextElementLabel()
 	}
+
 
 
 	public override func bind(toModel values: [Any?]) {
@@ -124,57 +145,56 @@ public class TextElement: ContentElement {
 	}
 
 
-
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		let measured_text = textForMeasure()
+		if measured_text.isEmpty {
+			return SizeMeasure.zero
 		}
-		return measureTextSize(inBounds: bounds)
+		let font = self.font ?? TextElement.defaultFont
+		var text_size = measureText(measured_text, font: font, inWidth: nowrap ? CGFloat.max : bounds.width)
+		if maxLines > 0 {
+			let line_height = font.lineHeight
+			let max_height = line_height * CGFloat(maxLines)
+			if text_size.height > max_height {
+				text_size.height = max_height
+			}
+		}
+		var size = SizeMeasure(width: (nowrap ? text_size.width : 0, text_size.width), height: text_size.height)
+
+		let padding = effectivePadding
+		size.width.min += padding.left + padding.right
+		size.width.max += padding.left + padding.right
+		if size.width.min > bounds.width {
+			size.width.min = bounds.width
+		}
+		if size.width.max > bounds.width {
+			size.width.max = bounds.width
+		}
+		size.height += padding.top + padding.bottom
+		return size
 	}
 
 
 
 	// MARK: - Internals
 
-
-	private var defaultMaxLines = 0
-	private var defaultFont: UIFont?
-	private var defaultColor: UIColor?
+	private var effectivePaddingDirty = true
+	private var effectivePaddingValue = UIEdgeInsetsZero
 
 	private func textForMeasure() -> String {
 		return text ?? ""
 	}
 
 
-	private func measureTextSize(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		let measuredText = textForMeasure()
-		if nowrap {
-			return measureText(measuredText, inWidth: CGFloat.max)
-		}
-		if maxLines > 0 {
-			let singleLine = measuredText.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(singleLine, inWidth: CGFloat.max).height + 1
-			var size = measureText(measuredText, inWidth: bounds.width)
-			let maxHeight = singleLineHeight * CGFloat(maxLines)
-			if size.height > maxHeight {
-				size.height = maxHeight
-			}
-			return size
-		}
-		return measureText(measuredText, inWidth: bounds.width)
+
+	private func measureText(text: String, font: UIFont, inWidth width: CGFloat) -> CGSize {
+		return TextElement.measureText(text, font: font, padding: padding, inWidth: width)
 	}
 
-
-	private func measureText(text: String, inWidth width: CGFloat) -> CGSize {
-		return TextElement.measureText(text, font: resolveFont(), padding: padding, inWidth: width)
-	}
 
 
 	public static func measureText(text: String?, font: UIFont?, padding: UIEdgeInsets, inWidth width: CGFloat) -> CGSize {
-	        guard let text = text where !text.isEmpty else {
+		guard let text = text where !text.isEmpty else {
 			return CGSizeZero
 		}
 		let font = font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
@@ -189,17 +209,20 @@ public class TextElement: ContentElement {
 	}
 
 
-	private func resolveFont() -> UIFont {
-		return font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+	static var defaultFont: UIFont {
+		return UIFont.systemFontOfSize(UIFont.labelFontSize())
 	}
 }
 
 
 
+
+
 public class TextElementDefinition: ContentElementDefinition {
-	var fontName: String?
-	var fontSize: CGFloat?
 	var padding: UIEdgeInsets = UIEdgeInsetsZero
+	var font: UIFont?
+	var baselineFontBottom: UIFont?
+	var baselineFontTop: UIFont?
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
@@ -216,30 +239,34 @@ public class TextElementDefinition: ContentElementDefinition {
 			return
 		}
 		switch attribute.name {
+			case "baseline-font-bottom":
+				baselineFontBottom = try context.getFont(attribute, defaultFont: baselineFontBottom ?? font)
+			case "baseline-font-top":
+				baselineFontTop = try context.getFont(attribute, defaultFont: baselineFontTop ?? font)
+			case "baseline-font":
+				baselineFontBottom = try context.getFont(attribute, defaultFont: font)
+				baselineFontTop = baselineFontBottom
 			case "font":
-				try applyFontValue(attribute, value: attribute.value, context: context)
+				font = try context.getFont(attribute, defaultFont: font)
 			case "max-lines":
 				maxLines = Int(try context.getFloat(attribute))
 			case "nowrap":
 				nowrap = try context.getBool(attribute)
 			case "color":
 				color = try context.getColor(attribute)
-			case "padding":
-				padding = try context.getInsets(attribute)
-			case "padding-top":
-				padding.top = try context.getFloat(attribute)
-			case "padding-bottom":
-				padding.bottom = try context.getFloat(attribute)
-			case "padding-left":
-				padding.left = try context.getFloat(attribute)
-			case "padding-right":
-				padding.right = try context.getFloat(attribute)
 			case "text-alignment":
 				textAlignment = try context.getEnum(attribute, TextElementDefinition.textAlignmentByName)
+			case "nowrap":
+				nowrap = try context.getBool(attribute)
 			default:
-				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
+				if try context.applyInsets(&padding, name: "padding", attribute: attribute) {
+				}
+				else {
+					try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
+				}
 		}
 	}
+
 
 
 	public override func createElement() -> FragmentElement {
@@ -247,21 +274,17 @@ public class TextElementDefinition: ContentElementDefinition {
 	}
 
 
+
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
+		guard let text = element as? TextElement else {
+			return
+		}
 
-		let text = element as! TextElement
-
-		if let name = fontName, size = fontSize {
-			text.font = font(name, size)
-		}
-		else if let name = fontName {
-			text.font = font(name, UIFont.systemFontSize())
-		}
-		else if let size = fontSize {
-			text.font = UIFont.systemFontOfSize(size)
-		}
 		text.padding = padding
+		text.font = font
+		text.baselineFontBottom = baselineFontBottom
+		text.baselineFontTop = baselineFontTop
 		text.color = color
 		text.maxLines = maxLines
 		text.nowrap = nowrap
@@ -272,31 +295,7 @@ public class TextElementDefinition: ContentElementDefinition {
 	// MARK: - Internals
 
 
-	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
-		switch value {
-			case .value(let string):
-				var size: Float = 0
-				if NSScanner(string: string).scanFloat(&size) {
-					fontSize = CGFloat(size)
-				}
-				else {
-					fontName = string
-				}
-			case .list(let values):
-				for value in values {
-					try applyFontValue(attribute, value: value, context: context)
-				}
-			default:
-				throw DeclarationError("Font attributes expected", attribute, context)
-		}
-	}
-
-
-	func font(name: String, _ size: CGFloat) -> UIFont {
-		return UIFont(name: name, size: size) ?? UIFont.systemFontOfSize(size)
-	}
-
-	static var textAlignmentByName: [String: NSTextAlignment] = [
+	static var textAlignmentByName: [String:NSTextAlignment] = [
 		"left": NSTextAlignment.Left,
 		"right": NSTextAlignment.Right,
 		"center": NSTextAlignment.Center,
@@ -307,18 +306,10 @@ public class TextElementDefinition: ContentElementDefinition {
 
 
 
-public class UiTextLabel: UILabel {
+
+
+public class TextElementLabel: UILabel {
 	public var padding = UIEdgeInsetsZero
-	public var textBackgroundColor: UIColor? {
-		didSet {
-			background_properties_changed()
-		}
-	}
-	public var transparentGradientLeft: CGFloat? {
-		didSet {
-			background_properties_changed()
-		}
-	}
 
 
 	// MARK: - UILabel
@@ -329,60 +320,8 @@ public class UiTextLabel: UILabel {
 	}
 
 
-	// MARK: - UIView
-
-
-	public override func layoutSubviews() {
-		super.layoutSubviews()
-		guard let gradient = gradient_layer, left = transparentGradientLeft else {
-			return
-		}
-		gradient.locations = [0, bounds.width > 0 ? left / bounds.width : 0, 1]
-	}
-
-
 	// MARK: - Internals
 
-	private var gradient_layer: CAGradientLayer?
-	private var default_background_color_assigned = false
-	private var default_background_color: UIColor?
-
-	private func check_default_background_color_assigned() {
-		if !default_background_color_assigned {
-			default_background_color = backgroundColor
-			default_background_color_assigned = true
-		}
-	}
-
-	private func resolve_background_color() -> UIColor? {
-		check_default_background_color_assigned()
-		return textBackgroundColor ?? default_background_color
-	}
-
-	private func background_properties_changed() {
-		check_default_background_color_assigned()
-
-		if let left = transparentGradientLeft, back_color = textBackgroundColor {
-			if gradient_layer == nil {
-				layer.backgroundColor = default_background_color?.CGColor
-				gradient_layer = CAGradientLayer()
-				layer.addSublayer(gradient_layer!)
-			}
-			let gradient = gradient_layer!
-			gradient.startPoint = CGPointMake(0, 0.5)
-			gradient.endPoint = CGPointMake(1, 0.5)
-
-			gradient.colors = [back_color.colorWithAlphaComponent(0).CGColor, back_color.CGColor, back_color.CGColor]
-			gradient.locations = [0, bounds.width > 0 ? left / bounds.width : 0, 1]
-		}
-		else {
-			if gradient_layer != nil {
-				gradient_layer!.removeFromSuperlayer()
-				gradient_layer = nil
-			}
-			layer.backgroundColor = resolve_background_color()?.CGColor
-		}
-	}
 }
 
 

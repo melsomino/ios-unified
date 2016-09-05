@@ -25,28 +25,21 @@ public class ViewElement: ContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		guard visible else {
-			return CGSizeZero
-		}
-		var size = CGSizeZero
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		if let width = width {
-			size.width = width
+			return SizeMeasure(width: width, height: height ?? 0)
 		}
-		if let height = height {
-			size.height = height
-		}
-		return size
+		return SizeMeasure(width: (0, bounds.width), height: height ?? 0)
 	}
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
 		var size = bounds.size
 		if let width = width {
-			size.width = width
+			size.width = min(size.width, width)
 		}
 		if let height = height {
-			size.height = height
+			size.height = min(size.height, height)
 		}
 		frame = CGRect(origin: bounds.origin, size: size)
 	}

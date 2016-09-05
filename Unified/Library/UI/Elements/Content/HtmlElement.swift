@@ -156,8 +156,8 @@ public class HtmlElement: ContentElement {
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> CGSize {
-		return visible ? measureTextSize(inBounds: bounds) : CGSizeZero
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		return SizeMeasure(size: measureTextSize(inBounds: bounds))
 	}
 
 

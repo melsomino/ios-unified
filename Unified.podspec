@@ -16,4 +16,5 @@ Pod::Spec.new do |spec|
 
   spec.dependency 'GRDB.swift'
   spec.dependency 'Starscream', '~> 1.1.3'
+  spec.dependency 'Fuzi', '~> 0.3.0'
 end
