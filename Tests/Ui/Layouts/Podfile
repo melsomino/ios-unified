@@ -6,5 +6,6 @@ target 'Layouts' do
 
   pod 'GRDB.swift'
   pod 'Unified', :path => '../../..'
+  pod 'TestLib', :path => '/Users/vlasov/projects/sbis/ios/TestLib'
 
 end

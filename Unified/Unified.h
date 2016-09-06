@@ -16,4 +16,6 @@ FOUNDATION_EXPORT const unsigned char UnifiedVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <Unified/PublicHeader.h>
 
-
+#import "HTMLtree.h"
+#import "xpath.h"
+#import "xpathInternals.h"

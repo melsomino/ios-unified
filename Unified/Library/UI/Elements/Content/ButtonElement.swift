@@ -149,7 +149,7 @@ public class ButtonElement: ContentElement {
 
 
 	public override func layoutContent(inBounds bounds: CGRect) {
-		super.layoutContent(inBounds: FragmentElement.reduce(rect: bounds, edges: padding))
+		super.layoutContent(inBounds: bounds)
 	}
 
 

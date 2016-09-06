@@ -5,16 +5,17 @@ Pod::Spec.new do |spec|
   spec.license = { :type => 'MIT' }
   spec.homepage = 'https://github.com/melsomino/unified-ios'
   spec.authors = 'Michael Vlasov'
-  spec.source = { :git => 'https://github.com/melsomino/unified-ios', :tag => 'rc-' + spec.version.to_s }
+  spec.source = { :git => 'https://github.com/melsomino/unified-ios.git', :tag => 'rc-' + spec.version.to_s }
   
   spec.platform = :ios, '8.0'
   spec.requires_arc = true
 
-
   spec.source_files = 'Unified/**/*.{h,m,swift}'
   spec.resources = 'Unified/**/*.{xib,storyboard,xcassets,sql,uni}'
+  spec.module_name = 'Unified'
+  spec.module_map = 'Support/module.modulemap'
+  spec.library = 'xml2'
 
   spec.dependency 'GRDB.swift'
   spec.dependency 'Starscream', '~> 1.1.3'
-  spec.dependency 'Fuzi', '~> 0.3.0'
 end

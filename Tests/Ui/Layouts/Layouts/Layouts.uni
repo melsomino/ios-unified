@@ -2,13 +2,15 @@ repository Layouts
 
 ui
 	Layouts.Header layout-cache-key=1
-		horizontal margin=12 margin-top=12 spacing=12  margin-bottom=15 hor=fill
-			view @icon size=55 corner-radius=6 margin-top=3 background-color=eee
-			layered hor=fill
-				vertical spacing=10
-					text 'Васильева Елена y' font=17 max-lines=1
-				decorator hor=right ver=top background-color=white padding-left=20 transparent-gradient-left=15 ver=top
-					text '12 июля, 04:09' font=14 color=b8b0a0 baseline-font=17 
+		horizontal hor=fill margin=12 
+			horizontal hor=left spacing=8
+				button title='1' color=7dc029 border-width=1 border-color=7dc029 
+					~ corner-radius=3 padding=(12 6) action=topic-like font=(15)
+				button title='2' color=e04837 border-width=1 border-color=e04837
+					~ corner-radius=3 padding=(12 6) action=topic-dislike font=(15)
+			horizontal hor=right ver=center spacing=4
+				view size=40 ver=center margin-top=2 background-color=gray
+				text 300 font=14 color=b8b0a0 ver=center nowrap
 
 					
 					

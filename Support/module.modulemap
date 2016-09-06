@@ -1,0 +1,6 @@
+framework module Unified {
+	umbrella header "Unified.h"
+	export *
+	module * { export * }
+}
+
