@@ -35,6 +35,13 @@ public struct DynamicBindings {
 	private static let openingBrace = "{"
 	private static let closingBrace = "}"
 
+	class HtmlToTextFormatter: NSFormatter {
+		static let defaultFormatter = HtmlToTextFormatter()
+		override func stringForObjectValue(obj: AnyObject) -> String? {
+			return HtmlParser.parse(String(obj))
+		}
+	}
+
 	private static var formatterFactoryByName: [String:(String?) -> NSFormatter] = [
 		"date": {
 			args in
@@ -43,6 +50,10 @@ public struct DynamicBindings {
 				formatter.dateFormat = args
 			}
 			return formatter
+		},
+		"html-to-text": {
+			args in
+			return HtmlToTextFormatter.defaultFormatter
 		}
 	]
 
@@ -285,6 +296,9 @@ public struct DynamicBindings {
 				case let v as Float:
 					return String(v)
 				case let string as String:
+					if let formatter = formatter {
+						return formatter.stringForObjectValue(string)
+					}
 					return string
 				case let date as NSDate:
 					if let formatter = formatter {
@@ -295,6 +309,9 @@ public struct DynamicBindings {
 					let s = String(value)
 					if s == "nil" {
 						return nil
+					}
+					if let formatter = formatter {
+						return formatter.stringForObjectValue(s)
 					}
 					return s
 			}
