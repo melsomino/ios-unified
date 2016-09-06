@@ -193,6 +193,16 @@ public class CloudApiPrimitiveTypeConverter {
 	}()
 
 
+	private static var fallback_dd_dot_MM_dot_yy: NSDateFormatter = {
+		let RFC3339 = NSDateFormatter()
+		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+		RFC3339.dateFormat = "dd.MM.yy"
+		RFC3339.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+
+		return RFC3339
+	}()
+
+
 	private static var dateFormatter: NSDateFormatter = {
 		let RFC3339 = NSDateFormatter()
 		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
@@ -221,6 +231,9 @@ public class CloudApiPrimitiveTypeConverter {
 					return date
 				}
 				if let date = dateTimeFormatter.dateFromString(s) {
+					return date
+				}
+				if let date = fallback_dd_dot_MM_dot_yy.dateFromString(s) {
 					return date
 				}
 				if let date = dateFormatter.dateFromString(s) {
