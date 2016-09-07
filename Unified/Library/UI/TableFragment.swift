@@ -78,7 +78,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 	}
 
-	public final func updateModels(update: (TableModelUpdates) -> Void) {
+	public final func updateModels(@noescape update: (TableModelUpdates) -> Void) {
 		let updates = ModelUpdates(owner: self)
 		tableView.beginUpdates()
 		update(updates)
