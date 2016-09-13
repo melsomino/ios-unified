@@ -8,16 +8,22 @@ import Foundation
 public typealias Uuid = NSUUID
 
 
+
+
+
 extension String {
 
 	public func toUuid() -> Uuid? {
 		return !isEmpty ? Uuid(UUIDString: self) : nil
 	}
 
+
+
 	public static func fromUuid(value: Uuid?) -> String {
 		return value != nil ? value!.UUIDString : ""
 	}
 }
+
 
 
 
@@ -34,13 +40,9 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonFromUuid(value: Uuid?) -> AnyObject {
 		return value?.UUIDString ?? NSNull()
 	}
-
-
 
 
 
@@ -54,13 +56,9 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonFromInteger(value: Int?) -> AnyObject {
 		return value ?? NSNull()
 	}
-
-
 
 
 
@@ -72,15 +70,11 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonArrayFromIntegerArray(array: [Int]) -> AnyObject {
 		return jsonFromArray(array) {
 			item in jsonFromInteger(item)
 		}
 	}
-
-
 
 
 
@@ -95,13 +89,9 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonFromInt64(value: Int64?) -> AnyObject {
 		return value != nil ? String(value!) : NSNull()
 	}
-
-
 
 
 
@@ -115,8 +105,6 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func booleanFromJson(value: AnyObject) -> Bool? {
 		switch value {
 			case let s as String: return boolFromString(s)
@@ -127,13 +115,9 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonFromBoolean(value: Bool?) -> AnyObject {
 		return value ?? NSNull()
 	}
-
-
 
 
 
@@ -147,12 +131,9 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonFromString(value: String?) -> AnyObject {
 		return value ?? NSNull()
 	}
-
 
 
 
@@ -164,8 +145,6 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-
-
 	public static func jsonArrayFromStringArray(array: [String]) -> AnyObject {
 		return jsonFromArray(array) {
 			item in jsonFromString(item)
@@ -173,94 +152,76 @@ public class CloudApiPrimitiveTypeConverter {
 	}
 
 
-
-
-
-	private static var dayMonthFormatter: NSDateFormatter = {
-		let formatter = NSDateFormatter()
-		formatter.dateFormat = "dd.MM"
-		return formatter
+	public static var dateTimeConversionDefaultCalendar: NSCalendar = {
+		var calendar: NSCalendar! = NSCalendar(identifier: NSCalendar.currentCalendar().calendarIdentifier)!
+		calendar.timeZone = NSTimeZone(forSecondsFromGMT: 3 * 60 * 60)
+		return calendar
 	}()
 
 
-	private static var dateTimeFormatter: NSDateFormatter = {
-		let RFC3339 = NSDateFormatter()
-		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-		RFC3339.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSx"
-		RFC3339.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-
-		return RFC3339
-	}()
-
-
-	private static var fallback_dd_dot_MM_dot_yy: NSDateFormatter = {
-		let RFC3339 = NSDateFormatter()
-		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-		RFC3339.dateFormat = "dd.MM.yy"
-		RFC3339.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-
-		return RFC3339
-	}()
-
-
-	private static var dateFormatter: NSDateFormatter = {
-		let RFC3339 = NSDateFormatter()
-		RFC3339.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-		RFC3339.dateFormat = "yyyy-MM-dd"
-		RFC3339.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-
-		return RFC3339
-	}()
-
-
-	private static var dateTimeFormatterWithTimeZone: NSDateFormatter = {
+	private static func createDateTimeFormatter(format: String, withTodayAsDefaultDate: Bool) -> NSDateFormatter {
 		let formatter = NSDateFormatter()
 		formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-		formatter.dateFormat = "yyyy-MM-dd HH:mm:ssx"
+		formatter.dateFormat = format
+		formatter.timeZone = dateTimeConversionDefaultCalendar.timeZone
+		if withTodayAsDefaultDate {
+			formatter.defaultDate = dateTimeConversionDefaultCalendar.startOfDayForDate(NSDate())
+		}
 		return formatter
-	}()
+	}
 
+	private static var defaultDateTimeFormatter = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
+	private static var dateTimeFormatterWithMilliseconds = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
+	private static var dateFormatter: NSDateFormatter {
+		return createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: true)
+	}
+	private static var dotSeparatedDateTimeFormatter: NSDateFormatter {
+		return createDateTimeFormatter("dd.MM.yyyy HH.mm.ss", withTodayAsDefaultDate: true)
+	}
 
+	private static var dotSeparatedDateFormatter: NSDateFormatter {
+		return createDateTimeFormatter("dd.MM.yy", withTodayAsDefaultDate: true)
+	}
 
+	private static var dotSeparatedDayMonthFormatter: NSDateFormatter {
+		return createDateTimeFormatter("dd.MM", withTodayAsDefaultDate: true)
+	}
 
 
 	public static func dateTimeFromJson(value: AnyObject) -> NSDate? {
 		switch value {
-			case let s as String:
-				if let date = dateTimeFormatterWithTimeZone.dateFromString(s) {
+			case let string as String:
+				if let date = defaultDateTimeFormatter.dateFromString(string) {
 					return date
 				}
-				if let date = dateTimeFormatter.dateFromString(s) {
+				if let date = dateTimeFormatterWithMilliseconds.dateFromString(string) {
 					return date
 				}
-				if let date = fallback_dd_dot_MM_dot_yy.dateFromString(s) {
+				if let date = dateFormatter.dateFromString(string) {
 					return date
 				}
-				if let date = dateFormatter.dateFromString(s) {
+				if let date = dotSeparatedDateTimeFormatter.dateFromString(string) {
 					return date
 				}
-				if let date = dayMonthFormatter.dateFromString(s) {
-					let calendar = NSCalendar.currentCalendar()
-					let todayComponents = calendar.components([.Year], fromDate: NSDate())
-					let components = calendar.components([.Month, .Day], fromDate: date)
-					components.year = todayComponents.year
-					let resultDate = calendar.dateFromComponents(components)
-					return resultDate
+				if let date = dotSeparatedDateFormatter.dateFromString(string) {
+					return date
 				}
-				print("can not convert date from string: \(s)")
+				if let date = dotSeparatedDayMonthFormatter.dateFromString(string) {
+					return date
+				}
+
+				print("can not convert date from string: \(string)")
 				return nil
-			default: return nil
+			default:
+				return nil
 		}
 	}
 
 
 
-
-
 	public static func jsonFromDateTime(value: NSDate?) -> AnyObject {
-		return value != nil ? dateTimeFormatter.stringFromDate(value!) : NSNull()
+		return value != nil ? defaultDateTimeFormatter.stringFromDate(value!) : NSNull()
 	}
-
 
 
 
@@ -275,8 +236,6 @@ public class CloudApiPrimitiveTypeConverter {
 		}
 		return result
 	}
-
-
 
 
 

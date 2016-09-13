@@ -129,6 +129,10 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	public func onControllerAttached() {
 	}
 
+	public func onResize() {
+
+	}
+
 	public func onModelsLoaded() {
 	}
 
@@ -206,21 +210,6 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	}
 
 
-
-	public func onTableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-		if let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell {
-			cell.fragment.reflectCellHighlight(true)
-		}
-		return true
-	}
-
-
-
-	public func onTableView(tableView: UITableView, didUnhighlightRowAtIndexPath indexPath: NSIndexPath) {
-		if let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell {
-			cell.fragment.reflectCellHighlight(false)
-		}
-	}
 
 
 	// MARK: - Internals
@@ -374,7 +363,6 @@ class TableFragmentCell: UITableViewCell {
 
 	// MARK: - Internals
 
-
 	private var currentHighlight = false
 	private var currentSelect = false
 
@@ -388,7 +376,9 @@ class TableFragmentCell: UITableViewCell {
 			return
 		}
 		if let fragment = fragment {
-			fragment.reflectCellHighlight(newHighlight)
+			if selectionStyle != .None {
+				fragment.reflectCellHighlight(newHighlight)
+			}
 		}
 	}
 
@@ -472,6 +462,7 @@ class TableFragmentController: UITableViewController {
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		adjustTableInsets()
+		fragment.onResize()
 	}
 
 
@@ -503,18 +494,8 @@ class TableFragmentController: UITableViewController {
 	}
 
 
-	override func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-		return fragment.onTableView(tableView, shouldHighlightRowAtIndexPath: indexPath)
-	}
-
-
-
-	override func tableView(tableView: UITableView, didUnhighlightRowAtIndexPath indexPath: NSIndexPath) {
-		fragment.onTableView(tableView, didUnhighlightRowAtIndexPath: indexPath)
-	}
-
-
 	// MARK: - Internals
+
 
 	@objc private func onLoadingIndicatorRefresh() {
 		fragment.onLoadingIndicatorRefresh()

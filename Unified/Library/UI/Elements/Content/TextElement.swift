@@ -137,6 +137,9 @@ public class TextElement: ContentElement {
 		if let textBinding = textDefinition.text {
 			text = textBinding.evaluate(values)
 		}
+		if let boundHidden = definition.boundHidden(values) {
+			hidden = boundHidden
+		}
 	}
 
 

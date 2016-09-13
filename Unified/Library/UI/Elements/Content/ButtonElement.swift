@@ -131,6 +131,9 @@ public class ButtonElement: ContentElement {
 		if let titleBinding = buttonDefinition.title {
 			title = titleBinding.evaluate(values)
 		}
+		if let boundHidden = definition.boundHidden(values) {
+			hidden = boundHidden
+		}
 	}
 
 

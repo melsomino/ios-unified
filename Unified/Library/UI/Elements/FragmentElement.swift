@@ -163,6 +163,7 @@ public class FragmentElementDefinition {
 	public func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if attribute.name.hasPrefix("@") {
 			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
+			return
 		}
 		switch attribute.name {
 			case "horizontal-alignment", "hor":
