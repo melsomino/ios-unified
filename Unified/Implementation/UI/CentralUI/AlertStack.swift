@@ -26,7 +26,7 @@ public class AlertStack: Dependent {
 					icon = CentralUIDesign.alertErrorIcon
 				case .warning:
 					icon = CentralUIDesign.alertWarningIcon
-				case .information:
+				case .success, .information:
 					icon = CentralUIDesign.alertInformationIcon
 			}
 		}

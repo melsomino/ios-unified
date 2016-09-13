@@ -88,7 +88,6 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	public func onModelChanged() {
 	}
 
-
 	public func onAction(action: String, args: String?) {
 		delegate?.onAction(action, args: args)
 	}
@@ -190,8 +189,9 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		}
 
 		definitionRequired()
+		onBeforePerformLayoutInBounds(inBounds: CGSizeMake(width, 0))
 		let measure = rootElement!.measure(inBounds: CGSizeMake(width, 0))
-		frame = CGRectMake(0, 0, width, measure.height)
+		frame = CGRect(origin: CGPointZero, size: CGSizeMake(width, measure.height))
 		rootElement!.layout(inBounds: frame, usingMeasured: measure.maxSize)
 		if rootElement != nil {
 			checkVisibilityOfContentElements(rootElement, parentHidden: false)
@@ -211,8 +211,8 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
 		onBeforePerformLayoutInBounds(inBounds: bounds)
-		frame = CGRect(origin: CGPointZero, size: bounds)
 		let measure = rootElement!.measure(inBounds: bounds)
+		frame = CGRect(origin: CGPointZero, size: bounds)
 		rootElement!.layout(inBounds: frame, usingMeasured: measure.maxSize)
 		if rootElement != nil {
 			checkVisibilityOfContentElements(rootElement, parentHidden: false)

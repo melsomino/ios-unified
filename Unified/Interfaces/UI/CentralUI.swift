@@ -42,7 +42,7 @@ public protocol CentralUIMenuItem {
 
 
 public enum CentralUIAlert {
-	case information, warning, error
+	case information, warning, error, success
 }
 
 
