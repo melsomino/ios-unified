@@ -125,12 +125,13 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 
 	// MARK: - Internals
 
+
 	private var devServerConnection: WebSocket?
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
 	private var fragmentDefinitionByName = [String: FragmentDefinition]()
-	private var lock = FastLock()
+	private var lock = NSRecursiveLock()
 
 
 	private func makeTypeName(forType type: Any.Type) -> String {

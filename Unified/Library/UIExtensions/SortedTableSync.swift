@@ -6,81 +6,70 @@
 import Foundation
 import UIKit
 
-private struct Insertion<Item> {
+enum CollectionUpdateType {
+	case insert, delete, move, reload
+}
+
+class CollectionSectionUpdate<Section> {
+	let section: Section
+	let type: CollectionUpdateType
+	let index: Int
+	let indexNew: Int
+
+	init(section: Section, type: CollectionUpdateType, index: Int, indexNew: Int) {
+		self.section = section
+		self.type = type
+		self.index = index
+		self.indexNew = indexNew
+	}
+}
+
+class CollectionItemUpdate<Item> {
 	let item: Item
-	var index: Int
+	let type: CollectionUpdateType
+	let index: NSIndexPath
+	let indexNew: NSIndexPath
+
+	init(item: Item, type: CollectionUpdateType, index: NSIndexPath, indexNew: NSIndexPath) {
+		self.item = item
+		self.type = type
+		self.index = index
+		self.indexNew = indexNew
+	}
 }
 
-public struct SortedTableSync<Item> {
 
 
-	private let deletions: [Int]
-	private let insertions: [Insertion<Item>]
+public struct CollectionSync<Section, Item> {
 
-	public static func prepare<Key>(oldItems oldItems: [Item], inserted: [Item], deletedKeys: Set<Key>,
-		keyOfItem: (Item) -> Key, isOrderedBefore: (Item, Item) -> Bool) -> SortedTableSync<Item> {
+	let sameSections: (Section, Section) -> Bool
+	let sameItems: (Item, Item) -> Bool
 
-		var newItems = oldItems
-		var oldIndexByKey = [Key: Int]()
-		var index = 0
-		for item in oldItems {
-			oldIndexByKey[keyOfItem(item)] = index
-			index += 1
-		}
+	func calculateUpdates(forOldModel oldSections: [Section]?, newModel newSections: [Section]?,
+		sectionsPriorityOrder: [String],
+		eliminatesDuplicates: Bool,
+		completion: ([Section]?, [CollectionSectionUpdate<Section>]?, [CollectionItemUpdate<Item>]?) -> Void) {
 
-		var deletions = [Int]()
-		for key in deletedKeys {
-			if let oldIndex = oldIndexByKey[key] {
-				deletions.append(oldIndex)
+		// Find inserted sections
+		for newIndex in 0 ..< (newSections?.count ?? 0) {
+			let newSection = newSections![newIndex]
+			var oldIndex: Int?
+			if oldSections != nil {
+				oldIndex = oldSections!.indexOf({ sameSections($0, newSection) })
+			}
+
+			if oldIndex == nil {
+				completion(newSections, nil, nil)
+				return
 			}
 		}
-		deletions.sortInPlace({ a, b in b < a })
-		print(deletions)
-		for deletionIndex in deletions {
-			newItems.removeAtIndex(deletionIndex)
-		}
 
-		var insertions = [Insertion<Item>]()
-		for item in inserted {
-			let insertionIndex = newItems.insertionIndexOf(item, isOrderedBefore: isOrderedBefore)
-			insertions.append(Insertion(item: item, index: insertionIndex))
-			newItems.insert(item, atIndex: insertionIndex)
-		}
-
-		return SortedTableSync<Item>(deletions: deletions, insertions: insertions)
 	}
 
 
-
-	public func update(tableView: UITableView, @noescape deleteItem: (Int) -> Void, @noescape insertItem: (Item, Int) -> Void) {
-		tableView.beginUpdates()
-		if deletions.count > 0 {
-			var deletedIndexPaths = [NSIndexPath]()
-			for index in deletions {
-				deleteItem(index)
-				deletedIndexPaths.append(NSIndexPath(forRow: index, inSection: 0))
-			}
-			tableView.deleteRowsAtIndexPaths(deletedIndexPaths, withRowAnimation: .Automatic)
-		}
-		if insertions.count > 0 {
-			var indexes = [Int]()
-			for insertion in insertions {
-				insertItem(insertion.item, insertion.index)
-				for i in 0 ..< indexes.count {
-					if indexes[i] >= insertion.index {
-						indexes[i] += 1
-					}
-				}
-				indexes.append(insertion.index)
-			}
-			var insertedIndexPaths = [NSIndexPath]()
-			for index in indexes {
-				insertedIndexPaths.append(NSIndexPath(forRow: index, inSection: 0))
-			}
-			tableView.insertRowsAtIndexPaths(insertedIndexPaths, withRowAnimation: .Automatic)
-		}
-		tableView.endUpdates()
-	}
 }
+
+
+
 
 
