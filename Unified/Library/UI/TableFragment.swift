@@ -309,6 +309,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 				if models.count == 0 {
 					models.append(EmptyTableFragment(message: strongSelf.emptyMessage))
 				}
+				strongSelf.layoutCache.clear()
 				strongSelf.models = models
 				strongSelf.tableView?.reloadData()
 				strongSelf.onModelsLoaded()

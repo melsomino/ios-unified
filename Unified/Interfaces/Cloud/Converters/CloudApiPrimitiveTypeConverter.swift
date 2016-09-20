@@ -8,7 +8,19 @@ import Foundation
 public typealias Uuid = NSUUID
 
 
+extension Uuid {
+//	public static let zero = Uuid(UUIDBytes: [UInt8](count: 16, repeatedValue: 0))
 
+	public static func same(a: Uuid?, _ b: Uuid?) -> Bool {
+		if a == nil && b == nil {
+			return true
+		}
+		if a == nil || b == nil {
+			return false
+		}
+		return a! == b!
+	}
+}
 
 
 extension String {
@@ -42,6 +54,22 @@ public class CloudApiPrimitiveTypeConverter {
 
 	public static func jsonFromUuid(value: Uuid?) -> AnyObject {
 		return value?.UUIDString ?? NSNull()
+	}
+
+	private static let uuidZero = Uuid(UUIDBytes: [UInt8](count: 16, repeatedValue: 0))
+
+	public static func uuidArrayFromJsonArray(array: AnyObject) -> [Uuid] {
+		return arrayFromJson(array) {
+			item in uuidFromJson(item) ?? CloudApiPrimitiveTypeConverter.uuidZero
+		}
+	}
+
+
+
+	public static func jsonArrayFromUuidArray(array: [Uuid]) -> AnyObject {
+		return jsonFromArray(array) {
+			item in jsonFromUuid(item)
+		}
 	}
 
 
@@ -117,6 +145,22 @@ public class CloudApiPrimitiveTypeConverter {
 
 	public static func jsonFromBoolean(value: Bool?) -> AnyObject {
 		return value ?? NSNull()
+	}
+
+
+
+	public static func booleanArrayFromJsonArray(array: AnyObject) -> [Bool] {
+		return arrayFromJson(array) {
+			item in booleanFromJson(item) ?? false
+		}
+	}
+
+
+
+	public static func jsonArrayFromBooleanArray(array: [Bool]) -> AnyObject {
+		return jsonFromArray(array) {
+			item in jsonFromBoolean(item)
+		}
 	}
 
 

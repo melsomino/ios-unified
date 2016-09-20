@@ -36,6 +36,14 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
+	public var returnKey = UIReturnKeyType.Default {
+		didSet {
+			if let view = view as? TextEditView {
+				view.returnKeyType = returnKey
+			}
+		}
+	}
+
 	public var placeholder: String? {
 		didSet {
 			if let view = view as? TextEditView {
@@ -77,6 +85,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 	}
 
 
+
 	public override func initializeView() {
 		super.initializeView()
 		guard let view = view as? TextEditView else {
@@ -92,6 +101,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		view.textContainerInset = UIEdgeInsetsZero
 		view.textContainerInset = padding
 		view.textContainer.lineFragmentPadding = 0
+		view.returnKeyType = returnKey
 	}
 
 
@@ -105,6 +115,14 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		delegate?.tryExecuteAction(definition.textChangeAction)
 	}
 
+
+
+	public func textEditDidTapReturnKey(textEdit: TextEditView) {
+		guard let definition = definition as? TextEditDefinition else {
+			return
+		}
+		delegate?.tryExecuteAction(definition.returnKeyAction)
+	}
 
 }
 
@@ -120,11 +138,14 @@ public class TextEditDefinition: ViewElementDefinition {
 	public var placeholder: String?
 	public var placeholderColor: UIColor?
 	public var textChangeAction: DynamicBindings.Expression?
+	public var returnKeyAction: DynamicBindings.Expression?
 	public var padding = UIEdgeInsetsZero
+	public var returnKey = UIReturnKeyType.Default
 
 	public override func createElement() -> FragmentElement {
 		return TextEditElement()
 	}
+
 
 
 	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
@@ -138,7 +159,9 @@ public class TextEditDefinition: ViewElementDefinition {
 		element.placeholderColor = placeholderColor
 		element.maxLines = maxLines
 		element.padding = padding
+		element.returnKey = returnKey
 	}
+
 
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
@@ -147,6 +170,8 @@ public class TextEditDefinition: ViewElementDefinition {
 				textAlignment = try context.getEnum(attribute, TextElementDefinition.textAlignmentByName)
 			case "text-change-action":
 				textChangeAction = try context.getExpression(attribute)
+			case "return-key-action":
+				returnKeyAction = try context.getExpression(attribute)
 			case "max-lines":
 				maxLines = Int(try context.getFloat(attribute))
 			case "placeholder":
@@ -155,6 +180,8 @@ public class TextEditDefinition: ViewElementDefinition {
 				placeholderColor = try context.getColor(attribute)
 			case "font":
 				font = try context.getFont(attribute, defaultFont: font)
+			case "return-key":
+				returnKey = try context.getEnum(attribute, TextEditDefinition.returnKeyByName)
 			default:
 				if try context.applyInsets(&padding, name: "padding", attribute: attribute) {
 				}
@@ -164,12 +191,28 @@ public class TextEditDefinition: ViewElementDefinition {
 		}
 	}
 
+	private static let returnKeyByName: [String:UIReturnKeyType] = [
+		"go": .Go,
+		"google": .Google,
+		"join": .Join,
+		"next": .Next,
+		"route": .Route,
+		"search": .Search,
+		"send": .Send,
+		"yahoo": .Yahoo,
+		"done": .Done,
+		"emergency-call": .EmergencyCall
+	]
 }
 
 
 
 public protocol TextEditDelegate: class {
 	func textEditDidChange(textEdit: TextEditView)
+
+
+
+	func textEditDidTapReturnKey(textEdit: TextEditView)
 }
 
 public class TextEditView: UITextView, UITextViewDelegate {
@@ -216,6 +259,7 @@ public class TextEditView: UITextView, UITextViewDelegate {
 	}
 
 
+
 	public override func drawRect(rect: CGRect) {
 		super.drawRect(rect)
 		if !editing && text.isEmpty && placeholder != nil && !placeholder!.isEmpty {
@@ -243,6 +287,10 @@ public class TextEditView: UITextView, UITextViewDelegate {
 		if text == "\t" {
 			return false
 		}
+		if text == "\n" {
+			textEditDelegate?.textEditDidTapReturnKey(self)
+			return false
+		}
 		return text.rangeOfCharacterFromSet(TextEditView.newLineOrTab) == nil
 	}
 
@@ -254,15 +302,20 @@ public class TextEditView: UITextView, UITextViewDelegate {
 	}
 
 
+
 	public func textViewDidEndEditing(textView: UITextView) {
 		editing = false
 		setNeedsDisplay()
 	}
 
 
+
 	public func textViewDidChange(textView: UITextView) {
 		textEditDelegate?.textEditDidChange(self)
 	}
+
+
+
 
 
 	// MARK: - Internals

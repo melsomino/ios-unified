@@ -121,7 +121,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	// MARK: - Internals
 
 
-	private var rootElement: FragmentElement!
+	public private(set) var rootElement: FragmentElement!
 	private var contentElements = [ContentElement]()
 	private var modelValues = [Any?]()
 	private var currentDefinition: FragmentDefinition?

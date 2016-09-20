@@ -13,9 +13,17 @@ public class DefaultModuleStorage: ModuleStorage {
 	}
 
 
+
 	public func switchToAccount(accountName: String?) {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
+		guard !String.same(accountName, self.accountName) else {
+			return
+		}
 		self.accountName = accountName
-		databaseInitialized = false
+		currentPlatformDatabase = nil
 	}
 
 
@@ -27,32 +35,36 @@ public class DefaultModuleStorage: ModuleStorage {
 	}
 
 
+
 	public func getFileStoragePath(relativePath: String) -> String {
 		do {
 			return try ensureDirectoryPath("Files/\(relativePath)")
 		}
-		catch let error {
+			catch let error {
 			fatalError(String(error))
 		}
 	}
 
+
+
 	public func readDatabase(read: (StorageDatabase) throws -> Void) throws {
-		try databaseRequired()
 		try platformDatabase.read {
 			db in try read(DefaultModuleDatabase(db))
 		}
 	}
 
+
+
 	public func writeDatabaseWithoutTransaction(write: (StorageDatabase) throws -> Void) throws {
-		try databaseRequired()
 		try platformDatabase.write {
 			db in try write(DefaultModuleDatabase(db))
 		}
 	}
 
+
+
 	public func writeDatabase(write: (StorageDatabase) throws -> Void) throws {
-		try databaseRequired()
-		try platformDatabase.writeInTransaction(.Immediate) {
+		try platformDatabase.inTransaction(.Immediate) {
 			db in
 			let moduleDatabase = DefaultModuleDatabase(db)
 			try write(moduleDatabase)
@@ -64,20 +76,60 @@ public class DefaultModuleStorage: ModuleStorage {
 	// MARK: - Internals
 
 
+	private var lock = NSRecursiveLock()
 	private var threading: Threading!
 	private let moduleName: String
 	private var accountName: String?
 	private var databaseMaintenance: DatabaseMaintenance?
 	private var databaseInitialized = false
 
-	private lazy var platformDatabase: DatabasePool = {
-		[unowned self] in
+	private var currentPlatformDatabase: DatabaseQueue?
+	private var platformDatabase: DatabaseQueue {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
+		if let database = currentPlatformDatabase {
+			return database
+		}
+
 		do {
-			return try DatabasePool(path: self.ensureDirectoryPath("") + "/Database.sqlite")
-		} catch let error {
+			guard accountName != nil else {
+				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": storage does not bound to account name")
+			}
+			guard let maintenance = databaseMaintenance else {
+				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified")
+			}
+			let newDatabase = try DatabaseQueue(path: self.ensureDirectoryPath("") + "/Database.sqlite")
+			try upgradeDatabaseIfNeeded(newDatabase, maintenance: maintenance)
+			currentPlatformDatabase = newDatabase
+		}
+			catch let error {
 			fatalError(String(error))
 		}
-	}()
+
+		return currentPlatformDatabase!
+	}
+
+	private func upgradeDatabaseIfNeeded(platformConnection: DatabaseQueue, maintenance: DatabaseMaintenance) throws {
+		try platformConnection.write {
+			platformDatabase in
+			let database = DefaultModuleDatabase(platformDatabase)
+			if let info = try self.selectDatabaseInfo(database) {
+				if info.databaseVersion != maintenance.requiredVersion {
+					if !(try maintenance.migrate(database, fromVersion: info.databaseVersion)) {
+						try maintenance.createTables(database)
+					}
+				}
+				try self.updateDatabaseInfo(database, DatabaseInfoRecord(databaseVersion: maintenance.requiredVersion))
+				return
+			}
+			try maintenance.createTables(database)
+			try self.createDatabaseInfo(database, DatabaseInfoRecord(databaseVersion: maintenance.requiredVersion))
+		}
+	}
+
+
 
 	private func ensureDirectoryPath(relativePath: String) throws -> String {
 		guard !(accountName ?? "").isEmpty else {
@@ -100,35 +152,6 @@ public class DefaultModuleStorage: ModuleStorage {
 		}
 	}
 
-	private func databaseRequired() throws {
-		if databaseInitialized {
-			return
-		}
-		guard accountName != nil else {
-			throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": storage does not bound to account name")
-		}
-		guard let maintenance = databaseMaintenance else {
-			throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified")
-		}
-
-		try platformDatabase.write {
-			platformDatabase in
-			let database = DefaultModuleDatabase(platformDatabase)
-			if let info = try self.selectDatabaseInfo(database) {
-				if info.databaseVersion != maintenance.requiredVersion {
-					if !(try maintenance.migrate(database, fromVersion: info.databaseVersion)) {
-						try maintenance.createTables(database)
-					}
-				}
-				try self.updateDatabaseInfo(database, DatabaseInfoRecord(databaseVersion: maintenance.requiredVersion))
-				return
-			}
-			try maintenance.createTables(database)
-			try self.createDatabaseInfo(database, DatabaseInfoRecord(databaseVersion: maintenance.requiredVersion))
-		}
-		databaseInitialized = true
-	}
-
 	public var databaseInfoTable: String {
 		return "__\(moduleName)"
 	}
@@ -146,6 +169,7 @@ public class DefaultModuleStorage: ModuleStorage {
 	}
 
 
+
 	private func updateDatabaseInfo(database: StorageDatabase, _ info: DatabaseInfoRecord) throws {
 		let update = try database.createUpdateStatement("UPDATE \(databaseInfoTable) SET databaseVersion=?")
 		defer {
@@ -154,6 +178,7 @@ public class DefaultModuleStorage: ModuleStorage {
 		update.setInteger(0, info.databaseVersion)
 		try update.execute()
 	}
+
 
 
 	private func createDatabaseInfo(database: StorageDatabase, _ info: DatabaseInfoRecord) throws {

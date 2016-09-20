@@ -20,10 +20,18 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 	public func load(repository name: String, forType type: Any.Type) throws -> [DeclarationElement] {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
 		return try load(repository: name, from: bundle(forType: type))
 	}
 
 	public func load(declarations name: String, fromModuleWithType type: Any.Type) throws -> [DeclarationElement] {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
 		let repositoryBundle = bundle(forType: type)
 		var declarations = [DeclarationElement]()
 		for uniPath in repositoryBundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
@@ -37,13 +45,12 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 
 
 	public func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
-		let fragmentName = makeFragmentName(forModelType: modelType, name: name)
-
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
 
+		let fragmentName = makeFragmentName(forModelType: modelType, name: name)
 		if let factory = fragmentDefinitionByName[fragmentName] {
 			return factory
 		}
@@ -169,7 +176,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	func loadRepositoriesInBundle(forType type: Any.Type) throws {
+	private func loadRepositoriesInBundle(forType type: Any.Type) throws {
 		let typeName = makeTypeName(forType: type)
 		let typeNameParts = typeName.componentsSeparatedByString(".")
 		let bundle = typeNameParts.count > 1 ? NSBundle.requiredFromModuleName(typeNameParts[0]) : NSBundle(forClass: type as! AnyClass)
@@ -192,7 +199,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
+	private func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
 		for fragmentsSection in elements.filter({ $0.name == "ui" || $0.name == "fragment" }) {
 			for fragment in fragmentsSection.children {
 				if overrideExisting || fragmentDefinitionByName[fragment.name] == nil {
