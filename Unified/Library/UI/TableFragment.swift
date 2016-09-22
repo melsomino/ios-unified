@@ -24,7 +24,13 @@ public class EmptyTableFragment {
 
 public protocol TableModelUpdates {
 	func insert(model: Any, at index: Int)
+
+
+
 	func update(model: Any, at index: Int)
+
+
+
 	func delete(index: Int)
 }
 
@@ -34,7 +40,9 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
 	public final var modelsSync: ((Execution) throws -> Void)?
 	public final var emptyMessage = "Нет данных"
-	public final var tableView: UITableView! { return (controller as? TableFragmentController)?.tableView }
+	public final var tableView: UITableView! {
+		return (controller as? TableFragmentController)?.tableView
+	}
 
 
 	public final var models = [Any]()
@@ -43,6 +51,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	public final func createController() -> UIViewController {
 		return internalCreateController()
 	}
+
 
 
 	public final func ensureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
@@ -85,9 +94,12 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		tableView.endUpdates()
 	}
 
+
+
 	public final func registerFragmentClass(for modelType: Any.Type, fragmentClass: () -> Fragment) {
 		return ensureCellFactory(forModelType: modelType).fragmentFactory = fragmentClass
 	}
+
 
 
 	public final func startLoad() {
@@ -95,6 +107,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		tableView.reloadData()
 		internalStartLoad(showLoadingIndicator: true)
 	}
+
 
 
 	public final func findModel<Model>(test: (Model) -> Bool) -> Model? {
@@ -107,6 +120,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		}
 		return nil
 	}
+
 
 
 	public init(dependency: DependencyResolver) {
@@ -123,15 +137,22 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	}
 
 
+
 	public func onAction(action: String, args: String?) {
 	}
+
+
 
 	public func onControllerAttached() {
 	}
 
+
+
 	public func onResize() {
 
 	}
+
+
 
 	public func onModelsLoaded() {
 	}
@@ -178,11 +199,11 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		let cellFactory = ensureCellFactory(forModelType: model.dynamicType)
 		let cell = tableView.dequeueReusableCellWithIdentifier(cellFactory.cellReuseId, forIndexPath: indexPath) as! TableFragmentCell
 		if cell.fragment == nil {
-			let ui = cellFactory.createUi()
-			cell.fragment = ui
-			ui.delegate = self
-			ui.container = cell.contentView
-			cell.selectionStyle = ui.definition.selectAction != nil ? .Default : .None
+			let fragment = cellFactory.createFragment()
+			cell.fragment = fragment
+			fragment.delegate = self
+			fragment.container = cell.contentView
+			cell.selectionStyle = fragment.definition.selectAction != nil ? .Default : .None
 		}
 		cell.fragment.model = model
 		return cell
@@ -196,7 +217,6 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		let model = models[indexPath.row]
 		return ensureCellFactory(forModelType: model.dynamicType).heightFor(model, inWidth: tableView.bounds.width)
 	}
-
 
 
 
@@ -317,9 +337,13 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		}
 	}
 
+
+
 	private func defaultLoadModels(execution: Execution, inout models: [Any]) throws {
 		try modelsLoader?(execution, &models)
 	}
+
+
 
 	private func errorUserMessage(error: ErrorType) -> String {
 		switch error {
@@ -350,10 +374,12 @@ class TableFragmentCell: UITableViewCell {
 	}
 
 
+
 	override func setSelected(selected: Bool, animated: Bool) {
 		super.setSelected(selected, animated: animated)
 		change(highlight: currentHighlight, select: selected)
 	}
+
 
 
 	override func setHighlighted(highlighted: Bool, animated: Bool) {
@@ -400,16 +426,20 @@ public class CellFragmentFactory {
 
 	final lazy var heightCalculator: Fragment = {
 		[unowned self] in
-		return self.createUi()
+		return self.createFragment()
 	}()
 
-	public final func createUi() -> Fragment {
-		return internalCreateUi()
+	public final func createFragment() -> Fragment {
+		return internalCreateFragment()
 	}
+
+
 
 	public final func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
 		return heightCalculator.heightFor(model, inWidth: width)
 	}
+
+
 
 	public init(forModelType modelType: Any.Type, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
 		self.modelType = modelType
@@ -422,15 +452,15 @@ public class CellFragmentFactory {
 	// MARK: - Internals
 
 
-	private func internalCreateUi() -> Fragment {
-		let ui = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: modelType)
-		ui.performLayoutInWidth = true
-		ui.layoutCache = layoutCache
-		dependency.resolve(ui)
+	private func internalCreateFragment() -> Fragment {
+		let fragment = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: modelType)
+		fragment.performLayoutInWidth = true
+		fragment.layoutCache = layoutCache
+		dependency.resolve(fragment)
 		if layoutName != nil {
-			ui.layoutName = layoutName!
+			fragment.layoutName = layoutName!
 		}
-		return ui
+		return fragment
 	}
 }
 
@@ -460,6 +490,8 @@ class TableFragmentController: UITableViewController {
 		fragment.startLoad()
 	}
 
+
+
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		adjustTableInsets()
@@ -475,9 +507,11 @@ class TableFragmentController: UITableViewController {
 	}
 
 
+
 	override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return fragment.onTableView(tableView, numberOfRowsInSection: section)
 	}
+
 
 
 	override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -485,9 +519,11 @@ class TableFragmentController: UITableViewController {
 	}
 
 
+
 	override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
 		return fragment.onTableView(tableView, heightForRowAtIndexPath: indexPath)
 	}
+
 
 
 	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -501,6 +537,8 @@ class TableFragmentController: UITableViewController {
 	@objc private func onLoadingIndicatorRefresh() {
 		fragment.onLoadingIndicatorRefresh()
 	}
+
+
 
 	private func adjustTableInsets() {
 //		let isPortrait = view.bounds.width < view.bounds.height

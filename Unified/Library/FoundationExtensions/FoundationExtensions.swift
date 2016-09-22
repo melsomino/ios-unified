@@ -27,6 +27,20 @@ extension String {
 	}
 }
 
+public extension SequenceType {
+
+	func categorise<Key:Hashable, Value>(@noescape getKey: Generator.Element -> Key, @noescape _ getValue: Generator.Element -> Value) -> [Key:[Value]] {
+		var result: [Key:[Value]] = [:]
+		for item in self {
+			let key = getKey(item)
+			let value = getValue(item)
+			if case nil = result[key]?.append(value) {
+				result[key] = [value]
+			}
+		}
+		return result
+	}
+}
 
 
 
