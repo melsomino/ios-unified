@@ -203,6 +203,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 		for fragmentsSection in elements.filter({ $0.name == "ui" || $0.name == "fragment" }) {
 			for fragment in fragmentsSection.children {
 				if overrideExisting || fragmentDefinitionByName[fragment.name] == nil {
+					context.reset()
 					let fragmentDefinition = try FragmentDefinition.fromDeclaration(fragment, context: context)
 					fragmentDefinitionByName[fragment.name] = fragmentDefinition
 				}

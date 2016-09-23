@@ -16,10 +16,18 @@ public struct DynamicBindings {
 	}
 
 
+
+	public mutating func clear() {
+		valueIndexByName.removeAll()
+	}
+
+
+
 	public mutating func parse(string: String?) -> Expression? {
 		let expression = parseString(string)
 		return expression
 	}
+
 
 
 	public static func registerFormatter(name: String, formatterFactory: (String?) -> NSFormatter) {
@@ -79,6 +87,7 @@ public struct DynamicBindings {
 	}
 
 
+
 	private mutating func parseExpression(string: String, _ next: Expression?) -> Expression {
 		var name = string
 		var formatter: NSFormatter? = nil
@@ -95,6 +104,7 @@ public struct DynamicBindings {
 
 		return Value(value_index: valueIndex!, formatter: formatter, next: next)
 	}
+
 
 
 	private func parseFormatter(string: String) -> NSFormatter? {
@@ -129,6 +139,7 @@ public struct DynamicBindings {
 	}
 
 
+
 	private static func split(string: String?, _ separator: String) -> (String?, String?) {
 		guard let string = string else {
 			return (nil, nil)
@@ -145,6 +156,7 @@ public struct DynamicBindings {
 	}
 
 
+
 	private static func substring(string: String?, _ start: String.Index, _ end: String.Index) -> String? {
 		return string != nil && start != end ? string!.substringWithRange(start ..< end) : nil
 	}
@@ -158,6 +170,7 @@ public struct DynamicBindings {
 		init(next: Expression?) {
 			self.next = next
 		}
+
 
 
 		public final func evaluate(values: [Any?]) -> String? {
@@ -177,6 +190,7 @@ public struct DynamicBindings {
 			}
 			return result
 		}
+
 
 
 		public final func evaluateBool(values: [Any?]) -> Bool {
@@ -199,6 +213,7 @@ public struct DynamicBindings {
 		}
 
 
+
 		func evaluateOwnValue(values: [Any?]) -> String? {
 			return nil
 		}
@@ -215,9 +230,13 @@ public struct DynamicBindings {
 			return string != "false" && string != "0"
 		}
 
+
+
 		private static func isEmpty(string: String?) -> Bool {
 			return string == nil || string!.isEmpty
 		}
+
+
 
 		private static func tryGetRightOperand(operation: Expression?, _ op: String) -> Expression? {
 			guard let operation = operation as? Literal else {
@@ -233,6 +252,8 @@ public struct DynamicBindings {
 			let right = operationName.substringFromIndex(operationName.startIndex.advancedBy(op.characters.count))
 			return Literal(value: right.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()), next: nil)
 		}
+
+
 
 		private static func sameOwnValues(a: Expression, _ b: Expression, values: [Any?]) -> Bool {
 			let aValue = a.evaluateOwnValue(values)
@@ -264,6 +285,7 @@ public struct DynamicBindings {
 		}
 
 
+
 		override func evaluateOwnValue(values: [Any?]) -> String? {
 			return value
 		}
@@ -282,6 +304,7 @@ public struct DynamicBindings {
 			self.formatter = formatter
 			super.init(next: next)
 		}
+
 
 
 		override func evaluateOwnValue(values: [Any?]) -> String? {

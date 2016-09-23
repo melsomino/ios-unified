@@ -12,6 +12,10 @@ import UIKit
 
 public protocol FragmentElementDelegate: class {
 	func tryExecuteAction(action: DynamicBindings.Expression?)
+
+
+
+	func layoutChanged(forElement element: FragmentElement)
 }
 
 
@@ -33,9 +37,11 @@ public class FragmentElement {
 	}
 
 
+
 	public final func layout(inBounds bounds: CGRect) {
 		layoutContent(inBounds: FragmentElement.reduce(rect: bounds, edges: margin))
 	}
+
 
 
 	public final func layout(inBounds bounds: CGRect, usingMeasured size: CGSize) {
@@ -60,13 +66,16 @@ public class FragmentElement {
 	}
 
 
+
 	public func bind(toModel values: [Any?]) {
 	}
+
 
 
 	public func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		return SizeMeasure(width: (0, bounds.width), height: bounds.height)
 	}
+
 
 
 	public func layoutContent(inBounds bounds: CGRect) {
@@ -81,9 +90,11 @@ public class FragmentElement {
 	}
 
 
+
 	public static func expand(size size: CGSize, edges: UIEdgeInsets) -> CGSize {
 		return CGSizeMake(size.width + edges.left + edges.right, size.height + edges.top + edges.bottom)
 	}
+
 
 
 	public static func reduce(rect rect: CGRect, edges: UIEdgeInsets) -> CGRect {
@@ -95,6 +106,7 @@ public class FragmentElement {
 	}
 
 
+
 	public static func expand(rect rect: CGRect, edges: UIEdgeInsets) -> CGRect {
 		return CGRectMake(
 			rect.origin.x - edges.left,
@@ -102,6 +114,7 @@ public class FragmentElement {
 			rect.width + edges.left + edges.right,
 			rect.height + edges.top + edges.bottom)
 	}
+
 
 
 	public static func expand(measure size: SizeMeasure, edges: UIEdgeInsets) -> SizeMeasure {
@@ -132,9 +145,11 @@ public class FragmentElementDefinition {
 	}
 
 
+
 	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		return try loadFrom(declaration: element, context: context)
 	}
+
 
 
 	public final func traversal(@noescape visit: (FragmentElementDefinition) -> Void) {
@@ -145,9 +160,11 @@ public class FragmentElementDefinition {
 	}
 
 
+
 	public init() {
 
 	}
+
 
 
 	public final func boundHidden(values: [Any?]) -> Bool? {
@@ -178,14 +195,17 @@ public class FragmentElementDefinition {
 	}
 
 
+
 	public func applyDeclarationElement(element: DeclarationElement, context: DeclarationContext) throws -> Bool {
 		return false
 	}
 
 
+
 	public func createElement() -> FragmentElement {
 		return FragmentElement()
 	}
+
 
 
 	public func initialize(element: FragmentElement, children: [FragmentElement]) {

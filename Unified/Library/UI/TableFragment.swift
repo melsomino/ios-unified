@@ -54,6 +54,21 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
+	public final func setBottomBar(model model: Any?) {
+		internalSetBottomBar(model: model)
+	}
+
+
+	public final func reflectBottomBarModelChanges() {
+		guard let model = bottomBarFragment?.model else {
+			return
+		}
+		UIView.animateWithDuration(0.25, animations: {
+			self.bottomBarFragment!.model = model
+			self.adjustBottomBar()
+		})
+	}
+
 	public final func ensureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
 		return internalEnsureCellFactory(forModelType: modelType)
 	}
@@ -149,13 +164,26 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 	public func onResize() {
-
+		adjustBottomBar()
 	}
 
 
 
 	public func onModelsLoaded() {
 	}
+
+
+	// MARK: - Fragment delegate
+
+
+	public func layoutChanged(forFragment fragment: Fragment) {
+		if fragment == bottomBarFragment {
+			UIView.animateWithDuration(0.25, animations: {
+				self.adjustBottomBar()
+			})
+		}
+	}
+
 
 
 	// MARK: - Dependency
@@ -203,7 +231,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 			cell.fragment = fragment
 			fragment.delegate = self
 			fragment.container = cell.contentView
-			cell.selectionStyle = fragment.definition.selectAction != nil ? .Default : .None
+			cell.selectionStyle = fragment.definition.selectAction != nil ? fragment.definition.selectionStyle : .None
 		}
 		cell.fragment.model = model
 		return cell
@@ -240,7 +268,51 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	private var loadingIndicator: UIRefreshControl!
 	private var reloadingIndicator: UIActivityIndicatorView!
 
+	private var bottomBarFragment: Fragment?
 
+	public final func internalSetBottomBar(model model: Any?) {
+		guard let model = model else {
+			if let fragment = bottomBarFragment {
+				fragment.container?.removeFromSuperview()
+				bottomBarFragment = nil
+			}
+			return
+		}
+		if bottomBarFragment == nil {
+			bottomBarFragment = Fragment(forModelType: model.dynamicType)
+			bottomBarFragment!.dependency = dependency
+			bottomBarFragment!.delegate = self
+			let container = UIView(frame: CGRectZero)
+			bottomBarFragment!.container = container
+			controller.view.addSubview(container)
+		}
+		bottomBarFragment!.model = model
+		adjustBottomBar()
+	}
+
+
+
+
+	private func adjustBottomBar() {
+		guard let controller = controller as? UITableViewController else {
+			return
+		}
+		var insets = tableView.contentInset
+		guard let fragment = bottomBarFragment, container = fragment.container else {
+			insets.bottom = 0
+			tableView.contentInset = insets
+			return
+		}
+		let bounds = controller.view.bounds
+		let contentOffset = controller.tableView.contentOffset
+		fragment.performLayout(inWidth: bounds.width)
+		var frame = fragment.frame
+		frame.origin.y = contentOffset.y + bounds.size.height - frame.size.height
+		container.frame = frame
+		controller.view.bringSubviewToFront(container)
+		insets.bottom = frame.height
+		tableView.contentInset = insets
+	}
 
 
 

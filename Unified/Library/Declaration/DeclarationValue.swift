@@ -72,6 +72,11 @@ public class DeclarationContext {
 	}
 
 
+	public final func reset() {
+		bindings.clear()
+		hasBindings = false
+	}
+
 	public func getFloat(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
 		switch value {
 			case .value(let string):

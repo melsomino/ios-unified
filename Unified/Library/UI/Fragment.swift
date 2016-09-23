@@ -10,6 +10,7 @@ import UIKit
 public protocol FragmentDelegate: class {
 	var controller: UIViewController! { get }
 	func onAction(action: String, args: String?)
+	func layoutChanged(forFragment fragment: Fragment)
 }
 
 
@@ -51,25 +52,37 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		return internalHeightFor(model, inWidth: width)
 	}
 
+
+
 	public final func performLayout() {
 		internalPerformLayout()
 	}
+
+
 
 	public final func performLayout(inWidth width: CGFloat) {
 		internalPerformLayout(inWidth: width)
 	}
 
+
+
 	public final func performLayout(inBounds bounds: CGSize) {
 		internalPerformLayout(inBounds: bounds)
 	}
+
+
 
 	public final func tryExecuteAction(action: DynamicBindings.Expression?) {
 		internalTryExecuteAction(action)
 	}
 
+
+
 	public init(forModelType modelType: Any.Type) {
 		self.modelType = modelType
 	}
+
+
 
 	public final func reflectCellHighlight(highlight: Bool) {
 		internalUpdateBackgroundSensitiveElements(toBackgroundColor: highlight ? UIColor.parse("dadada") : UIColor.whiteColor())
@@ -81,21 +94,34 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	public func onBeforePerformLayoutInBounds(inBounds bounds: CGSize) {
 	}
 
+
+
 	public func onPerformLayoutCompleteAfterModelChange() {
 
 	}
 
+
+
 	public func onModelChanged() {
 	}
+
+
 
 	public func onAction(action: String, args: String?) {
 		delegate?.onAction(action, args: args)
 	}
 
+
+
 	public func getLayoutCacheKey(forModel model: Any) -> String? {
 		return defaultGetLayoutCacheKey(forModel: model)
 	}
 
+	// MARK: - Element Delegate
+
+	public func layoutChanged(forElement element: FragmentElement) {
+		delegate?.layoutChanged(forFragment: self)
+	}
 
 	// MARK: - RepositoryListener
 
@@ -142,10 +168,13 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	}
 
 
+
 	private func heightWithMargin(frame: CGRect) -> CGFloat {
 		let margin = rootElement!.margin
 		return frame.height + margin.top + margin.bottom
 	}
+
+
 
 	private func internalHeightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
 		let layoutCacheKey = getLayoutCacheKey(forModel: model)
@@ -161,6 +190,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	}
 
 
+
 	private func internalPerformLayout() {
 		if let bounds = container?.bounds.size {
 			if performLayoutInWidth {
@@ -171,6 +201,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 			}
 		}
 	}
+
 
 
 	private func internalPerformLayout(inWidth width: CGFloat) {
@@ -208,6 +239,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	}
 
 
+
 	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
 		onBeforePerformLayoutInBounds(inBounds: bounds)
@@ -218,6 +250,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 			checkVisibilityOfContentElements(rootElement, parentHidden: false)
 		}
 	}
+
 
 
 	private func checkVisibilityOfContentElements(parent: FragmentElement!, parentHidden: Bool) {
@@ -243,6 +276,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	}
 
 
+
 	private func internalTryExecuteAction(action: DynamicBindings.Expression?) {
 		guard let actionWithArgs = action?.evaluate(modelValues) else {
 			return
@@ -261,6 +295,8 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		}
 		onAction(name, args: args)
 	}
+
+
 
 	private func internalDidSetModel() {
 		definitionRequired()
@@ -290,6 +326,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	}
 
 
+
 	private func internalUpdateBackgroundSensitiveElements(toBackgroundColor color: UIColor) {
 		rootElement.traversal {
 			element in
@@ -299,6 +336,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 			decorator.reflectParentBackgroundTo(color)
 		}
 	}
+
 
 
 	private func defaultGetLayoutCacheKey(forModel model: Any) -> String? {
@@ -318,12 +356,15 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		return keyProvider.evaluate(values)
 	}
 
+
+
 	private func resolveLayoutCacheKey(forModel model: Any?) -> String? {
 		guard let model = model else {
 			return nil
 		}
 		return getLayoutCacheKey(forModel: model)
 	}
+
 
 
 	private func setDefinition(definition: FragmentDefinition?) {
@@ -351,9 +392,11 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	}
 
 
+
 	func updateDefinitionFromRepository() {
 		setDefinition(try! repository.fragmentDefinition(forModelType: modelType, name: layoutName))
 	}
+
 
 
 	private func detachFromContainer() {
@@ -361,6 +404,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 			element.view?.removeFromSuperview()
 		}
 	}
+
 
 
 	private func attachToContainer() {
@@ -377,6 +421,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		}
 		initializeContainer()
 	}
+
 
 
 	private func initializeContainer() {
@@ -401,6 +446,7 @@ public class FragmentDefinition {
 	public final let hasBindings: Bool
 
 	public final let selectAction: DynamicBindings.Expression?
+	public final let selectionStyle: UITableViewCellSelectionStyle
 	public final let layoutCacheKey: DynamicBindings.Expression?
 
 	public final let containerBackgroundColor: UIColor?
@@ -411,15 +457,20 @@ public class FragmentDefinition {
 		return internalCreateRootElement(forFragment: fragment)
 	}
 
+
+
 	public static func fromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
 		return try FragmentDefinition.internalFromDeclaration(declaration, context: context)
 	}
+
+
 
 	init(rootElementDefinition: FragmentElementDefinition,
 		bindings: DynamicBindings,
 		hasBindings: Bool,
 		ids: Set<String>,
 		selectAction: DynamicBindings.Expression?,
+		selectionStyle: UITableViewCellSelectionStyle,
 		layoutCacheKey: DynamicBindings.Expression?,
 		containerBackgroundColor: UIColor?,
 		containerCornerRadius: CGFloat?) {
@@ -430,6 +481,7 @@ public class FragmentDefinition {
 		self.ids = ids
 
 		self.selectAction = selectAction
+		self.selectionStyle = selectionStyle
 		self.layoutCacheKey = layoutCacheKey
 
 		self.containerBackgroundColor = containerBackgroundColor
@@ -462,10 +514,12 @@ public class FragmentDefinition {
 	}
 
 
+
 	private static func internalFromDeclaration(declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
 		var containerBackgroundColor: UIColor?
 		var containerCornerRadius: CGFloat?
 		var selectAction: DynamicBindings.Expression?
+		var selectionStyle = UITableViewCellSelectionStyle.Default
 		var layoutCacheKey: DynamicBindings.Expression?
 
 		for index in 1 ..< declaration.attributes.count {
@@ -477,6 +531,8 @@ public class FragmentDefinition {
 					containerCornerRadius = try context.getFloat(attribute)
 				case "select-action":
 					selectAction = try context.getExpression(attribute)
+				case "selection-style":
+					selectionStyle = try context.getEnum(attribute, selectionStyleByName)
 				case "layout-cache-key":
 					layoutCacheKey = try context.getExpression(attribute)
 				default:
@@ -495,6 +551,7 @@ public class FragmentDefinition {
 			hasBindings: context.hasBindings,
 			ids: ids,
 			selectAction: selectAction,
+			selectionStyle: selectionStyle,
 			layoutCacheKey: layoutCacheKey,
 			containerBackgroundColor: containerBackgroundColor,
 			containerCornerRadius: containerCornerRadius)
@@ -512,4 +569,11 @@ public class FragmentDefinition {
 		definition.initialize(element, children: children)
 		return element
 	}
+
+	static let selectionStyleByName: [String:UITableViewCellSelectionStyle] = [
+		"none": .None,
+		"blue": .Blue,
+		"gray": .Gray,
+		"default": .Default
+	]
 }

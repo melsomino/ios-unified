@@ -29,6 +29,17 @@ extension String {
 
 public extension SequenceType {
 
+	func find(@noescape predicate: (Self.Generator.Element) throws -> Bool) rethrows -> Self.Generator.Element? {
+		for element in self {
+			if try predicate(element) {
+				return element
+			}
+		}
+		return nil
+	}
+
+
+
 	func categorise<Key:Hashable, Value>(@noescape getKey: Generator.Element -> Key, @noescape _ getValue: Generator.Element -> Value) -> [Key:[Value]] {
 		var result: [Key:[Value]] = [:]
 		for item in self {

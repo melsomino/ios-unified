@@ -28,7 +28,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var maxLines: Int? {
+	public var maxLines = 0 {
 		didSet {
 			if let view = view as? TextEditView {
 				view.maxLines = maxLines
@@ -72,12 +72,41 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		return (view as? TextEditView)?.text
 	}
 
+
 	public init() {
 		super.init(nil)
 	}
 
 
 	// MARK: - FragmentElement
+
+	private func sizeOf(padding padding: UIEdgeInsets) -> CGSize {
+		return CGSizeMake(padding.left + padding.right, padding.top + padding.bottom)
+	}
+
+	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		let font = self.font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+		let maxLines = self.maxLines ?? 0
+		let padding = sizeOf(padding: self.padding)
+		var size = TextElement.measureText(text, font: font, padding: UIEdgeInsetsZero, inWidth: bounds.width - padding.width)
+		if size.height < font.lineHeight {
+			size.height = font.lineHeight
+		}
+		if maxLines > 0 {
+			let max_height = font.lineHeight * CGFloat(maxLines)
+			if size.height > max_height {
+				size.height = max_height
+			}
+		}
+		return SizeMeasure(width: (1 + padding.width, bounds.width), height: size.height + padding.height)
+	}
+
+
+
+	public override func layoutContent(inBounds bounds: CGRect) {
+		super.layoutContent(inBounds: bounds)
+	}
+
 
 
 	public override func createView() -> UIView {
@@ -105,7 +134,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 	}
 
 
-	// MARK: - TextEditDelegate
+// MARK: - TextEditDelegate
 
 
 	public func textEditDidChange(textEdit: TextEditView) {
@@ -113,6 +142,9 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 			return
 		}
 		delegate?.tryExecuteAction(definition.textChangeAction)
+		if maxLines > 0 {
+			delegate?.layoutChanged(forElement: self)
+		}
 	}
 
 
@@ -124,6 +156,8 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		delegate?.tryExecuteAction(definition.returnKeyAction)
 	}
 
+
+
 }
 
 
@@ -134,7 +168,7 @@ public class TextEditDefinition: ViewElementDefinition {
 
 	public var font: UIFont?
 	public var textAlignment = NSTextAlignment.Natural
-	public var maxLines: Int?
+	public var maxLines = 0
 	public var placeholder: String?
 	public var placeholderColor: UIColor?
 	public var textChangeAction: DynamicBindings.Expression?
@@ -227,7 +261,7 @@ public class TextEditView: UITextView, UITextViewDelegate {
 
 	public var maxLines: Int? {
 		didSet {
-			textContainer.maximumNumberOfLines = maxLines ?? 0
+//			textContainer.maximumNumberOfLines = maxLines ?? 0
 			textContainer.lineBreakMode = .ByTruncatingTail
 			layoutManager.textContainerChangedGeometry(textContainer)
 		}
@@ -245,6 +279,13 @@ public class TextEditView: UITextView, UITextViewDelegate {
 		}
 	}
 
+
+	public override func layoutSubviews() {
+		super.layoutSubviews()
+		if placeholder != nil {
+			setNeedsDisplay()
+		}
+	}
 
 	public override var attributedText: NSAttributedString! {
 		didSet {
@@ -265,7 +306,8 @@ public class TextEditView: UITextView, UITextViewDelegate {
 		if !editing && text.isEmpty && placeholder != nil && !placeholder!.isEmpty {
 			let placeholderRect = UIEdgeInsetsInsetRect(bounds, textContainerInset)
 			let paraStyle = NSMutableParagraphStyle()
-			paraStyle.alignment = .Center
+
+			paraStyle.alignment = textAlignment
 			paraStyle.paragraphSpacing = 0
 			paraStyle.paragraphSpacingBefore = 0
 			placeholder!.drawInRect(placeholderRect, withAttributes: [

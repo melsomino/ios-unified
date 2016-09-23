@@ -50,6 +50,7 @@ public class AlertStack: Dependent {
 	}
 
 
+
 	func relocatePanelsAnimated() {
 		guard stack.count > 0 else {
 			return
@@ -78,6 +79,7 @@ public class AlertStack: Dependent {
 			}
 		}
 	}
+
 
 
 	func hidePanelAnimated(panel: AlertPanel) {
@@ -135,6 +137,7 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 	}
 
 
+
 	func initialize() {
 		userInteractionEnabled = true
 		autoresizingMask = [.FlexibleWidth]
@@ -143,6 +146,7 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 
 		addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapOnPanelRecognized(_:))))
 	}
+
 
 
 	override func layoutSubviews() {
@@ -159,6 +163,13 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 			stack?.hidePanelAnimated(self)
 		}
 	}
+
+
+
+	func layoutChanged(forFragment fragment: Fragment) {
+	}
+
+
 
 	@objc func tapOnPanelRecognized(sender: UITapGestureRecognizer) {
 		guard sender.state == .Ended else {
@@ -199,6 +210,8 @@ public class AlertUi: Fragment {
 	public convenience init() {
 		self.init(forModelType: Alert.self)
 	}
+
+
 
 	public override func onModelChanged() {
 		icon.image = alert?.icon
