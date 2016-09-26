@@ -72,8 +72,8 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 
 
 
-	public final func tryExecuteAction(action: DynamicBindings.Expression?) {
-		internalTryExecuteAction(action)
+	public final func tryExecuteAction(action: DynamicBindings.Expression?, defaultArgs: String?) {
+		internalTryExecuteAction(action, defaultArgs: defaultArgs)
 	}
 
 
@@ -277,7 +277,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 
 
 
-	private func internalTryExecuteAction(action: DynamicBindings.Expression?) {
+	private func internalTryExecuteAction(action: DynamicBindings.Expression?, defaultArgs: String?) {
 		guard let actionWithArgs = action?.evaluate(modelValues) else {
 			return
 		}
@@ -287,11 +287,12 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 			name = actionWithArgs.substringToIndex(argsSeparator.startIndex)
 			args = actionWithArgs.substringFromIndex(argsSeparator.endIndex).stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
 			if args!.isEmpty {
-				args = nil
+				args = defaultArgs
 			}
 		}
 		else {
 			name = actionWithArgs
+			args = defaultArgs
 		}
 		onAction(name, args: args)
 	}

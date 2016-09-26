@@ -59,6 +59,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	}
 
 
+
 	public final func reflectBottomBarModelChanges() {
 		guard let model = bottomBarFragment?.model else {
 			return
@@ -68,6 +69,8 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 			self.adjustBottomBar()
 		})
 	}
+
+
 
 	public final func ensureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
 		return internalEnsureCellFactory(forModelType: modelType)
@@ -254,7 +257,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		guard let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell else {
 			return
 		}
-		cell.fragment.tryExecuteAction(cell.fragment.definition.selectAction)
+		cell.fragment.tryExecuteAction(cell.fragment.definition.selectAction, defaultArgs: nil)
 	}
 
 

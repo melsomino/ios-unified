@@ -69,8 +69,13 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 	}
 
 	public var text: String? {
-		return (view as? TextEditView)?.text
+		didSet {
+			if lockReflectView == 0 {
+				(view as? TextEditView)?.text = text
+			}
+		}
 	}
+	private var lockReflectView = 0
 
 
 	public init() {
@@ -83,6 +88,8 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 	private func sizeOf(padding padding: UIEdgeInsets) -> CGSize {
 		return CGSizeMake(padding.left + padding.right, padding.top + padding.bottom)
 	}
+
+
 
 	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let font = self.font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
@@ -124,6 +131,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		view.textEditDelegate = self
 		view.font = font
 		view.textAlignment = textAlignment
+		view.text = text
 		view.maxLines = maxLines
 		view.placeholder = placeholder
 		view.placeholderColor = placeholderColor
@@ -134,14 +142,27 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 	}
 
 
-// MARK: - TextEditDelegate
+
+	public override func bind(toModel values: [Any?]) {
+		super.bind(toModel: values)
+		if let textBinding = (definition as? TextEditDefinition)?.text {
+			text = textBinding.evaluate(values)
+		}
+	}
+
+
+
+	// MARK: - TextEditDelegate
 
 
 	public func textEditDidChange(textEdit: TextEditView) {
 		guard let definition = definition as? TextEditDefinition else {
 			return
 		}
-		delegate?.tryExecuteAction(definition.textChangeAction)
+		lockReflectView += 1
+		text = textEdit.text
+		lockReflectView -= 1
+		delegate?.tryExecuteAction(definition.textChangeAction, defaultArgs: text)
 		if maxLines > 0 {
 			delegate?.layoutChanged(forElement: self)
 		}
@@ -153,7 +174,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		guard let definition = definition as? TextEditDefinition else {
 			return
 		}
-		delegate?.tryExecuteAction(definition.returnKeyAction)
+		delegate?.tryExecuteAction(definition.returnKeyAction, defaultArgs: text)
 	}
 
 
@@ -175,6 +196,7 @@ public class TextEditDefinition: ViewElementDefinition {
 	public var returnKeyAction: DynamicBindings.Expression?
 	public var padding = UIEdgeInsetsZero
 	public var returnKey = UIReturnKeyType.Default
+	public var text: DynamicBindings.Expression?
 
 	public override func createElement() -> FragmentElement {
 		return TextEditElement()
@@ -199,6 +221,10 @@ public class TextEditDefinition: ViewElementDefinition {
 
 
 	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+		if isElementValue {
+			text = try context.getExpression(attribute, .value(attribute.name))
+			return
+		}
 		switch attribute.name {
 			case "text-alignment":
 				textAlignment = try context.getEnum(attribute, TextElementDefinition.textAlignmentByName)

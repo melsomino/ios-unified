@@ -11,7 +11,7 @@ import UIKit
 
 
 public protocol FragmentElementDelegate: class {
-	func tryExecuteAction(action: DynamicBindings.Expression?)
+	func tryExecuteAction(action: DynamicBindings.Expression?, defaultArgs: String?)
 
 
 
