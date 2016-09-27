@@ -42,6 +42,12 @@ public class FragmentLayoutCache {
 	public init() {
 	}
 
+	public final func drop(cacheForKey key: String) {
+		for (_, frames) in cacheByWidth {
+			frames.frames.removeValueForKey(key)
+		}
+	}
+
 	// MARK: - Internals
 
 

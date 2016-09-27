@@ -88,6 +88,10 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 		internalUpdateBackgroundSensitiveElements(toBackgroundColor: highlight ? UIColor.parse("dadada") : UIColor.whiteColor())
 	}
 
+	public func notifyLayoutChanged() {
+		delegate?.layoutChanged(forFragment: self)
+	}
+
 	// MARK: - Overridable
 
 
@@ -120,7 +124,7 @@ public class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragme
 	// MARK: - Element Delegate
 
 	public func layoutChanged(forElement element: FragmentElement) {
-		delegate?.layoutChanged(forFragment: self)
+		notifyLayoutChanged()
 	}
 
 	// MARK: - RepositoryListener

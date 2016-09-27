@@ -45,6 +45,8 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	}
 
 
+	public private(set) var bottomBarFragment: Fragment?
+
 	public final var models = [Any]()
 
 
@@ -54,8 +56,8 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	public final func setBottomBar(model model: Any?) {
-		internalSetBottomBar(model: model)
+	public final func setBottomBar(model model: Any?, fragment: () -> Fragment) {
+		internalSetBottomBar(model: model, fragment: fragment)
 	}
 
 
@@ -93,6 +95,10 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 		func update(model: Any, at index: Int) {
 			owner.models[index] = model
+			let cellFactory = owner.ensureCellFactory(forModelType: model.dynamicType)
+			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: model) {
+				owner.layoutCache.drop(cacheForKey: cacheKey)
+			}
 			owner.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
 		}
 
@@ -157,6 +163,20 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 	public func onAction(action: String, args: String?) {
+	}
+
+
+
+	public func onAppear() {
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillAppear(_:)), name: UIKeyboardWillShowNotification, object: nil)
+		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillDisappear(_:)), name: UIKeyboardWillHideNotification, object: nil)
+	}
+
+
+
+	public func onDisappear() {
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+		NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
 	}
 
 
@@ -266,14 +286,30 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Internals
 
 
+	private var keyboardFrame = CGRectZero
 	private var cellFactories = [CellFragmentFactory]()
 	private var layoutCache = FragmentLayoutCache()
 	private var loadingIndicator: UIRefreshControl!
 	private var reloadingIndicator: UIActivityIndicatorView!
 
-	private var bottomBarFragment: Fragment?
 
-	public final func internalSetBottomBar(model model: Any?) {
+	func keyboardWillAppear(notification: NSNotification) {
+		if let frame = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue() {
+			keyboardFrame = frame
+			adjustBottomBar()
+		}
+	}
+
+
+
+	func keyboardWillDisappear(notification: NSNotification) {
+		keyboardFrame = CGRectZero
+		adjustBottomBar()
+	}
+
+
+
+	public final func internalSetBottomBar(model model: Any?, fragment: () -> Fragment) {
 		guard let model = model else {
 			if let fragment = bottomBarFragment {
 				fragment.container?.removeFromSuperview()
@@ -282,7 +318,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 			return
 		}
 		if bottomBarFragment == nil {
-			bottomBarFragment = Fragment(forModelType: model.dynamicType)
+			bottomBarFragment = fragment()
 			bottomBarFragment!.dependency = dependency
 			bottomBarFragment!.delegate = self
 			let container = UIView(frame: CGRectZero)
@@ -306,7 +342,10 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 			tableView.contentInset = insets
 			return
 		}
-		let bounds = controller.view.bounds
+		var bounds = controller.view.bounds
+		if keyboardFrame.height > 0 {
+			bounds.size.height -= keyboardFrame.height
+		}
 		let contentOffset = controller.tableView.contentOffset
 		fragment.performLayout(inWidth: bounds.width)
 		var frame = fragment.frame
@@ -571,6 +610,20 @@ class TableFragmentController: UITableViewController {
 		super.viewDidLayoutSubviews()
 		adjustTableInsets()
 		fragment.onResize()
+	}
+
+
+
+	override func viewWillAppear(animated: Bool) {
+		super.viewWillAppear(animated)
+		fragment.onAppear()
+	}
+
+
+
+	override func viewDidDisappear(animated: Bool) {
+		super.viewDidDisappear(animated)
+		fragment.onDisappear()
 	}
 
 

@@ -11,6 +11,38 @@ public protocol Threading {
 	func createQueue() -> ExecutionQueue
 }
 
+
+public extension Threading {
+
+	public final func inBackground<Owner:AnyObject>(with owner: Owner, work: (Owner, Execution) throws -> Void, onComplete: (Owner) -> Void, onError: (Owner, ErrorType) -> Void) {
+		weak var weakOwner: Owner? = owner
+		backgroundQueue.newExecution {
+			execution in
+			do {
+				if let strongOwner = weakOwner {
+					try work(strongOwner, execution)
+				}
+				if weakOwner == nil {
+					return
+				}
+				execution.continueOnUiQueue {
+					if let strongOwner = weakOwner {
+						onComplete(strongOwner)
+					}
+				}
+			}
+				catch let error {
+				execution.continueOnUiQueue {
+					if let strongOwner = weakOwner {
+						onError(strongOwner, error)
+					}
+				}
+			}
+		}
+	}
+
+}
+
 public let ThreadingDependency = Dependency<Threading>()
 
 public protocol ThreadingDependent: Dependent {

@@ -8,10 +8,6 @@ import Foundation
 
 
 
-
-
-
-
 public class Async {
 	public static func on(target: AsyncExecutionTarget, with owner: AnyObject?, work: (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecutionControl {
 		let executionControl = AsyncExecutionControl(execution: AsyncExecution(owner: owner))
