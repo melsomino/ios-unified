@@ -7,9 +7,9 @@ import Foundation
 
 public typealias Uuid = NSUUID
 
+public let UuidZero = Uuid(UUIDBytes: [UInt8](count: 16, repeatedValue: 0))
 
 extension Uuid {
-//	public static let zero = Uuid(UUIDBytes: [UInt8](count: 16, repeatedValue: 0))
 
 	public static func same(a: Uuid?, _ b: Uuid?) -> Bool {
 		if a == nil && b == nil {
