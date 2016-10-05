@@ -6,7 +6,7 @@
 import Foundation
 import GRDB
 
-public class DefaultModuleStorage: ModuleStorage {
+open class DefaultModuleStorage: ModuleStorage {
 
 	init(moduleName: String) {
 		self.moduleName = moduleName
@@ -14,7 +14,7 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 
-	public func switchToAccount(accountName: String?) {
+	open func switchToAccount(_ accountName: String?) {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -29,25 +29,25 @@ public class DefaultModuleStorage: ModuleStorage {
 
 	// MARK: - ModuleStorage
 
-	public func initializeDatabase(maintenance: DatabaseMaintenance) {
+	open func initializeDatabase(_ maintenance: DatabaseMaintenance) {
 		databaseMaintenance = maintenance
 		databaseInitialized = false
 	}
 
 
 
-	public func getFileStoragePath(relativePath: String) -> String {
+	open func getFileStoragePath(_ relativePath: String) -> String {
 		do {
 			return try ensureDirectoryPath("Files/\(relativePath)")
 		}
 			catch let error {
-			fatalError(String(error))
+			fatalError(String(describing: error))
 		}
 	}
 
 
 
-	public func readDatabase(read: (StorageDatabase) throws -> Void) throws {
+	open func readDatabase(_ read: (StorageDatabase) throws -> Void) throws {
 		try platformDatabase.read {
 			db in try read(DefaultModuleDatabase(db))
 		}
@@ -55,7 +55,7 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 
-	public func writeDatabaseWithoutTransaction(write: (StorageDatabase) throws -> Void) throws {
+	open func writeDatabaseWithoutTransaction(_ write: (StorageDatabase) throws -> Void) throws {
 		try platformDatabase.write {
 			db in try write(DefaultModuleDatabase(db))
 		}
@@ -63,12 +63,12 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 
-	public func writeDatabase(write: (StorageDatabase) throws -> Void) throws {
-		try platformDatabase.inTransaction(.Immediate) {
+	open func writeDatabase(_ write: (StorageDatabase) throws -> Void) throws {
+		try platformDatabase.inTransaction(.immediate) {
 			db in
 			let moduleDatabase = DefaultModuleDatabase(db)
 			try write(moduleDatabase)
-			return .Commit
+			return .commit
 		}
 	}
 
@@ -76,15 +76,15 @@ public class DefaultModuleStorage: ModuleStorage {
 	// MARK: - Internals
 
 
-	private var lock = NSRecursiveLock()
-	private var threading: Threading!
-	private let moduleName: String
-	private var accountName: String?
-	private var databaseMaintenance: DatabaseMaintenance?
-	private var databaseInitialized = false
+	fileprivate var lock = NSRecursiveLock()
+	fileprivate var threading: Threading!
+	fileprivate let moduleName: String
+	fileprivate var accountName: String?
+	fileprivate var databaseMaintenance: DatabaseMaintenance?
+	fileprivate var databaseInitialized = false
 
-	private var currentPlatformDatabase: DatabaseQueue?
-	private var platformDatabase: DatabaseQueue {
+	fileprivate var currentPlatformDatabase: DatabaseQueue?
+	fileprivate var platformDatabase: DatabaseQueue {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -95,23 +95,23 @@ public class DefaultModuleStorage: ModuleStorage {
 
 		do {
 			guard accountName != nil else {
-				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": storage does not bound to account name")
+				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": storage does not bound to account name") as! Error
 			}
 			guard let maintenance = databaseMaintenance else {
-				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified")
+				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified") as! Error
 			}
 			let newDatabase = try DatabaseQueue(path: self.ensureDirectoryPath("") + "/Database.sqlite")
 			try upgradeDatabaseIfNeeded(newDatabase, maintenance: maintenance)
 			currentPlatformDatabase = newDatabase
 		}
 			catch let error {
-			fatalError(String(error))
+			fatalError(String(describing: error))
 		}
 
 		return currentPlatformDatabase!
 	}
 
-	private func upgradeDatabaseIfNeeded(platformConnection: DatabaseQueue, maintenance: DatabaseMaintenance) throws {
+	fileprivate func upgradeDatabaseIfNeeded(_ platformConnection: DatabaseQueue, maintenance: DatabaseMaintenance) throws {
 		try platformConnection.write {
 			platformDatabase in
 			let database = DefaultModuleDatabase(platformDatabase)
@@ -131,18 +131,18 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 
-	private func ensureDirectoryPath(relativePath: String) throws -> String {
+	fileprivate func ensureDirectoryPath(_ relativePath: String) throws -> String {
 		guard !(accountName ?? "").isEmpty else {
 			fatalError("Required storage access failed due to missing account")
 		}
-		let appDataPath = NSSearchPathForDirectoriesInDomains(.ApplicationSupportDirectory, .UserDomainMask, true)[0]
+		let appDataPath = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)[0]
 		let path = "\(appDataPath)/\(accountName ?? "")/\(moduleName)/\(relativePath)"
-		try NSFileManager.defaultManager().createDirectoryAtPath(path, withIntermediateDirectories: true, attributes: nil)
+		try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
 		return path
 	}
 
-	public class DatabaseInfoRecord {
-		public var databaseVersion: Int
+	open class DatabaseInfoRecord {
+		open var databaseVersion: Int
 		init() {
 			databaseVersion = 0
 		}
@@ -152,12 +152,12 @@ public class DefaultModuleStorage: ModuleStorage {
 		}
 	}
 
-	public var databaseInfoTable: String {
+	open var databaseInfoTable: String {
 		return "__\(moduleName)"
 	}
 
 
-	private func selectDatabaseInfo(database: StorageDatabase) throws -> DatabaseInfoRecord? {
+	fileprivate func selectDatabaseInfo(_ database: StorageDatabase) throws -> DatabaseInfoRecord? {
 		guard database.tableExists(databaseInfoTable) else {
 			return nil
 		}
@@ -170,7 +170,7 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 
-	private func updateDatabaseInfo(database: StorageDatabase, _ info: DatabaseInfoRecord) throws {
+	fileprivate func updateDatabaseInfo(_ database: StorageDatabase, _ info: DatabaseInfoRecord) throws {
 		let update = try database.createUpdateStatement("UPDATE \(databaseInfoTable) SET databaseVersion=?")
 		defer {
 			update.close()
@@ -181,7 +181,7 @@ public class DefaultModuleStorage: ModuleStorage {
 
 
 
-	private func createDatabaseInfo(database: StorageDatabase, _ info: DatabaseInfoRecord) throws {
+	fileprivate func createDatabaseInfo(_ database: StorageDatabase, _ info: DatabaseInfoRecord) throws {
 
 		try database.executeStatement("CREATE TABLE \(databaseInfoTable) (databaseVersion INT)")
 		let insert = try database.createUpdateStatement("INSERT INTO \(databaseInfoTable)(databaseVersion) VALUES (?)")

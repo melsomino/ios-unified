@@ -11,7 +11,7 @@ import Foundation
 public struct HtmlParser {
 	var text = ""
 
-	public static func parse(html: String) -> String {
+	public static func parse(_ html: String) -> String {
 		var parser = HtmlParser()
 		do {
 			let doc = try HTMLDocument(string: html)
@@ -26,9 +26,9 @@ public struct HtmlParser {
 
 
 
-	mutating func parse_node(node: XMLNode) {
+	mutating func parse_node(_ node: XMLNode) {
 		if let element = node as? XMLElement {
-			let tag = element.tag?.lowercaseString ?? ""
+			let tag = element.tag?.lowercased() ?? ""
 			for child in element.childNodes(ofTypes: [.Element, .Text, .CDataSection]) {
 				parse_node(child)
 			}

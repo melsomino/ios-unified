@@ -8,17 +8,17 @@ import UIKit
 
 
 
-public class AlertStack: Dependent {
+open class AlertStack: Dependent {
 
 
-	public var dependency: DependencyResolver!
+	open var dependency: DependencyResolver!
 
 	public init() {
 	}
 
 
 
-	public func pushInContainer(container: UIView, alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?) {
+	open func pushInContainer(_ container: UIView, alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?) {
 		var icon = icon
 		if icon == nil {
 			switch alert {
@@ -30,17 +30,17 @@ public class AlertStack: Dependent {
 					icon = CentralUIDesign.alertInformationIcon
 			}
 		}
-		let newPanel = AlertPanel(frame: CGRectMake(0, -CentralUIDesign.informationPanelHeight, container.bounds.width, CentralUIDesign.informationPanelHeight))
+		let newPanel = AlertPanel(frame: CGRect(x: 0, y: -CentralUIDesign.informationPanelHeight, width: container.bounds.width, height: CentralUIDesign.informationPanelHeight))
 		newPanel.dependency = dependency
 		newPanel.stack = self
 		newPanel.ui.model = Alert(icon: icon!, message: message, actionArg: actionArg, action: action)
 
-		stack.insert(newPanel, atIndex: 0)
+		stack.insert(newPanel, at: 0)
 		container.addSubview(newPanel)
 
-		let hideTime = dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC * 3))
+		let hideTime = DispatchTime.now() + Double(Int64(NSEC_PER_SEC * 3)) / Double(NSEC_PER_SEC)
 		weak var weakPanel = newPanel
-		dispatch_after(hideTime, dispatch_get_main_queue()) {
+		DispatchQueue.main.asyncAfter(deadline: hideTime) {
 			if let panel = weakPanel {
 				self.hidePanelAnimated(panel)
 			}
@@ -71,29 +71,29 @@ public class AlertStack: Dependent {
 			return
 		}
 
-		UIView.animateWithDuration(NSTimeInterval(0.25)) {
-			var frame = CGRectMake(0, 0, width, CentralUIDesign.informationPanelHeight)
+		UIView.animate(withDuration: TimeInterval(0.25), animations: {
+			var frame = CGRect(x: 0, y: 0, width: width, height: CentralUIDesign.informationPanelHeight)
 			for panel in self.stack {
 				panel.frame = frame
 				frame.origin.y += CentralUIDesign.informationPanelHeight
 			}
-		}
+		}) 
 	}
 
 
 
-	func hidePanelAnimated(panel: AlertPanel) {
+	func hidePanelAnimated(_ panel: AlertPanel) {
 		guard stack.contains(panel) else {
 			return
 		}
-		UIView.animateWithDuration(NSTimeInterval(0.25),
+		UIView.animate(withDuration: TimeInterval(0.25),
 			animations: {
 				panel.alpha = 0
 			},
 			completion: {
 				finished in
-				if let index = self.stack.indexOf(panel) {
-					self.stack.removeAtIndex(index)
+				if let index = self.stack.index(of: panel) {
+					self.stack.remove(at: index)
 				}
 				panel.removeFromSuperview()
 				self.relocatePanelsAnimated()
@@ -101,7 +101,7 @@ public class AlertStack: Dependent {
 	}
 
 
-	private var stack = [AlertPanel]()
+	fileprivate var stack = [AlertPanel]()
 }
 
 
@@ -139,8 +139,8 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 
 
 	func initialize() {
-		userInteractionEnabled = true
-		autoresizingMask = [.FlexibleWidth]
+		isUserInteractionEnabled = true
+		autoresizingMask = [.flexibleWidth]
 		ui.container = self
 		ui.delegate = self
 
@@ -158,7 +158,7 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 		return nil
 	}
 
-	func onAction(action: String, args: String?) {
+	func onAction(_ action: String, args: String?) {
 		if action == "close" {
 			stack?.hidePanelAnimated(self)
 		}
@@ -171,14 +171,14 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 
 
 
-	@objc func tapOnPanelRecognized(sender: UITapGestureRecognizer) {
-		guard sender.state == .Ended else {
+	@objc func tapOnPanelRecognized(_ sender: UITapGestureRecognizer) {
+		guard sender.state == .ended else {
 			return
 		}
 		guard let stack = stack else {
 			return
 		}
-		let location = sender.locationInView(self)
+		let location = sender.location(in: self)
 		if location.x < 36 {
 			if let action = ui.alert?.action {
 				action(ui.alert!.actionArg)
@@ -199,7 +199,7 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 
 
 
-public class AlertUi: Fragment {
+open class AlertUi: Fragment {
 
 	var alert: Alert? {
 		return model as? Alert
@@ -213,7 +213,7 @@ public class AlertUi: Fragment {
 
 
 
-	public override func onModelChanged() {
+	open override func onModelChanged() {
 		icon.image = alert?.icon
 	}
 

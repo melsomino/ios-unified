@@ -27,10 +27,10 @@ class CollectionSectionUpdate<Section> {
 class CollectionItemUpdate<Item> {
 	let item: Item
 	let type: CollectionUpdateType
-	let index: NSIndexPath
-	let indexNew: NSIndexPath
+	let index: IndexPath
+	let indexNew: IndexPath
 
-	init(item: Item, type: CollectionUpdateType, index: NSIndexPath, indexNew: NSIndexPath) {
+	init(item: Item, type: CollectionUpdateType, index: IndexPath, indexNew: IndexPath) {
 		self.item = item
 		self.type = type
 		self.index = index
@@ -55,7 +55,7 @@ public struct CollectionSync<Section, Item> {
 			let newSection = newSections![newIndex]
 			var oldIndex: Int?
 			if oldSections != nil {
-				oldIndex = oldSections!.indexOf({ sameSections($0, newSection) })
+				oldIndex = oldSections!.index(where: { sameSections($0, newSection) })
 			}
 
 			if oldIndex == nil {

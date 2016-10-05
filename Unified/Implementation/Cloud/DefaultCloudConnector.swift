@@ -6,26 +6,26 @@
 import Foundation
 
 
-public class DefaultCloudConnector: CloudConnector {
+open class DefaultCloudConnector: CloudConnector {
 
-	public var debugResponseTracePath: String?
+	open var debugResponseTracePath: String?
 
-	public init(baseUrl: NSURL) {
+	public init(baseUrl: URL) {
 		self.baseUrl = baseUrl
 	}
 
 
 	// MARK: - CloudConnector
 
-	var urlSession: NSURLSession = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+	var urlSession: URLSession = URLSession(configuration: URLSessionConfiguration.default)
 
 
-	public func getFileCache(localPath: String) -> CloudFileCache {
+	open func getFileCache(_ localPath: String) -> CloudFileCache {
 		if !sessionCacheLocalPaths.contains(localPath) {
-			let fm = NSFileManager.defaultManager()
+			let fm = FileManager.default
 			do {
-				for file in try fm.contentsOfDirectoryAtPath(localPath) {
-					let _ = try? fm.removeItemAtPath(localPath + "/" + file)
+				for file in try fm.contentsOfDirectory(atPath: localPath) {
+					let _ = try? fm.removeItem(atPath: localPath + "/" + file)
 				}
 			}
 			catch {
@@ -37,22 +37,22 @@ public class DefaultCloudConnector: CloudConnector {
 
 
 
-	public func makeUrl(relativePath: String) -> NSURL {
-		return NSURL(string: relativePath, relativeToURL: baseUrl)!
+	open func makeUrl(_ relativePath: String) -> URL {
+		return URL(string: relativePath, relativeTo: baseUrl)!
 	}
 
 
-	private class DownloadProgressReporter: NSObject, NSURLSessionDownloadDelegate {
+	fileprivate class DownloadProgressReporter: NSObject, URLSessionDownloadDelegate {
 
 		var progressHandler: ((Int64, Int64) -> Void)?
-		var errorHandler: (ErrorType -> Void)?
-		var completionHandler: NSURL -> Void
+		var errorHandler: ((Error) -> Void)?
+		var completionHandler: (URL) -> Void
 
-		@objc func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
+		@objc func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
 			completionHandler(location)
 		}
 
-		@objc func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+		@objc func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
 			if let handler = errorHandler {
 				if let downloadError = error {
 					handler(downloadError)
@@ -60,43 +60,43 @@ public class DefaultCloudConnector: CloudConnector {
 			}
 		}
 
-		@objc func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+		@objc func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
 			if let handler = progressHandler {
 				handler(totalBytesWritten, totalBytesExpectedToWrite)
 			}
 		}
 
-		init(progress: ((Int64, Int64) -> Void)?,  error: (ErrorType -> Void)?, completion: NSURL -> Void) {
+		init(progress: ((Int64, Int64) -> Void)?,  error: ((Error) -> Void)?, completion: @escaping (URL) -> Void) {
 			progressHandler = progress
 			errorHandler = error
 			completionHandler = completion
 		}
 	}
 
-	public func startDownload(request: NSURLRequest, progress: ((Int64, Int64) -> Void)?, error: (ErrorType -> Void)?, complete: NSURL -> Void) {
+	open func startDownload(_ request: URLRequest, progress: ((Int64, Int64) -> Void)?, error: ((Error) -> Void)?, complete: @escaping (URL) -> Void) {
 		let progressReporter = DownloadProgressReporter(progress: progress, error: error, completion: complete)
 		progressReporter.progressHandler = progress
-		let session = NSURLSession(configuration: urlSession.configuration, delegate: progressReporter, delegateQueue: NSOperationQueue())
-		let task = session.downloadTaskWithRequest(request)
+		let session = URLSession(configuration: urlSession.configuration, delegate: progressReporter, delegateQueue: OperationQueue())
+		let task = session.downloadTask(with: request)
 		task.resume()
 	}
 
 
 
-	public func invokeService(serviceUrl: NSURL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject {
+	open func invokeService(_ serviceUrl: URL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject {
 		var json = [String: AnyObject]()
 
-		json["jsonrpc"] = "2.0"
-		json["protocol"] = protocolVersion
-		json["method"] = method
+		json["jsonrpc"] = "2.0" as AnyObject?
+		json["protocol"] = protocolVersion as AnyObject?
+		json["method"] = method as AnyObject?
 		json["params"] = params
 
-		let httpRequest = NSMutableURLRequest(URL: serviceUrl, cachePolicy: .UseProtocolCachePolicy, timeoutInterval: 60.0)
-		let httpRequestJson = ["jsonrpc": "2.0", "protocol": protocolVersion, "method": method, "params": params]
-		let httpRequestData = try! NSJSONSerialization.dataWithJSONObject(httpRequestJson, options: [])
+		let httpRequest = NSMutableURLRequest(url: serviceUrl, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 60.0)
+		let httpRequestJson = ["jsonrpc": "2.0", "protocol": protocolVersion, "method": method, "params": params] as [String : Any]
+		let httpRequestData = try! JSONSerialization.data(withJSONObject: httpRequestJson, options: [])
 
-		httpRequest.HTTPMethod = "POST"
-		httpRequest.HTTPBody = httpRequestData
+		httpRequest.httpMethod = "POST"
+		httpRequest.httpBody = httpRequestData
 		httpRequest.addValue("application/json; charset=utf-8;", forHTTPHeaderField: "Content-Type")
 		httpRequest.addValue("application/json", forHTTPHeaderField: "Accept")
 
@@ -104,17 +104,17 @@ public class DefaultCloudConnector: CloudConnector {
 		var invokeResult: AnyObject?
 		var invokeError: CloudError?
 
-		let semaphore = dispatch_semaphore_create(0)
+		let semaphore = DispatchSemaphore(value: 0)
 
-		let task = urlSession.dataTaskWithRequest(httpRequest) {
+		let task = urlSession.dataTask(with: httpRequest as URLRequest, completionHandler: {
 			httpResponseData, httpResponse, httpResponseError in
 
 			if httpResponseData != nil {
 				do {
-					let responseDict = try NSJSONSerialization.JSONObjectWithData(httpResponseData!, options: []) as! [String:AnyObject]
+					let responseDict = try JSONSerialization.jsonObject(with: httpResponseData!, options: []) as! [String:AnyObject]
 
 					if let tracePath = self.debugResponseTracePath {
-						httpResponseData!.writeToFile("\(tracePath)/\(NSDate()).json", atomically: true)
+						try? httpResponseData!.write(to: URL(fileURLWithPath: "\(tracePath)/\(Date()).json"), options: [.atomic])
 					}
 
 					if let errorDict = responseDict["error"] as? [String: AnyObject] {
@@ -135,27 +135,27 @@ public class DefaultCloudConnector: CloudConnector {
 			else {
 				invokeError = CloudError("HTTP Error: \(httpResponseError)", nil)
 			}
-			dispatch_semaphore_signal(semaphore)
-		}
+			semaphore.signal()
+		}) 
 		task.resume()
-		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER)
+		semaphore.wait(timeout: DispatchTime.distantFuture)
 
 
 		if invokeError != nil {
-			throw invokeError!
+			throw invokeError! as! Error
 		}
 		return invokeResult!
 	}
 
 	// MARK: - Internals
 
-	var baseUrl: NSURL!
+	var baseUrl: URL!
 	var sessionCacheLocalPaths = Set<String>()
 }
 
 
 extension DependencyContainer {
-	func createDefaultCloudConnector(baseUrl: NSURL) {
+	func createDefaultCloudConnector(_ baseUrl: URL) {
 		register(CloudConnectorDependency, DefaultCloudConnector(baseUrl: baseUrl))
 	}
 }

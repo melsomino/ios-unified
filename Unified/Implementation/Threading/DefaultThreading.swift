@@ -8,15 +8,15 @@ import Foundation
 class DefaultThreading: Threading {
 
 	var uiQueue: ExecutionQueue {
-		return DefaultExecutionQueue(self, NSOperationQueue.mainQueue())
+		return DefaultExecutionQueue(self, OperationQueue.main)
 	}
 
 	var backgroundQueue: ExecutionQueue {
-		return DefaultExecutionQueue(self, NSOperationQueue())
+		return DefaultExecutionQueue(self, OperationQueue())
 	}
 
 	func createQueue() -> ExecutionQueue {
-		return DefaultExecutionQueue(self, NSOperationQueue())
+		return DefaultExecutionQueue(self, OperationQueue())
 	}
 
 }

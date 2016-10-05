@@ -5,13 +5,13 @@
 
 import Foundation
 
-public typealias Uuid = NSUUID
+public typealias Uuid = UUID
 
-public let UuidZero = Uuid(UUIDBytes: [UInt8](count: 16, repeatedValue: 0))
+public let UuidZero = NSUUID(uuidBytes: [UInt8](repeating: 0, count: 16)) as UUID
 
 extension Uuid {
 
-	public static func same(a: Uuid?, _ b: Uuid?) -> Bool {
+	public static func same(_ a: Uuid?, _ b: Uuid?) -> Bool {
 		if a == nil && b == nil {
 			return true
 		}
@@ -26,13 +26,13 @@ extension Uuid {
 extension String {
 
 	public func toUuid() -> Uuid? {
-		return !isEmpty ? Uuid(UUIDString: self) : nil
+		return !isEmpty ? Uuid(uuidString: self) : nil
 	}
 
 
 
-	public static func fromUuid(value: Uuid?) -> String {
-		return value != nil ? value!.UUIDString : ""
+	public static func fromUuid(_ value: Uuid?) -> String {
+		return value != nil ? value!.uuidString : ""
 	}
 }
 
@@ -40,25 +40,25 @@ extension String {
 
 
 
-public class CloudApiPrimitiveTypeConverter {
+open class CloudApiPrimitiveTypeConverter {
 
-	public static func uuidFromJson(value: AnyObject) -> Uuid? {
+	open static func uuidFromJson(_ value: AnyObject) -> Uuid? {
 		switch value {
 			case let uuid as Uuid: return uuid
-			case let string as String: return Uuid(UUIDString: string)
+			case let string as String: return Uuid(uuidString: string)
 			default: return nil
 		}
 	}
 
 
 
-	public static func jsonFromUuid(value: Uuid?) -> AnyObject {
-		return value?.UUIDString ?? NSNull()
+	open static func jsonFromUuid(_ value: Uuid?) -> AnyObject {
+		return value?.uuidString as AnyObject? ?? NSNull()
 	}
 
-	private static let uuidZero = Uuid(UUIDBytes: [UInt8](count: 16, repeatedValue: 0))
+	fileprivate static let uuidZero = NSUUID(uuidBytes: [UInt8](repeating: 0, count: 16)) as UUID
 
-	public static func uuidArrayFromJsonArray(array: AnyObject) -> [Uuid] {
+	open static func uuidArrayFromJsonArray(_ array: AnyObject) -> [Uuid] {
 		return arrayFromJson(array) {
 			item in uuidFromJson(item) ?? CloudApiPrimitiveTypeConverter.uuidZero
 		}
@@ -66,7 +66,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonArrayFromUuidArray(array: [Uuid]) -> AnyObject {
+	open static func jsonArrayFromUuidArray(_ array: [Uuid]) -> AnyObject {
 		return jsonFromArray(array) {
 			item in jsonFromUuid(item)
 		}
@@ -74,7 +74,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func integerFromJson(value: AnyObject) -> Int? {
+	open static func integerFromJson(_ value: AnyObject) -> Int? {
 		switch value {
 			case let s as String: return Int(s)
 			case let i as Int: return i
@@ -84,13 +84,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromInteger(value: Int?) -> AnyObject {
-		return value ?? NSNull()
+	open static func jsonFromInteger(_ value: Int?) -> AnyObject {
+		return value as AnyObject? ?? NSNull()
 	}
 
 
 
-	public static func integerArrayFromJsonArray(array: AnyObject) -> [Int] {
+	open static func integerArrayFromJsonArray(_ array: AnyObject) -> [Int] {
 		return arrayFromJson(array) {
 			item in integerFromJson(item) ?? 0
 		}
@@ -98,7 +98,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonArrayFromIntegerArray(array: [Int]) -> AnyObject {
+	open static func jsonArrayFromIntegerArray(_ array: [Int]) -> AnyObject {
 		return jsonFromArray(array) {
 			item in jsonFromInteger(item)
 		}
@@ -106,7 +106,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func int64FromJson(value: AnyObject) -> Int64? {
+	open static func int64FromJson(_ value: AnyObject) -> Int64? {
 		switch value {
 			case let s as String: return Int64(s)
 			case let i64 as Int64: return i64
@@ -117,14 +117,14 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromInt64(value: Int64?) -> AnyObject {
+	open static func jsonFromInt64(_ value: Int64?) -> AnyObject {
 		return value != nil ? String(value!) : NSNull()
 	}
 
 
 
-	private static func boolFromString(s: String) -> Bool? {
-		switch s.lowercaseString {
+	fileprivate static func boolFromString(_ s: String) -> Bool? {
+		switch s.lowercased() {
 			case "1", "t", "true": return true
 			case "0", "f", "false": return false
 			default: return nil
@@ -133,7 +133,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func booleanFromJson(value: AnyObject) -> Bool? {
+	open static func booleanFromJson(_ value: AnyObject) -> Bool? {
 		switch value {
 			case let s as String: return boolFromString(s)
 			case let b as Bool: return b
@@ -143,13 +143,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromBoolean(value: Bool?) -> AnyObject {
-		return value ?? NSNull()
+	open static func jsonFromBoolean(_ value: Bool?) -> AnyObject {
+		return value as AnyObject? ?? NSNull()
 	}
 
 
 
-	public static func booleanArrayFromJsonArray(array: AnyObject) -> [Bool] {
+	open static func booleanArrayFromJsonArray(_ array: AnyObject) -> [Bool] {
 		return arrayFromJson(array) {
 			item in booleanFromJson(item) ?? false
 		}
@@ -157,7 +157,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonArrayFromBooleanArray(array: [Bool]) -> AnyObject {
+	open static func jsonArrayFromBooleanArray(_ array: [Bool]) -> AnyObject {
 		return jsonFromArray(array) {
 			item in jsonFromBoolean(item)
 		}
@@ -165,23 +165,23 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func stringFromJson(value: AnyObject) -> String? {
+	open static func stringFromJson(_ value: AnyObject) -> String? {
 		switch value {
 			case is NSNull: return nil
 			case let s as String: return s
-			default: return String(value)
+			default: return String(describing: value)
 		}
 	}
 
 
 
-	public static func jsonFromString(value: String?) -> AnyObject {
-		return value ?? NSNull()
+	open static func jsonFromString(_ value: String?) -> AnyObject {
+		return value as AnyObject? ?? NSNull()
 	}
 
 
 
-	public static func stringArrayFromJsonArray(array: AnyObject) -> [String] {
+	open static func stringArrayFromJsonArray(_ array: AnyObject) -> [String] {
 		return arrayFromJson(array) {
 			item in stringFromJson(item) ?? ""
 		}
@@ -189,68 +189,68 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonArrayFromStringArray(array: [String]) -> AnyObject {
+	open static func jsonArrayFromStringArray(_ array: [String]) -> AnyObject {
 		return jsonFromArray(array) {
 			item in jsonFromString(item)
 		}
 	}
 
 
-	public static var dateTimeConversionDefaultCalendar: NSCalendar = {
-		var calendar: NSCalendar! = NSCalendar(identifier: NSCalendar.currentCalendar().calendarIdentifier)!
-		calendar.timeZone = NSTimeZone(forSecondsFromGMT: 3 * 60 * 60)
+	open static var dateTimeConversionDefaultCalendar: Calendar = {
+		var calendar: Calendar! = Calendar(identifier: Calendar.current.identifier)
+		calendar.timeZone = TimeZone(secondsFromGMT: 3 * 60 * 60)!
 		return calendar
 	}()
 
 
-	private static func createDateTimeFormatter(format: String, withTodayAsDefaultDate: Bool) -> NSDateFormatter {
-		let formatter = NSDateFormatter()
-		formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+	fileprivate static func createDateTimeFormatter(_ format: String, withTodayAsDefaultDate: Bool) -> DateFormatter {
+		let formatter = DateFormatter()
+		formatter.locale = Locale(identifier: "en_US_POSIX")
 		formatter.dateFormat = format
 		formatter.timeZone = dateTimeConversionDefaultCalendar.timeZone
 		if withTodayAsDefaultDate {
-			formatter.defaultDate = dateTimeConversionDefaultCalendar.startOfDayForDate(NSDate())
+			formatter.defaultDate = dateTimeConversionDefaultCalendar.startOfDay(for: Date())
 		}
 		return formatter
 	}
 
-	private static var defaultDateTimeFormatter = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
-	private static var dateTimeFormatterWithMilliseconds = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
-	private static var dateFormatter: NSDateFormatter {
+	fileprivate static var defaultDateTimeFormatter = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
+	fileprivate static var dateTimeFormatterWithMilliseconds = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
+	fileprivate static var dateFormatter: DateFormatter {
 		return createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: true)
 	}
-	private static var dotSeparatedDateTimeFormatter: NSDateFormatter {
+	fileprivate static var dotSeparatedDateTimeFormatter: DateFormatter {
 		return createDateTimeFormatter("dd.MM.yyyy HH.mm.ss", withTodayAsDefaultDate: true)
 	}
 
-	private static var dotSeparatedDateFormatter: NSDateFormatter {
+	fileprivate static var dotSeparatedDateFormatter: DateFormatter {
 		return createDateTimeFormatter("dd.MM.yy", withTodayAsDefaultDate: true)
 	}
 
-	private static var dotSeparatedDayMonthFormatter: NSDateFormatter {
+	fileprivate static var dotSeparatedDayMonthFormatter: DateFormatter {
 		return createDateTimeFormatter("dd.MM", withTodayAsDefaultDate: true)
 	}
 
 
-	public static func dateTimeFromJson(value: AnyObject) -> NSDate? {
+	open static func dateTimeFromJson(_ value: AnyObject) -> Date? {
 		switch value {
 			case let string as String:
-				if let date = defaultDateTimeFormatter.dateFromString(string) {
+				if let date = defaultDateTimeFormatter.date(from: string) {
 					return date
 				}
-				if let date = dateTimeFormatterWithMilliseconds.dateFromString(string) {
+				if let date = dateTimeFormatterWithMilliseconds.date(from: string) {
 					return date
 				}
-				if let date = dateFormatter.dateFromString(string) {
+				if let date = dateFormatter.date(from: string) {
 					return date
 				}
-				if let date = dotSeparatedDateTimeFormatter.dateFromString(string) {
+				if let date = dotSeparatedDateTimeFormatter.date(from: string) {
 					return date
 				}
-				if let date = dotSeparatedDateFormatter.dateFromString(string) {
+				if let date = dotSeparatedDateFormatter.date(from: string) {
 					return date
 				}
-				if let date = dotSeparatedDayMonthFormatter.dateFromString(string) {
+				if let date = dotSeparatedDayMonthFormatter.date(from: string) {
 					return date
 				}
 
@@ -263,13 +263,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromDateTime(value: NSDate?) -> AnyObject {
-		return value != nil ? defaultDateTimeFormatter.stringFromDate(value!) : NSNull()
+	open static func jsonFromDateTime(_ value: Date?) -> AnyObject {
+		return value != nil ? defaultDateTimeFormatter.string(from: value!) : NSNull()
 	}
 
 
 
-	public static func arrayFromJson<T>(source: AnyObject, _ loadItem: (_:AnyObject) -> T) -> [T] {
+	open static func arrayFromJson<T>(_ source: AnyObject, _ loadItem: (_:AnyObject) -> T) -> [T] {
 		var result = [T]()
 		if let sourceArray = source as? [AnyObject] {
 			for sourceItem in sourceArray {
@@ -283,7 +283,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	public static func jsonFromArray<T>(source: [T], _ saveItem: (_:T) -> AnyObject) -> [AnyObject] {
+	open static func jsonFromArray<T>(_ source: [T], _ saveItem: (_:T) -> AnyObject) -> [AnyObject] {
 		var array = [AnyObject]()
 		for sourceItem in source {
 			array.append(saveItem(sourceItem))

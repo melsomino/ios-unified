@@ -5,7 +5,7 @@
 
 import Foundation
 
-public class DefaultExecution : Execution {
+open class DefaultExecution : Execution {
 
 
 	init(_ threading: DefaultThreading) {
@@ -13,7 +13,7 @@ public class DefaultExecution : Execution {
 	}
 
 
-	public func cancel() {
+	open func cancel() {
 		cancelled = true
 		cancellationHandler?()
 	}
@@ -22,23 +22,23 @@ public class DefaultExecution : Execution {
 	// MARK: - Execution
 
 
-	public var cancelled = false
-	public var complete = false
+	open var cancelled = false
+	open var complete = false
 
-	public func continueOnUiQueue(action: () -> Void) {
+	open func continueOnUiQueue(_ action: @escaping () -> Void) {
 		threading.uiQueue.continueExecution(self, action)
 	}
 
 
-	public func continueInBackground(action: () -> Void) {
+	open func continueInBackground(_ action: @escaping () -> Void) {
 		threading.backgroundQueue.continueExecution(self, action)
 	}
 
-	public func onCancel(handler: () -> Void) {
+	open func onCancel(_ handler: @escaping () -> Void) {
 		cancellationHandler = handler
 	}
 
-	public func reportComplete() {
+	open func reportComplete() {
 		complete = true
 	}
 
@@ -46,7 +46,7 @@ public class DefaultExecution : Execution {
 	// MARK: - Internals
 
 
-	private weak var threading: DefaultThreading!
-	private var cancellationHandler: (() -> Void)?
+	fileprivate weak var threading: DefaultThreading!
+	fileprivate var cancellationHandler: (() -> Void)?
 
 }

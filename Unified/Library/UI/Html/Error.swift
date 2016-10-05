@@ -24,24 +24,23 @@ import Foundation
 /**
 *  XMLError enumeration.
 */
-enum XMLError: ErrorType {
-  /// No error
-  case NoError
-  /// Contains a libxml2 error with error code and message
-  case LibXMLError(code: Int, message: String)
-  /// Failed to convert String to bytes using given string encoding
-  case InvalidData
-  /// XML Parser failed to parse the document
-  case ParserFailure
-  
-  internal static func lastError(defaultError: XMLError = .NoError) -> XMLError {
-    let errorPtr = xmlGetLastError()
-    guard errorPtr != nil else {
-      return defaultError
-    }
-    let message = String.fromCString(errorPtr.memory.message)?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-    let code = Int(errorPtr.memory.code)
-    xmlResetError(errorPtr)
-    return .LibXMLError(code: code, message: message ?? "")
-  }
+public enum XMLError: Error {
+	/// No error
+	case noError
+	/// Contains a libxml2 error with error code and message
+	case libXMLError(code: Int, message: String)
+	/// Failed to convert String to bytes using given string encoding
+	case invalidData
+	/// XML Parser failed to parse the document
+	case parserFailure
+	
+	internal static func lastError(defaultError: XMLError = .noError) -> XMLError {
+		guard let errorPtr = xmlGetLastError() else {
+			return defaultError
+		}
+		let message = (^-^errorPtr.pointee.message)?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+		let code = Int(errorPtr.pointee.code)
+		xmlResetError(errorPtr)
+		return .libXMLError(code: code, message: message ?? "")
+	}
 }

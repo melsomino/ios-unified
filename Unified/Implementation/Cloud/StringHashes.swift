@@ -6,13 +6,13 @@ import Foundation
 
 class StringHashes {
 
-	static func getHash(string: String) -> String {
+	static func getHash(_ string: String) -> String {
 		return String(Fnv1.fromString(string)) + String(CRC32.fromString(string))
 	}
 
-	private class Fnv1 {
+	fileprivate class Fnv1 {
 
-		private struct Constants {
+		fileprivate struct Constants {
 #if arch(arm64) || arch(x86_64) // 64-bit
 			static let OffsetBasis: UInt = 14695981039346656037
 			static let FNVPrime: UInt = 1099511628211
@@ -23,7 +23,7 @@ class StringHashes {
 		}
 
 
-		private static func fnv1<S:SequenceType where S.Generator.Element == UInt8>(bytes: S) -> UInt {
+		fileprivate static func fnv1<S:Sequence>(_ bytes: S) -> UInt where S.Iterator.Element == UInt8 {
 			var hash = Constants.OffsetBasis
 			for byte in bytes {
 				hash = hash &* Constants.FNVPrime // &* means multiply with overflow
@@ -32,7 +32,7 @@ class StringHashes {
 			return hash
 		}
 
-		static func fromString(str: String) -> UInt {
+		static func fromString(_ str: String) -> UInt {
 			return fnv1(str.utf8)
 		}
 	}
@@ -41,7 +41,7 @@ class StringHashes {
 
 	class CRC32 {
 
-		private static let table32:[UInt32] = [0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
+		fileprivate static let table32:[UInt32] = [0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
 			0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
 			0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
 			0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
@@ -74,12 +74,12 @@ class StringHashes {
 			0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
 			0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d]
 
-		static func fromString(message: String) -> UInt32 {
+		static func fromString(_ message: String) -> UInt32 {
 			return crc32(message.utf8)
 		}
 
 
-		static func crc32<S:SequenceType where S.Generator.Element == UInt8>(message: S, seed: UInt32? = nil) -> UInt32 {
+		static func crc32<S:Sequence>(_ message: S, seed: UInt32? = nil) -> UInt32 where S.Iterator.Element == UInt8 {
 			var crc:UInt32 = seed != nil ? seed! : 0xffffffff
 
 			for b in message {

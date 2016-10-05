@@ -7,15 +7,15 @@ import Foundation
 
 
 public protocol RepositoryListener {
-	func repositoryChanged(repository: Repository)
+	func repositoryChanged(_ repository: Repository)
 }
 
 
 public protocol Repository: class {
-	var devServerUrl: NSURL? { get set }
+	var devServerUrl: URL? { get set }
 
-	func addListener(listener: RepositoryListener)
-	func removeListener(listener: RepositoryListener)
+	func addListener(_ listener: RepositoryListener)
+	func removeListener(_ listener: RepositoryListener)
 
 	func load(repository name: String) throws -> [DeclarationElement]
 	func load(repository name: String, forType: Any.Type) throws -> [DeclarationElement]
@@ -26,7 +26,7 @@ public protocol Repository: class {
 }
 
 
-public let RepositoryDefaultDevServerUrl = NSURL(string: "ws://localhost:8080/events")!
+public let RepositoryDefaultDevServerUrl = URL(string: "ws://localhost:8080/events")!
 
 public let RepositoryDependency = Dependency<Repository>()
 

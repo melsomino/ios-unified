@@ -6,7 +6,7 @@
 import Foundation
 import GRDB
 
-public class DefaultDatabaseReader: DatabaseReader {
+open class DefaultDatabaseReader: DatabaseReader {
 
 	init(_ platformReader: DatabaseGenerator<Row>) {
 		self.platformReader = platformReader
@@ -14,53 +14,53 @@ public class DefaultDatabaseReader: DatabaseReader {
 
 	// MARK: - DatabaseReader
 
-	public func close() {
+	open func close() {
 	}
 
-	public func read() -> Bool {
+	open func read() -> Bool {
 		current = self.platformReader.next()
 		return current != nil
 	}
 
-	public func isNull(index: Int) -> Bool {
+	open func isNull(_ index: Int) -> Bool {
 		if let databaseValue = current!.value(atIndex: index)?.databaseValue {
 			return databaseValue.isNull
 		}
 		return true
 	}
 
-	public func getUuid(index: Int) -> Uuid? {
+	open func getUuid(_ index: Int) -> Uuid? {
 		let string = getString(index)
 		return string != nil ? CloudApiPrimitiveTypeConverter.uuidFromJson(string!) : nil
 	}
 
-	public func getString(index: Int) -> String? {
+	open func getString(_ index: Int) -> String? {
 		return current!.value(atIndex: index)
 	}
 
-	public func getInteger(index: Int) -> Int? {
+	open func getInteger(_ index: Int) -> Int? {
 		return current!.value(atIndex: index)
 	}
 
-	public func getDateTime(index: Int) -> NSDate? {
+	open func getDateTime(_ index: Int) -> Date? {
 		return current!.value(atIndex: index)
 	}
 
-	public func getDouble(index: Int) -> Double? {
+	open func getDouble(_ index: Int) -> Double? {
 		return current!.value(atIndex: index)
 	}
 
-	public func getBlob(index: Int) -> NSData? {
+	open func getBlob(_ index: Int) -> Data? {
 		return current!.value(atIndex: index)
 	}
 
-	public func getBoolean(index: Int) -> Bool? {
+	open func getBoolean(_ index: Int) -> Bool? {
 		return current!.value(atIndex: index)
 	}
 
 	// MARK: - Internals
 
-	private let platformReader: DatabaseGenerator<Row>
-	private var current: Row?
+	fileprivate let platformReader: DatabaseGenerator<Row>
+	fileprivate var current: Row?
 
 }

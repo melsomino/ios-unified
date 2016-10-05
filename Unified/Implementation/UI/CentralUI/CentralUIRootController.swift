@@ -7,19 +7,19 @@ import Foundation
 import UIKit
 
 
-public class CentralUIRootController: UIViewController {
+open class CentralUIRootController: UIViewController {
 
-	public lazy var contentContainer: UIView = {
+	open lazy var contentContainer: UIView = {
 		[unowned self] in
 		let container = UIView(frame: self.view.bounds)
-		container.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+		container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		self.view.addSubview(container)
 		return container
 	}()
 
 
 
-	public func setContentController(newController: UIViewController!, animation: CentralUIContentAnimation, completion: (() -> Void)?) {
+	open func setContentController(_ newController: UIViewController!, animation: CentralUIContentAnimation, completion: (() -> Void)?) {
 		guard newController != contentController else {
 			return
 		}
@@ -32,5 +32,5 @@ public class CentralUIRootController: UIViewController {
 
 
 
-	public private(set) var contentController: UIViewController!
+	open fileprivate(set) var contentController: UIViewController!
 }

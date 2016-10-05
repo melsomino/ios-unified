@@ -6,7 +6,7 @@
 import Foundation
 import GRDB
 
-public class DefaultDatabaseSelectStatement : DefaultDatabaseStatement, DatabaseSelectStatement {
+open class DefaultDatabaseSelectStatement : DefaultDatabaseStatement, DatabaseSelectStatement {
 
 
 	init(_ platformStatement: SelectStatement) {
@@ -15,7 +15,7 @@ public class DefaultDatabaseSelectStatement : DefaultDatabaseStatement, Database
 
 	// MARK: - DatabaseSelectStatement
 
-	public func execute() throws -> DatabaseReader {
+	open func execute() throws -> DatabaseReader {
 		return DefaultDatabaseReader(try executeSelect())
 	}
 

@@ -7,53 +7,53 @@ import Foundation
 import UIKit
 import QuartzCore
 
-public class ContentElement: FragmentElement {
+open class ContentElement: FragmentElement {
 
-	public var view: UIView!
+	open var view: UIView!
 
-	public var hidden = false {
+	open var hidden = false {
 		didSet {
-			view?.hidden = hidden
+			view?.isHidden = hidden
 		}
 	}
 
-	public var frame: CGRect = CGRectZero {
+	open var frame: CGRect = CGRect.zero {
 		didSet {
 			view?.frame = frame
 		}
 	}
 
-	public var backgroundColor: UIColor? {
+	open var backgroundColor: UIColor? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var cornerRadius: CGFloat? {
+	open var cornerRadius: CGFloat? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var borderWidth: CGFloat? {
+	open var borderWidth: CGFloat? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var borderColor: UIColor? {
+	open var borderColor: UIColor? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var corners = UIRectCorner.AllCorners {
+	open var corners = UIRectCorner.allCorners {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var defaultBackgroundColor: UIColor?
+	open var defaultBackgroundColor: UIColor?
 
 	public override init() {
 		super.init()
@@ -63,15 +63,15 @@ public class ContentElement: FragmentElement {
 	// MARK: - Virtuals
 
 
-	public func createView() -> UIView {
+	open func createView() -> UIView {
 		return UIView()
 	}
 
-	public func onViewCreated() {
+	open func onViewCreated() {
 		defaultBackgroundColor = view.backgroundColor
 	}
 
-	public func initializeView() {
+	open func initializeView() {
 		guard let view = view else {
 			return
 		}
@@ -86,23 +86,23 @@ public class ContentElement: FragmentElement {
 			view.layer.cornerRadius = 0
 		}
 		view.layer.borderWidth = borderWidth ?? 0
-		view.layer.borderColor = (borderColor ?? UIColor.clearColor()).CGColor
+		view.layer.borderColor = (borderColor ?? UIColor.clear).cgColor
 	}
 
 
 	// MARK: - UiElement
 
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		return !hidden
 	}
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		frame = bounds
 	}
 
 
-	public override func bind(toModel values: [Any?]) {
+	open override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
 		if let boundHidden = definition.boundHidden(values) {
 			hidden = boundHidden
@@ -117,15 +117,15 @@ public class ContentElement: FragmentElement {
 
 
 
-public class ContentElementDefinition: FragmentElementDefinition {
-	public var backgroundColor: UIColor?
-	public var cornerRadius: CGFloat?
-	public var corners = UIRectCorner.AllCorners
-	public var borderWidth: CGFloat?
-	public var borderColor: UIColor?
+open class ContentElementDefinition: FragmentElementDefinition {
+	open var backgroundColor: UIColor?
+	open var cornerRadius: CGFloat?
+	open var corners = UIRectCorner.allCorners
+	open var borderWidth: CGFloat?
+	open var borderColor: UIColor?
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "background-color":
 				backgroundColor = try context.getColor(attribute)
@@ -140,11 +140,11 @@ public class ContentElementDefinition: FragmentElementDefinition {
 		}
 	}
 
-	private func applyCornerRadius(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
+	fileprivate func applyCornerRadius(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
 			case .value(let string):
 				var size: Float = 0
-				if NSScanner(string: string).scanFloat(&size) {
+				if Scanner(string: string).scanFloat(&size) {
 					cornerRadius = CGFloat(size)
 				}
 				else {
@@ -163,22 +163,22 @@ public class ContentElementDefinition: FragmentElementDefinition {
 	}
 
 	static let cornerByName: [String: UIRectCorner] = [
-		"top-left": .TopLeft,
-		"left-top": .TopLeft,
-		"top-right": .TopRight,
-		"right-top": .TopRight,
-		"bottom-left": .BottomLeft,
-		"left-bottom": .BottomLeft,
-		"bottom-right": .BottomRight,
-		"right-bottom": .BottomRight,
-		"top": [.TopLeft, .TopRight],
-		"bottom": [.BottomLeft, .BottomRight],
-		"left": [.TopLeft, .BottomLeft],
-		"right": [.TopRight, .BottomRight]
+		"top-left": .topLeft,
+		"left-top": .topLeft,
+		"top-right": .topRight,
+		"right-top": .topRight,
+		"bottom-left": .bottomLeft,
+		"left-bottom": .bottomLeft,
+		"bottom-right": .bottomRight,
+		"right-bottom": .bottomRight,
+		"top": [.topLeft, .topRight],
+		"bottom": [.bottomLeft, .bottomRight],
+		"left": [.topLeft, .bottomLeft],
+		"right": [.topRight, .bottomRight]
 	]
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let contentElement = element as! ContentElement
 		contentElement.backgroundColor = backgroundColor

@@ -24,7 +24,7 @@ struct Header {
 
 struct AlbumTrack {
 	let title: String
-	let duration: NSTimeInterval
+	let duration: TimeInterval
 }
 
 
@@ -34,7 +34,7 @@ struct AlbumTrack {
 struct Album {
 	let artist: String
 	let title: String
-	let issued: NSDate
+	let issued: Date
 	let tracks: [AlbumTrack]
 }
 
@@ -42,18 +42,18 @@ struct Album {
 
 
 
-func makeDate(d: Int, _ m: Int, _ y: Int) -> NSDate {
-	let components = NSDateComponents()
+func makeDate(_ d: Int, _ m: Int, _ y: Int) -> Date {
+	var components = DateComponents()
 	components.day = d
 	components.month = m
 	components.year = y
-	return NSCalendar.currentCalendar().dateFromComponents(components)!
+	return Calendar.current.date(from: components)!
 }
 
 
 
-func makeDuration(m: Int, _ s: Int) -> NSTimeInterval {
-	return NSTimeInterval(m) + NSTimeInterval(s) / 60
+func makeDuration(_ m: Int, _ s: Int) -> TimeInterval {
+	return TimeInterval(m) + TimeInterval(s) / 60
 }
 
 
@@ -95,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 	var dependency: DependencyResolver!
 
 
-	func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject:AnyObject]?) -> Bool {
+	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
 		test_html()
 
@@ -110,7 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 		let fragment = AlbumsFragment(dependency: dependency)
 
-		window = UIWindow(frame: UIScreen.mainScreen().bounds)
+		window = UIWindow(frame: UIScreen.main.bounds)
 		window!.rootViewController = centralUI.rootController
 		window!.makeKeyAndVisible()
 
@@ -130,7 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 
 class AlbumsFragment: TableFragment {
-	override func loadModels(execution: Execution, inout models: [Any]) throws {
+	override func loadModels(_ execution: Execution, models: inout [Any]) throws {
 		models.append(Header(title: "Требования ФНС", totalCount: "20"))
 //		models.append(Header(title: "Задачи", totalCount: "21"))
 //		models = join(KissDestroyer, children: KissDestroyer.tracks)

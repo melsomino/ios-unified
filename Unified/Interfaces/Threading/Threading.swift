@@ -14,7 +14,7 @@ public protocol Threading {
 
 public extension Threading {
 
-	public final func inBackground<Owner:AnyObject>(with owner: Owner, work: (Owner, Execution) throws -> Void, onComplete: (Owner) -> Void, onError: (Owner, ErrorType) -> Void) {
+	public final func inBackground<Owner:AnyObject>(with owner: Owner, work: (Owner, Execution) throws -> Void, onComplete: (Owner) -> Void, onError: (Owner, Error) -> Void) {
 		weak var weakOwner: Owner? = owner
 		backgroundQueue.newExecution {
 			execution in

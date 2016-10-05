@@ -21,7 +21,7 @@ public enum DeclarationErrorSource {
 
 
 
-public struct DeclarationError: ErrorType, CustomStringConvertible {
+public struct DeclarationError: Error, CustomStringConvertible {
 	let source: DeclarationErrorSource
 
 	init(_ message: String, _ attribute: DeclarationAttribute, _ context: DeclarationContext) {
@@ -61,11 +61,11 @@ public struct DeclarationError: ErrorType, CustomStringConvertible {
 
 
 
-public class DeclarationContext {
+open class DeclarationContext {
 
-	public var source: String
-	public var bindings = DynamicBindings()
-	public var hasBindings = false
+	open var source: String
+	open var bindings = DynamicBindings()
+	open var hasBindings = false
 
 	init(_ source: String) {
 		self.source = source
@@ -77,7 +77,7 @@ public class DeclarationContext {
 		hasBindings = false
 	}
 
-	public func getFloat(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
+	open func getFloat(_ attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
 		switch value {
 			case .value(let string):
 				return try parseFloat(string, attribute: attribute)
@@ -87,15 +87,15 @@ public class DeclarationContext {
 	}
 
 
-	public func getFloat(attribute: DeclarationAttribute) throws -> CGFloat {
+	open func getFloat(_ attribute: DeclarationAttribute) throws -> CGFloat {
 		return try getFloat(attribute, attribute.value)
 	}
 
 
-	public func getEnum<Enum>(attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
+	open func getEnum<Enum>(_ attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
 		switch attribute.value {
 			case .value(let value):
-				if let resolved = valuesByLowercaseName[value.lowercaseString] {
+				if let resolved = valuesByLowercaseName[value.lowercased()] {
 					return resolved
 				}
 				throw DeclarationError("Invalid value", attribute, self)
@@ -105,7 +105,7 @@ public class DeclarationContext {
 	}
 
 
-	public func getString(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> String {
+	open func getString(_ attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> String {
 		switch value {
 			case .value(let string):
 				return string
@@ -115,12 +115,12 @@ public class DeclarationContext {
 	}
 
 
-	public func getString(attribute: DeclarationAttribute) throws -> String {
+	open func getString(_ attribute: DeclarationAttribute) throws -> String {
 		return try getString(attribute, attribute.value)
 	}
 
 
-	public func getExpression(attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> DynamicBindings.Expression? {
+	open func getExpression(_ attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> DynamicBindings.Expression? {
 		switch value {
 			case .value(let string):
 				hasBindings = true
@@ -131,20 +131,20 @@ public class DeclarationContext {
 	}
 
 
-	public func getExpression(attribute: DeclarationAttribute) throws -> DynamicBindings.Expression? {
+	open func getExpression(_ attribute: DeclarationAttribute) throws -> DynamicBindings.Expression? {
 		return try getExpression(attribute, attribute.value)
 	}
 
 
-	public func getImage(attribute: DeclarationAttribute) throws -> UIImage {
+	open func getImage(_ attribute: DeclarationAttribute) throws -> UIImage {
 		return try getImage(attribute, value: attribute.value)
 	}
 
 
-	public func getImage(attribute: DeclarationAttribute, value: DeclarationValue) throws -> UIImage {
+	open func getImage(_ attribute: DeclarationAttribute, value: DeclarationValue) throws -> UIImage {
 		switch value {
 			case .value(let string):
-				let nameParts = string.componentsSeparatedByString(".")
+				let nameParts = string.components(separatedBy: ".")
 				var image: UIImage!
 				if nameParts.count < 2 {
 					image = UIImage(named: string)
@@ -152,8 +152,8 @@ public class DeclarationContext {
 				else {
 					let moduleName = nameParts[0]
 					let imageName = nameParts[1]
-					let bundle = NSBundle.fromModuleName(moduleName)
-					image = UIImage(named: imageName, inBundle: bundle, compatibleWithTraitCollection: nil)
+					let bundle = Bundle.fromModuleName(moduleName)
+					image = UIImage(named: imageName, in: bundle, compatibleWith: nil)
 				}
 				if image != nil {
 					return image
@@ -165,13 +165,13 @@ public class DeclarationContext {
 	}
 
 
-	public func getBool(attribute: DeclarationAttribute) throws -> Bool {
+	open func getBool(_ attribute: DeclarationAttribute) throws -> Bool {
 		switch attribute.value {
 			case .value(let string):
-				if "true".caseInsensitiveCompare(string) == NSComparisonResult.OrderedSame {
+				if "true".caseInsensitiveCompare(string) == ComparisonResult.orderedSame {
 					return true
 				}
-				if "false".caseInsensitiveCompare(string) == NSComparisonResult.OrderedSame {
+				if "false".caseInsensitiveCompare(string) == ComparisonResult.orderedSame {
 					return false
 				}
 				throw DeclarationError("Boolean value expected (\"true\" or \"false\")", attribute, self)
@@ -183,14 +183,14 @@ public class DeclarationContext {
 	}
 
 
-	public func getSize(attribute: DeclarationAttribute) throws -> CGSize {
+	open func getSize(_ attribute: DeclarationAttribute) throws -> CGSize {
 		switch attribute.value {
 			case .value(let string):
 				let size = try parseFloat(string, attribute: attribute)
-				return CGSizeMake(size, size)
+				return CGSize(width: size, height: size)
 			case .list(let values):
 				if values.count == 2 {
-					return CGSizeMake(try getFloat(attribute, values[0]), try getFloat(attribute, values[1]))
+					return CGSize(width: try getFloat(attribute, values[0]), height: try getFloat(attribute, values[1]))
 				}
 				throw DeclarationError("Size value must contains single number or two numbers (width, height)", attribute, self)
 			default:
@@ -199,7 +199,7 @@ public class DeclarationContext {
 	}
 
 
-	public func getInsets(attribute: DeclarationAttribute) throws -> UIEdgeInsets {
+	open func getInsets(_ attribute: DeclarationAttribute) throws -> UIEdgeInsets {
 		switch attribute.value {
 			case .value(let string):
 				let inset = try parseFloat(string, attribute: attribute)
@@ -221,7 +221,7 @@ public class DeclarationContext {
 	}
 
 
-	public final func applyInsets(inout insets: UIEdgeInsets, name: String, attribute: DeclarationAttribute) throws -> Bool {
+	public final func applyInsets(_ insets: inout UIEdgeInsets, name: String, attribute: DeclarationAttribute) throws -> Bool {
 		if attribute.name == name {
 			insets = try getInsets(attribute)
 		}
@@ -245,7 +245,7 @@ public class DeclarationContext {
 
 
 
-	public func getColor(attribute: DeclarationAttribute) throws -> UIColor {
+	open func getColor(_ attribute: DeclarationAttribute) throws -> UIColor {
 		switch attribute.value {
 			case .value(let string):
 				return UIColor.parse(string)
@@ -255,31 +255,31 @@ public class DeclarationContext {
 	}
 
 
-	public final func getFont(attribute: DeclarationAttribute, defaultFont: UIFont?) throws -> UIFont {
-		return try getFont(attribute, value: attribute.value, defaultFont: defaultFont ?? UIFont.systemFontOfSize(UIFont.systemFontSize()))
+	public final func getFont(_ attribute: DeclarationAttribute, defaultFont: UIFont?) throws -> UIFont {
+		return try getFont(attribute, value: attribute.value, defaultFont: defaultFont ?? UIFont.systemFont(ofSize: UIFont.systemFontSize))
 	}
 
 
 	// MARK: - Internals
 
 
-	private func font(font: UIFont, withTrait trait: UIFontDescriptorSymbolicTraits) -> UIFont {
-		let descriptor = font.fontDescriptor()
-		return UIFont(descriptor: descriptor.fontDescriptorWithSymbolicTraits(descriptor.symbolicTraits.union(trait)), size: font.pointSize)
+	fileprivate func font(_ font: UIFont, withTrait trait: UIFontDescriptorSymbolicTraits) -> UIFont {
+		let descriptor = font.fontDescriptor
+		return UIFont(descriptor: descriptor.withSymbolicTraits(descriptor.symbolicTraits.union(trait))!, size: font.pointSize)
 	}
 
-	public final func getFont(attribute: DeclarationAttribute, value: DeclarationValue, defaultFont: UIFont) throws -> UIFont {
+	public final func getFont(_ attribute: DeclarationAttribute, value: DeclarationValue, defaultFont: UIFont) throws -> UIFont {
 		switch value {
 			case .value(let string):
 				var size: Float = 0
 				if string == "bold" {
-					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.TraitBold)
+					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.traitBold)
 				}
 				if string == "italic" {
-					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.TraitItalic)
+					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.traitItalic)
 				}
-				else if NSScanner(string: string).scanFloat(&size) {
-					return defaultFont.fontWithSize(CGFloat(size))
+				else if Scanner(string: string).scanFloat(&size) {
+					return defaultFont.withSize(CGFloat(size))
 				}
 				else {
 					return UIFont(name: string, size: defaultFont.pointSize) ?? defaultFont
@@ -296,9 +296,9 @@ public class DeclarationContext {
 	}
 
 
-	private func parseFloat(string: String, attribute: DeclarationAttribute) throws -> CGFloat {
+	fileprivate func parseFloat(_ string: String, attribute: DeclarationAttribute) throws -> CGFloat {
 		var value: Float = 0
-		if NSScanner(string: string).scanFloat(&value) {
+		if Scanner(string: string).scanFloat(&value) {
 			return CGFloat(value)
 		}
 		throw DeclarationError("Number expected", attribute, self)

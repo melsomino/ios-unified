@@ -9,15 +9,15 @@ import Foundation
 
 
 
-public class DefaultCloudFile: CloudFile {
+open class DefaultCloudFile: CloudFile {
 
-	init(cloudConnector: CloudConnector, url: NSURL, localPath: String) {
+	init(cloudConnector: CloudConnector, url: URL, localPath: String) {
 		self.cloudConnector = cloudConnector
 		self.url = url
 		self.localPath = localPath
 
-		if NSFileManager.defaultManager().fileExistsAtPath(localPath) {
-			_state = .Loaded
+		if FileManager.default.fileExists(atPath: localPath) {
+			_state = .loaded
 		}
 		else {
 			startDownload()
@@ -28,41 +28,41 @@ public class DefaultCloudFile: CloudFile {
 	// MARK: - CloudFile
 
 
-	public func addListener(listener: CloudFileListener) {
+	open func addListener(_ listener: CloudFileListener) {
 		lock.withLock {
 			self.listeners.add(listener)
 		}
 	}
 
 
-	public func removeListener(listener: CloudFileListener) {
+	open func removeListener(_ listener: CloudFileListener) {
 		lock.withLock {
 			self.listeners.remove(listener)
 		}
 	}
 
 
-	public var state: CloudFileState {
+	open var state: CloudFileState {
 		return lock.locked {
 			self._state
 		}
 	}
 
 
-	public var localPath: String
+	open var localPath: String
 
 
 	// MARK: - Internals
 
 
-	private let cloudConnector: CloudConnector
-	private let url: NSURL
-	private var listeners = ListenerList<CloudFileListener>()
-	private var lock = FastLock()
-	private var _state = CloudFileState.Loading(0)
+	fileprivate let cloudConnector: CloudConnector
+	fileprivate let url: URL
+	fileprivate var listeners = ListenerList<CloudFileListener>()
+	fileprivate var lock = FastLock()
+	fileprivate var _state = CloudFileState.loading(0)
 
 
-	private func setState(newState: CloudFileState) {
+	fileprivate func setState(_ newState: CloudFileState) {
 		let liveListeners: [CloudFileListener] = lock.locked {
 			self._state = newState
 			return self.listeners.getLive()
@@ -74,35 +74,35 @@ public class DefaultCloudFile: CloudFile {
 	}
 
 
-	private func startDownload() {
+	fileprivate func startDownload() {
 		weak var weakSelf = self
 
-		let request = NSURLRequest(URL: url)
+		let request = URLRequest(url: url)
 		cloudConnector.startDownload(request,
 			progress: {
 				(downloaded, expected) in
 				guard let strongSelf = weakSelf else {
 					return
 				}
-				strongSelf.setState(.Loading(expected > 0 ? Float(downloaded) / Float(expected) : 0.5))
+				strongSelf.setState(.loading(expected > 0 ? Float(downloaded) / Float(expected) : 0.5))
 			},
 			error: {
 				error in
 				guard let strongSelf = weakSelf else {
 					return
 				}
-				strongSelf.setState(.Failed(error))
+				strongSelf.setState(.failed(error))
 			}) {
 			downloadedUrl in
 			guard let strongSelf = weakSelf else {
 				return
 			}
 			do {
-				let downloadedPath = downloadedUrl.path!
-				try NSFileManager.defaultManager().copyItemAtPath(downloadedPath, toPath: strongSelf.localPath)
-				strongSelf.setState(.Loaded)
+				let downloadedPath = downloadedUrl.path
+				try FileManager.default.copyItem(atPath: downloadedPath, toPath: strongSelf.localPath)
+				strongSelf.setState(.loaded)
 			} catch let error {
-				strongSelf.setState(.Failed(CloudError("Ошибка загрузки файла", error)))
+				strongSelf.setState(.failed(CloudError("Ошибка загрузки файла", error)))
 			}
 		}
 	}

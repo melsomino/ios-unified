@@ -9,10 +9,10 @@ import UIKit
 
 
 
-public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
+open class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 
 
-	public var dependency: DependencyResolver! {
+	open var dependency: DependencyResolver! {
 		didSet {
 			dependency.resolve(alerts)
 		}
@@ -21,16 +21,16 @@ public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 	// MARK: - CentralUi
 
 
-	public var rootController: UIViewController {
+	open var rootController: UIViewController {
 		return defaultRootController
 	}
 
-	public var contentContainer: UIView {
+	open var contentContainer: UIView {
 		return defaultRootController.contentContainer
 	}
 
 
-	public func execute(action: CentralUIAction) {
+	open func execute(_ action: CentralUIAction) {
 		switch action {
 			case .run(let action):
 				action(dependency)
@@ -39,7 +39,7 @@ public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 		}
 	}
 
-	public func addMenuItem(name: String, title: String, icon: UIImage?, action: CentralUIAction) {
+	open func addMenuItem(_ name: String, title: String, icon: UIImage?, action: CentralUIAction) {
 		let item = DefaultMenuItem(delegate: self, index: items.count, name: name, action: action)
 		item.icon = icon
 		item.title = title
@@ -47,9 +47,9 @@ public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 	}
 
 
-	public func findMenuItem(name: String) -> CentralUIMenuItem? {
+	open func findMenuItem(_ name: String) -> CentralUIMenuItem? {
 		for item in items {
-			if item.name.caseInsensitiveCompare(name) == .OrderedSame {
+			if item.name.caseInsensitiveCompare(name) == .orderedSame {
 				return item
 			}
 		}
@@ -57,21 +57,21 @@ public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 	}
 
 
-	public var menuItemCount: Int {
+	open var menuItemCount: Int {
 		return items.count
 	}
 
-	public func menuItemAtIndex(index: Int) -> CentralUIMenuItem {
+	open func menuItemAtIndex(_ index: Int) -> CentralUIMenuItem {
 		return items[index]
 	}
 
 
-	public var selectedMenuItem: CentralUIMenuItem? {
+	open var selectedMenuItem: CentralUIMenuItem? {
 		didSet {
 			let oldIndex = oldValue?.index
 			let newIndex = selectedMenuItem?.index
 
-			NSOperationQueue.mainQueue().addOperationWithBlock {
+			OperationQueue.main.addOperation {
 				var effect = CentralUIContentAnimation.fade
 				if oldIndex != nil && newIndex != nil {
 					effect = newIndex! < oldIndex! ? .fromUp : .fromDown
@@ -97,22 +97,22 @@ public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 	}
 
 
-	public func createMenuIntegrationBarButtonItem() -> UIBarButtonItem {
-		return UIBarButtonItem(image: CentralUIDesign.barButtonImage, style: .Plain, target: self, action: #selector(showSideMenu))
+	open func createMenuIntegrationBarButtonItem() -> UIBarButtonItem {
+		return UIBarButtonItem(image: CentralUIDesign.barButtonImage, style: .plain, target: self, action: #selector(showSideMenu))
 	}
 
 
-	public var accountIcon: UIImage?
-	public var accountTitle: String?
-	public var settingsAction: CentralUIAction?
-	public var accountAction: CentralUIAction?
+	open var accountIcon: UIImage?
+	open var accountTitle: String?
+	open var settingsAction: CentralUIAction?
+	open var accountAction: CentralUIAction?
 
-	public func setContent(controller: UIViewController?, animation: CentralUIContentAnimation, completion: (() -> Void)?) {
+	open func setContent(_ controller: UIViewController?, animation: CentralUIContentAnimation, completion: (() -> Void)?) {
 		defaultRootController.setContentController(controller, animation: animation, completion: completion)
 	}
 
 
-	public func pushAlert(alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: (Any? -> Void)?) {
+	open func pushAlert(_ alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?) {
 		alerts.pushInContainer(rootController.view, alert: alert, message: message, icon: icon, actionArg: actionArg, action: action)
 	}
 
@@ -120,15 +120,15 @@ public class DefaultCentralUI: Dependent, CentralUI, DefaultMenuItemDelegate {
 	// MARK: - DefaultMenuItem Delegate
 
 
-	func onMenuItemChanged(menuItem: DefaultMenuItem) {
+	func onMenuItemChanged(_ menuItem: DefaultMenuItem) {
 	}
 
 
 	// MARK: - Internals
 
 	var items = [DefaultMenuItem]()
-	public lazy var defaultRootController: CentralUIRootController = CentralUIRootController()
-	public let alerts = AlertStack()
+	open lazy var defaultRootController: CentralUIRootController = CentralUIRootController()
+	open let alerts = AlertStack()
 
 	@objc func showSideMenu() {
 		CentralUISideController.show(self)

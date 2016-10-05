@@ -8,8 +8,8 @@ import Foundation
 
 
 
-public class Async {
-	public static func on(target: AsyncExecutionTarget, with owner: AnyObject?, work: (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecutionControl {
+open class Async {
+	open static func on(_ target: AsyncExecutionTarget, with owner: AnyObject?, work: @escaping (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecutionControl {
 		let executionControl = AsyncExecutionControl(execution: AsyncExecution(owner: owner))
 		executionControl.then(on: target, work: work)
 		return executionControl

@@ -4,7 +4,7 @@
 
 import Foundation
 
-public class DefaultCloudFilesCache: CloudFileCache {
+open class DefaultCloudFilesCache: CloudFileCache {
 	init(cloudConnector: CloudConnector, localPath: String) {
 		self.cloudConnector = cloudConnector
 		self.localPath = localPath
@@ -14,7 +14,7 @@ public class DefaultCloudFilesCache: CloudFileCache {
 	// MARK: - CloudFilesCache
 
 
-	public func getFile(forUrl url: NSURL, forceExtension: String?) -> CloudFile {
+	open func getFile(forUrl url: URL, forceExtension: String?) -> CloudFile {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -34,21 +34,21 @@ public class DefaultCloudFilesCache: CloudFileCache {
 	// MARK: - Internals
 
 
-	private var cloudConnector: CloudConnector
-	private var localPath: String
-	private var fileFromRelativeUrlHash = [String: DefaultCloudFile]()
-	private var lock = NSLock()
+	fileprivate var cloudConnector: CloudConnector
+	fileprivate var localPath: String
+	fileprivate var fileFromRelativeUrlHash = [String: DefaultCloudFile]()
+	fileprivate var lock = NSLock()
 
-	private func calcHash(url: String) -> String {
+	fileprivate func calcHash(_ url: String) -> String {
 		return StringHashes.getHash(url)
 	}
 
-	private func getFileExtension(url: NSURL) -> String {
+	fileprivate func getFileExtension(_ url: URL) -> String {
 		let path = url.absoluteString
-		guard let lastDotPos = path.rangeOfString(".", options: .BackwardsSearch) else {
+		guard let lastDotPos = path.range(of: ".", options: .backwards) else {
 			return ""
 		}
-		let ext = path.substringFromIndex(lastDotPos.startIndex)
+		let ext = path.substring(from: lastDotPos.lowerBound)
 		return ext.characters.count < 6 ? ext : ""
 	}
 

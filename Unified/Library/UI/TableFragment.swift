@@ -11,30 +11,30 @@ public enum TableFragmentModelsState {
 	case predefined
 	case loading
 	case loaded
-	case failed(ErrorType)
+	case failed(Error)
 }
 
 
-public class EmptyTableFragment {
-	public var message: String
+open class EmptyTableFragment {
+	open var message: String
 	public init(message: String) {
 		self.message = message
 	}
 }
 
 public protocol TableModelUpdates {
-	func insert(model: Any, at index: Int)
+	func insert(_ model: Any, at index: Int)
 
 
 
-	func update(model: Any, at index: Int)
+	func update(_ model: Any, at index: Int)
 
 
 
-	func delete(index: Int)
+	func delete(_ index: Int)
 }
 
-public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
+open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
 	public final weak var controller: UIViewController!
 	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
@@ -45,7 +45,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	}
 
 
-	public private(set) var bottomBarFragment: Fragment?
+	open fileprivate(set) var bottomBarFragment: Fragment?
 
 	public final var models = [Any]()
 
@@ -56,7 +56,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	public final func setBottomBar(model model: Any?, fragment: () -> Fragment) {
+	public final func setBottomBar(model: Any?, fragment: () -> Fragment) {
 		internalSetBottomBar(model: model, fragment: fragment)
 	}
 
@@ -66,7 +66,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		guard let model = bottomBarFragment?.model else {
 			return
 		}
-		UIView.animateWithDuration(0.25, animations: {
+		UIView.animate(withDuration: 0.25, animations: {
 			self.bottomBarFragment!.model = model
 			self.adjustBottomBar()
 		})
@@ -78,7 +78,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		return internalEnsureCellFactory(forModelType: modelType)
 	}
 
-	private class ModelUpdates: TableModelUpdates {
+	fileprivate class ModelUpdates: TableModelUpdates {
 		let owner: TableFragment
 		init(owner: TableFragment) {
 			self.owner = owner
@@ -86,32 +86,32 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-		func insert(model: Any, at index: Int) {
-			owner.models.insert(model, atIndex: index)
-			owner.tableView.insertRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
+		func insert(_ model: Any, at index: Int) {
+			owner.models.insert(model, at: index)
+			owner.tableView.insertRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
 
 
-		func update(model: Any, at index: Int) {
+		func update(_ model: Any, at index: Int) {
 			owner.models[index] = model
-			let cellFactory = owner.ensureCellFactory(forModelType: model.dynamicType)
+			let cellFactory = owner.ensureCellFactory(forModelType: type(of: (model) as AnyObject))
 			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: model) {
 				owner.layoutCache.drop(cacheForKey: cacheKey)
 			}
-			owner.tableView.reloadRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
+			owner.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
 
 
-		func delete(index: Int) {
-			owner.models.removeAtIndex(index)
-			owner.tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: index, inSection: 0)], withRowAnimation: .Fade)
+		func delete(_ index: Int) {
+			owner.models.remove(at: index)
+			owner.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
 	}
 
-	public final func updateModels(@noescape update: (TableModelUpdates) -> Void) {
+	public final func updateModels(_ update: (TableModelUpdates) -> Void) {
 		let updates = ModelUpdates(owner: self)
 		tableView.beginUpdates()
 		update(updates)
@@ -120,7 +120,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	public final func registerFragmentClass(for modelType: Any.Type, fragmentClass: () -> Fragment) {
+	public final func registerFragmentClass(for modelType: Any.Type, fragmentClass: @escaping () -> Fragment) {
 		return ensureCellFactory(forModelType: modelType).fragmentFactory = fragmentClass
 	}
 
@@ -134,7 +134,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	public final func findModel<Model>(test: (Model) -> Bool) -> Model? {
+	public final func findModel<Model>(_ test: (Model) -> Bool) -> Model? {
 		for model in models {
 			if let typed = model as? Model {
 				if test(typed) {
@@ -156,52 +156,52 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Overridable
 
 
-	public func loadModels(execution: Execution, inout models: [Any]) throws {
+	open func loadModels(_ execution: Execution, models: inout [Any]) throws {
 		try defaultLoadModels(execution, models: &models)
 	}
 
 
 
-	public func onAction(action: String, args: String?) {
+	open func onAction(_ action: String, args: String?) {
 	}
 
 
 
-	public func onAppear() {
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillAppear(_:)), name: UIKeyboardWillShowNotification, object: nil)
-		NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardWillDisappear(_:)), name: UIKeyboardWillHideNotification, object: nil)
+	open func onAppear() {
+		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillAppear(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDisappear(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
 	}
 
 
 
-	public func onDisappear() {
-		NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-		NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+	open func onDisappear() {
+		NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+		NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
 	}
 
 
 
-	public func onControllerAttached() {
+	open func onControllerAttached() {
 	}
 
 
 
-	public func onResize() {
+	open func onResize() {
 		adjustBottomBar()
 	}
 
 
 
-	public func onModelsLoaded() {
+	open func onModelsLoaded() {
 	}
 
 
 	// MARK: - Fragment delegate
 
 
-	public func layoutChanged(forFragment fragment: Fragment) {
+	open func layoutChanged(forFragment fragment: Fragment) {
 		if fragment == bottomBarFragment {
-			UIView.animateWithDuration(0.25, animations: {
+			UIView.animate(withDuration: 0.25, animations: {
 				self.adjustBottomBar()
 			})
 		}
@@ -212,7 +212,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Dependency
 
 
-	public var dependency: DependencyResolver! {
+	open var dependency: DependencyResolver! {
 		didSet {
 			repository.addListener(self)
 		}
@@ -222,7 +222,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Repository Listener
 
 
-	public func repositoryChanged(repository: Repository) {
+	open func repositoryChanged(_ repository: Repository) {
 		layoutCache.clear()
 		tableView?.reloadData()
 	}
@@ -237,7 +237,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Table View DataSource and Delegate
 
 
-	public func onTableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	open func onTableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return models.count
 	}
 
@@ -245,16 +245,16 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	public func onTableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		let model = models[indexPath.row]
-		let cellFactory = ensureCellFactory(forModelType: model.dynamicType)
-		let cell = tableView.dequeueReusableCellWithIdentifier(cellFactory.cellReuseId, forIndexPath: indexPath) as! TableFragmentCell
+	open func onTableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
+		let model = models[(indexPath as NSIndexPath).row]
+		let cellFactory = ensureCellFactory(forModelType: type(of: (model) as AnyObject))
+		let cell = tableView.dequeueReusableCell(withIdentifier: cellFactory.cellReuseId, for: indexPath) as! TableFragmentCell
 		if cell.fragment == nil {
 			let fragment = cellFactory.createFragment()
 			cell.fragment = fragment
 			fragment.delegate = self
 			fragment.container = cell.contentView
-			cell.selectionStyle = fragment.definition.selectAction != nil ? fragment.definition.selectionStyle : .None
+			cell.selectionStyle = fragment.definition.selectAction != nil ? fragment.definition.selectionStyle : .none
 		}
 		cell.fragment.model = model
 		return cell
@@ -264,17 +264,17 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	public func onTableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-		let model = models[indexPath.row]
-		return ensureCellFactory(forModelType: model.dynamicType).heightFor(model, inWidth: tableView.bounds.width)
+	open func onTableView(_ tableView: UITableView, heightForRowAtIndexPath indexPath: IndexPath) -> CGFloat {
+		let model = models[(indexPath as NSIndexPath).row]
+		return ensureCellFactory(forModelType: type(of: (model) as AnyObject)).heightFor(model, inWidth: tableView.bounds.width)
 	}
 
 
 
 
 
-	public func onTableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		guard let cell = tableView.cellForRowAtIndexPath(indexPath) as? TableFragmentCell else {
+	open func onTableView(_ tableView: UITableView, didSelectRowAtIndexPath indexPath: IndexPath) {
+		guard let cell = tableView.cellForRow(at: indexPath) as? TableFragmentCell else {
 			return
 		}
 		cell.fragment.tryExecuteAction(cell.fragment.definition.selectAction, defaultArgs: nil)
@@ -286,15 +286,15 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 	// MARK: - Internals
 
 
-	private var keyboardFrame = CGRectZero
-	private var cellFactories = [CellFragmentFactory]()
-	private var layoutCache = FragmentLayoutCache()
-	private var loadingIndicator: UIRefreshControl!
-	private var reloadingIndicator: UIActivityIndicatorView!
+	fileprivate var keyboardFrame = CGRect.zero
+	fileprivate var cellFactories = [CellFragmentFactory]()
+	fileprivate var layoutCache = FragmentLayoutCache()
+	fileprivate var loadingIndicator: UIRefreshControl!
+	fileprivate var reloadingIndicator: UIActivityIndicatorView!
 
 
-	func keyboardWillAppear(notification: NSNotification) {
-		if let frame = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue() {
+	func keyboardWillAppear(_ notification: Notification) {
+		if let frame = ((notification as NSNotification).userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
 			keyboardFrame = frame
 			adjustBottomBar()
 		}
@@ -302,14 +302,14 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	func keyboardWillDisappear(notification: NSNotification) {
-		keyboardFrame = CGRectZero
+	func keyboardWillDisappear(_ notification: Notification) {
+		keyboardFrame = CGRect.zero
 		adjustBottomBar()
 	}
 
 
 
-	public final func internalSetBottomBar(model model: Any?, fragment: () -> Fragment) {
+	public final func internalSetBottomBar(model: Any?, fragment: () -> Fragment) {
 		guard let model = model else {
 			if let fragment = bottomBarFragment {
 				fragment.container?.removeFromSuperview()
@@ -321,7 +321,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 			bottomBarFragment = fragment()
 			bottomBarFragment!.dependency = dependency
 			bottomBarFragment!.delegate = self
-			let container = UIView(frame: CGRectZero)
+			let container = UIView(frame: CGRect.zero)
 			bottomBarFragment!.container = container
 			controller.view.addSubview(container)
 		}
@@ -332,12 +332,12 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	private func adjustBottomBar() {
+	fileprivate func adjustBottomBar() {
 		guard let controller = controller as? UITableViewController else {
 			return
 		}
 		var insets = tableView.contentInset
-		guard let fragment = bottomBarFragment, container = fragment.container else {
+		guard let fragment = bottomBarFragment, let container = fragment.container else {
 			insets.bottom = 0
 			tableView.contentInset = insets
 			return
@@ -351,16 +351,16 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 		var frame = fragment.frame
 		frame.origin.y = contentOffset.y + bounds.size.height - frame.size.height
 		container.frame = frame
-		controller.view.bringSubviewToFront(container)
+		controller.view.bringSubview(toFront: container)
 		insets.bottom = frame.height
 		tableView.contentInset = insets
 	}
 
 
 
-	func registerTableView(tableView: UITableView) {
+	func registerTableView(_ tableView: UITableView) {
 		for cellFactory in cellFactories {
-			tableView.registerClass(TableFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+			tableView.register(TableFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
 		}
 	}
 
@@ -368,7 +368,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	private func internalCreateController() -> UIViewController {
+	fileprivate func internalCreateController() -> UIViewController {
 		let controller = TableFragmentController()
 		controller.fragment = self
 		self.controller = controller
@@ -379,7 +379,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	private func internalEnsureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
+	fileprivate func internalEnsureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
 		for cellFactory in cellFactories {
 			if cellFactory.modelType == modelType {
 				return cellFactory
@@ -388,7 +388,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 		let cellFactory = CellFragmentFactory(forModelType: modelType, layoutCache: layoutCache, dependency: dependency)
 		cellFactories.append(cellFactory)
-		tableView?.registerClass(TableFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		tableView?.register(TableFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
 		return cellFactory
 	}
 
@@ -396,14 +396,14 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	private func internalStartLoad(showLoadingIndicator showLoadingIndicator: Bool) {
+	fileprivate func internalStartLoad(showLoadingIndicator: Bool) {
 		if showLoadingIndicator {
-			reloadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
-			reloadingIndicator.color = UIColor.darkGrayColor()
+			reloadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+			reloadingIndicator.color = UIColor.darkGray
 			let bounds = tableView.bounds
 			let size = reloadingIndicator.bounds.size
-			reloadingIndicator.frame = CGRectMake(bounds.width / 2 - size.width / 2, tableView.contentInset.top + size.height / 2, size.width, size.height)
-			reloadingIndicator.autoresizingMask = [.FlexibleLeftMargin, .FlexibleRightMargin]
+			reloadingIndicator.frame = CGRect(x: bounds.width / 2 - size.width / 2, y: tableView.contentInset.top + size.height / 2, width: size.width, height: size.height)
+			reloadingIndicator.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
 			tableView.addSubview(reloadingIndicator)
 			reloadingIndicator.startAnimating()
 		}
@@ -413,7 +413,7 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 			guard weakSelf != nil else {
 				return
 			}
-			var loadError: ErrorType? = nil
+			var loadError: Error? = nil
 			var models = [Any]()
 			do {
 				try weakSelf?.loadModels(execution, models: &models)
@@ -453,18 +453,18 @@ public class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Repo
 
 
 
-	private func defaultLoadModels(execution: Execution, inout models: [Any]) throws {
+	fileprivate func defaultLoadModels(_ execution: Execution, models: inout [Any]) throws {
 		try modelsLoader?(execution, &models)
 	}
 
 
 
-	private func errorUserMessage(error: ErrorType) -> String {
+	fileprivate func errorUserMessage(_ error: Error) -> String {
 		switch error {
 			case let error as NSError:
 				return error.localizedDescription
 			default:
-				return String(error)
+				return String(describing: error)
 		}
 	}
 
@@ -489,14 +489,14 @@ class TableFragmentCell: UITableViewCell {
 
 
 
-	override func setSelected(selected: Bool, animated: Bool) {
+	override func setSelected(_ selected: Bool, animated: Bool) {
 		super.setSelected(selected, animated: animated)
 		change(highlight: currentHighlight, select: selected)
 	}
 
 
 
-	override func setHighlighted(highlighted: Bool, animated: Bool) {
+	override func setHighlighted(_ highlighted: Bool, animated: Bool) {
 		super.setHighlighted(highlighted, animated: animated)
 		change(highlight: highlighted, select: currentSelect)
 	}
@@ -504,11 +504,11 @@ class TableFragmentCell: UITableViewCell {
 
 	// MARK: - Internals
 
-	private var currentHighlight = false
-	private var currentSelect = false
+	fileprivate var currentHighlight = false
+	fileprivate var currentSelect = false
 
 
-	private func change(highlight highlight: Bool, select: Bool) {
+	fileprivate func change(highlight: Bool, select: Bool) {
 		let prevHighlight = currentHighlight || currentSelect
 		currentHighlight = highlight
 		currentSelect = select
@@ -517,7 +517,7 @@ class TableFragmentCell: UITableViewCell {
 			return
 		}
 		if let fragment = fragment {
-			if selectionStyle != .None {
+			if selectionStyle != .none {
 				fragment.reflectCellHighlight(newHighlight)
 			}
 		}
@@ -529,7 +529,7 @@ class TableFragmentCell: UITableViewCell {
 
 
 
-public class CellFragmentFactory {
+open class CellFragmentFactory {
 	final let dependency: DependencyResolver
 	final let cellReuseId: String
 	final let modelType: Any.Type
@@ -549,7 +549,7 @@ public class CellFragmentFactory {
 
 
 
-	public final func heightFor(model: Any, inWidth width: CGFloat) -> CGFloat {
+	public final func heightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
 		return heightCalculator.heightFor(model, inWidth: width)
 	}
 
@@ -566,7 +566,7 @@ public class CellFragmentFactory {
 	// MARK: - Internals
 
 
-	private func internalCreateFragment() -> Fragment {
+	fileprivate func internalCreateFragment() -> Fragment {
 		let fragment = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: modelType)
 		fragment.performLayoutInWidth = true
 		fragment.layoutCache = layoutCache
@@ -591,15 +591,15 @@ class TableFragmentController: UITableViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		navigationController?.navigationBar.translucent = false
+		navigationController?.navigationBar.isTranslucent = false
 //		automaticallyAdjustsScrollViewInsets = false
 
 		fragment.registerTableView(tableView)
-		tableView.separatorStyle = .None
+		tableView.separatorStyle = .none
 		adjustTableInsets()
 		fragment.loadingIndicator = UIRefreshControl()
 		refreshControl = fragment.loadingIndicator
-		fragment.loadingIndicator.addTarget(self, action: #selector(onLoadingIndicatorRefresh), forControlEvents: .ValueChanged)
+		fragment.loadingIndicator.addTarget(self, action: #selector(onLoadingIndicatorRefresh), for: .valueChanged)
 		fragment.onControllerAttached()
 		fragment.startLoad()
 	}
@@ -614,14 +614,14 @@ class TableFragmentController: UITableViewController {
 
 
 
-	override func viewWillAppear(animated: Bool) {
+	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		fragment.onAppear()
 	}
 
 
 
-	override func viewDidDisappear(animated: Bool) {
+	override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
 		fragment.onDisappear()
 	}
@@ -630,31 +630,31 @@ class TableFragmentController: UITableViewController {
 	// MARK: - UITableViewController
 
 
-	override func preferredStatusBarStyle() -> UIStatusBarStyle {
-		return .LightContent
+	override var preferredStatusBarStyle : UIStatusBarStyle {
+		return .lightContent
 	}
 
 
 
-	override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return fragment.onTableView(tableView, numberOfRowsInSection: section)
 	}
 
 
 
-	override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		return fragment.onTableView(tableView, cellForRowAtIndexPath: indexPath)
 	}
 
 
 
-	override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+	override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 		return fragment.onTableView(tableView, heightForRowAtIndexPath: indexPath)
 	}
 
 
 
-	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		return fragment.onTableView(tableView, didSelectRowAtIndexPath: indexPath)
 	}
 
@@ -662,13 +662,13 @@ class TableFragmentController: UITableViewController {
 	// MARK: - Internals
 
 
-	@objc private func onLoadingIndicatorRefresh() {
+	@objc fileprivate func onLoadingIndicatorRefresh() {
 		fragment.onLoadingIndicatorRefresh()
 	}
 
 
 
-	private func adjustTableInsets() {
+	fileprivate func adjustTableInsets() {
 //		let isPortrait = view.bounds.width < view.bounds.height
 //		var top = isPortrait ? CGFloat(20) : CGFloat(0)
 //		if let navigationBarFrame = self.navigationController?.navigationBar.frame {

@@ -6,11 +6,11 @@
 import Foundation
 import UIKit
 
-public class CloudImageView: UIImageView, CloudFileListener {
+open class CloudImageView: UIImageView, CloudFileListener {
 
-	public var imageSize: CGSize?
+	open var imageSize: CGSize?
 
-	public var imageFile: CloudFile! {
+	open var imageFile: CloudFile! {
 		didSet {
 			oldValue?.removeListener(self)
 			imageFile?.addListener(self)
@@ -22,9 +22,9 @@ public class CloudImageView: UIImageView, CloudFileListener {
 	// MARK: - CloudFileListener
 
 
-	public func cloudFileStateChanged(file: CloudFile) {
+	open func cloudFileStateChanged(_ file: CloudFile) {
 		weak var weakSelf = self
-		NSOperationQueue.mainQueue().addOperationWithBlock {
+		OperationQueue.main.addOperation {
 			guard let strongSelf = weakSelf else {
 				return
 			}
@@ -40,8 +40,8 @@ public class CloudImageView: UIImageView, CloudFileListener {
 	// MARK: - Internals
 
 
-	private var currentState = CloudFileState.Loading(0)
-	private var pendingImageFilePath = ""
+	fileprivate var currentState = CloudFileState.loading(0)
+	fileprivate var pendingImageFilePath = ""
 
 
 	deinit {
@@ -52,14 +52,14 @@ public class CloudImageView: UIImageView, CloudFileListener {
 
 
 
-	private func reflectImageState(animated animated: Bool) {
-		let state = imageFile?.state ?? .Loading(0)
+	fileprivate func reflectImageState(animated: Bool) {
+		let state = imageFile?.state ?? .loading(0)
 		switch state {
-			case .Loaded:
+			case .loaded:
 				startLoadImage(imageFile.localPath)
-			case .Loading:
+			case .loading:
 				image = nil
-			case .Failed:
+			case .failed:
 				image = nil
 		}
 		currentState = state
@@ -68,32 +68,32 @@ public class CloudImageView: UIImageView, CloudFileListener {
 
 
 
-	private func startLoadImage(imageFilePath: String) {
+	fileprivate func startLoadImage(_ imageFilePath: String) {
 		pendingImageFilePath = imageFilePath
 		let bounds = imageSize ?? self.bounds.size
 		weak var weakSelf = self
-		NSOperationQueue().addOperationWithBlock {
+		OperationQueue().addOperation {
 			guard let strongSelf = weakSelf else {
 				return
 			}
 			guard strongSelf.pendingImageFilePath == imageFilePath else {
 				return
 			}
-			guard let imageData = NSData(contentsOfFile: imageFilePath) else {
+			guard let imageData = try? Data(contentsOf: URL(fileURLWithPath: imageFilePath)) else {
 				return
 			}
 			guard let image = UIImage(data: imageData) else {
 				return
 			}
 			let ratio = max(bounds.width / image.size.width, bounds.height / image.size.height)
-			let thumbnailSize = CGSizeMake(image.size.width * ratio, image.size.height * ratio)
+			let thumbnailSize = CGSize(width: image.size.width * ratio, height: image.size.height * ratio)
 
-			UIGraphicsBeginImageContextWithOptions(thumbnailSize, false, UIScreen.mainScreen().scale);
-			image.drawInRect(CGRectMake(0, 0, thumbnailSize.width, thumbnailSize.height))
+			UIGraphicsBeginImageContextWithOptions(thumbnailSize, false, UIScreen.main.scale);
+			image.draw(in: CGRect(x: 0, y: 0, width: thumbnailSize.width, height: thumbnailSize.height))
 			let thumbnail = UIGraphicsGetImageFromCurrentImageContext()
 			UIGraphicsEndImageContext()
 
-			NSOperationQueue.mainQueue().addOperationWithBlock {
+			OperationQueue.main.addOperation {
 				guard let strongSelf = weakSelf else {
 					return
 				}

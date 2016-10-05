@@ -10,9 +10,9 @@ import UIKit
 
 
 
-public class PickerElement: ViewElement, PickerElementDelegate {
+open class PickerElement: ViewElement, PickerElementDelegate {
 
-	public var font: UIFont? {
+	open var font: UIFont? {
 		didSet {
 			if let view = view as? PickerElementView {
 				view.font = font
@@ -20,7 +20,7 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 		}
 	}
 
-	public var maxLines: Int? {
+	open var maxLines: Int? {
 		didSet {
 			if let view = view as? PickerElementView {
 				view.maxLines = maxLines
@@ -28,7 +28,7 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 		}
 	}
 
-	public var rowHeight: CGFloat? {
+	open var rowHeight: CGFloat? {
 		didSet {
 			if let view = view as? PickerElementView {
 				view.rowHeight = rowHeight
@@ -36,7 +36,7 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 		}
 	}
 
-	public var color: UIColor? {
+	open var color: UIColor? {
 		didSet {
 			if let view = view as? PickerElementView {
 				view.color = color
@@ -44,7 +44,7 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 		}
 	}
 
-	public var sections = [PickerSection]() {
+	open var sections = [PickerSection]() {
 		didSet {
 			if let view = view as? PickerElementView {
 				view.sections = sections
@@ -60,7 +60,7 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 	// MARK: - LayoutItem
 
 
-	public override var frame: CGRect {
+	open override var frame: CGRect {
 		didSet {
 			if let view = view as? PickerElementView {
 				view.setNeedsLayout()
@@ -69,15 +69,15 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 	}
 
 
-	public override func createView() -> UIView {
-		let picker = PickerElementView(frame: CGRectMake(0, 0, 100, 100))
+	open override func createView() -> UIView {
+		let picker = PickerElementView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 		picker.dataSource = picker
 		picker.delegate = picker
 		return picker
 	}
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		super.initializeView()
 		guard let view = view as? PickerElementView else {
 			return
@@ -93,11 +93,11 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 
 	// MARK: - PickerElementDelegate
 
-	public func pickerItemSelected(item: Int, inSection section: Int) {
+	open func pickerItemSelected(_ item: Int, inSection section: Int) {
 		let section = sections[section]
 		if let action = section.selectAction {
 			var actionWithArgs = ""
-			if let value = section.items[item].value where !value.isEmpty {
+			if let value = section.items[item].value , !value.isEmpty {
 				actionWithArgs = "\(action) \(value)"
 			}
 			else {
@@ -113,7 +113,7 @@ public class PickerElement: ViewElement, PickerElementDelegate {
 
 
 
-public class PickerItem {
+open class PickerItem {
 	let title: String
 	let value: String?
 	init(title: String, value: String?) {
@@ -122,12 +122,12 @@ public class PickerItem {
 	}
 }
 
-public class PickerSection {
-	public var selectAction: String?
-	public var width: CGFloat?
-	public var items = [PickerItem]()
+open class PickerSection {
+	open var selectAction: String?
+	open var width: CGFloat?
+	open var items = [PickerItem]()
 
-	func applyDeclaration(element: DeclarationElement, context: DeclarationContext) throws {
+	func applyDeclaration(_ element: DeclarationElement, context: DeclarationContext) throws {
 		for attribute in element.attributes {
 			switch attribute.name {
 				case "select-action":
@@ -149,22 +149,22 @@ public class PickerSection {
 
 
 
-public class PickerElementDefinition: ViewElementDefinition {
+open class PickerElementDefinition: ViewElementDefinition {
 
-	public var maxLines: Int?
-	public var rowHeight: CGFloat?
-	public var font: UIFont?
-	public var color: UIColor?
-	public var sections = [PickerSection]()
+	open var maxLines: Int?
+	open var rowHeight: CGFloat?
+	open var font: UIFont?
+	open var color: UIColor?
+	open var sections = [PickerSection]()
 
 
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return PickerElement()
 	}
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		guard let element = element as? PickerElement else {
 			return
@@ -177,7 +177,7 @@ public class PickerElementDefinition: ViewElementDefinition {
 	}
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "max-lines":
 				maxLines = Int(try context.getFloat(attribute))
@@ -193,7 +193,7 @@ public class PickerElementDefinition: ViewElementDefinition {
 	}
 
 
-	public override func applyDeclarationElement(element: DeclarationElement, context: DeclarationContext) throws -> Bool {
+	open override func applyDeclarationElement(_ element: DeclarationElement, context: DeclarationContext) throws -> Bool {
 		switch element.name {
 			case "section":
 				let section = PickerSection()
@@ -210,20 +210,20 @@ public class PickerElementDefinition: ViewElementDefinition {
 
 
 public protocol PickerElementDelegate: class {
-	func pickerItemSelected(item: Int, inSection section: Int)
+	func pickerItemSelected(_ item: Int, inSection section: Int)
 }
 
 
-public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerViewDelegate {
+open class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerViewDelegate {
 
-	public weak var pickerDelegate: PickerElementDelegate?
+	open weak var pickerDelegate: PickerElementDelegate?
 
-	public var maxLines: Int?
-	public var rowHeight: CGFloat?
-	public var color: UIColor?
-	public var font: UIFont?
+	open var maxLines: Int?
+	open var rowHeight: CGFloat?
+	open var color: UIColor?
+	open var font: UIFont?
 
-	public var sections = [PickerSection]() {
+	open var sections = [PickerSection]() {
 		didSet {
 			reloadAllComponents()
 		}
@@ -232,22 +232,22 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 
 	// MARK: - UIPickerView DataSource, Delegate
 
-	public func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+	open func numberOfComponents(in pickerView: UIPickerView) -> Int {
 		return sections.count
 	}
 
 
-	public func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+	open func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
 		return sections[component].items.count
 	}
 
 
-	public func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+	open func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
 		return sections[component].items[row].title
 	}
 
 
-	public func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
+	open func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
 		var label = view as? UILabel
 		if label == nil {
 			label = UILabel()
@@ -274,17 +274,17 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 		paraStyle.firstLineHeadIndent = horPadding
 		paraStyle.headIndent = horPadding
 		paraStyle.tailIndent = -horPadding
-		paraStyle.alignment = .Center
+		paraStyle.alignment = .center
 		attributes[NSParagraphStyleAttributeName] = paraStyle
 		label!.attributedText = NSAttributedString(string: sections[component].items[row].title, attributes: attributes)
 		label!.numberOfLines = maxLines ?? 1
-		label!.lineBreakMode = .ByTruncatingTail
+		label!.lineBreakMode = .byTruncatingTail
 		return label!
 	}
 
 
 
-	public func pickerView(pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
+	open func pickerView(_ pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
 		if let width = sections[component].width {
 			return width
 		}
@@ -292,12 +292,12 @@ public class PickerElementView: UIPickerView, UIPickerViewDataSource, UIPickerVi
 	}
 
 
-	public func pickerView(pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
+	open func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
 		return rowHeight ?? 20
 	}
 
 
-	public func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+	open func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
 		pickerDelegate?.pickerItemSelected(row, inSection: component)
 	}
 

@@ -6,17 +6,17 @@
 import Foundation
 import UIKit
 
-public class CentralUISideController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
+open class CentralUISideController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate {
 
-	public static func show(centralUi: CentralUI) {
-		let storyboard = UIStoryboard(name: "MainMenu", bundle: NSBundle(forClass: DefaultCentralUI.self))
-		let sideController = storyboard.instantiateViewControllerWithIdentifier("MainMenuSideController") as! CentralUISideController
+	open static func show(_ centralUi: CentralUI) {
+		let storyboard = UIStoryboard(name: "MainMenu", bundle: Bundle(for: DefaultCentralUI.self))
+		let sideController = storyboard.instantiateViewController(withIdentifier: "MainMenuSideController") as! CentralUISideController
 		sideController.setCentralUi(centralUi)
 		sideController.showAnimated()
 	}
 
 
-	public func setCentralUi(centralUi: CentralUI) {
+	open func setCentralUi(_ centralUi: CentralUI) {
 		self.centralUi = centralUi
 	}
 
@@ -36,7 +36,7 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 	// MARK: - UI Actions
 
 
-	@IBAction func openSettings(sender: AnyObject) {
+	@IBAction func openSettings(_ sender: AnyObject) {
 		if let settings = centralUi.settingsAction {
 			hideAnimated(nil)
 			centralUi.execute(settings)
@@ -44,7 +44,7 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 	}
 
 
-	@IBAction func closeMenu(sender: AnyObject) {
+	@IBAction func closeMenu(_ sender: AnyObject) {
 		hideAnimated(nil)
 	}
 
@@ -52,26 +52,26 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 	// MARK: - ViewController
 
 
-	public override func viewDidLoad() {
+	open override func viewDidLoad() {
 		super.viewDidLoad()
 		MainMenuItemCell.registerCellTypes(tableView)
 		logonImage.image = centralUi.accountIcon
 		logonLabel.text = centralUi.accountTitle
 		tableView.backgroundColor = menuContainer.backgroundColor
-		tableView.separatorStyle = .None
-		tableView.scrollEnabled = false
+		tableView.separatorStyle = .none
+		tableView.isScrollEnabled = false
 
-		rightShadowView.backgroundColor = UIColor.clearColor()
+		rightShadowView.backgroundColor = UIColor.clear
 
 		let gradient: CAGradientLayer = CAGradientLayer()
 		gradient.frame = rightShadowView.bounds
-		let black = UIColor.blackColor()
+		let black = UIColor.black
 		gradient.colors = [
-			black.colorWithAlphaComponent(0).CGColor,
-			black.colorWithAlphaComponent(0.2).CGColor,
-			black.colorWithAlphaComponent(0.8).CGColor]
-		gradient.startPoint = CGPointMake(0, 0.5)
-		gradient.endPoint = CGPointMake(1, 0.5)
+			black.withAlphaComponent(0).cgColor,
+			black.withAlphaComponent(0.2).cgColor,
+			black.withAlphaComponent(0.8).cgColor]
+		gradient.startPoint = CGPoint(x: 0, y: 0.5)
+		gradient.endPoint = CGPoint(x: 1, y: 0.5)
 		rightShadowView.layer.addSublayer(gradient)
 
 		swipeRecognizer = UIPanGestureRecognizer()
@@ -82,47 +82,47 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 	}
 
 
-	public override func viewDidLayoutSubviews() {
+	open override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-		tableView.scrollEnabled = tableView.bounds.height < tableView.rowHeight * CGFloat(centralUi.menuItemCount)
+		tableView.isScrollEnabled = tableView.bounds.height < tableView.rowHeight * CGFloat(centralUi.menuItemCount)
 	}
 
 
 	// MARK: - Swipe Gesture Delegate
 
 
-	public func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
-		let velocity = swipeRecognizer.velocityInView(centralUi.rootController.view)
+	open func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+		let velocity = swipeRecognizer.velocity(in: centralUi.rootController.view)
 		let isHorizontalPan = abs(velocity.x) > abs(velocity.y)
 		return isHorizontalPan
 	}
 
 
 
-	public func handleSwipeGesture() {
+	open func handleSwipeGesture() {
 		let rootController = centralUi.rootController
 		let rootBounds = rootController.view.bounds
 		let menuWidth = CentralUISideController.menuWidth
-		let location = swipeRecognizer.locationInView(centralUi.rootController.view)
+		let location = swipeRecognizer.location(in: centralUi.rootController.view)
 		switch swipeRecognizer.state {
-			case .Possible:
+			case .possible:
 				break
 
-			case .Began:
+			case .began:
 				swipeStarted = true
 				swipeStartLocation = location
 
-			case .Changed:
+			case .changed:
 				let offset = min(0, max(-menuWidth, location.x - swipeStartLocation.x))
-				view.frame = CGRectOffset(rootBounds, offset, 0)
-				centralUi.contentContainer.frame = CGRectOffset(rootBounds, menuWidth + offset, 0)
+				view.frame = rootBounds.offsetBy(dx: offset, dy: 0)
+				centralUi.contentContainer.frame = rootBounds.offsetBy(dx: menuWidth + offset, dy: 0)
 				break
 
 			default:
 				guard swipeStarted else {
 					break
 				}
-				let shouldHide = swipeRecognizer.velocityInView(centralUi.rootController.view).x < 0
+				let shouldHide = swipeRecognizer.velocity(in: centralUi.rootController.view).x < 0
 				swipeStarted = false
 
 				view.removeGestureRecognizer(swipeRecognizer)
@@ -132,10 +132,10 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 					hideAnimated(nil)
 				}
 				else {
-					UIView.animateWithDuration(NSTimeInterval(0.25)) {
+					UIView.animate(withDuration: TimeInterval(0.25), animations: {
 						self.view.frame = rootBounds
-						self.centralUi.contentContainer.frame = CGRectOffset(rootBounds, menuWidth, 0)
-					}
+						self.centralUi.contentContainer.frame = rootBounds.offsetBy(dx: menuWidth, dy: 0)
+					}) 
 				}
 				break
 		}
@@ -145,18 +145,18 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 	// MARK: - Table Data Source & Delegate
 
 
-	public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return centralUi.menuItemCount
 	}
 
 
-	public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-		return MainMenuItemCell.cellForItem(centralUi.menuItemAtIndex(indexPath.row), selected: indexPath.row == centralUi.selectedMenuItem?.index ?? -1, tableView: tableView, indexPath: indexPath)
+	open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+		return MainMenuItemCell.cellForItem(centralUi.menuItemAtIndex((indexPath as NSIndexPath).row), selected: (indexPath as NSIndexPath).row == centralUi.selectedMenuItem?.index ?? -1, tableView: tableView, indexPath: indexPath)
 	}
 
 
-	public func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(indexPath.row)
+	open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		centralUi.selectedMenuItem = centralUi.menuItemAtIndex((indexPath as NSIndexPath).row)
 		hideAnimated(nil)
 	}
 
@@ -164,13 +164,13 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 	// MARK: - Internals
 
 
-	private var centralUi: CentralUI!
+	fileprivate var centralUi: CentralUI!
 
-	private var swipeRecognizer: UIPanGestureRecognizer!
-	private var swipeStartLocation = CGPointZero
-	private var swipeStarted = false
+	fileprivate var swipeRecognizer: UIPanGestureRecognizer!
+	fileprivate var swipeStartLocation = CGPoint.zero
+	fileprivate var swipeStarted = false
 
-	private static let menuWidth = CGFloat(270)
+	fileprivate static let menuWidth = CGFloat(270)
 
 	func showAnimated() {
 		let rootController = centralUi.rootController
@@ -178,29 +178,29 @@ public class CentralUISideController: UIViewController, UITableViewDelegate, UIT
 		let menuWidth = CentralUISideController.menuWidth
 
 		rootController.addChildViewController(self)
-		view.frame = CGRectOffset(rootBounds, -menuWidth, 0)
-		menuContainer.frame = CGRectMake(0, 0, menuWidth, rootBounds.height)
-		closeMenuContainer.frame = CGRectMake(menuWidth, 0, rootBounds.width, rootBounds.height)
+		view.frame = rootBounds.offsetBy(dx: -menuWidth, dy: 0)
+		menuContainer.frame = CGRect(x: 0, y: 0, width: menuWidth, height: rootBounds.height)
+		closeMenuContainer.frame = CGRect(x: menuWidth, y: 0, width: rootBounds.width, height: rootBounds.height)
 		rootController.view.addSubview(self.view)
-		UIView.animateWithDuration(NSTimeInterval(0.25),
+		UIView.animate(withDuration: TimeInterval(0.25),
 			animations: {
 				self.view.frame = rootBounds
-				self.centralUi.contentContainer.frame = CGRectOffset(rootBounds, menuWidth, 0)
+				self.centralUi.contentContainer.frame = rootBounds.offsetBy(dx: menuWidth, dy: 0)
 			},
 			completion: {
 				finished in
-				self.didMoveToParentViewController(rootController)
+				self.didMove(toParentViewController: rootController)
 			})
 	}
 
-	func hideAnimated(completion: ((Bool) -> Void)?) {
+	func hideAnimated(_ completion: ((Bool) -> Void)?) {
 		let rootController = centralUi.rootController
 		let rootBounds = rootController.view.bounds
 
-		willMoveToParentViewController(nil)
-		UIView.animateWithDuration(NSTimeInterval(0.25),
+		willMove(toParentViewController: nil)
+		UIView.animate(withDuration: TimeInterval(0.25),
 			animations: {
-				self.view.frame = CGRectOffset(rootBounds, -CentralUISideController.menuWidth, 0)
+				self.view.frame = rootBounds.offsetBy(dx: -CentralUISideController.menuWidth, dy: 0)
 				self.centralUi.contentContainer.frame = rootBounds
 			},
 			completion: {

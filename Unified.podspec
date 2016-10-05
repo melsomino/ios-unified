@@ -17,5 +17,5 @@ Pod::Spec.new do |spec|
   spec.library = 'xml2'
 
   spec.dependency 'GRDB.swift'
-  spec.dependency 'Starscream', '~> 1.1.3'
+  spec.dependency 'Starscream'
 end

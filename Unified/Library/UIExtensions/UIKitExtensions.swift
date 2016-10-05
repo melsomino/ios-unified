@@ -10,11 +10,11 @@ public enum DetailsDecorations {
 	case none
 	case navigation
 
-	public func decorate(controller: UIViewController) -> UIViewController {
+	public func decorate(_ controller: UIViewController) -> UIViewController {
 		switch self {
-			case none:
+			case .none:
 				return controller
-			case navigation:
+			case .navigation:
 				return UINavigationController(rootViewController: controller)
 		}
 	}
@@ -24,10 +24,10 @@ public enum DetailsDecorations {
 
 
 public enum PopoverAnchor {
-	case None
-	case BarButton(UIBarButtonItem)
-	case Frame(CGRect)
-	case View(UIView)
+	case none
+	case barButton(UIBarButtonItem)
+	case frame(CGRect)
+	case view(UIView)
 }
 
 
@@ -54,12 +54,12 @@ extension UIViewController {
 				return split.childViewControllers[0].unwrap() as T
 
 			default:
-				fatalError("can not unwrap controller to \(String(T.self))")
+				fatalError("can not unwrap controller to \(String(describing: T.self))")
 		}
 	}
 
 
-	public func showDetails(controller: UIViewController, decorations: DetailsDecorations) {
+	public func showDetails(_ controller: UIViewController, decorations: DetailsDecorations) {
 		if let split = splitViewController {
 			split.showDetailViewController(decorations.decorate(controller), sender: nil)
 			return
@@ -70,7 +70,7 @@ extension UIViewController {
 			return
 		}
 
-		presentViewController(decorations.decorate(controller), animated: true, completion: nil)
+		present(decorations.decorate(controller), animated: true, completion: nil)
 
 	}
 
@@ -82,16 +82,16 @@ extension UIViewController {
 
 
 
-	public func showModal(controller: UIViewController, width: CGFloat?, anchor: PopoverAnchor = .None) {
+	public func showModal(_ controller: UIViewController, width: CGFloat?, anchor: PopoverAnchor = .none) {
 		let wrapper = controller.wrapper
-		wrapper.modalPresentationStyle = UIModalPresentationStyle.Popover
+		wrapper.modalPresentationStyle = UIModalPresentationStyle.popover
 		if let popover = wrapper.popoverPresentationController {
 			switch anchor {
-				case .BarButton(let barButton):
+				case .barButton(let barButton):
 					popover.barButtonItem = barButton
-				case .View(let view):
+				case .view(let view):
 					popover.sourceView = view
-				case .Frame(let frame):
+				case .frame(let frame):
 					popover.sourceRect = frame
 				default:
 					break
@@ -100,24 +100,24 @@ extension UIViewController {
 				popover.delegate = popoverDelegate
 			}
 		}
-		presentViewController(wrapper, animated: true, completion: nil)
+		present(wrapper, animated: true, completion: nil)
 	}
 
 
 }
 
 
-public class SplitControllerFix: UISplitViewControllerDelegate {
+open class SplitControllerFix: UISplitViewControllerDelegate {
 
 
-	@objc public func splitViewController(svc: UISplitViewController, shouldHideViewController vc: UIViewController, inOrientation orientation: UIInterfaceOrientation) -> Bool {
+	@objc open func splitViewController(_ svc: UISplitViewController, shouldHide vc: UIViewController, in orientation: UIInterfaceOrientation) -> Bool {
 		//TODO: Бага в режиме SplitView на iPad Air 2, iPad Pro на iOS 9. Не показывает Master у SplitView в режиме 3:1.
 		return false
 	}
 
 
 
-	@objc public func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController: UIViewController, ontoPrimaryViewController primaryViewController: UIViewController) -> Bool {
+	@objc open func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
 		return true
 	}
 }
@@ -126,14 +126,14 @@ private let splitControllerFix = SplitControllerFix()
 
 extension UIStoryboard {
 
-	private static func createController<Controller:UIViewController>(create: (UIStoryboard) -> UIViewController, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
-		let storyboard = UIStoryboard(name: storyboardName, bundle: NSBundle(forClass: Controller.self))
+	fileprivate static func createController<Controller:UIViewController>(_ create: (UIStoryboard) -> UIViewController, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+		let storyboard = UIStoryboard(name: storyboardName, bundle: Bundle(for: Controller.self))
 		let controller = create(storyboard)
 		let target = controller.unwrap() as Controller
 		dependency.resolve(target)
 		initialization?(target)
 		if let split = controller as? UISplitViewController {
-			split.preferredDisplayMode = .AllVisible
+			split.preferredDisplayMode = .allVisible
 			split.delegate = splitControllerFix
 		}
 		return target
@@ -141,11 +141,11 @@ extension UIStoryboard {
 
 
 
-	public static func createControllerWithId<Controller:UIViewController>(id: String, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
-		return createController({ $0.instantiateViewControllerWithIdentifier(id) }, inStoryboard: storyboardName, dependency: dependency, initialization: initialization) as Controller
+	public static func createControllerWithId<Controller:UIViewController>(_ id: String, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+		return createController({ $0.instantiateViewController(withIdentifier: id) }, inStoryboard: storyboardName, dependency: dependency, initialization: initialization) as Controller
 	}
 
-	public static func createInitialControllerInStoryboard<Controller:UIViewController>(name: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+	public static func createInitialControllerInStoryboard<Controller:UIViewController>(_ name: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
 		return createController({ $0.instantiateInitialViewController()! }, inStoryboard: name, dependency: dependency, initialization: initialization) as Controller
 	}
 }
@@ -169,28 +169,28 @@ extension UIView {
 
 extension UIImage {
 
-	func resizedToFitSize(bounds: CGSize) -> UIImage {
+	func resizedToFitSize(_ bounds: CGSize) -> UIImage {
 		let ratio = max(bounds.width / size.width, bounds.height / size.height)
-		let thumbnailSize = CGSizeMake(size.width * ratio, size.height * ratio)
+		let thumbnailSize = CGSize(width: size.width * ratio, height: size.height * ratio)
 
-		UIGraphicsBeginImageContextWithOptions(thumbnailSize, false, UIScreen.mainScreen().scale);
-		drawInRect(CGRectMake(0, 0, thumbnailSize.width, thumbnailSize.height))
+		UIGraphicsBeginImageContextWithOptions(thumbnailSize, false, UIScreen.main.scale);
+		draw(in: CGRect(x: 0, y: 0, width: thumbnailSize.width, height: thumbnailSize.height))
 		let thumbnail = UIGraphicsGetImageFromCurrentImageContext()
 		UIGraphicsEndImageContext()
-		return thumbnail
+		return thumbnail!
 	}
 
 }
 
 
 extension UIColor {
-	public static func parse(string: String) -> UIColor {
-		if let named = UIColor.colorsByName[string.lowercaseString] {
+	public static func parse(_ string: String) -> UIColor {
+		if let named = UIColor.colorsByName[string.lowercased()] {
 			return named
 		}
-		let hex = string.stringByTrimmingCharactersInSet(NSCharacterSet.alphanumericCharacterSet().invertedSet)
+		let hex = string.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
 		var int = UInt32()
-		NSScanner(string: hex).scanHexInt(&int)
+		Scanner(string: hex).scanHexInt32(&int)
 		let a, r, g, b: UInt32
 		switch hex.characters.count {
 			case 3: // RGB (12-bit)
@@ -206,21 +206,21 @@ extension UIColor {
 	}
 
 
-	private static let colorsByName = [
-		"black": UIColor.blackColor(),
-		"darkGray": UIColor.darkGrayColor(),
-		"lightGray": UIColor.lightGrayColor(),
-		"white": UIColor.whiteColor(),
-		"gray": UIColor.grayColor(),
-		"red": UIColor.redColor(),
-		"green": UIColor.greenColor(),
-		"blue": UIColor.blueColor(),
-		"cyan": UIColor.cyanColor(),
-		"yellow": UIColor.yellowColor(),
-		"magenta": UIColor.magentaColor(),
-		"orange": UIColor.orangeColor(),
-		"purple": UIColor.purpleColor(),
-		"brown": UIColor.brownColor(),
-		"clear": UIColor.clearColor()
+	fileprivate static let colorsByName = [
+		"black": UIColor.black,
+		"darkGray": UIColor.darkGray,
+		"lightGray": UIColor.lightGray,
+		"white": UIColor.white,
+		"gray": UIColor.gray,
+		"red": UIColor.red,
+		"green": UIColor.green,
+		"blue": UIColor.blue,
+		"cyan": UIColor.cyan,
+		"yellow": UIColor.yellow,
+		"magenta": UIColor.magenta,
+		"orange": UIColor.orange,
+		"purple": UIColor.purple,
+		"brown": UIColor.brown,
+		"clear": UIColor.clear
 	]
 }

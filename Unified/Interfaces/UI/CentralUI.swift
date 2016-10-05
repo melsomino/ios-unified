@@ -54,17 +54,17 @@ public protocol CentralUI: class {
 	var rootController: UIViewController { get }
 	var contentContainer: UIView { get }
 
-	func execute(action: CentralUIAction)
+	func execute(_ action: CentralUIAction)
 
 	// MARK: - Menu
 
 
-	func addMenuItem(name: String, title: String, icon: UIImage?, action: CentralUIAction)
+	func addMenuItem(_ name: String, title: String, icon: UIImage?, action: CentralUIAction)
 
 
-	func findMenuItem(name: String) -> CentralUIMenuItem?
+	func findMenuItem(_ name: String) -> CentralUIMenuItem?
 	var menuItemCount: Int { get }
-	func menuItemAtIndex(index: Int) -> CentralUIMenuItem
+	func menuItemAtIndex(_ index: Int) -> CentralUIMenuItem
 	var selectedMenuItem: CentralUIMenuItem? { get set }
 	func createMenuIntegrationBarButtonItem() -> UIBarButtonItem
 
@@ -81,13 +81,13 @@ public protocol CentralUI: class {
 	// MARK: - Content
 
 
-	func setContent(controller: UIViewController?, animation: CentralUIContentAnimation, completion: (() -> Void)?)
+	func setContent(_ controller: UIViewController?, animation: CentralUIContentAnimation, completion: (() -> Void)?)
 
 
 	// MARK: - Alerts
 
 
-	func pushAlert(alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?)
+	func pushAlert(_ alert: CentralUIAlert, message: String, icon: UIImage?, actionArg: Any?, action: ((Any?) -> Void)?)
 
 }
 
@@ -96,10 +96,10 @@ public protocol CentralUI: class {
 
 
 extension CentralUI {
-	public func pushAlert(alert: CentralUIAlert, message: String, icon: UIImage) {
+	public func pushAlert(_ alert: CentralUIAlert, message: String, icon: UIImage) {
 		pushAlert(alert, message: message, icon: icon, actionArg: nil, action: nil)
 	}
-	public func pushAlert(alert: CentralUIAlert, message: String) {
+	public func pushAlert(_ alert: CentralUIAlert, message: String) {
 		pushAlert(alert, message: message, icon: nil, actionArg: nil, action: nil)
 	}
 }

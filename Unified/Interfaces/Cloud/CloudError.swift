@@ -5,23 +5,23 @@
 
 import Foundation
 
-public class CloudError: ErrorType, CustomStringConvertible, CustomDebugStringConvertible {
-	public let message: String?
-	public let source: Any?
+open class CloudError: Error, CustomStringConvertible, CustomDebugStringConvertible {
+	open let message: String?
+	open let source: Any?
 
 	public init (_ message: String, _ source: Any?) {
 		self.message = message
 		self.source = source
 	}
 
-	public var description: String {
+	open var description: String {
 		if let error = source as? NSError {
 			return "Ошибка сервера: \(error.domain)"
 		}
 		return message ?? ""
 	}
 
-	public var debugDescription: String {
+	open var debugDescription: String {
 		if let error = source as? NSError {
 			return "Ошибка сервера: \(error)"
 		}

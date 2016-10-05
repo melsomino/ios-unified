@@ -10,23 +10,23 @@ import QuartzCore
 
 
 
-public class DecoratorElement: ContentElement {
+open class DecoratorElement: ContentElement {
 
-	public var child: FragmentElement!
+	open var child: FragmentElement!
 
-	public var padding = UIEdgeInsetsZero {
+	open var padding = UIEdgeInsets.zero {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var transparentGradientLeft: CGFloat? {
+	open var transparentGradientLeft: CGFloat? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public final func reflectParentBackgroundTo(color: UIColor?) {
+	public final func reflectParentBackgroundTo(_ color: UIColor?) {
 		if let view = view as? DecoratorView {
 			view.reflectParentBackgroundTo(color)
 		}
@@ -35,18 +35,18 @@ public class DecoratorElement: ContentElement {
 	// MARK: - UiContentElement
 
 
-	public override func createView() -> UIView {
+	open override func createView() -> UIView {
 		return DecoratorView()
 	}
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		guard let view = view else {
 			return
 		}
 
 		view.layer.borderWidth = borderWidth ?? 0
-		view.layer.borderColor = (borderColor ?? UIColor.clearColor()).CGColor
+		view.layer.borderColor = (borderColor ?? UIColor.clear).cgColor
 
 		if let radius = cornerRadius {
 			view.clipsToBounds = true
@@ -70,7 +70,7 @@ public class DecoratorElement: ContentElement {
 	// MARK: - UiElement
 
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		if let child = child {
 			return child.visible
 		}
@@ -78,20 +78,20 @@ public class DecoratorElement: ContentElement {
 	}
 
 
-	public override func traversal(@noescape visit: (FragmentElement) -> Void) {
+	open override func traversal(_ visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		child?.traversal(visit)
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let childBounds = FragmentElement.reduce(size: bounds, edges: padding)
 		let childMeasure = child.measure(inBounds: childBounds)
 		return FragmentElement.expand(measure: childMeasure, edges: padding)
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		frame = bounds
 		let childBounds = FragmentElement.reduce(rect: bounds, edges: padding)
 		let childSize = child.measure(inBounds: childBounds.size)
@@ -105,15 +105,15 @@ public class DecoratorElement: ContentElement {
 
 
 
-public class DecoratorElementDefinition: ContentElementDefinition {
-	var padding: UIEdgeInsets = UIEdgeInsetsZero
+open class DecoratorElementDefinition: ContentElementDefinition {
+	var padding: UIEdgeInsets = UIEdgeInsets.zero
 	var transparentGradientLeft: CGFloat?
 
 
 	// MARK: - UiElementDefinition
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "transparent-gradient-left":
 				transparentGradientLeft = try context.getFloat(attribute)
@@ -127,12 +127,12 @@ public class DecoratorElementDefinition: ContentElementDefinition {
 	}
 
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return DecoratorElement()
 	}
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
 		let decorator = element as! DecoratorElement
@@ -172,22 +172,26 @@ class DecoratorView: UIView {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		guard let gradient = gradient_layer, left = transparentGradientLeft else {
+		guard let gradient = gradient_layer, let left = transparentGradientLeft else {
 			return
 		}
 		gradient.frame = bounds
-		gradient.locations = [0, bounds.width > 0 ? left / bounds.width : 0, 1]
+		gradient.locations = gradientStops(0, bounds.width > 0 ? left / bounds.width : CGFloat(0), 1)
 	}
 
 
 	// MARK: - Internals
 
 
-	private var gradient_layer: CAGradientLayer?
-	private var default_background_color_assigned = false
-	private var default_background_color: UIColor?
+	fileprivate var gradient_layer: CAGradientLayer?
+	fileprivate var default_background_color_assigned = false
+	fileprivate var default_background_color: UIColor?
 
-	private func check_default_background_color_assigned() {
+	private func gradientStops(_ a: CGFloat, _ b: CGFloat, _ c: CGFloat) -> [NSNumber] {
+		return [NSNumber(value: a.native), NSNumber(value: b.native), NSNumber(value: c.native)]
+	}
+	
+	fileprivate func check_default_background_color_assigned() {
 		if !default_background_color_assigned {
 			default_background_color = backgroundColor
 			default_background_color_assigned = true
@@ -195,47 +199,47 @@ class DecoratorView: UIView {
 	}
 
 
-	private func resolve_background_color() -> UIColor {
+	fileprivate func resolve_background_color() -> UIColor {
 		check_default_background_color_assigned()
-		return decoratorBackgroundColor ?? default_background_color ?? UIColor.clearColor()
+		return decoratorBackgroundColor ?? default_background_color ?? UIColor.clear
 	}
 
 
-	private func background_properties_changed() {
+	fileprivate func background_properties_changed() {
 		check_default_background_color_assigned()
 
-		if let left = transparentGradientLeft, back_color = decoratorBackgroundColor {
+		if let left = transparentGradientLeft, let back_color = decoratorBackgroundColor {
 			if gradient_layer == nil {
-				layer.backgroundColor = UIColor.clearColor().CGColor
+				layer.backgroundColor = UIColor.clear.cgColor
 				gradient_layer = CAGradientLayer()
 				layer.addSublayer(gradient_layer!)
 				gradient_layer!.frame = bounds
 			}
 			let gradient = gradient_layer!
-			gradient.startPoint = CGPointMake(0, 0.5)
-			gradient.endPoint = CGPointMake(1, 0.5)
+			gradient.startPoint = CGPoint(x: 0, y: 0.5)
+			gradient.endPoint = CGPoint(x: 1, y: 0.5)
 
-			gradient.colors = [back_color.colorWithAlphaComponent(0).CGColor, back_color.CGColor, back_color.CGColor]
-			gradient.locations = [0, bounds.width > 0 ? left / bounds.width : 0, 1]
+			gradient.colors = [back_color.withAlphaComponent(0).cgColor, back_color.cgColor, back_color.cgColor]
+			gradient.locations = gradientStops(0, bounds.width > 0 ? left / bounds.width : CGFloat(0), 1)
 		}
 		else {
 			if let gradient = gradient_layer {
 				gradient.removeFromSuperlayer()
 				gradient_layer = nil
 			}
-			layer.backgroundColor = resolve_background_color().CGColor
+			layer.backgroundColor = resolve_background_color().cgColor
 		}
 	}
 
 
-	final func reflectParentBackgroundTo(color: UIColor?) {
+	final func reflectParentBackgroundTo(_ color: UIColor?) {
 		guard transparentGradientLeft != nil else {
 			return
 		}
-		guard let gradient = gradient_layer, back_color = color ?? decoratorBackgroundColor else {
+		guard let gradient = gradient_layer, let back_color = color ?? decoratorBackgroundColor else {
 			return
 		}
-		gradient.colors = [back_color.colorWithAlphaComponent(0).CGColor, back_color.CGColor, back_color.CGColor]
+		gradient.colors = [back_color.withAlphaComponent(0).cgColor, back_color.cgColor, back_color.cgColor]
 	}
 
 }

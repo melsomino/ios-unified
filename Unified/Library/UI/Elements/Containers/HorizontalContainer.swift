@@ -8,10 +8,10 @@ import Foundation
 
 
 
-public class HorizontalContainer: MultipleElementContainer {
+open class HorizontalContainer: MultipleElementContainer {
 	var spacing = CGFloat(0)
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		var measure = Horizontal_layout(container: self, bounds: bounds)
 		measure.measure()
 		return measure.size
@@ -19,7 +19,7 @@ public class HorizontalContainer: MultipleElementContainer {
 
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		var measure = Horizontal_layout(container: self, bounds: bounds.size)
 		measure.measure()
 		measure.layout(with_origin: bounds.origin)
@@ -40,7 +40,7 @@ class HorizontalContainerDefinition: FragmentElementDefinition {
 
 
 
-	override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let horizontal = element as! HorizontalContainer
 		horizontal.children = children
@@ -49,7 +49,7 @@ class HorizontalContainerDefinition: FragmentElementDefinition {
 
 
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "spacing":
 				spacing = try context.getFloat(attribute)
@@ -79,7 +79,7 @@ private struct Horizontal_layout {
 
 
 
-	private struct Element_layout {
+	fileprivate struct Element_layout {
 		let element: FragmentElement
 		var size = SizeMeasure.zero
 		var bounds_width = CGFloat(0)
@@ -141,7 +141,7 @@ private struct Horizontal_layout {
 
 
 
-	func width_of(@noescape predicate: (Element_layout) -> Bool) -> (min:CGFloat, max:CGFloat) {
+	func width_of(_ predicate: (Element_layout) -> Bool) -> (min:CGFloat, max:CGFloat) {
 		var width = (min: CGFloat(0), max: (CGFloat(0)))
 		for child in children {
 			if predicate(child) {
@@ -249,10 +249,10 @@ private struct Horizontal_layout {
 
 
 
-	mutating func measure_children(@noescape measure_child: (inout child:Element_layout) -> SizeMeasure) {
+	mutating func measure_children(_ measure_child: (_ child:inout Element_layout) -> SizeMeasure) {
 		size = SizeMeasure(width: total_spacing, height: 0)
 		for i in 0 ..< children.count {
-			let child = measure_child(child: &children[i])
+			let child = measure_child(&children[i])
 			size.width.min += child.width.min
 			size.width.max += child.width.max
 			size.height = max(size.height, child.height)

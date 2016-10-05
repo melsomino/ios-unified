@@ -7,7 +7,7 @@ import Foundation
 import UIKit
 
 protocol DefaultMenuItemDelegate: AnyObject {
-	func onMenuItemChanged(menuItem: DefaultMenuItem)
+	func onMenuItemChanged(_ menuItem: DefaultMenuItem)
 }
 
 class DefaultMenuItem: CentralUIMenuItem {

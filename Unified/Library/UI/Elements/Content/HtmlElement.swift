@@ -7,51 +7,51 @@ import Foundation
 import Foundation
 import UIKit
 
-public class HtmlElement: ContentElement {
+open class HtmlElement: ContentElement {
 
-	public var htmlDefinition: HtmlElementDefinition {
+	open var htmlDefinition: HtmlElementDefinition {
 		return definition as! HtmlElementDefinition
 	}
 
-	public var maxLines = 0 {
+	open var maxLines = 0 {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var nowrap = false
+	open var nowrap = false
 
-	public var font: UIFont? {
+	open var font: UIFont? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var color: UIColor? {
+	open var color: UIColor? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var autoHideEmptyText = true
+	open var autoHideEmptyText = true
 
-	private func getLastParagraphRange(string: NSMutableAttributedString) -> NSRange {
+	fileprivate func getLastParagraphRange(_ string: NSMutableAttributedString) -> NSRange {
 		if string.length == 0 {
 			return NSMakeRange(0, 0)
 		}
 		let s = string.string as NSString
-		return s.paragraphRangeForRange(NSMakeRange(string.length - 1, 1))
+		return s.paragraphRange(for: NSMakeRange(string.length - 1, 1))
 	}
 
-	private func removeEmptyLinesFromEnd(string: NSAttributedString) -> NSAttributedString {
+	fileprivate func removeEmptyLinesFromEnd(_ string: NSAttributedString) -> NSAttributedString {
 		if !string.string.hasSuffix("\n") {
 			return string
 		}
-		return removeEmptyLinesFromEnd(string.attributedSubstringFromRange(NSMakeRange(0, string.length - 1)))
+		return removeEmptyLinesFromEnd(string.attributedSubstring(from: NSMakeRange(0, string.length - 1)))
 	}
 
 
-	public var html: String? {
+	open var html: String? {
 		didSet {
 			guard var html = html else {
 				attributedText = nil
@@ -64,13 +64,13 @@ public class HtmlElement: ContentElement {
 			let font = resolveFont()
 			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(Int(font.pointSize))'>\(html)</div>"
 			let options: [String:AnyObject] = [
-				NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
-				NSCharacterEncodingDocumentAttribute: NSUTF8StringEncoding,
+				NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType as AnyObject,
+				NSCharacterEncodingDocumentAttribute: String.Encoding.utf8 as AnyObject,
 			]
 
 			var attributed: NSAttributedString!
 
-			if let utf8Data = html.dataUsingEncoding(NSUTF8StringEncoding) {
+			if let utf8Data = html.data(using: String.Encoding.utf8) {
 				attributed = try? NSAttributedString(data: utf8Data, options: options, documentAttributes: nil)
 			}
 			if attributed == nil {
@@ -81,8 +81,8 @@ public class HtmlElement: ContentElement {
 			let builder = attributed.mutableCopy() as! NSMutableAttributedString
 			let lastParagraphRange = getLastParagraphRange(builder)
 			if lastParagraphRange.location  >= 0 && lastParagraphRange.location < attributed.string.characters.count && lastParagraphRange.length > 0 {
-				let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, atIndex: lastParagraphRange.location, effectiveRange: nil)
-				let newLastParagraphStyle = (lastParagraphStyle ?? NSParagraphStyle.defaultParagraphStyle()).mutableCopy() as! NSMutableParagraphStyle
+				let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, at: lastParagraphRange.location, effectiveRange: nil)
+				let newLastParagraphStyle = ((lastParagraphStyle ?? NSParagraphStyle.default) as AnyObject).mutableCopy() as! NSMutableParagraphStyle
 				newLastParagraphStyle.paragraphSpacing = 0
 				builder.addAttribute(NSParagraphStyleAttributeName, value: newLastParagraphStyle, range: lastParagraphRange)
 				attributed = (builder.copy() as! NSAttributedString)
@@ -92,7 +92,7 @@ public class HtmlElement: ContentElement {
 	}
 
 
-	public var attributedText: NSAttributedString? {
+	open var attributedText: NSAttributedString? {
 		didSet {
 			if let label = view as? UILabel {
 				label.attributedText = attributedText
@@ -111,7 +111,7 @@ public class HtmlElement: ContentElement {
 	// MARK: - UiContentElement
 
 
-	public override func onViewCreated() {
+	open override func onViewCreated() {
 		super.onViewCreated()
 		guard let label = view as? UILabel else {
 			return
@@ -122,7 +122,7 @@ public class HtmlElement: ContentElement {
 	}
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		super.initializeView()
 		guard let label = view as? UILabel else {
 			return
@@ -130,12 +130,12 @@ public class HtmlElement: ContentElement {
 		label.font = font ?? defaultFont
 		label.textColor = color ?? defaultColor
 		label.numberOfLines = maxLines ?? defaultMaxLines
-		label.lineBreakMode = nowrap ? .ByClipping : .ByTruncatingTail
+		label.lineBreakMode = nowrap ? .byClipping : .byTruncatingTail
 		label.attributedText = attributedText
 	}
 
 
-	public override func createView() -> UIView {
+	open override func createView() -> UIView {
 		return UILabel()
 	}
 
@@ -143,7 +143,7 @@ public class HtmlElement: ContentElement {
 	// MARK: - UiElement
 
 
-	public override func bind(toModel values: [Any?]) {
+	open override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
 		if let htmlBinding = htmlDefinition.html {
 			html = htmlBinding.evaluate(values)
@@ -151,12 +151,12 @@ public class HtmlElement: ContentElement {
 	}
 
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		return !hidden && html != nil && !html!.isEmpty
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		return SizeMeasure(size: measureTextSize(inBounds: bounds))
 	}
 
@@ -165,26 +165,26 @@ public class HtmlElement: ContentElement {
 	// MARK: - Internals
 
 
-	private var defaultMaxLines = 0
-	private var defaultFont: UIFont?
-	private var defaultColor: UIColor?
+	fileprivate var defaultMaxLines = 0
+	fileprivate var defaultFont: UIFont?
+	fileprivate var defaultColor: UIColor?
 
-	private func attributedTextForMeasure() -> NSAttributedString {
+	fileprivate func attributedTextForMeasure() -> NSAttributedString {
 		return attributedText ?? NSAttributedString(string: "")
 	}
 
 
-	private func measureTextSize(inBounds bounds: CGSize) -> CGSize {
+	fileprivate func measureTextSize(inBounds bounds: CGSize) -> CGSize {
 		guard visible else {
-			return CGSizeZero
+			return CGSize.zero
 		}
 		let measuredText = attributedTextForMeasure()
 		if nowrap {
-			return measureText(measuredText, inWidth: CGFloat.max)
+			return measureText(measuredText, inWidth: CGFloat.greatestFiniteMagnitude)
 		}
 		if maxLines > 0 {
-			let singleLine = measuredText.string.stringByReplacingOccurrencesOfString("\r", withString: "").stringByReplacingOccurrencesOfString("\n", withString: "")
-			let singleLineHeight = measureText(NSAttributedString(string: singleLine), inWidth: CGFloat.max).height + 1
+			let singleLine = measuredText.string.replacingOccurrences(of: "\r", with: "").replacingOccurrences(of: "\n", with: "")
+			let singleLineHeight = measureText(NSAttributedString(string: singleLine), inWidth: CGFloat.greatestFiniteMagnitude).height + 1
 			var size = measureText(measuredText, inWidth: bounds.width)
 			let maxHeight = singleLineHeight * CGFloat(maxLines)
 			if size.height > maxHeight {
@@ -197,23 +197,23 @@ public class HtmlElement: ContentElement {
 
 
 
-	private func measureText(text: NSAttributedString, inWidth width: CGFloat) -> CGSize {
-		let constraintSize = CGSize(width: width, height: CGFloat.max)
-		let size = text.boundingRectWithSize(constraintSize,
-			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
+	fileprivate func measureText(_ text: NSAttributedString, inWidth width: CGFloat) -> CGSize {
+		let constraintSize = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
+		let size = text.boundingRect(with: constraintSize,
+			options: NSStringDrawingOptions.usesLineFragmentOrigin,
 			context: nil).size
 		return size
 	}
 
 
-	private func resolveFont() -> UIFont {
-		return font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+	fileprivate func resolveFont() -> UIFont {
+		return font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	}
 }
 
 
 
-public class HtmlElementDefinition: ContentElementDefinition {
+open class HtmlElementDefinition: ContentElementDefinition {
 	var fontName: String?
 	var fontSize: CGFloat?
 	var maxLines = 0
@@ -225,7 +225,7 @@ public class HtmlElementDefinition: ContentElementDefinition {
 	// MARK: - UiElementDefinition
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if isElementValue {
 			html = try context.getExpression(attribute, .value(attribute.name))
 			return
@@ -245,23 +245,23 @@ public class HtmlElementDefinition: ContentElementDefinition {
 	}
 
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return HtmlElement()
 	}
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
 		let html = element as! HtmlElement
-		if let name = fontName, size = fontSize {
+		if let name = fontName, let size = fontSize {
 			html.font = font(name, size)
 		}
 		else if let name = fontName {
-			html.font = font(name, UIFont.systemFontSize())
+			html.font = font(name, UIFont.systemFontSize)
 		}
 		else if let size = fontSize {
-			html.font = UIFont.systemFontOfSize(size)
+			html.font = UIFont.systemFont(ofSize: size)
 		}
 		html.color = color
 		html.maxLines = maxLines
@@ -272,11 +272,11 @@ public class HtmlElementDefinition: ContentElementDefinition {
 	// MARK: - Internals
 
 
-	private func applyFontValue(attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
+	fileprivate func applyFontValue(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
 			case .value(let string):
 				var size: Float = 0
-				if NSScanner(string: string).scanFloat(&size) {
+				if Scanner(string: string).scanFloat(&size) {
 					fontSize = CGFloat(size)
 				}
 				else {
@@ -292,7 +292,7 @@ public class HtmlElementDefinition: ContentElementDefinition {
 	}
 
 
-	func font(name: String, _ size: CGFloat) -> UIFont {
-		return UIFont(name: name, size: size) ?? UIFont.systemFontOfSize(size)
+	func font(_ name: String, _ size: CGFloat) -> UIFont {
+		return UIFont(name: name, size: size) ?? UIFont.systemFont(ofSize: size)
 	}
 }

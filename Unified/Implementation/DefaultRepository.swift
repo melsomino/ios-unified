@@ -10,16 +10,16 @@ import Starscream
 
 
 
-public class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUIDependent {
+open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUIDependent {
 
 
 	// MARK: - Repository
 
-	public func load(repository name: String) throws -> [DeclarationElement] {
-		return try load(repository: name, from: NSBundle.mainBundle())
+	open func load(repository name: String) throws -> [DeclarationElement] {
+		return try load(repository: name, from: Bundle.main)
 	}
 
-	public func load(repository name: String, forType type: Any.Type) throws -> [DeclarationElement] {
+	open func load(repository name: String, forType type: Any.Type) throws -> [DeclarationElement] {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -27,14 +27,14 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 		return try load(repository: name, from: bundle(forType: type))
 	}
 
-	public func load(declarations name: String, fromModuleWithType type: Any.Type) throws -> [DeclarationElement] {
+	open func load(declarations name: String, fromModuleWithType type: Any.Type) throws -> [DeclarationElement] {
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
 		let repositoryBundle = bundle(forType: type)
 		var declarations = [DeclarationElement]()
-		for uniPath in repositoryBundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
+		for uniPath in repositoryBundle.paths(forResourcesOfType: ".uni", inDirectory: nil) {
 			let elements = try DeclarationElement.load(uniPath)
 			for declaration in elements.filter({ $0.name == name }) {
 				declarations.append(declaration)
@@ -44,7 +44,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	public func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
+	open func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -62,7 +62,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	public var devServerUrl: NSURL? {
+	open var devServerUrl: URL? {
 		didSet {
 			devServerConnection?.disconnect()
 			devServerConnection = nil
@@ -74,34 +74,34 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 		}
 	}
 
-	public func addListener(listener: RepositoryListener) {
+	open func addListener(_ listener: RepositoryListener) {
 		listeners.add(listener)
 	}
 
 
-	public func removeListener(listener: RepositoryListener) {
+	open func removeListener(_ listener: RepositoryListener) {
 		listeners.remove(listener)
 	}
 
 
-	public var dependency: DependencyResolver!
+	open var dependency: DependencyResolver!
 
 
 	// MARK: - DevServer WebSocket Delegate
 
 
-	public func websocketDidReceiveMessage(socket: WebSocket, text: String) {
-		let parts = text.componentsSeparatedByString("`")
+	open func websocketDidReceiveMessage(socket: WebSocket, text: String) {
+		let parts = text.components(separatedBy: "`")
 		switch parts[0] {
 			case "repository-changed":
-				socket.writeString("get-repository`\(parts[1])")
+				socket.write(string: "get-repository`\(parts[1])")
 			case "repository":
 				do {
 					try loadRepositoryFromDevServer(parts[0], repositoryString: parts[1])
 					notify()
 				}
 					catch let error {
-					optionalCentralUI?.pushAlert(.error, message: String(error))
+					optionalCentralUI?.pushAlert(.error, message: String(describing: error))
 					print(error)
 				}
 			default:
@@ -110,56 +110,56 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	public func websocketDidConnect(socket: WebSocket) {
-		let device = UIDevice.currentDevice()
-		socket.writeString("client-info`\(device.name), iOS \(device.systemVersion)")
+	open func websocketDidConnect(socket: WebSocket) {
+		let device = UIDevice.current
+		socket.write(string: "client-info`\(device.name), iOS \(device.systemVersion)")
 		print("dev server connected")
 	}
 
 
-	public func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
+	open func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
 		print("dev server disconnected, trying to reconnet after 1 second...")
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_MSEC * 1000)), dispatch_get_main_queue()) {
+		DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_MSEC * 1000)) / Double(NSEC_PER_SEC)) {
 			[weak self] in
 			self?.devServerConnection?.connect()
 		}
 	}
 
 
-	public func websocketDidReceiveData(socket: WebSocket, data: NSData) {
+	open func websocketDidReceiveData(socket: WebSocket, data: Data) {
 	}
 
 
 	// MARK: - Internals
 
 
-	private var devServerConnection: WebSocket?
+	fileprivate var devServerConnection: WebSocket?
 
-	private var listeners = ListenerList<RepositoryListener>()
-	private var loadedUniPaths = Set<String>()
-	private var fragmentDefinitionByName = [String: FragmentDefinition]()
-	private var lock = NSRecursiveLock()
+	fileprivate var listeners = ListenerList<RepositoryListener>()
+	fileprivate var loadedUniPaths = Set<String>()
+	fileprivate var fragmentDefinitionByName = [String: FragmentDefinition]()
+	fileprivate var lock = NSRecursiveLock()
 
 
-	private func makeTypeName(forType type: Any.Type) -> String {
+	fileprivate func makeTypeName(forType type: Any.Type) -> String {
 		return String(reflecting: type)
 	}
 
 
-	private func makeFragmentName(forModelType modelType: Any.Type, name: String?) -> String {
+	fileprivate func makeFragmentName(forModelType modelType: Any.Type, name: String?) -> String {
 		let modelTypeName = makeTypeName(forType: modelType)
 		return name != nil ? "\(modelTypeName).\(name!)" : modelTypeName
 	}
 
 
-	private func notify() {
+	fileprivate func notify() {
 		for listener in listeners.getLive() {
 			listener.repositoryChanged(self)
 		}
 	}
 
 
-	private func loadRepositoryFromDevServer(repositoryName: String, repositoryString: String) throws {
+	fileprivate func loadRepositoryFromDevServer(_ repositoryName: String, repositoryString: String) throws {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -176,12 +176,12 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	private func loadRepositoriesInBundle(forType type: Any.Type) throws {
+	fileprivate func loadRepositoriesInBundle(forType type: Any.Type) throws {
 		let typeName = makeTypeName(forType: type)
-		let typeNameParts = typeName.componentsSeparatedByString(".")
-		let bundle = typeNameParts.count > 1 ? NSBundle.requiredFromModuleName(typeNameParts[0]) : NSBundle(forClass: type as! AnyClass)
+		let typeNameParts = typeName.components(separatedBy: ".")
+		let bundle = typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type as! AnyClass)
 
-		for uniPath in bundle.pathsForResourcesOfType(".uni", inDirectory: nil) {
+		for uniPath in bundle.paths(forResourcesOfType: ".uni", inDirectory: nil) {
 			guard !loadedUniPaths.contains(uniPath) else {
 				continue
 			}
@@ -199,7 +199,7 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 	}
 
 
-	private func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
+	fileprivate func loadRepository(_ elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
 		for fragmentsSection in elements.filter({ $0.name == "ui" || $0.name == "fragment" }) {
 			for fragment in fragmentsSection.children {
 				if overrideExisting || fragmentDefinitionByName[fragment.name] == nil {
@@ -214,18 +214,18 @@ public class DefaultRepository: Repository, Dependent, WebSocketDelegate, Centra
 
 
 
-	private func bundle(forType type: Any.Type) -> NSBundle {
+	fileprivate func bundle(forType type: Any.Type) -> Bundle {
 		let typeName = makeTypeName(forType: type)
-		let typeNameParts = typeName.componentsSeparatedByString(".")
-		return typeNameParts.count > 1 ? NSBundle.requiredFromModuleName(typeNameParts[0]) : NSBundle(forClass: type as! AnyClass)
+		let typeNameParts = typeName.components(separatedBy: ".")
+		return typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type as! AnyClass)
 	}
 
 
 
 
-	private func load(repository name: String, from bundle: NSBundle) throws -> [DeclarationElement] {
+	fileprivate func load(repository name: String, from bundle: Bundle) throws -> [DeclarationElement] {
 		let context = DeclarationContext("[\(name).uni] in bundle [\(bundle.bundleIdentifier ?? "")]")
-		guard let path = bundle.pathForResource(name, ofType: ".uni") else {
+		guard let path = bundle.path(forResource: name, ofType: ".uni") else {
 			throw DeclarationError("Unable to locate unified repository", context)
 		}
 		do {

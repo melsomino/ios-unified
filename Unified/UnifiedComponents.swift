@@ -7,9 +7,9 @@ import  UIKit
 
 
 extension DependencyContainer {
-	public func createDefaultUnifiedComponents(server_host_domain: String) {
+	public func createDefaultUnifiedComponents(_ server_host_domain: String) {
 		createDefaultThreading()
-		createDefaultCloudConnector(NSURL(string: "https://\(server_host_domain)")!)
+		createDefaultCloudConnector(URL(string: "https://\(server_host_domain)")!)
 		createDefaultApplicationStorage()
 		createDefaultRepository()
 	}

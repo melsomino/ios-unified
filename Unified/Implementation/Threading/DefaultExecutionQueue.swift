@@ -8,7 +8,7 @@ import Foundation
 class DefaultExecutionQueue: ExecutionQueue {
 
 
-	init(_ threading: DefaultThreading, _ platformQueue: NSOperationQueue) {
+	init(_ threading: DefaultThreading, _ platformQueue: OperationQueue) {
 		self.threading = threading
 		self.platformQueue = platformQueue
 	}
@@ -17,9 +17,9 @@ class DefaultExecutionQueue: ExecutionQueue {
 	// MARK: - ExecutionQueue
 
 
-	func newExecution(action: (Execution) throws -> Void) -> ExecutionControl {
+	func newExecution(_ action: @escaping (Execution) throws -> Void) -> ExecutionControl {
 		let execution = DefaultExecution(threading)
-		platformQueue.addOperationWithBlock() {
+		platformQueue.addOperation() {
 			if !execution.cancelled {
 				do {
 					try action(execution)
@@ -33,8 +33,8 @@ class DefaultExecutionQueue: ExecutionQueue {
 	}
 
 
-	func continueExecution(execution: Execution, _ action: () throws -> Void) {
-		platformQueue.addOperationWithBlock() {
+	func continueExecution(_ execution: Execution, _ action: @escaping () throws -> Void) {
+		platformQueue.addOperation() {
 			if !execution.cancelled {
 				do {
 					try action()
@@ -49,6 +49,6 @@ class DefaultExecutionQueue: ExecutionQueue {
 
 	// MARK: - Internals
 
-	private weak var threading: DefaultThreading!
-	private let platformQueue: NSOperationQueue
+	fileprivate weak var threading: DefaultThreading!
+	fileprivate let platformQueue: OperationQueue
 }

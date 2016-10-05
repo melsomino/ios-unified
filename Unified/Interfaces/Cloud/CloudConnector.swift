@@ -5,14 +5,13 @@
 
 import Foundation
 
-
 public protocol CloudConnector {
-	func makeUrl(relativePath: String) -> NSURL
+	func makeUrl(_ relativePath: String) -> URL
 
-	func invokeService(serviceUrl: NSURL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject
-	func startDownload(request: NSURLRequest, progress: ((Int64, Int64) -> Void)?, error: ((ErrorType) -> Void)?, complete: (NSURL) -> Void)
+	func invokeService(_ serviceUrl: URL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject
+	func startDownload(_ request: URLRequest, progress: ((Int64, Int64) -> Void)?, error:  ((Error) -> Void)?, complete: @escaping (URL) -> Void)
 
-	func getFileCache(localPath: String) -> CloudFileCache
+	func getFileCache(_ localPath: String) -> CloudFileCache
 }
 
 
@@ -20,7 +19,7 @@ public protocol CloudConnector {
 
 
 public protocol CloudFileCache {
-	func getFile(forUrl url: NSURL, forceExtension: String?) -> CloudFile
+	func getFile(forUrl url: URL, forceExtension: String?) -> CloudFile
 }
 
 
@@ -28,8 +27,8 @@ public protocol CloudFileCache {
 
 
 public protocol CloudFile {
-	func addListener(listener: CloudFileListener)
-	func removeListener(listener: CloudFileListener)
+	func addListener(_ listener: CloudFileListener)
+	func removeListener(_ listener: CloudFileListener)
 
 	var state: CloudFileState { get }
 	var localPath: String { get }
@@ -40,9 +39,9 @@ public protocol CloudFile {
 
 
 public enum CloudFileState {
-	case Loading(Float)
-	case Loaded
-	case Failed(ErrorType)
+	case loading(Float)
+	case loaded
+	case failed(Error)
 }
 
 
@@ -50,7 +49,7 @@ public enum CloudFileState {
 
 
 public protocol CloudFileListener: class {
-	func cloudFileStateChanged(file: CloudFile)
+	func cloudFileStateChanged(_ file: CloudFile)
 }
 
 

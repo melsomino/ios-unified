@@ -6,9 +6,9 @@
 import Foundation
 import UIKit
 
-public class ViewElement: ContentElement {
-	public var width: CGFloat?
-	public var height: CGFloat?
+open class ViewElement: ContentElement {
+	open var width: CGFloat?
+	open var height: CGFloat?
 
 	var viewFactory: (() -> UIView)?
 
@@ -20,12 +20,12 @@ public class ViewElement: ContentElement {
 	// MARK: - LayoutItem
 
 
-	public override func createView() -> UIView {
+	open override func createView() -> UIView {
 		return viewFactory != nil ? viewFactory!() : super.createView()
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		if let width = width {
 			return SizeMeasure(width: width, height: height ?? 0)
 		}
@@ -33,7 +33,7 @@ public class ViewElement: ContentElement {
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		var size = bounds.size
 		if let width = width {
 			size.width = min(size.width, width)
@@ -49,22 +49,22 @@ public class ViewElement: ContentElement {
 
 
 
-public class ViewElementDefinition: ContentElementDefinition {
-	public var width: CGFloat?
-	public var height: CGFloat?
+open class ViewElementDefinition: ContentElementDefinition {
+	open var width: CGFloat?
+	open var height: CGFloat?
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return ViewElement()
 	}
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let view = element as! ViewElement
 		view.width = width
 		view.height = height
 	}
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "width":
 				width = try context.getFloat(attribute)

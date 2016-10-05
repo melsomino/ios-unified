@@ -5,8 +5,8 @@
 
 import Foundation
 
-public class StorageError: ErrorType {
-	public let message: String
+open class StorageError: Error {
+	open let message: String
 
 	init(message: String) {
 		self.message = message

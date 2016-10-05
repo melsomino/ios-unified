@@ -15,7 +15,7 @@ public struct FastLock {
 		OSSpinLockUnlock(&_spinlock)
 	}
 
-	mutating func locked<T>(@noescape action: () -> T) -> T {
+	mutating func locked<T>(_ action: () -> T) -> T {
 		OSSpinLockLock(&_spinlock)
 		let result = action()
 		OSSpinLockUnlock(&_spinlock)
@@ -23,13 +23,13 @@ public struct FastLock {
 		return result
 	}
 
-	mutating func withLock(@noescape action: () -> Void) {
+	mutating func withLock(_ action: () -> Void) {
 		OSSpinLockLock(&_spinlock)
 		action()
 		OSSpinLockUnlock(&_spinlock)
 	}
 
-	mutating func tryLocked<T>(@noescape action: () -> T) -> T? {
+	mutating func tryLocked<T>(_ action: () -> T) -> T? {
 		if !OSSpinLockTry(&_spinlock) {
 			return nil
 		}

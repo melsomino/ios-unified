@@ -5,17 +5,17 @@
 
 import Foundation
 
-public class CloudApiFieldConverter<StructType> {
+open class CloudApiFieldConverter<StructType> {
 	public typealias FieldSetter = (StructType, AnyObject) -> Void
 	public typealias FieldGetter = (StructType) -> AnyObject
 
-	public let cloudName: String
-	public let cloudTypeName: String
-	public let fieldSetter: FieldSetter
-	public let fieldGetter: FieldGetter
+	open let cloudName: String
+	open let cloudTypeName: String
+	open let fieldSetter: FieldSetter
+	open let fieldGetter: FieldGetter
 
 
-	public init(_ cloudName: String, _ cloudTypeName: String, _ fieldSetter: FieldSetter, _ fieldGetter: FieldGetter) {
+	public init(_ cloudName: String, _ cloudTypeName: String, _ fieldSetter: @escaping FieldSetter, _ fieldGetter: @escaping FieldGetter) {
 		self.cloudName = cloudName
 		self.cloudTypeName = cloudTypeName
 		self.fieldSetter = fieldSetter

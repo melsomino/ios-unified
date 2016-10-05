@@ -10,9 +10,9 @@ import UIKit
 
 
 
-public class TextEditElement: ViewElement, TextEditDelegate {
+open class TextEditElement: ViewElement, TextEditDelegate {
 
-	public var font: UIFont? {
+	open var font: UIFont? {
 		didSet {
 			if let view = view as? TextEditView {
 				view.font = font
@@ -20,7 +20,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var textAlignment = NSTextAlignment.Natural {
+	open var textAlignment = NSTextAlignment.natural {
 		didSet {
 			if let view = view as? TextEditView {
 				view.textAlignment = textAlignment
@@ -28,7 +28,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var maxLines = 0 {
+	open var maxLines = 0 {
 		didSet {
 			if let view = view as? TextEditView {
 				view.maxLines = maxLines
@@ -36,7 +36,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var returnKey = UIReturnKeyType.Default {
+	open var returnKey = UIReturnKeyType.default {
 		didSet {
 			if let view = view as? TextEditView {
 				view.returnKeyType = returnKey
@@ -44,7 +44,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var placeholder: String? {
+	open var placeholder: String? {
 		didSet {
 			if let view = view as? TextEditView {
 				view.placeholder = placeholder
@@ -52,7 +52,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var placeholderColor: UIColor? {
+	open var placeholderColor: UIColor? {
 		didSet {
 			if let view = view as? TextEditView {
 				view.placeholderColor = placeholderColor
@@ -60,7 +60,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var padding = UIEdgeInsetsZero {
+	open var padding = UIEdgeInsets.zero {
 		didSet {
 			if let view = view as? TextEditView {
 				view.textContainerInset = padding
@@ -68,14 +68,14 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		}
 	}
 
-	public var text: String? {
+	open var text: String? {
 		didSet {
 			if lockReflectView == 0 {
 				(view as? TextEditView)?.text = text
 			}
 		}
 	}
-	private var lockReflectView = 0
+	fileprivate var lockReflectView = 0
 
 
 	public init() {
@@ -85,17 +85,17 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 
 	// MARK: - FragmentElement
 
-	private func sizeOf(padding padding: UIEdgeInsets) -> CGSize {
-		return CGSizeMake(padding.left + padding.right, padding.top + padding.bottom)
+	fileprivate func sizeOf(padding: UIEdgeInsets) -> CGSize {
+		return CGSize(width: padding.left + padding.right, height: padding.top + padding.bottom)
 	}
 
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
-		let font = self.font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		let font = self.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 		let maxLines = self.maxLines ?? 0
 		let padding = sizeOf(padding: self.padding)
-		var size = TextElement.measureText(text, font: font, padding: UIEdgeInsetsZero, inWidth: bounds.width - padding.width)
+		var size = TextElement.measureText(text, font: font, padding: UIEdgeInsets.zero, inWidth: bounds.width - padding.width)
 		if size.height < font.lineHeight {
 			size.height = font.lineHeight
 		}
@@ -110,19 +110,19 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		super.layoutContent(inBounds: bounds)
 	}
 
 
 
-	public override func createView() -> UIView {
-		return TextEditView(frame: CGRectZero, textContainer: nil)
+	open override func createView() -> UIView {
+		return TextEditView(frame: CGRect.zero, textContainer: nil)
 	}
 
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		super.initializeView()
 		guard let view = view as? TextEditView else {
 			return
@@ -135,7 +135,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 		view.maxLines = maxLines
 		view.placeholder = placeholder
 		view.placeholderColor = placeholderColor
-		view.textContainerInset = UIEdgeInsetsZero
+		view.textContainerInset = UIEdgeInsets.zero
 		view.textContainerInset = padding
 		view.textContainer.lineFragmentPadding = 0
 		view.returnKeyType = returnKey
@@ -143,7 +143,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 
 
 
-	public override func bind(toModel values: [Any?]) {
+	open override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
 		if let textBinding = (definition as? TextEditDefinition)?.text {
 			text = textBinding.evaluate(values)
@@ -155,7 +155,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 	// MARK: - TextEditDelegate
 
 
-	public func textEditDidChange(textEdit: TextEditView) {
+	open func textEditDidChange(_ textEdit: TextEditView) {
 		guard let definition = definition as? TextEditDefinition else {
 			return
 		}
@@ -170,7 +170,7 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 
 
 
-	public func textEditDidTapReturnKey(textEdit: TextEditView) {
+	open func textEditDidTapReturnKey(_ textEdit: TextEditView) {
 		guard let definition = definition as? TextEditDefinition else {
 			return
 		}
@@ -185,26 +185,26 @@ public class TextEditElement: ViewElement, TextEditDelegate {
 
 
 
-public class TextEditDefinition: ViewElementDefinition {
+open class TextEditDefinition: ViewElementDefinition {
 
-	public var font: UIFont?
-	public var textAlignment = NSTextAlignment.Natural
-	public var maxLines = 0
-	public var placeholder: String?
-	public var placeholderColor: UIColor?
-	public var textChangeAction: DynamicBindings.Expression?
-	public var returnKeyAction: DynamicBindings.Expression?
-	public var padding = UIEdgeInsetsZero
-	public var returnKey = UIReturnKeyType.Default
-	public var text: DynamicBindings.Expression?
+	open var font: UIFont?
+	open var textAlignment = NSTextAlignment.natural
+	open var maxLines = 0
+	open var placeholder: String?
+	open var placeholderColor: UIColor?
+	open var textChangeAction: DynamicBindings.Expression?
+	open var returnKeyAction: DynamicBindings.Expression?
+	open var padding = UIEdgeInsets.zero
+	open var returnKey = UIReturnKeyType.default
+	open var text: DynamicBindings.Expression?
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return TextEditElement()
 	}
 
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		guard let element = element as? TextEditElement else {
 			return
@@ -220,7 +220,7 @@ public class TextEditDefinition: ViewElementDefinition {
 
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if isElementValue {
 			text = try context.getExpression(attribute, .value(attribute.name))
 			return
@@ -251,84 +251,84 @@ public class TextEditDefinition: ViewElementDefinition {
 		}
 	}
 
-	private static let returnKeyByName: [String:UIReturnKeyType] = [
-		"go": .Go,
-		"google": .Google,
-		"join": .Join,
-		"next": .Next,
-		"route": .Route,
-		"search": .Search,
-		"send": .Send,
-		"yahoo": .Yahoo,
-		"done": .Done,
-		"emergency-call": .EmergencyCall
+	fileprivate static let returnKeyByName: [String:UIReturnKeyType] = [
+		"go": .go,
+		"google": .google,
+		"join": .join,
+		"next": .next,
+		"route": .route,
+		"search": .search,
+		"send": .send,
+		"yahoo": .yahoo,
+		"done": .done,
+		"emergency-call": .emergencyCall
 	]
 }
 
 
 
 public protocol TextEditDelegate: class {
-	func textEditDidChange(textEdit: TextEditView)
+	func textEditDidChange(_ textEdit: TextEditView)
 
 
 
-	func textEditDidTapReturnKey(textEdit: TextEditView)
+	func textEditDidTapReturnKey(_ textEdit: TextEditView)
 }
 
-public class TextEditView: UITextView, UITextViewDelegate {
+open class TextEditView: UITextView, UITextViewDelegate {
 
-	public weak var textEditDelegate: TextEditDelegate?
+	open weak var textEditDelegate: TextEditDelegate?
 
-	public var placeholderColor: UIColor? {
+	open var placeholderColor: UIColor? {
 		didSet {
 			setNeedsDisplay()
 		}
 	}
 
-	public var maxLines: Int? {
+	open var maxLines: Int? {
 		didSet {
 //			textContainer.maximumNumberOfLines = maxLines ?? 0
-			textContainer.lineBreakMode = .ByTruncatingTail
+			textContainer.lineBreakMode = .byTruncatingTail
 			layoutManager.textContainerChangedGeometry(textContainer)
 		}
 	}
 
-	public var placeholder: String? {
+	open var placeholder: String? {
 		didSet {
 			setNeedsDisplay()
 		}
 	}
 
-	public override var text: String! {
+	open override var text: String! {
 		didSet {
 			setNeedsDisplay()
 		}
 	}
 
 
-	public override func layoutSubviews() {
+	open override func layoutSubviews() {
 		super.layoutSubviews()
 		if placeholder != nil {
 			setNeedsDisplay()
 		}
 	}
 
-	public override var attributedText: NSAttributedString! {
+	open override var attributedText: NSAttributedString! {
 		didSet {
 			setNeedsDisplay()
 		}
 	}
 
 
-	public override func insertText(text: String) {
+	open override func insertText(_ text: String) {
 		super.insertText(text)
 		setNeedsDisplay()
 	}
 
 
 
-	public override func drawRect(rect: CGRect) {
-		super.drawRect(rect)
+	open override func draw(_ rect: CGRect) {
+		super.draw(rect)
 		if !editing && text.isEmpty && placeholder != nil && !placeholder!.isEmpty {
 			let placeholderRect = UIEdgeInsetsInsetRect(bounds, textContainerInset)
 			let paraStyle = NSMutableParagraphStyle()
@@ -336,9 +336,9 @@ public class TextEditView: UITextView, UITextViewDelegate {
 			paraStyle.alignment = textAlignment
 			paraStyle.paragraphSpacing = 0
 			paraStyle.paragraphSpacingBefore = 0
-			placeholder!.drawInRect(placeholderRect, withAttributes: [
-				NSForegroundColorAttributeName: placeholderColor ?? UIColor.lightGrayColor(),
-				NSFontAttributeName: font ?? UIFont.systemFontOfSize(UIFont.systemFontSize()),
+			placeholder!.draw(in: placeholderRect, withAttributes: [
+				NSForegroundColorAttributeName: placeholderColor ?? UIColor.lightGray,
+				NSFontAttributeName: font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize),
 				NSParagraphStyleAttributeName: paraStyle
 			])
 		}
@@ -348,7 +348,7 @@ public class TextEditView: UITextView, UITextViewDelegate {
 	// MARK: - UITextViewDelegate
 
 
-	public func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+	open func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 		guard (maxLines ?? 0) == 1 else {
 			return true
 		}
@@ -359,26 +359,26 @@ public class TextEditView: UITextView, UITextViewDelegate {
 			textEditDelegate?.textEditDidTapReturnKey(self)
 			return false
 		}
-		return text.rangeOfCharacterFromSet(TextEditView.newLineOrTab) == nil
+		return text.rangeOfCharacter(from: TextEditView.newLineOrTab) == nil
 	}
 
-	static let newLineOrTab = NSCharacterSet.union(NSCharacterSet.newlineCharacterSet(), NSCharacterSet(charactersInString: "\t"))
+	static let newLineOrTab = CharacterSet.union(CharacterSet.newlines, CharacterSet(charactersIn: "\t"))
 
-	public func textViewDidBeginEditing(textView: UITextView) {
+	open func textViewDidBeginEditing(_ textView: UITextView) {
 		editing = true
 		setNeedsDisplay()
 	}
 
 
 
-	public func textViewDidEndEditing(textView: UITextView) {
+	open func textViewDidEndEditing(_ textView: UITextView) {
 		editing = false
 		setNeedsDisplay()
 	}
 
 
 
-	public func textViewDidChange(textView: UITextView) {
+	open func textViewDidChange(_ textView: UITextView) {
 		textEditDelegate?.textEditDidChange(self)
 	}
 
@@ -388,6 +388,6 @@ public class TextEditView: UITextView, UITextViewDelegate {
 
 	// MARK: - Internals
 
-	private var editing = false
+	fileprivate var editing = false
 
 }

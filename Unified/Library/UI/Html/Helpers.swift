@@ -24,124 +24,93 @@ import Foundation
 // Public Helpers
 
 /// For printing an `XMLNode`
-
-
-
-
-
 extension XMLNode: CustomStringConvertible, CustomDebugStringConvertible {
 	/// String printed by `print` function
-	var description: String {
+	public var description: String {
 		return self.rawXML
 	}
-
+	
 	/// String printed by `debugPrint` function
-	var debugDescription: String {
+	public var debugDescription: String {
 		return self.rawXML
 	}
 }
-
-
-
-
 
 /// For printing an `XMLDocument`
-
-
-
-
-
 extension XMLDocument: CustomStringConvertible, CustomDebugStringConvertible {
 	/// String printed by `print` function
-	var description: String {
+	public var description: String {
 		return self.root?.rawXML ?? ""
 	}
-
+	
 	/// String printed by `debugPrint` function
-	var debugDescription: String {
+	public var debugDescription: String {
 		return self.root?.rawXML ?? ""
 	}
 }
-
-
-
-
 
 // Internal Helpers
 
-
-
-
-
 internal extension String {
-	subscript(nsrange: NSRange) -> String {
-		let start = startIndex.advancedBy(nsrange.location)
-		let end = start.advancedBy(nsrange.length)
-		return self[start ..< end]
+	subscript (nsrange: NSRange) -> String {
+		let start = utf16.index(utf16.startIndex, offsetBy: nsrange.location)
+		let end = utf16.index(start, offsetBy: nsrange.length)
+		return String(utf16[start..<end])!
 	}
 }
-
-
-
-
 
 // Just a smiling helper operator making frequent UnsafePointer -> String cast
 
-prefix operator ^-^ {}
-
-
-
-internal prefix func ^-^<T>(ptr: UnsafePointer<T>) -> String? {
-	return String.fromCString(UnsafePointer(ptr))
-}
-
-
-
-internal prefix func ^-^<T>(ptr: UnsafeMutablePointer<T>) -> String? {
-	return String.fromCString(UnsafeMutablePointer(ptr))
-}
-
-
-
-
-
-internal struct LinkedCNodes: SequenceType {
-	typealias Generator = AnyGenerator<xmlNodePtr>
-	static let end: xmlNodePtr? = nil
-	internal var types: [xmlElementType]
-	func generate() -> Generator {
-		var node = head
-		return AnyGenerator {
-			var ret = node
-			while ret != nil && !self.types.contains({ $0 == ret.memory.type }) {
-				ret = ret.memory.next
-			}
-			node = ret != nil ? ret.memory.next : nil
-			return ret != nil ? ret : LinkedCNodes.end
-		}
+prefix operator ^-^
+internal prefix func ^-^ <T> (ptr: UnsafePointer<T>?) -> String? {
+	if let ptr = ptr {
+		return String(validatingUTF8: UnsafeRawPointer(ptr).assumingMemoryBound(to: CChar.self))
 	}
+	return nil
+}
 
-	let head: xmlNodePtr
-	init(head: xmlNodePtr, types: [xmlElementType] = [XML_ELEMENT_NODE]) {
+internal prefix func ^-^ <T> (ptr: UnsafeMutablePointer<T>?) -> String? {
+	if let ptr = ptr {
+		return String(validatingUTF8: UnsafeMutableRawPointer(ptr).assumingMemoryBound(to: CChar.self))
+	}
+	return nil
+}
+
+internal struct LinkedCNodes: Sequence, IteratorProtocol {
+	internal let head: xmlNodePtr?
+	internal let types: [xmlElementType]
+	
+	fileprivate var cursor: xmlNodePtr?
+	mutating func next() -> xmlNodePtr? {
+		defer {
+			if let ptr = cursor {
+				cursor = ptr.pointee.next
+			}
+		}
+		while let ptr = cursor, !types.contains(where: { $0 == ptr.pointee.type }) {
+			cursor = ptr.pointee.next
+		}
+		return cursor
+	}
+	
+	init(head: xmlNodePtr?, types: [xmlElementType] = [XML_ELEMENT_NODE]) {
 		self.head = head
+		self.cursor = head
 		self.types = types
 	}
 }
 
-
-
-
-
-internal func cXMLNodeMatchesTagInNamespace(node: xmlNodePtr, tag: String, ns: String?) -> Bool {
-	let name = ^-^node.memory.name
-	var matches = name?.compare(tag, options: .CaseInsensitiveSearch) == .OrderedSame
-
+internal func cXMLNode(_ node: xmlNodePtr?, matchesTag tag: String, inNamespace ns: String?) -> Bool {
+	guard let name = ^-^node?.pointee.name else {
+		return false
+	}
+	var matches = name.compare(tag, options: .caseInsensitive) == .orderedSame
+	
 	if let ns = ns {
-		let cNS = node.memory.ns
-		if cNS != nil && cNS.memory.prefix != nil {
-			let prefix = ^-^cNS.memory.prefix
-			matches = matches && (prefix?.compare(ns, options: .CaseInsensitiveSearch) == .OrderedSame)
+		guard let prefix = ^-^node?.pointee.ns.pointee.prefix else {
+			return false
 		}
+		matches = matches && (prefix.compare(ns, options: .caseInsensitive) == .orderedSame)
 	}
 	return matches
 }

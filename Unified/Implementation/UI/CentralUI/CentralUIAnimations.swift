@@ -7,13 +7,13 @@ import Foundation
 
 
 private enum AnimationStage {
-	case PrepareToShow, AnimateShow, AnimateHide, CompleteHide
+	case prepareToShow, animateShow, animateHide, completeHide
 }
 
 
 class CentralUIAnimations {
 
-	private static let duration = NSTimeInterval(0.25)
+	fileprivate static let duration = TimeInterval(0.25)
 
 	static func contentTransition(from oldController: UIViewController?, to newController: UIViewController?,
 		containerController: UIViewController, containerView: UIView, animation: CentralUIContentAnimation, completion: (() -> Void)? = nil) {
@@ -25,51 +25,51 @@ class CentralUIAnimations {
 		let bounds = containerView.bounds
 
 		if oldController != nil {
-			oldController!.willMoveToParentViewController(nil)
+			oldController!.willMove(toParentViewController: nil)
 		}
 		if newController != nil {
 			containerController.addChildViewController(newController!)
-			animationStage(.PrepareToShow, newController!.view, bounds, animation)
+			animationStage(.prepareToShow, newController!.view, bounds, animation)
 			containerView.addSubview(newController!.view)
 		}
 
-		if animation == .None {
+		if animation == .none {
 			if oldController != nil {
 				oldController!.removeFromParentViewController()
 				oldController!.view.removeFromSuperview()
 			}
 			if newController != nil {
-				newController!.didMoveToParentViewController(containerController)
+				newController!.didMove(toParentViewController: containerController)
 			}
 			completion?()
 			return
 		}
 
-		UIView.animateWithDuration(duration,
+		UIView.animate(withDuration: duration,
 			animations: {
 				if oldController != nil {
-					animationStage(.AnimateHide, oldController!.view, bounds, animation)
+					animationStage(.animateHide, oldController!.view, bounds, animation)
 				}
 				if newController != nil {
-					animationStage(.AnimateShow, newController!.view, bounds, animation)
+					animationStage(.animateShow, newController!.view, bounds, animation)
 				}
 			},
 			completion: {
 				finished in
 				if oldController != nil {
-					animationStage(.CompleteHide, oldController!.view, bounds, animation)
+					animationStage(.completeHide, oldController!.view, bounds, animation)
 					oldController!.removeFromParentViewController()
 					oldController!.view.removeFromSuperview()
 				}
 				if newController != nil {
-					newController!.didMoveToParentViewController(containerController)
+					newController!.didMove(toParentViewController: containerController)
 				}
 				completion?()
 			})
 	}
 
 
-	private static func animationStage(stage: AnimationStage, _ view: UIView, _ bounds: CGRect, _ animation: CentralUIContentAnimation) {
+	fileprivate static func animationStage(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect, _ animation: CentralUIContentAnimation) {
 		switch animation {
 			case .fade:
 				fadeAnimation(stage, view, bounds)
@@ -87,67 +87,67 @@ class CentralUIAnimations {
 	}
 
 
-	private static func fadeAnimation(stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	fileprivate static func fadeAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
-			case .PrepareToShow:
+			case .prepareToShow:
 				view.frame = bounds
 				view.alpha = 0
 				break;
-			case .AnimateShow:
+			case .animateShow:
 				view.alpha = 1
 				break;
-			case .AnimateHide:
+			case .animateHide:
 				view.alpha = 0
 				break;
-			case .CompleteHide:
+			case .completeHide:
 				view.alpha = 1
 				break;
 		}
 	}
 
 
-	private static func fromDownAnimation(stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	fileprivate static func fromDownAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
-			case .PrepareToShow:
-				view.frame = CGRectOffset(bounds, 0, bounds.size.height)
+			case .prepareToShow:
+				view.frame = bounds.offsetBy(dx: 0, dy: bounds.size.height)
 				break;
-			case .AnimateShow:
+			case .animateShow:
 				view.frame = bounds
 				break;
-			case .AnimateHide:
-				view.frame = CGRectOffset(bounds, 0, -bounds.size.height)
+			case .animateHide:
+				view.frame = bounds.offsetBy(dx: 0, dy: -bounds.size.height)
 				break;
-			case .CompleteHide:
+			case .completeHide:
 				break;
 		}
 	}
 
-	private static func fromUpAnimation(stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	fileprivate static func fromUpAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
-			case .PrepareToShow:
-				view.frame = CGRectOffset(bounds, 0, -bounds.size.height)
+			case .prepareToShow:
+				view.frame = bounds.offsetBy(dx: 0, dy: -bounds.size.height)
 				break;
-			case .AnimateShow:
+			case .animateShow:
 				view.frame = bounds
 				break;
-			case .AnimateHide:
-				view.frame = CGRectOffset(bounds, 0, bounds.size.height)
+			case .animateHide:
+				view.frame = bounds.offsetBy(dx: 0, dy: bounds.size.height)
 				break;
-			case .CompleteHide:
+			case .completeHide:
 				break;
 		}
 	}
 
-	private static func noneAnimation(stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	fileprivate static func noneAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
-			case .PrepareToShow:
+			case .prepareToShow:
 				view.frame = bounds
 				break;
-			case .AnimateShow:
+			case .animateShow:
 				break;
-			case .AnimateHide:
+			case .animateHide:
 				break;
-			case .CompleteHide:
+			case .completeHide:
 				break;
 		}
 	}

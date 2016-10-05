@@ -6,11 +6,11 @@
 import Foundation
 
 
-public class JsonError: ErrorType {
-	public let message: String
-	public let cause: ErrorType?
+open class JsonError: Error {
+	open let message: String
+	open let cause: Error?
 
-	public init(_ message: String, _ cause: ErrorType? = nil) {
+	public init(_ message: String, _ cause: Error? = nil) {
 		self.message = message
 		self.cause = cause
 	}
@@ -20,12 +20,12 @@ public class JsonError: ErrorType {
 
 
 
-extension NSScanner {
+extension Scanner {
 
 
-	private static let jsonNumberFormatter: NSNumberFormatter = {
-		let formatter = NSNumberFormatter()
-		formatter.numberStyle = NSNumberFormatterStyle.DecimalStyle
+	fileprivate static let jsonNumberFormatter: NumberFormatter = {
+		let formatter = NumberFormatter()
+		formatter.numberStyle = NumberFormatter.Style.decimal
 		formatter.decimalSeparator = "."
 		return formatter
 	}()
@@ -34,14 +34,14 @@ extension NSScanner {
 
 
 
-	public static func parseJson(source: String) throws -> AnyObject {
-		let scanner = NSScanner(source: source, passWhitespaces: false)
+	public static func parseJson(_ source: String) throws -> AnyObject {
+		let scanner = Scanner(source: source, passWhitespaces: false)
 		scanner.passWhitespaces()
-		if scanner.atEnd {
+		if scanner.isAtEnd {
 			throw JsonError("Empty JSON string")
 		}
 		let value = try scanner.expectJsonValue()
-		if !scanner.atEnd {
+		if !scanner.isAtEnd {
 			throw JsonError("Invalid JSON string")
 		}
 		return value
@@ -51,24 +51,24 @@ extension NSScanner {
 
 
 
-	private func expectJsonValue() throws-> AnyObject {
+	fileprivate func expectJsonValue() throws-> AnyObject {
 		if let string = try passJsonString() {
-			return string
+			return string as AnyObject
 		}
 		if let array = try passJsonArray() {
-			return array
+			return array as AnyObject
 		}
 		if let object = try passJsonObject() {
-			return object
+			return object as AnyObject
 		}
 		if let number = try passJsonNumber() {
 			return number
 		}
 		if pass("true", passWhitespaces: true) {
-			return true
+			return true as AnyObject
 		}
 		if pass("false", passWhitespaces: true) {
-			return false
+			return false as AnyObject
 		}
 		if pass("null", passWhitespaces: true) {
 			return NSNull()
@@ -80,7 +80,7 @@ extension NSScanner {
 
 
 
-	private func passJsonArray() throws -> [AnyObject]? {
+	fileprivate func passJsonArray() throws -> [AnyObject]? {
 		if !pass("[", passWhitespaces: true) {
 			return nil
 		}
@@ -101,7 +101,7 @@ extension NSScanner {
 
 
 
-	private func passJsonObject() throws -> [String: AnyObject]? {
+	fileprivate func passJsonObject() throws -> [String: AnyObject]? {
 		if !pass("{", passWhitespaces: true) {
 			return nil
 		}
@@ -126,26 +126,26 @@ extension NSScanner {
 
 
 
-	private func passJsonNumber() throws -> AnyObject? {
+	fileprivate func passJsonNumber() throws -> AnyObject? {
 		let saveLocation = scanLocation
 		pass("-")
 		if pass("0") {
 		}
-		else if passCharacters(NSCharacterSet.decimalDigitCharacterSet()) != nil {
+		else if passCharacters(CharacterSet.decimalDigits) != nil {
 		}
 		else {
 			scanLocation = saveLocation
 			return nil
 		}
 		if pass(".") {
-			try expectCharacters(NSCharacterSet.decimalDigitCharacterSet(), expectedDescription: "Decimal digits")
+			try expectCharacters(CharacterSet.decimalDigits, expectedDescription: "Decimal digits")
 		}
 		if pass("e") || pass("E") {
 			if pass("+") || pass("-") {
 			}
-			try expectCharacters(NSCharacterSet.decimalDigitCharacterSet(), expectedDescription: "Decimal digits")
+			try expectCharacters(CharacterSet.decimalDigits, expectedDescription: "Decimal digits")
 		}
-		if let number = NSScanner.jsonNumberFormatter.numberFromString(substring(saveLocation, scanLocation)) {
+		if let number = Scanner.jsonNumberFormatter.number(from: substring(saveLocation, scanLocation)) {
 			return number
 		}
 		throw JsonError("Invalid number")
@@ -155,16 +155,16 @@ extension NSScanner {
 
 
 
-	private func passJsonString() throws -> String? {
+	fileprivate func passJsonString() throws -> String? {
 		if !pass("\"") {
 			return nil
 		}
 		var value = ""
 		while true {
-			if let unescapedChars = passUntilEndOrOneOf(NSScanner.backslashOrDoubleQuotationMark, passWhitespaces: false) {
+			if let unescapedChars = passUntilEndOrOneOf(Scanner.backslashOrDoubleQuotationMark, passWhitespaces: false) {
 				value += String(unescapedChars)
 			}
-			if atEnd {
+			if isAtEnd {
 				throw JsonError("Unterminated string")
 			}
 			if pass("\"", passWhitespaces: true) {
@@ -212,13 +212,13 @@ extension NSScanner {
 
 
 
-	private func substring(start: Int, _ end: Int) -> String {
-		let startIndex = string.startIndex.advancedBy(start)
-		return string.substringWithRange(startIndex ..< startIndex.advancedBy(end - start))
+	fileprivate func substring(_ start: Int, _ end: Int) -> String {
+		let startIndex = string.characters.index(string.startIndex, offsetBy: start)
+		return string.substring(with: startIndex ..< startIndex.advancedBy(end - start))
 	}
 
 
 
 
-	private static let backslashOrDoubleQuotationMark = NSCharacterSet(charactersInString: "\"\\")
+	fileprivate static let backslashOrDoubleQuotationMark = CharacterSet(charactersIn: "\"\\")
 }

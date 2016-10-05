@@ -8,68 +8,68 @@ import Foundation
 import GRDB
 
 
-public class DefaultDatabaseStatement: DatabaseStatement {
+open class DefaultDatabaseStatement: DatabaseStatement {
 
 	init(_ platformStatement: Statement) {
 		self.platformStatement = platformStatement
 	}
 
-	public func executeSelect() throws -> DatabaseGenerator<Row> {
+	open func executeSelect() throws -> DatabaseGenerator<Row> {
 		return Row.fetch(platformStatement as! SelectStatement, arguments: StatementArguments(arguments)).generate()
 	}
 
-	public func executeUpdate() throws {
+	open func executeUpdate() throws {
 		try (platformStatement as! UpdateStatement).execute(arguments: StatementArguments(arguments))
 
 	}
 
 	// MARK: - DatabaseStatement
 
-	public func close() {
+	open func close() {
 	}
 
 
-	public func reset() {
-		arguments.removeAll(keepCapacity: true)
+	open func reset() {
+		arguments.removeAll(keepingCapacity: true)
 	}
 
 
-	public func setNull(index: Int) {
+	open func setNull(_ index: Int) {
 		setValue(index, nil)
 	}
 
 
-	public func setUuid(index: Int, _ value: Uuid?) {
-		setString(index, value?.UUIDString)
+	open func setUuid(_ index: Int, _ value: Uuid?) {
+		setString(index, value?.uuidString)
 	}
 
 
-	public func setString(index: Int, _ value: String?) {
+	open func setString(_ index: Int, _ value: String?) {
 		setValue(index, value)
 	}
 
 
-	public func setInteger(index: Int, _ value: Int?) {
+	open func setInteger(_ index: Int, _ value: Int?) {
 		setValue(index, value)
 	}
 
 
-	public func setDateTime(index: Int, _ value: NSDate?) {
+	open func setDateTime(_ index: Int, _ value: Date?) {
 		setValue(index, value)
 	}
 
 
-	public func setDouble(index: Int, _ value: Double?) {
+	open func setDouble(_ index: Int, _ value: Double?) {
 		setValue(index, value)
 	}
 
 
-	public func setBlob(index: Int, _ value: NSData?) {
+	open func setBlob(_ index: Int, _ value: Data?) {
 		setValue(index, value)
 	}
 
 
-	public func setBoolean(index: Int, _ value: Bool?) {
+	open func setBoolean(_ index: Int, _ value: Bool?) {
 		setValue(index, value)
 	}
 
@@ -77,10 +77,10 @@ public class DefaultDatabaseStatement: DatabaseStatement {
 	// MARK: - Internals
 
 
-	public let platformStatement: Statement
-	public var arguments = [DatabaseValueConvertible?]()
+	open let platformStatement: Statement
+	open var arguments = [DatabaseValueConvertible?]()
 
-	func setValue(index: Int, _ value: DatabaseValueConvertible?) {
+	func setValue(_ index: Int, _ value: DatabaseValueConvertible?) {
 		while index >= arguments.count {
 			arguments.append(nil)
 		}

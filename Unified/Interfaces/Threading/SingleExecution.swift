@@ -5,7 +5,7 @@
 
 import Foundation
 
-public class SingleExecution {
+open class SingleExecution {
 
 	public init(_ threading: Threading) {
 		self.threading = threading
@@ -15,19 +15,19 @@ public class SingleExecution {
 		cancel()
 	}
 
-	public func cancel() {
+	open func cancel() {
 		if current != nil {
 			current!.cancel()
 			current = nil
 		}
 	}
 
-	public func onQueue(queue: ExecutionQueue, _ action: (Execution) throws -> Void) {
+	open func onQueue(_ queue: ExecutionQueue, _ action: (Execution) throws -> Void) {
 		cancel()
 		current = queue.newExecution(action)
 	}
 
-	public func inBackground(action: (Execution) throws -> Void) {
+	open func inBackground(_ action: (Execution) throws -> Void) {
 		onQueue(threading.backgroundQueue, action)
 	}
 
@@ -35,6 +35,6 @@ public class SingleExecution {
 	// MARK: - Internals
 
 
-	private let threading: Threading
-	private var current: ExecutionControl?
+	fileprivate let threading: Threading
+	fileprivate var current: ExecutionControl?
 }

@@ -11,7 +11,7 @@ import UIKit
 
 
 public protocol FragmentElementDelegate: class {
-	func tryExecuteAction(action: DynamicBindings.Expression?, defaultArgs: String?)
+	func tryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?)
 
 
 
@@ -22,11 +22,11 @@ public protocol FragmentElementDelegate: class {
 
 
 
-public class FragmentElement {
+open class FragmentElement {
 
 	public final weak var delegate: FragmentElementDelegate?
 	public final var definition: FragmentElementDefinition!
-	public final var margin = UIEdgeInsetsZero
+	public final var margin = UIEdgeInsets.zero
 	public final var horizontalAlignment = FragmentAlignment.leading
 	public final var verticalAlignment = FragmentAlignment.leading
 
@@ -56,68 +56,68 @@ public class FragmentElement {
 	// MARK: - Overridable
 
 
-	public var visible: Bool {
+	open var visible: Bool {
 		return true
 	}
 
 
-	public func traversal(@noescape visit: (FragmentElement) -> Void) {
+	open func traversal(_ visit: (FragmentElement) -> Void) {
 		visit(self)
 	}
 
 
 
-	public func bind(toModel values: [Any?]) {
+	open func bind(toModel values: [Any?]) {
 	}
 
 
 
-	public func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		return SizeMeasure(width: (0, bounds.width), height: bounds.height)
 	}
 
 
 
-	public func layoutContent(inBounds bounds: CGRect) {
+	open func layoutContent(inBounds bounds: CGRect) {
 	}
 
 
 	// MARK: - Helpers
 
 
-	public static func reduce(size size: CGSize, edges: UIEdgeInsets) -> CGSize {
-		return CGSizeMake(size.width - edges.left - edges.right, size.height - edges.top - edges.bottom)
+	open static func reduce(size: CGSize, edges: UIEdgeInsets) -> CGSize {
+		return CGSize(width: size.width - edges.left - edges.right, height: size.height - edges.top - edges.bottom)
 	}
 
 
 
-	public static func expand(size size: CGSize, edges: UIEdgeInsets) -> CGSize {
-		return CGSizeMake(size.width + edges.left + edges.right, size.height + edges.top + edges.bottom)
+	open static func expand(size: CGSize, edges: UIEdgeInsets) -> CGSize {
+		return CGSize(width: size.width + edges.left + edges.right, height: size.height + edges.top + edges.bottom)
 	}
 
 
 
-	public static func reduce(rect rect: CGRect, edges: UIEdgeInsets) -> CGRect {
-		return CGRectMake(
-			rect.origin.x + edges.left,
-			rect.origin.y + edges.top,
-			rect.width - edges.left - edges.right,
-			rect.height - edges.top - edges.bottom)
+	open static func reduce(rect: CGRect, edges: UIEdgeInsets) -> CGRect {
+		return CGRect(
+			x: rect.origin.x + edges.left,
+			y: rect.origin.y + edges.top,
+			width: rect.width - edges.left - edges.right,
+			height: rect.height - edges.top - edges.bottom)
 	}
 
 
 
-	public static func expand(rect rect: CGRect, edges: UIEdgeInsets) -> CGRect {
-		return CGRectMake(
-			rect.origin.x - edges.left,
-			rect.origin.y - edges.top,
-			rect.width + edges.left + edges.right,
-			rect.height + edges.top + edges.bottom)
+	open static func expand(rect: CGRect, edges: UIEdgeInsets) -> CGRect {
+		return CGRect(
+			x: rect.origin.x - edges.left,
+			y: rect.origin.y - edges.top,
+			width: rect.width + edges.left + edges.right,
+			height: rect.height + edges.top + edges.bottom)
 	}
 
 
 
-	public static func expand(measure size: SizeMeasure, edges: UIEdgeInsets) -> SizeMeasure {
+	open static func expand(measure size: SizeMeasure, edges: UIEdgeInsets) -> SizeMeasure {
 		let hor = edges.left + edges.right
 		let ver = edges.top + edges.bottom
 		return SizeMeasure(width: (size.width.min + hor, size.width.max + hor), height: size.height + ver)
@@ -130,29 +130,29 @@ public class FragmentElement {
 
 
 
-public class FragmentElementDefinition {
+open class FragmentElementDefinition {
 
 	public final var id: String?
 	public final var childrenDefinitions = [FragmentElementDefinition]()
-	public final var margin = UIEdgeInsetsZero
+	public final var margin = UIEdgeInsets.zero
 	public final var horizontalAlignment = FragmentAlignment.leading
 	public final var verticalAlignment = FragmentAlignment.leading
 	public final var visible: DynamicBindings.Expression?
 
 
-	public static func register(name: String, definition: () -> FragmentElementDefinition) {
+	open static func register(_ name: String, definition: @escaping () -> FragmentElementDefinition) {
 		definition_factory_by_name[name] = definition
 	}
 
 
 
-	public static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
+	open static func from(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		return try loadFrom(declaration: element, context: context)
 	}
 
 
 
-	public final func traversal(@noescape visit: (FragmentElementDefinition) -> Void) {
+	public final func traversal(_ visit: (FragmentElementDefinition) -> Void) {
 		visit(self)
 		for child_definition in childrenDefinitions {
 			child_definition.traversal(visit)
@@ -167,7 +167,7 @@ public class FragmentElementDefinition {
 
 
 
-	public final func boundHidden(values: [Any?]) -> Bool? {
+	public final func boundHidden(_ values: [Any?]) -> Bool? {
 		if let visible = visible {
 			return !visible.evaluateBool(values)
 		}
@@ -177,9 +177,9 @@ public class FragmentElementDefinition {
 	// MARK: - Overridable
 
 
-	public func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if attribute.name.hasPrefix("@") {
-			id = attribute.name.substringFromIndex(attribute.name.startIndex.advancedBy(1))
+			id = attribute.name.substring(from: attribute.name.characters.index(attribute.name.startIndex, offsetBy: 1))
 			return
 		}
 		switch attribute.name {
@@ -196,19 +196,19 @@ public class FragmentElementDefinition {
 
 
 
-	public func applyDeclarationElement(element: DeclarationElement, context: DeclarationContext) throws -> Bool {
+	open func applyDeclarationElement(_ element: DeclarationElement, context: DeclarationContext) throws -> Bool {
 		return false
 	}
 
 
 
-	public func createElement() -> FragmentElement {
+	open func createElement() -> FragmentElement {
 		return FragmentElement()
 	}
 
 
 
-	public func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		element.definition = self
 		element.margin = margin
 		element.horizontalAlignment = horizontalAlignment
@@ -219,7 +219,7 @@ public class FragmentElementDefinition {
 	// MARK: - Internals
 
 
-	private static func loadFrom(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
+	fileprivate static func loadFrom(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		guard let definition_factory = FragmentElementDefinition.definition_factory_by_name[element.name] else {
 			throw DeclarationError("Unknown layout element", element, context)
 		}
@@ -243,7 +243,7 @@ public class FragmentElementDefinition {
 	}
 
 
-	private static var definition_factory_by_name: [String:() -> FragmentElementDefinition] = [
+	fileprivate static var definition_factory_by_name: [String:() -> FragmentElementDefinition] = [
 		"vertical": {
 			VerticalContainerDefinition()
 		},

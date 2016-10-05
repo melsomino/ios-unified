@@ -7,6 +7,6 @@ import Foundation
 
 public protocol DatabaseMaintenance {
 	var requiredVersion: Int { get }
-	func createTables(database: StorageDatabase) throws
-	func migrate(database: StorageDatabase, fromVersion: Int) throws -> Bool
+	func createTables(_ database: StorageDatabase) throws
+	func migrate(_ database: StorageDatabase, fromVersion: Int) throws -> Bool
 }

@@ -11,7 +11,7 @@ import QuartzCore
 
 
 
-public class ButtonElement: ContentElement {
+open class ButtonElement: ContentElement {
 
 
 
@@ -28,53 +28,53 @@ public class ButtonElement: ContentElement {
 
 
 
-	public var buttonDefinition: ButtonElementDefinition {
+	open var buttonDefinition: ButtonElementDefinition {
 		return definition as! ButtonElementDefinition
 	}
 
-	public var font: UIFont? {
+	open var font: UIFont? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var padding = UIEdgeInsetsZero {
+	open var padding = UIEdgeInsets.zero {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var imageMargin = UIEdgeInsetsZero {
+	open var imageMargin = UIEdgeInsets.zero {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var titleMargin = UIEdgeInsetsZero {
+	open var titleMargin = UIEdgeInsets.zero {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var color: UIColor? {
+	open var color: UIColor? {
 		didSet {
 			(view as? UIButton)?.tintColor = color
 		}
 	}
 
-	public var title: String? {
+	open var title: String? {
 		didSet {
 			if let button = view as? UIButton {
-				button.setTitle(title, forState: .Normal)
+				button.setTitle(title, for: UIControlState())
 			}
 		}
 	}
 
 
-	public var image: UIImage? {
+	open var image: UIImage? {
 		didSet {
 			if let button = view as? UIButton {
-				button.setImage(image, forState: .Normal)
+				button.setImage(image, for: UIControlState())
 			}
 		}
 	}
@@ -88,17 +88,17 @@ public class ButtonElement: ContentElement {
 	// MARK: - ContentElement
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		super.initializeView()
 
 		guard let button = view as? UIButton else {
 			return
 		}
 
-		button.setImage(image, forState: .Normal)
-		button.setTitle(title, forState: .Normal)
-		if type == .Custom {
-			button.setTitleColor(color, forState: .Normal)
+		button.setImage(image, for: UIControlState())
+		button.setTitle(title, for: UIControlState())
+		if type == .custom {
+			button.setTitleColor(color, for: UIControlState())
 		}
 		else {
 			button.tintColor = color
@@ -111,22 +111,22 @@ public class ButtonElement: ContentElement {
 	// MARK: - FragmentElement
 
 
-	public override func createView() -> UIView {
+	open override func createView() -> UIView {
 		let button = UIButton(type: type)
 		actionDelegate.element = self
-		button.addTarget(actionDelegate, action: #selector(ActionDelegate.onTouchUpInside), forControlEvents: .TouchUpInside)
+		button.addTarget(actionDelegate, action: #selector(ActionDelegate.onTouchUpInside), for: .touchUpInside)
 		return button
 	}
 
 
 	func onTouchUpInside() {
-		if let action = (definition as? ButtonElementDefinition)?.action, delegate = delegate {
+		if let action = (definition as? ButtonElementDefinition)?.action, let delegate = delegate {
 			delegate.tryExecuteAction(action, defaultArgs: nil)
 		}
 	}
 
 
-	public override func bind(toModel values: [Any?]) {
+	open override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
 		if let titleBinding = buttonDefinition.title {
 			title = titleBinding.evaluate(values)
@@ -137,28 +137,28 @@ public class ButtonElement: ContentElement {
 	}
 
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		return !hidden
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
-		let imageSize = image?.size ?? CGSizeZero
-		let titleSize = TextElement.measureText(title, font: font, padding: UIEdgeInsetsZero, inWidth: CGFloat.max)
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+		let imageSize = image?.size ?? CGSize.zero
+		let titleSize = TextElement.measureText(title, font: font, padding: UIEdgeInsets.zero, inWidth: CGFloat.greatestFiniteMagnitude)
 		let spacing = CGFloat(0)
 		let measured = SizeMeasure(width: imageSize.width + spacing + titleSize.width, height: max(imageSize.height, titleSize.height))
 		return FragmentElement.expand(measure: measured, edges: padding)
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		super.layoutContent(inBounds: bounds)
 	}
 
 
 	// MARK: - Internals
 
-	var type = UIButtonType.System
+	var type = UIButtonType.system
 	var actionDelegate = ActionDelegate()
 }
 
@@ -177,28 +177,28 @@ class DefaultButtonMetrics {
 		padding = button.contentEdgeInsets
 		imageMargin = button.imageEdgeInsets
 		titleMargin = button.titleEdgeInsets
-		font = button.titleLabel?.font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
+		font = button.titleLabel?.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	}
 
 
-	static func from(type: UIButtonType) -> DefaultButtonMetrics {
-		return type == .Custom ? custom : system
+	static func from(_ type: UIButtonType) -> DefaultButtonMetrics {
+		return type == .custom ? custom : system
 	}
 
-	static let system = DefaultButtonMetrics(type: .System)
-	static let custom = DefaultButtonMetrics(type: .Custom)
+	static let system = DefaultButtonMetrics(type: .system)
+	static let custom = DefaultButtonMetrics(type: .custom)
 }
 
 
 
 
 
-public class ButtonElementDefinition: ContentElementDefinition {
+open class ButtonElementDefinition: ContentElementDefinition {
 	var font = DefaultButtonMetrics.system.font
 	var padding = DefaultButtonMetrics.system.padding
 	var imageMargin = DefaultButtonMetrics.system.imageMargin
 	var titleMargin = DefaultButtonMetrics.system.titleMargin
-	var type = UIButtonType.System
+	var type = UIButtonType.system
 	var color: UIColor?
 	var image: UIImage?
 	var title: DynamicBindings.Expression?
@@ -208,7 +208,7 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	// MARK: - UiElementDefinition
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "type":
 				type = try context.getEnum(attribute, ButtonElementDefinition.typesByName)
@@ -236,12 +236,12 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	}
 
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return ButtonElement()
 	}
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
 		let button = element as! ButtonElement
@@ -256,8 +256,8 @@ public class ButtonElementDefinition: ContentElementDefinition {
 	// MARK: - Internals
 
 	static let typesByName: [String:UIButtonType] = [
-		"system": .System,
-		"custom": .Custom
+		"system": .system,
+		"custom": .custom
 	]
 
 }

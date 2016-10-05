@@ -3,9 +3,5 @@ platform :ios, '9.0'
 use_frameworks!
 
 target 'Layouts' do
-
-  pod 'GRDB.swift'
-  pod 'Unified', :path => '../../..'
-  pod 'TestLib', :path => '/Users/vlasov/projects/sbis/ios/TestLib'
-
+	pod 'Unified', :path => '../../..'
 end

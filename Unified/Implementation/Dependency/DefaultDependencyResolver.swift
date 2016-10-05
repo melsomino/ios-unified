@@ -5,8 +5,8 @@
 
 import Foundation
 
-public class DependencyError: ErrorType {
-	public let message: String
+open class DependencyError: Error {
+	open let message: String
 
 	init(_ message: String) {
 		self.message = message
@@ -15,15 +15,15 @@ public class DependencyError: ErrorType {
 
 
 private protocol DependencyRegistrationEntry: class {
-	func resolveImplementation(dependency: DependencyResolver)
+	func resolveImplementation(_ dependency: DependencyResolver)
 }
 
 class DependencyRegistration<Interface>: DependencyRegistrationEntry {
 	var sync = FastLock()
-	private let factory: (() -> Interface)?
-	private var implementation: Interface?
+	fileprivate let factory: (() -> Interface)?
+	fileprivate var implementation: Interface?
 
-	init(_ factory: () -> Interface) {
+	init(_ factory: @escaping () -> Interface) {
 		self.factory = factory
 	}
 
@@ -32,7 +32,7 @@ class DependencyRegistration<Interface>: DependencyRegistrationEntry {
 		self.implementation = implementation
 	}
 
-	func resolveImplementation(dependency: DependencyResolver) {
+	func resolveImplementation(_ dependency: DependencyResolver) {
 		if var dependent = implementation as? Dependent {
 			dependent.dependency = dependency
 		}
@@ -41,20 +41,20 @@ class DependencyRegistration<Interface>: DependencyRegistrationEntry {
 }
 
 
-public class DependencyContainer: DependencyResolver {
+open class DependencyContainer: DependencyResolver {
 
 	public init() {
 
 	}
 
 
-	public convenience init(@noescape initialComponentsFactory: (DependencyContainer) -> Void) {
+	public convenience init(initialComponentsFactory: (DependencyContainer) -> Void) {
 		self.init()
 		createComponents(initialComponentsFactory)
 	}
 
 
-	public func register<Interface>(dependency: Dependency<Interface>, _ implementation: Interface) {
+	open func register<Interface>(_ dependency: Dependency<Interface>, _ implementation: Interface) {
 		sync.lock()
 		setRegistration(DependencyRegistration<Interface>(implementation), at: dependency.index)
 		sync.unlock()
@@ -67,14 +67,14 @@ public class DependencyContainer: DependencyResolver {
 
 
 
-	public func register<Interface>(dependency: Dependency<Interface>, _ factory: () -> Interface) {
+	open func register<Interface>(_ dependency: Dependency<Interface>, _ factory: () -> Interface) {
 		sync.lock()
 		setRegistration(DependencyRegistration<Interface>(factory), at: dependency.index)
 		sync.unlock()
 	}
 
 
-	public func createComponents(@noescape creation: (DependencyContainer) -> Void) {
+	open func createComponents(_ creation: (DependencyContainer) -> Void) {
 		sync.lock()
 		resolveOnRegisterLock += 1
 		sync.unlock()
@@ -98,7 +98,7 @@ public class DependencyContainer: DependencyResolver {
 	// MARK: - DependencyResolver
 
 
-	public func optional<Interface>(component: Dependency<Interface>) -> Interface? {
+	open func optional<Interface>(_ component: Dependency<Interface>) -> Interface? {
 		guard component.index < registrations.count else {
 			return nil
 		}
@@ -126,12 +126,12 @@ public class DependencyContainer: DependencyResolver {
 
 
 
-	public func required<Interface>(component: Dependency<Interface>) -> Interface {
+	open func required<Interface>(_ component: Dependency<Interface>) -> Interface {
 		let implementation = optional(component)
 		if implementation != nil {
 			return implementation!
 		}
-		fatalError("Can not resolve dependency for interface \"\(String(Interface.self))\"")
+		fatalError("Can not resolve dependency for interface \"\(String(describing: Interface.self))\"")
 	}
 
 
@@ -139,11 +139,11 @@ public class DependencyContainer: DependencyResolver {
 
 
 
-	private var sync = FastLock()
-	private var resolveOnRegisterLock = 0
-	private var registrations = [DependencyRegistrationEntry?]()
+	fileprivate var sync = FastLock()
+	fileprivate var resolveOnRegisterLock = 0
+	fileprivate var registrations = [DependencyRegistrationEntry?]()
 
-	private func setRegistration<Interface>(registration: DependencyRegistration<Interface>, at index: Int) {
+	fileprivate func setRegistration<Interface>(_ registration: DependencyRegistration<Interface>, at index: Int) {
 		while index >= registrations.count {
 			registrations.append(nil)
 		}

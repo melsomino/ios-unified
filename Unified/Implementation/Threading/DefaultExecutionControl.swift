@@ -5,19 +5,19 @@
 
 import Foundation
 
-public class DefaultExecutionControl: ExecutionControl {
+open class DefaultExecutionControl: ExecutionControl {
 
 	init(_ execution: DefaultExecution) {
 		self.execution = execution
 	}
 
-	public func cancel() {
+	open func cancel() {
 		execution.cancel()
 	}
 
-	public var complete: Bool {
+	open var complete: Bool {
 		return execution.complete
 	}
 
-	private let execution: DefaultExecution
+	fileprivate let execution: DefaultExecution
 }

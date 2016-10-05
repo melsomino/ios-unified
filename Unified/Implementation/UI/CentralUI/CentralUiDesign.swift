@@ -6,32 +6,32 @@
 import Foundation
 import UIKit
 
-public class CentralUIDesign {
+open class CentralUIDesign {
 
-	public static var bundle: NSBundle {
-		return NSBundle(forClass: CentralUIDesign.self)
+	open static var bundle: Bundle {
+		return Bundle(for: CentralUIDesign.self)
 	}
 
-	public static func imageNamed(name: String) -> UIImage? {
-		return UIImage(named: name, inBundle: bundle, compatibleWithTraitCollection: nil)
+	open static func imageNamed(_ name: String) -> UIImage? {
+		return UIImage(named: name, in: bundle, compatibleWith: nil)
 	}
 
-	public static let barButtonImage = CentralUIDesign.imageNamed("CentralUiMenu")
-	public static let logoutImage = CentralUIDesign.imageNamed("CentralUiMenuLogout")
+	open static let barButtonImage = CentralUIDesign.imageNamed("CentralUiMenu")
+	open static let logoutImage = CentralUIDesign.imageNamed("CentralUiMenuLogout")
 
-	public static let alertInformationIcon = CentralUIDesign.imageNamed("CentralUiAlertInformation")
-	public static let alertWarningIcon = CentralUIDesign.imageNamed("CentralUiAlertWarning")
-	public static let alertErrorIcon = CentralUIDesign.imageNamed("CentralUiAlertError")
+	open static let alertInformationIcon = CentralUIDesign.imageNamed("CentralUiAlertInformation")
+	open static let alertWarningIcon = CentralUIDesign.imageNamed("CentralUiAlertWarning")
+	open static let alertErrorIcon = CentralUIDesign.imageNamed("CentralUiAlertError")
 
-	public static let backgroundColor = UIColor.parse("00283b")
-	public static let separatorColor = UIColor.parse("004666")
-	public static let selectionBackgroundColor = UIColor.parse("002335")
-	public static let selectedItemIndicatorColor = UIColor.parse("ff7033")
+	open static let backgroundColor = UIColor.parse("00283b")
+	open static let separatorColor = UIColor.parse("004666")
+	open static let selectionBackgroundColor = UIColor.parse("002335")
+	open static let selectedItemIndicatorColor = UIColor.parse("ff7033")
 
-	public static let informationPanelHeight = CGFloat(64)
-	public static let informationPanelFont =  UIFont.systemFontOfSize(13)
-	public static let informationPanelTextColor =  UIColor.whiteColor()
-	public static let informationPanelBackgroundColor = UIColor.orangeColor()
-	public static let informationPanelCloseButtonBackgroundColor =  UIColor.parse("ffb898")
-	public static let informationPanelCloseButtonImage = CentralUIDesign.imageNamed("CentralUiCloseAlert")!.resizedToFitSize(CGSizeMake(6, 6))
+	open static let informationPanelHeight = CGFloat(64)
+	open static let informationPanelFont =  UIFont.systemFont(ofSize: 13)
+	open static let informationPanelTextColor =  UIColor.white
+	open static let informationPanelBackgroundColor = UIColor.orange
+	open static let informationPanelCloseButtonBackgroundColor =  UIColor.parse("ffb898")
+	open static let informationPanelCloseButtonImage = CentralUIDesign.imageNamed("CentralUiCloseAlert")!.resizedToFitSize(CGSize(width: 6, height: 6))
 }

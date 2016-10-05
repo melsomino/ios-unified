@@ -5,8 +5,8 @@
 import Foundation
 
 public protocol ApplicationStorage {
-	func switchToAccount(accountName: String?)
-	func getModuleStorage(moduleName: String) -> ModuleStorage
+	func switchToAccount(_ accountName: String?)
+	func getModuleStorage(_ moduleName: String) -> ModuleStorage
 }
 
 

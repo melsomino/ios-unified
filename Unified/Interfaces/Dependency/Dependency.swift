@@ -6,9 +6,9 @@
 import Foundation
 
 
-public class Dependency<Protocol> {
+open class Dependency<Protocol> {
 
-	public let index: Int
+	open let index: Int
 
 	public init() {
 		protocol_dependency_lock.lock()
@@ -17,7 +17,7 @@ public class Dependency<Protocol> {
 		protocol_dependency_lock.unlock()
 	}
 
-	public func required(dependency: DependencyResolver) -> Protocol {
+	open func required(_ dependency: DependencyResolver) -> Protocol {
 		return dependency.required(self)
 	}
 

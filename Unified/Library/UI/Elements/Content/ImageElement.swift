@@ -10,16 +10,16 @@ import UIKit
 
 
 
-public class ImageElement: ContentElement {
-	var size = CGSizeZero
+open class ImageElement: ContentElement {
+	var size = CGSize.zero
 
-	public var imageAlignment = UIViewContentMode.Center {
+	open var imageAlignment = UIViewContentMode.center {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var image: UIImage? {
+	open var image: UIImage? {
 		didSet {
 			initializeView()
 		}
@@ -33,7 +33,7 @@ public class ImageElement: ContentElement {
 	// MARK: - UiContentElement
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		super.initializeView()
 		if let imageView = view as? UIImageView {
 			imageView.image = image
@@ -45,17 +45,17 @@ public class ImageElement: ContentElement {
 	// MARK: - UiElement
 
 
-	public override func createView() -> UIView {
+	open override func createView() -> UIView {
 		return UIImageView(image: nil)
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		return SizeMeasure(width: size.width, height: size.height)
 	}
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		frame = CGRect(origin: bounds.origin, size: size)
 	}
 }
@@ -66,11 +66,11 @@ public class ImageElement: ContentElement {
 
 class ImageElementDefinition: ContentElementDefinition {
 	var source: UIImage?
-	var size = CGSizeZero
+	var size = CGSize.zero
 	var fixedSize = false
-	var imageAlignment = UIViewContentMode.Center
+	var imageAlignment = UIViewContentMode.center
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if isElementValue {
 			source = try context.getImage(attribute, value: .value(attribute.name))
 			return
@@ -93,7 +93,7 @@ class ImageElementDefinition: ContentElementDefinition {
 	}
 
 
-	override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
 		let image = element as! ImageElement
@@ -103,19 +103,19 @@ class ImageElementDefinition: ContentElementDefinition {
 	}
 
 
-	private static let imageAlignments: [String:UIViewContentMode] = [
-		"scale-to-fill": .ScaleToFill,
-		"scale-aspect-fit": .ScaleAspectFit,
-		"scale-aspect-fill": .ScaleAspectFill,
-		"redraw": .Redraw,
-		"center": .Center,
-		"top": .Top,
-		"bottom": .Bottom,
-		"left": .Left,
-		"right": .Right,
-		"top-left": .TopLeft,
-		"top-right": .TopRight,
-		"bottom-left": .BottomLeft,
-		"bottom-right": .BottomRight
+	fileprivate static let imageAlignments: [String:UIViewContentMode] = [
+		"scale-to-fill": .scaleToFill,
+		"scale-aspect-fit": .scaleAspectFit,
+		"scale-aspect-fill": .scaleAspectFill,
+		"redraw": .redraw,
+		"center": .center,
+		"top": .top,
+		"bottom": .bottom,
+		"left": .left,
+		"right": .right,
+		"top-left": .topLeft,
+		"top-right": .topRight,
+		"bottom-left": .bottomLeft,
+		"bottom-right": .bottomRight
 	]
 }

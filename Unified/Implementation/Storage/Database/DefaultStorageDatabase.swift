@@ -6,7 +6,7 @@
 import Foundation
 import GRDB
 
-public class DefaultModuleDatabase: StorageDatabase {
+open class DefaultModuleDatabase: StorageDatabase {
 
 	init(_ platformDatabase: Database) {
 		self.platformDatabase = platformDatabase
@@ -16,21 +16,21 @@ public class DefaultModuleDatabase: StorageDatabase {
 	// MARK: - ModuleDatabase
 
 
-	public func tableExists(tableName: String) -> Bool {
+	open func tableExists(_ tableName: String) -> Bool {
 		return platformDatabase.tableExists(tableName)
 	}
 
-	public func createUpdateStatement(sql: String) throws -> DatabaseUpdateStatement {
+	open func createUpdateStatement(_ sql: String) throws -> DatabaseUpdateStatement {
 		return DefaultDatabaseUpdateStatement(try platformDatabase.updateStatement(sql))
 	}
 
 
-	public func createSelectStatement(sql: String) throws -> DatabaseSelectStatement {
+	open func createSelectStatement(_ sql: String) throws -> DatabaseSelectStatement {
 		return DefaultDatabaseSelectStatement(try platformDatabase.selectStatement(sql))
 	}
 
 
-	public func executeStatement(sql: String) throws {
+	open func executeStatement(_ sql: String) throws {
 		try platformDatabase.execute(sql)
 	}
 
@@ -38,5 +38,5 @@ public class DefaultModuleDatabase: StorageDatabase {
 	// MARK: - Internals
 
 
-	private let platformDatabase: Database
+	fileprivate let platformDatabase: Database
 }

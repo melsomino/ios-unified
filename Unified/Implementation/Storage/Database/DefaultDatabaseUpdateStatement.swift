@@ -6,7 +6,7 @@
 import Foundation
 import GRDB
 
-public class DefaultDatabaseUpdateStatement: DefaultDatabaseStatement, DatabaseUpdateStatement {
+open class DefaultDatabaseUpdateStatement: DefaultDatabaseStatement, DatabaseUpdateStatement {
 
 	init(_ platformStatement: UpdateStatement) {
 		super.init(platformStatement)
@@ -15,7 +15,7 @@ public class DefaultDatabaseUpdateStatement: DefaultDatabaseStatement, DatabaseU
 
 	// MARK: - DatabaseUpdateStatement
 
-	public func execute() throws {
+	open func execute() throws {
 		try (platformStatement as! UpdateStatement).execute(arguments: StatementArguments(arguments))
 	}
 

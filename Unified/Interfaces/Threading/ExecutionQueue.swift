@@ -6,6 +6,6 @@
 import Foundation
 
 public protocol ExecutionQueue {
-	func newExecution(action: (Execution) throws -> Void) -> ExecutionControl
-	func continueExecution(execution: Execution, _ action: () throws  -> Void)
+	func newExecution(_ action: @escaping (Execution) throws -> Void) -> ExecutionControl
+	func continueExecution(_ execution: Execution, _ action: @escaping () throws  -> Void)
 }

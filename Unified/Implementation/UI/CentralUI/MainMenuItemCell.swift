@@ -8,17 +8,17 @@ import UIKit
 
 class MainMenuItemCell: UITableViewCell {
 
-	private static let reuseId = "MainMenuItemCell"
+	fileprivate static let reuseId = "MainMenuItemCell"
 
 
-	static func registerCellTypes(tableView: UITableView) {
-		tableView.registerNib(UINib(nibName: reuseId, bundle: NSBundle(forClass: MainMenuItemCell.self)), forCellReuseIdentifier: reuseId)
+	static func registerCellTypes(_ tableView: UITableView) {
+		tableView.register(UINib(nibName: reuseId, bundle: Bundle(for: MainMenuItemCell.self)), forCellReuseIdentifier: reuseId)
 	}
 
 
 
-	static func cellForItem(item: CentralUIMenuItem, selected: Bool, tableView: UITableView, indexPath: NSIndexPath) -> MainMenuItemCell {
-		let cell = tableView.dequeueReusableCellWithIdentifier(reuseId, forIndexPath: indexPath) as! MainMenuItemCell
+	static func cellForItem(_ item: CentralUIMenuItem, selected: Bool, tableView: UITableView, indexPath: IndexPath) -> MainMenuItemCell {
+		let cell = tableView.dequeueReusableCell(withIdentifier: reuseId, for: indexPath) as! MainMenuItemCell
 		cell.setItem(item, selected: selected)
 		return cell
 	}
@@ -44,7 +44,7 @@ class MainMenuItemCell: UITableViewCell {
 		selectedBackgroundView = selectionBackground
 		selectedItemIndicator.backgroundColor = CentralUIDesign.selectedItemIndicatorColor
 		var frame = selectedItemIndicator.frame
-		switch round(UIScreen.mainScreen().scale) {
+		switch round(UIScreen.main.scale) {
 			case 1: frame.size.width = 2
 			case 2: frame.size.width = 3
 			case 3: frame.size.width = 4
@@ -57,11 +57,11 @@ class MainMenuItemCell: UITableViewCell {
 	// MARK: - Internals
 
 
-	private func setItem(item: CentralUIMenuItem, selected: Bool) {
+	fileprivate func setItem(_ item: CentralUIMenuItem, selected: Bool) {
 		itemImage.image = item.icon
 		itemTitle.text = item.title
 		itemCounts.text = ""
-		selectedItemIndicator.hidden = !selected
+		selectedItemIndicator.isHidden = !selected
 
 	}
 }

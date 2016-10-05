@@ -7,8 +7,8 @@ import Foundation
 
 
 public protocol DependencyResolver {
-	func optional<Protocol>(component: Dependency<Protocol>) -> Protocol?
-	func required<Protocol>(component: Dependency<Protocol>) -> Protocol
+	func optional<Protocol>(_ component: Dependency<Protocol>) -> Protocol?
+	func required<Protocol>(_ component: Dependency<Protocol>) -> Protocol
 }
 
 
@@ -17,7 +17,7 @@ public protocol Dependent {
 }
 
 public extension DependencyResolver {
-	public func resolve(objects: Any...) {
+	public func resolve(_ objects: Any...) {
 		for object in objects {
 			if var dependent = object as? Dependent {
 				dependent.dependency = self

@@ -5,17 +5,17 @@
 
 import Foundation
 
-public class SingleElementContainer: FragmentElement {
-	public var child: FragmentElement!
+open class SingleElementContainer: FragmentElement {
+	open var child: FragmentElement!
 
 	// MARK: - UiElement
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		return child.visible
 	}
 
 
-	public override func traversal(@noescape visit: (FragmentElement) -> Void) {
+	open override func traversal(_ visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		child.traversal(visit)
 	}

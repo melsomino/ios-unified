@@ -8,17 +8,17 @@ import Foundation
 
 
 
-public class VerticalContainer: MultipleElementContainer {
+open class VerticalContainer: MultipleElementContainer {
 	var spacing = CGFloat(0)
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		var measure = Vertical_measure(container: self)
 		return measure.measure(in_bounds: bounds)
 	}
 
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		var measure = Vertical_measure(container: self)
 		measure.layout(in_bounds: bounds)
 	}
@@ -34,7 +34,7 @@ private struct Vertical_measure {
 
 
 
-	private struct Element_measure {
+	fileprivate struct Element_measure {
 		let element: FragmentElement
 		var measured = SizeMeasure.zero
 
@@ -118,7 +118,7 @@ class VerticalContainerDefinition: FragmentElementDefinition {
 
 
 
-	override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let vertical = element as! VerticalContainer
 		vertical.children = children
@@ -127,7 +127,7 @@ class VerticalContainerDefinition: FragmentElementDefinition {
 
 
 
-	override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
 			case "spacing":
 				spacing = try context.getFloat(attribute)

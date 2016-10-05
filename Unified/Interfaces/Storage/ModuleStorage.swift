@@ -5,11 +5,11 @@
 import Foundation
 
 public protocol ModuleStorage {
-	func initializeDatabase(maintenance: DatabaseMaintenance) throws
+	func initializeDatabase(_ maintenance: DatabaseMaintenance) throws
 
-	func getFileStoragePath(relativePath: String) -> String
-	func readDatabase(read: (StorageDatabase) throws -> Void) throws
-	func writeDatabase(write: (StorageDatabase) throws -> Void) throws
-	func writeDatabaseWithoutTransaction(write: (StorageDatabase) throws -> Void) throws
+	func getFileStoragePath(_ relativePath: String) -> String
+	func readDatabase(_ read: (StorageDatabase) throws -> Void) throws
+	func writeDatabase(_ write: (StorageDatabase) throws -> Void) throws
+	func writeDatabaseWithoutTransaction(_ write: (StorageDatabase) throws -> Void) throws
 
 }

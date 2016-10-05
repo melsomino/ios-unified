@@ -5,13 +5,13 @@
 import Foundation
 
 
-public class DefaultApplicationStorage: ApplicationStorage, ThreadingDependent {
+open class DefaultApplicationStorage: ApplicationStorage, ThreadingDependent {
 
 
 	// MARK: - ApplicationStorage
 
 
-	public func switchToAccount(accountName: String?) {
+	open func switchToAccount(_ accountName: String?) {
 		self.accountName = accountName
 		for (_, moduleStorage) in moduleStorages {
 			moduleStorage.switchToAccount(accountName)
@@ -19,7 +19,7 @@ public class DefaultApplicationStorage: ApplicationStorage, ThreadingDependent {
 	}
 
 
-	public func getModuleStorage(moduleName: String) -> ModuleStorage {
+	open func getModuleStorage(_ moduleName: String) -> ModuleStorage {
 		if let existing = moduleStorages[moduleName] {
 			return existing
 		}
@@ -33,14 +33,14 @@ public class DefaultApplicationStorage: ApplicationStorage, ThreadingDependent {
 	// MARK: - DependentObject
 
 
-	public var dependency: DependencyResolver!
+	open var dependency: DependencyResolver!
 
 
 	// MARK: - Internals
 
 
-	private var moduleStorages = [String: DefaultModuleStorage]()
-	private var accountName: String?
+	fileprivate var moduleStorages = [String: DefaultModuleStorage]()
+	fileprivate var accountName: String?
 
 }
 

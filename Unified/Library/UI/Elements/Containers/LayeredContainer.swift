@@ -10,19 +10,19 @@ import UIKit
 
 
 
-public class LayeredContainer: MultipleElementContainer {
+open class LayeredContainer: MultipleElementContainer {
 
 
 	// MARK: - FragmentElement
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		var measure = Layered_measure(elements: children)
 		return measure.measure(in_bounds: bounds)
 	}
 
 
 
-	public override func layoutContent(inBounds bounds: CGRect) {
+	open override func layoutContent(inBounds bounds: CGRect) {
 		var measure = Layered_measure(elements: children)
 		measure.layout(in_bounds: bounds)
 	}
@@ -39,7 +39,7 @@ private struct Layered_measure {
 
 
 
-	private struct Element_measure {
+	fileprivate struct Element_measure {
 		let element: FragmentElement
 		var measured = SizeMeasure.zero
 
@@ -97,15 +97,15 @@ private struct Layered_measure {
 
 
 
-public class LayeredContainerDefinition: FragmentElementDefinition {
+open class LayeredContainerDefinition: FragmentElementDefinition {
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return LayeredContainer()
 	}
 
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		let layered = element as! LayeredContainer
 		layered.children = children

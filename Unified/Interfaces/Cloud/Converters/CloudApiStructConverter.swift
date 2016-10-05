@@ -6,20 +6,20 @@
 
 import Foundation
 
-public class CloudApiStructConverter<StructType> {
+open class CloudApiStructConverter<StructType> {
 
 	public typealias ObjectFactory = () -> StructType
 
-	public let objectFactory: ObjectFactory
-	public let fields: [CloudApiFieldConverter<StructType>]
+	open let objectFactory: ObjectFactory
+	open let fields: [CloudApiFieldConverter<StructType>]
 
-	private var fieldByCloudName = [String: CloudApiFieldConverter < StructType>]()
-
-
+	fileprivate var fieldByCloudName = [String: CloudApiFieldConverter < StructType>]()
 
 
 
-	public init(_ objectFactory: ObjectFactory, _ fields: [CloudApiFieldConverter<StructType>]) {
+
+
+	public init(_ objectFactory: @escaping ObjectFactory, _ fields: [CloudApiFieldConverter<StructType>]) {
 		self.objectFactory = objectFactory
 		self.fields = fields
 		for field in fields {
@@ -31,7 +31,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func objectFromJsonRecord(source: AnyObject) -> StructType? {
+	open func objectFromJsonRecord(_ source: AnyObject) -> StructType? {
 		guard let sourceObject = source as? [String:AnyObject] else {
 			return nil
 		}
@@ -48,7 +48,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func listFromJsonRecordset(source: AnyObject) -> [StructType] {
+	open func listFromJsonRecordset(_ source: AnyObject) -> [StructType] {
 		var objects = [StructType]()
 		if let sourceObject = source as? [String:AnyObject] {
 			if let table = sourceObject["d"] as? [AnyObject] {
@@ -65,7 +65,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func listFromJsonArray(source: AnyObject) -> [StructType] {
+	open func listFromJsonArray(_ source: AnyObject) -> [StructType] {
 		var objects = [StructType]()
 		guard let sourceArray = source as? [AnyObject] else {
 			return objects
@@ -82,7 +82,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func objectFromJsonObject(source: AnyObject) -> StructType? {
+	open func objectFromJsonObject(_ source: AnyObject) -> StructType? {
 		guard let sourceObject = source as? [String:AnyObject] else {
 			return nil
 		}
@@ -99,7 +99,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func listFromJsonParameterRecordset(source: AnyObject) -> StructType? {
+	open func listFromJsonParameterRecordset(_ source: AnyObject) -> StructType? {
 		let object = objectFactory()
 		let values = CloudApiParameterValue.converter.listFromJsonRecordset(source)
 		for value in values {
@@ -114,38 +114,38 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func jsonRecordFromObject(source: StructType?) -> AnyObject {
+	open func jsonRecordFromObject(_ source: StructType?) -> AnyObject {
 		guard source != nil else {
 			return NSNull()
 		}
 		var record = [String: AnyObject]()
-		record["s"] = jsonSchema()
-		record["d"] = jsonRecordDataFromObject(source!)
-		record["_type"] = "record"
-		return record
+		record["s"] = jsonSchema() as AnyObject?
+		record["d"] = jsonRecordDataFromObject(source!) as AnyObject?
+		record["_type"] = "record" as AnyObject?
+		return record as AnyObject
 	}
 
 
 
 
 
-	public func jsonRecordsetFromList(list: [StructType]) -> AnyObject {
+	open func jsonRecordsetFromList(_ list: [StructType]) -> AnyObject {
 		var data = [AnyObject]()
 		for object in list {
-			data.append(jsonRecordDataFromObject(object))
+			data.append(jsonRecordDataFromObject(object) as AnyObject)
 		}
 		var recordset = [String: AnyObject]()
-		recordset["s"] = jsonSchema()
-		recordset["d"] = data
-		recordset["_type"] = "table"
-		return recordset
+		recordset["s"] = jsonSchema() as AnyObject?
+		recordset["d"] = data as AnyObject?
+		recordset["_type"] = "table" as AnyObject?
+		return recordset as AnyObject
 	}
 
 
 
 
 
-	public func jsonArrayFromList(list: [StructType]) -> [AnyObject] {
+	open func jsonArrayFromList(_ list: [StructType]) -> [AnyObject] {
 		var array = [AnyObject]()
 		for object in list {
 			array.append(jsonObjectFromObject(object))
@@ -157,7 +157,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func jsonObjectFromObject(source: StructType?) -> AnyObject {
+	open func jsonObjectFromObject(_ source: StructType?) -> AnyObject {
 		guard source != nil else {
 			return NSNull()
 		}
@@ -165,11 +165,11 @@ public class CloudApiStructConverter<StructType> {
 		for field in fields {
 			result[field.cloudName] = field.fieldGetter(source!)
 		}
-		return result
+		return result as AnyObject
 	}
 
 
-	public func objectFromJsonStringRecord(source: AnyObject) -> StructType? {
+	open func objectFromJsonStringRecord(_ source: AnyObject) -> StructType? {
 		return objectFromJsonRecord(decodeJsonString(source))
 	}
 
@@ -177,7 +177,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func listFromJsonStringRecordset(source: AnyObject) -> [StructType] {
+	open func listFromJsonStringRecordset(_ source: AnyObject) -> [StructType] {
 		return listFromJsonRecordset(decodeJsonString(source))
 	}
 
@@ -185,7 +185,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func objectFromJsonStringObject(source: AnyObject) -> StructType? {
+	open func objectFromJsonStringObject(_ source: AnyObject) -> StructType? {
 		return objectFromJsonObject(decodeJsonString(source))
 	}
 
@@ -193,14 +193,14 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func listFromJsonStringParameterRecordset(source: AnyObject) -> StructType? {
+	open func listFromJsonStringParameterRecordset(_ source: AnyObject) -> StructType? {
 		return listFromJsonParameterRecordset(decodeJsonString(source))
 	}
 
 
 
 
-	public func jsonStringRecordFromObject(source: StructType?) -> AnyObject {
+	open func jsonStringRecordFromObject(_ source: StructType?) -> AnyObject {
 		return encodeJsonString(jsonRecordFromObject(source))
 	}
 
@@ -208,7 +208,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func jsonStringRecordsetFromList(list: [StructType]) -> AnyObject {
+	open func jsonStringRecordsetFromList(_ list: [StructType]) -> AnyObject {
 		return encodeJsonString(jsonRecordsetFromList(list))
 	}
 
@@ -216,7 +216,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	public func jsonStringObjectFromObject(source: StructType?) -> AnyObject {
+	open func jsonStringObjectFromObject(_ source: StructType?) -> AnyObject {
 		return encodeJsonString(jsonObjectFromObject(source))
 	}
 
@@ -227,7 +227,7 @@ public class CloudApiStructConverter<StructType> {
 	typealias FieldBinding = (index:Int, field:CloudApiFieldConverter<StructType>)
 
 
-	private func createFieldBindings(source: [String:AnyObject]) -> [FieldBinding] {
+	fileprivate func createFieldBindings(_ source: [String:AnyObject]) -> [FieldBinding] {
 		var bindings = [FieldBinding]()
 		if let schemaArray = source["s"] as? [AnyObject] {
 			var index = 0
@@ -247,13 +247,13 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	private func jsonSchema() -> [AnyObject] {
+	fileprivate func jsonSchema() -> [AnyObject] {
 		var schema = [AnyObject]()
 		for field in fields {
 			var fieldSchema = [String: AnyObject]()
-			fieldSchema["n"] = field.cloudName
-			fieldSchema["t"] = field.cloudTypeName
-			schema.append(fieldSchema)
+			fieldSchema["n"] = field.cloudName as AnyObject?
+			fieldSchema["t"] = field.cloudTypeName as AnyObject?
+			schema.append(fieldSchema as AnyObject)
 		}
 		return schema
 	}
@@ -262,7 +262,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	private func objectFromJsonRecordData(source: [AnyObject], _ bindings: [FieldBinding]) -> StructType {
+	fileprivate func objectFromJsonRecordData(_ source: [AnyObject], _ bindings: [FieldBinding]) -> StructType {
 		let object = objectFactory()
 		for binding in bindings {
 			binding.field.fieldSetter(object, source[binding.index])
@@ -273,7 +273,7 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	private func jsonRecordDataFromObject(object: StructType) -> [AnyObject] {
+	fileprivate func jsonRecordDataFromObject(_ object: StructType) -> [AnyObject] {
 		var data = [AnyObject]()
 		for field in fields {
 			data.append(field.fieldGetter(object) ?? NSNull())
@@ -284,18 +284,18 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	private func decodeJsonString(source: AnyObject) -> AnyObject {
+	fileprivate func decodeJsonString(_ source: AnyObject) -> AnyObject {
 		guard let string = source as? String else {
 			return source
 		}
-		let encoded = string.dataUsingEncoding(NSUTF8StringEncoding)!
+		let encoded = string.data(using: String.Encoding.utf8)!
 		do {
-			return try NSJSONSerialization.JSONObjectWithData(encoded, options: [])
+			return try JSONSerialization.jsonObject(with: encoded, options: [])
 		} catch let error as NSError {
 			print("decodeJsonError: \(error)")
 			print("Invalid JSON:\n--------------------------------------\n\(string)\n--------------------------------------\nWe try to fix it")
 			do {
-				return try NSScanner.parseJson(string)
+				return try Scanner.parseJson(string)
 			} catch let fixError {
 				print(fixError)
 			}
@@ -306,11 +306,11 @@ public class CloudApiStructConverter<StructType> {
 
 
 
-	private func encodeJsonString(source: AnyObject) -> AnyObject {
+	fileprivate func encodeJsonString(_ source: AnyObject) -> AnyObject {
 		guard source is [AnyObject] || source is [String:AnyObject] else {
 			return source
 		}
-		let encoded = try! NSJSONSerialization.dataWithJSONObject(source, options: [])
-		return String(data: encoded, encoding: NSUTF8StringEncoding)!
+		let encoded = try! JSONSerialization.data(withJSONObject: source, options: [])
+		return String(data: encoded, encoding: String.Encoding.utf8)! as AnyObject
 	}
 }

@@ -4,7 +4,7 @@
 
 import Foundation
 
-public class ListenerList<ListenerType> {
+open class ListenerList<ListenerType> {
 
 	public init() {
 
@@ -12,27 +12,27 @@ public class ListenerList<ListenerType> {
 
 
 
-	public func add(listener: ListenerType) {
+	open func add(_ listener: ListenerType) {
 		guard let object = listener as? AnyObject else {
-			fatalError("Object (\(listener)) should be subclass of AnyObject")
+			fatalError("Object (\(listener)) should be subclass of AnyObject (ListenerList.add)")
 		}
 		lock.lock()
-		items.addObject(object)
+		items.add(object)
 		lock.unlock()
 	}
 
 
 
-	public func remove(listener: ListenerType) {
+	open func remove(_ listener: ListenerType) {
 		guard let object = listener as? AnyObject else {
-			fatalError("Object (\(listener)) should be subclass of AnyObject")
+			fatalError("Object (\(listener)) should be subclass of AnyObject (ListenerList.remove)")
 		}
 		lock.lock()
-		items.removeObject(object)
+		items.remove(object)
 		lock.unlock()
 	}
 
-	public func getLive() -> [ListenerType] {
+	open func getLive() -> [ListenerType] {
 		var live = [ListenerType]()
 		lock.lock()
 		for item in items.objectEnumerator() {
@@ -44,8 +44,8 @@ public class ListenerList<ListenerType> {
 		return live
 	}
 
-	private let items = NSHashTable.weakObjectsHashTable()
-	private var lock = FastLock()
+	fileprivate let items = NSHashTable<AnyObject>.weakObjects()
+	fileprivate var lock = FastLock()
 
 
 }

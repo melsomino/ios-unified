@@ -23,14 +23,14 @@ public struct DynamicBindings {
 
 
 
-	public mutating func parse(string: String?) -> Expression? {
+	public mutating func parse(_ string: String?) -> Expression? {
 		let expression = parseString(string)
 		return expression
 	}
 
 
 
-	public static func registerFormatter(name: String, formatterFactory: (String?) -> NSFormatter) {
+	public static func registerFormatter(_ name: String, formatterFactory: @escaping (String?) -> Formatter) {
 		formatterFactoryByName[name] = formatterFactory
 	}
 
@@ -40,20 +40,20 @@ public struct DynamicBindings {
 
 	public var valueIndexByName = [String: Int]()
 
-	private static let openingBrace = "{"
-	private static let closingBrace = "}"
+	fileprivate static let openingBrace = "{"
+	fileprivate static let closingBrace = "}"
 
-	class HtmlToTextFormatter: NSFormatter {
+	class HtmlToTextFormatter: Formatter {
 		static let defaultFormatter = HtmlToTextFormatter()
-		override func stringForObjectValue(obj: AnyObject) -> String? {
+		override func string(for obj: Any?) -> String? {
 			return HtmlParser.parse(String(obj))
 		}
 	}
 
-	private static var formatterFactoryByName: [String:(String?) -> NSFormatter] = [
+	fileprivate static var formatterFactoryByName: [String:(String?) -> Formatter] = [
 		"date": {
 			args in
-			let formatter = NSDateFormatter()
+			let formatter = DateFormatter()
 			if let args = args {
 				formatter.dateFormat = args
 			}
@@ -65,7 +65,7 @@ public struct DynamicBindings {
 		}
 	]
 
-	private mutating func parseString(string: String?) -> Expression? {
+	fileprivate mutating func parseString(_ string: String?) -> Expression? {
 		let (literal, nonLiteral) = DynamicBindings.split(string, DynamicBindings.openingBrace)
 		let (expression, rest) = DynamicBindings.split(nonLiteral, DynamicBindings.closingBrace)
 		if literal != nil && expression != nil && rest != nil {
@@ -88,12 +88,12 @@ public struct DynamicBindings {
 
 
 
-	private mutating func parseExpression(string: String, _ next: Expression?) -> Expression {
+	fileprivate mutating func parseExpression(_ string: String, _ next: Expression?) -> Expression {
 		var name = string
-		var formatter: NSFormatter? = nil
-		if let formatSeparatorRange = string.rangeOfString(" ") {
-			name = string.substringWithRange(string.startIndex ..< formatSeparatorRange.startIndex)
-			formatter = parseFormatter(string.substringFromIndex(formatSeparatorRange.endIndex))
+		var formatter: Formatter? = nil
+		if let formatSeparatorRange = string.range(of: " ") {
+			name = string.substring(with: string.startIndex ..< formatSeparatorRange.lowerBound)
+			formatter = parseFormatter(string.substring(from: formatSeparatorRange.upperBound))
 		}
 
 		var valueIndex = valueIndexByName[name]
@@ -107,8 +107,8 @@ public struct DynamicBindings {
 
 
 
-	private func parseFormatter(string: String) -> NSFormatter? {
-		let scanner = NSScanner(source: string, passWhitespaces: false)
+	fileprivate func parseFormatter(_ string: String) -> Formatter? {
+		let scanner = Scanner(source: string, passWhitespaces: false)
 		scanner.passWhitespaces()
 		guard let name = try? scanner.passNameOrValue() else {
 			return nil
@@ -140,31 +140,31 @@ public struct DynamicBindings {
 
 
 
-	private static func split(string: String?, _ separator: String) -> (String?, String?) {
+	fileprivate static func split(_ string: String?, _ separator: String) -> (String?, String?) {
 		guard let string = string else {
 			return (nil, nil)
 		}
 		guard !string.isEmpty else {
 			return (nil, nil)
 		}
-		guard let separatorRange = string.rangeOfString(separator, options: .LiteralSearch, range: string.startIndex ..< string.endIndex) else {
+		guard let separatorRange = string.range(of: separator, options: .literal, range: string.characters.indices) else {
 			return (string, nil)
 		}
-		let left = substring(string, string.startIndex, separatorRange.startIndex)
-		let right = substring(string, separatorRange.endIndex, string.endIndex)
+		let left = substring(string, string.startIndex, separatorRange.lowerBound)
+		let right = substring(string, separatorRange.upperBound, string.endIndex)
 		return (left, right)
 	}
 
 
 
-	private static func substring(string: String?, _ start: String.Index, _ end: String.Index) -> String? {
-		return string != nil && start != end ? string!.substringWithRange(start ..< end) : nil
+	fileprivate static func substring(_ string: String?, _ start: String.Index, _ end: String.Index) -> String? {
+		return string != nil && start != end ? string!.substring(with: start ..< end) : nil
 	}
 
 
 
 
-	public class Expression {
+	open class Expression {
 		let next: Expression?
 
 		init(next: Expression?) {
@@ -173,7 +173,7 @@ public struct DynamicBindings {
 
 
 
-		public final func evaluate(values: [Any?]) -> String? {
+		public final func evaluate(_ values: [Any?]) -> String? {
 			var expression: Expression? = self
 			var result: String?
 			while expression != nil {
@@ -193,7 +193,7 @@ public struct DynamicBindings {
 
 
 
-		public final func evaluateBool(values: [Any?]) -> Bool {
+		public final func evaluateBool(_ values: [Any?]) -> Bool {
 			// not {a}
 			if let a = Expression.tryGetRightOperand(self, "!") {
 				return !Expression.stringToBool(a.evaluateOwnValue(values))
@@ -214,7 +214,7 @@ public struct DynamicBindings {
 
 
 
-		func evaluateOwnValue(values: [Any?]) -> String? {
+		func evaluateOwnValue(_ values: [Any?]) -> String? {
 			return nil
 		}
 
@@ -223,8 +223,8 @@ public struct DynamicBindings {
 
 
 		// false if nil OR empty OR false OR 0
-		private static func stringToBool(string: String?) -> Bool {
-			guard let string = string where !string.isEmpty else {
+		fileprivate static func stringToBool(_ string: String?) -> Bool {
+			guard let string = string , !string.isEmpty else {
 				return false
 			}
 			return string != "false" && string != "0"
@@ -232,30 +232,30 @@ public struct DynamicBindings {
 
 
 
-		private static func isEmpty(string: String?) -> Bool {
+		fileprivate static func isEmpty(_ string: String?) -> Bool {
 			return string == nil || string!.isEmpty
 		}
 
 
 
-		private static func tryGetRightOperand(operation: Expression?, _ op: String) -> Expression? {
+		fileprivate static func tryGetRightOperand(_ operation: Expression?, _ op: String) -> Expression? {
 			guard let operation = operation as? Literal else {
 				return nil
 			}
-			let operationName = operation.value.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
+			let operationName = operation.value.trimmingCharacters(in: CharacterSet.whitespaces)
 			if let right = operation.next {
 				return (operationName == op && right.next == nil) ? right : nil
 			}
 			guard operationName.hasPrefix(op) else {
 				return nil
 			}
-			let right = operationName.substringFromIndex(operationName.startIndex.advancedBy(op.characters.count))
-			return Literal(value: right.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet()), next: nil)
+			let right = operationName.substring(from: operationName.characters.index(operationName.startIndex, offsetBy: op.characters.count))
+			return Literal(value: right.trimmingCharacters(in: CharacterSet.whitespaces), next: nil)
 		}
 
 
 
-		private static func sameOwnValues(a: Expression, _ b: Expression, values: [Any?]) -> Bool {
+		fileprivate static func sameOwnValues(_ a: Expression, _ b: Expression, values: [Any?]) -> Bool {
 			let aValue = a.evaluateOwnValue(values)
 			let bValue = b.evaluateOwnValue(values)
 			let aEmpty = isEmpty(aValue)
@@ -286,7 +286,7 @@ public struct DynamicBindings {
 
 
 
-		override func evaluateOwnValue(values: [Any?]) -> String? {
+		override func evaluateOwnValue(_ values: [Any?]) -> String? {
 			return value
 		}
 	}
@@ -297,9 +297,9 @@ public struct DynamicBindings {
 
 	class Value: Expression {
 		let valueIndex: Int
-		let formatter: NSFormatter?
+		let formatter: Formatter?
 
-		init(value_index: Int, formatter: NSFormatter?, next: Expression?) {
+		init(value_index: Int, formatter: Formatter?, next: Expression?) {
 			self.valueIndex = value_index
 			self.formatter = formatter
 			super.init(next: next)
@@ -307,7 +307,7 @@ public struct DynamicBindings {
 
 
 
-		override func evaluateOwnValue(values: [Any?]) -> String? {
+		override func evaluateOwnValue(_ values: [Any?]) -> String? {
 			guard let value = values[valueIndex] else {
 				return nil
 			}
@@ -320,21 +320,21 @@ public struct DynamicBindings {
 					return String(v)
 				case let string as String:
 					if let formatter = formatter {
-						return formatter.stringForObjectValue(string)
+						return formatter.string(for: string)
 					}
 					return string
-				case let date as NSDate:
+				case let date as Date:
 					if let formatter = formatter {
-						return formatter.stringForObjectValue(date)
+						return formatter.string(for: date)
 					}
-					return String(date)
+					return String(describing: date)
 				default:
-					let s = String(value)
+					let s = String(describing: value)
 					if s == "nil" {
 						return nil
 					}
 					if let formatter = formatter {
-						return formatter.stringForObjectValue(s)
+						return formatter.string(for: s)
 					}
 					return s
 			}

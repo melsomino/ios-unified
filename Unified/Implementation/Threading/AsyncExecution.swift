@@ -8,10 +8,10 @@ import Foundation
 
 
 
-public class AsyncExecution {
-	public var cancelled = false
+open class AsyncExecution {
+	open var cancelled = false
 
-	public final func then(on target: AsyncExecutionTarget, work: (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecution {
+	public final func then(on target: AsyncExecutionTarget, work: @escaping (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecution {
 		enqueue(AsyncWork(execution: self, target: target, work: work))
 		return self
 	}
@@ -26,11 +26,11 @@ public class AsyncExecution {
 	// MARK: - Internals
 
 
-	private var planned = [AsyncWork]()
-	private var running = [AsyncWork]()
-	private var error: ErrorType?
+	fileprivate var planned = [AsyncWork]()
+	fileprivate var running = [AsyncWork]()
+	fileprivate var error: Error?
 
-	var errorHandler: ((AnyObject?, ErrorType) -> Void)?
+	var errorHandler: ((AnyObject?, Error) -> Void)?
 	var errorHandlerTarget = AsyncExecutionTarget.background
 
 	var alwaysHandler: ((AnyObject?) -> Void)?
@@ -40,14 +40,14 @@ public class AsyncExecution {
 	weak var owner: AnyObject?
 
 
-	final func enqueue(work: AsyncWork) {
+	final func enqueue(_ work: AsyncWork) {
 		planned.append(work)
 	}
 
-	final func setError(work: AsyncWork, error: ErrorType) {
+	final func setError(_ work: AsyncWork, error: Error) {
 		self.error = error
-		running.removeAll(keepCapacity: false)
-		planned.removeAll(keepCapacity: false)
+		running.removeAll(keepingCapacity: false)
+		planned.removeAll(keepingCapacity: false)
 		guard let errorHandler = errorHandler else {
 			return
 		}
@@ -61,16 +61,16 @@ public class AsyncExecution {
 		AsyncAlwaysHandler(execution: self, target: alwaysHandlerTarget, handler: alwaysHandler).start()
 	}
 
-	final func setComplete(work: AsyncWork) {
-		guard let running_index = running.indexOf({ work === $0 }) else {
+	final func setComplete(_ work: AsyncWork) {
+		guard let running_index = running.index(where: { work === $0 }) else {
 			return
 		}
-		running.removeAtIndex(running_index)
+		running.remove(at: running_index)
 		guard running.count == 0 else {
 			return
 		}
 		running = planned
-		planned.removeAll(keepCapacity: true)
+		planned.removeAll(keepingCapacity: true)
 		for work in running {
 			work.run()
 		}
@@ -78,7 +78,7 @@ public class AsyncExecution {
 
 	final func startPlanned() {
 		running = planned
-		planned.removeAll(keepCapacity: true)
+		planned.removeAll(keepingCapacity: true)
 		for work in running {
 			work.start()
 		}

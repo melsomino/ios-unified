@@ -8,8 +8,8 @@ import Foundation
 
 
 
-public class AsyncQueue {
-	private var operationQueue = NSOperationQueue()
+open class AsyncQueue {
+	fileprivate var operationQueue = OperationQueue()
 }
 
 
@@ -39,17 +39,17 @@ class AsyncHandler {
 	final func start() {
 		switch target {
 			case .ui:
-				start(on: NSOperationQueue.mainQueue())
+				start(on: OperationQueue.main)
 			case .background:
-				start(on: NSOperationQueue())
+				start(on: OperationQueue())
 			case .queue(let queue):
 				start(on: queue.operationQueue)
 		}
 	}
 
 
-	final func start(on operationQueue: NSOperationQueue) {
-		operationQueue.addOperationWithBlock {
+	final func start(on operationQueue: OperationQueue) {
+		operationQueue.addOperation {
 			self.run()
 		}
 	}
@@ -69,7 +69,7 @@ class AsyncHandler {
 	}
 
 
-	func onError(error: ErrorType) {
+	func onError(_ error: Error) {
 	}
 
 
@@ -78,7 +78,7 @@ class AsyncHandler {
 	}
 
 
-	func doWork(execution: AsyncExecution, with owner: AnyObject!) throws {
+	func doWork(_ execution: AsyncExecution, with owner: AnyObject!) throws {
 
 	}
 
@@ -90,10 +90,10 @@ class AsyncHandler {
 
 class AsyncErrorHandler: AsyncHandler {
 
-	private let handler: (AnyObject!, ErrorType) -> Void
-	private let error: ErrorType
+	fileprivate let handler: (AnyObject?, Error) -> Void
+	fileprivate let error: Error
 
-	init(execution: AsyncExecution, target: AsyncExecutionTarget, error: ErrorType, handler: (AnyObject!, ErrorType) -> Void) {
+	init(execution: AsyncExecution, target: AsyncExecutionTarget, error: Error, handler: @escaping (AnyObject?, Error) -> Void) {
 		self.handler = handler
 		self.error = error
 		super.init(execution: execution, target: target)
@@ -105,7 +105,7 @@ class AsyncErrorHandler: AsyncHandler {
 	}
 
 
-	override func doWork(execution: AsyncExecution, with owner: AnyObject!) throws {
+	override func doWork(_ execution: AsyncExecution, with owner: AnyObject!) throws {
 		handler(owner, error)
 	}
 
@@ -117,15 +117,15 @@ class AsyncErrorHandler: AsyncHandler {
 
 class AsyncAlwaysHandler: AsyncHandler {
 
-	private let handler: (AnyObject!) -> Void
+	fileprivate let handler: (AnyObject!) -> Void
 
-	init(execution: AsyncExecution, target: AsyncExecutionTarget, handler: (AnyObject?) -> Void) {
+	init(execution: AsyncExecution, target: AsyncExecutionTarget, handler: @escaping (AnyObject?) -> Void) {
 		self.handler = handler
 		super.init(execution: execution, target: target)
 	}
 
 
-	override func doWork(execution: AsyncExecution, with owner: AnyObject?) throws {
+	override func doWork(_ execution: AsyncExecution, with owner: AnyObject?) throws {
 		handler(owner)
 	}
 

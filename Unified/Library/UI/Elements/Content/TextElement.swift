@@ -10,13 +10,13 @@ import QuartzCore
 
 
 
-public class TextElement: ContentElement {
+open class TextElement: ContentElement {
 
-	public var textDefinition: TextElementDefinition {
+	open var textDefinition: TextElementDefinition {
 		return definition as! TextElementDefinition
 	}
 
-	public var maxLines = 0 {
+	open var maxLines = 0 {
 		didSet {
 			initializeView()
 		}
@@ -24,35 +24,35 @@ public class TextElement: ContentElement {
 
 	var nowrap = false
 
-	public var font: UIFont? {
+	open var font: UIFont? {
 		didSet {
 			effectivePaddingDirty = true
 			initializeView()
 		}
 	}
 
-	public var baselineFontBottom: UIFont? {
+	open var baselineFontBottom: UIFont? {
 		didSet {
 			effectivePaddingDirty = true
 			initializeView()
 		}
 	}
 
-	public var baselineFontTop: UIFont? {
+	open var baselineFontTop: UIFont? {
 		didSet {
 			effectivePaddingDirty = true
 			initializeView()
 		}
 	}
 
-	public var padding = UIEdgeInsetsZero {
+	open var padding = UIEdgeInsets.zero {
 		didSet {
 			effectivePaddingDirty = true
 			initializeView()
 		}
 	}
 
-	public var effectivePadding: UIEdgeInsets {
+	open var effectivePadding: UIEdgeInsets {
 		if effectivePaddingDirty {
 			let effectiveFont = font ?? TextElement.defaultFont
 			effectivePaddingValue = padding
@@ -75,20 +75,20 @@ public class TextElement: ContentElement {
 		return effectivePaddingValue
 	}
 
-	public var textAlignment: NSTextAlignment? {
+	open var textAlignment: NSTextAlignment? {
 		didSet {
 			initializeView()
 		}
 	}
-	public var color: UIColor? {
+	open var color: UIColor? {
 		didSet {
 			initializeView()
 		}
 	}
 
-	public var autoHideEmptyText = true
+	open var autoHideEmptyText = true
 
-	public var text: String? {
+	open var text: String? {
 		didSet {
 			if let label = view as? TextElementLabel {
 				label.text = text
@@ -107,18 +107,18 @@ public class TextElement: ContentElement {
 	// MARK: - ContentElement
 
 
-	public override func initializeView() {
+	open override func initializeView() {
 		super.initializeView()
 		guard let view = view as? TextElementLabel else {
 			return
 		}
-		view.textAlignment = textAlignment ?? .Natural
-		view.backgroundColor = backgroundColor ?? UIColor.clearColor()
+		view.textAlignment = textAlignment ?? .natural
+		view.backgroundColor = backgroundColor ?? UIColor.clear
 		view.font = font ?? TextElement.defaultFont
 		view.padding = effectivePadding
-		view.textColor = color ?? UIColor.darkTextColor()
+		view.textColor = color ?? UIColor.darkText
 		view.numberOfLines = maxLines ?? 0
-		view.lineBreakMode = .ByTruncatingTail
+		view.lineBreakMode = .byTruncatingTail
 		view.text = text
 	}
 
@@ -126,13 +126,13 @@ public class TextElement: ContentElement {
 	// MARK: - FragmentElement
 
 
-	public override func createView() -> UIView {
+	open override func createView() -> UIView {
 		return TextElementLabel()
 	}
 
 
 
-	public override func bind(toModel values: [Any?]) {
+	open override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
 		if let textBinding = textDefinition.text {
 			text = textBinding.evaluate(values)
@@ -143,18 +143,18 @@ public class TextElement: ContentElement {
 	}
 
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		return !hidden
 	}
 
 
-	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
+	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let measured_text = textForMeasure()
 		if measured_text.isEmpty {
 			return SizeMeasure.zero
 		}
 		let font = self.font ?? TextElement.defaultFont
-		var text_size = measureText(measured_text, font: font, inWidth: nowrap ? CGFloat.max : bounds.width)
+		var text_size = measureText(measured_text, font: font, inWidth: nowrap ? CGFloat.greatestFiniteMagnitude : bounds.width)
 		if maxLines > 0 {
 			let line_height = font.lineHeight
 			let max_height = line_height * CGFloat(maxLines)
@@ -181,29 +181,29 @@ public class TextElement: ContentElement {
 
 	// MARK: - Internals
 
-	private var effectivePaddingDirty = true
-	private var effectivePaddingValue = UIEdgeInsetsZero
+	fileprivate var effectivePaddingDirty = true
+	fileprivate var effectivePaddingValue = UIEdgeInsets.zero
 
-	private func textForMeasure() -> String {
+	fileprivate func textForMeasure() -> String {
 		return text ?? ""
 	}
 
 
 
-	private func measureText(text: String, font: UIFont, inWidth width: CGFloat) -> CGSize {
+	fileprivate func measureText(_ text: String, font: UIFont, inWidth width: CGFloat) -> CGSize {
 		return TextElement.measureText(text, font: font, padding: padding, inWidth: width)
 	}
 
 
 
-	public static func measureText(text: String?, font: UIFont?, padding: UIEdgeInsets, inWidth width: CGFloat) -> CGSize {
-		guard let text = text where !text.isEmpty else {
-			return CGSizeZero
+	open static func measureText(_ text: String?, font: UIFont?, padding: UIEdgeInsets, inWidth width: CGFloat) -> CGSize {
+		guard let text = text , !text.isEmpty else {
+			return CGSize.zero
 		}
-		let font = font ?? UIFont.systemFontOfSize(UIFont.systemFontSize())
-		let constraintSize = CGSize(width: width, height: CGFloat.max)
-		var size = text.boundingRectWithSize(constraintSize,
-			options: NSStringDrawingOptions.UsesLineFragmentOrigin,
+		let font = font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
+		let constraintSize = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
+		var size = text.boundingRect(with: constraintSize,
+			options: NSStringDrawingOptions.usesLineFragmentOrigin,
 			attributes: [NSFontAttributeName: font],
 			context: nil).size
 		size.width += padding.left + padding.right
@@ -213,7 +213,7 @@ public class TextElement: ContentElement {
 
 
 	static var defaultFont: UIFont {
-		return UIFont.systemFontOfSize(UIFont.labelFontSize())
+		return UIFont.systemFont(ofSize: UIFont.labelFontSize)
 	}
 }
 
@@ -221,8 +221,8 @@ public class TextElement: ContentElement {
 
 
 
-public class TextElementDefinition: ContentElementDefinition {
-	var padding: UIEdgeInsets = UIEdgeInsetsZero
+open class TextElementDefinition: ContentElementDefinition {
+	var padding: UIEdgeInsets = UIEdgeInsets.zero
 	var font: UIFont?
 	var baselineFontBottom: UIFont?
 	var baselineFontTop: UIFont?
@@ -236,7 +236,7 @@ public class TextElementDefinition: ContentElementDefinition {
 	// MARK: - UiElementDefinition
 
 
-	public override func applyDeclarationAttribute(attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
+	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if isElementValue {
 			text = try context.getExpression(attribute, .value(attribute.name))
 			return
@@ -272,13 +272,13 @@ public class TextElementDefinition: ContentElementDefinition {
 
 
 
-	public override func createElement() -> FragmentElement {
+	open override func createElement() -> FragmentElement {
 		return TextElement()
 	}
 
 
 
-	public override func initialize(element: FragmentElement, children: [FragmentElement]) {
+	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 		guard let text = element as? TextElement else {
 			return
@@ -299,11 +299,11 @@ public class TextElementDefinition: ContentElementDefinition {
 
 
 	static var textAlignmentByName: [String:NSTextAlignment] = [
-		"left": NSTextAlignment.Left,
-		"right": NSTextAlignment.Right,
-		"center": NSTextAlignment.Center,
-		"justified": NSTextAlignment.Justified,
-		"natural": NSTextAlignment.Natural
+		"left": NSTextAlignment.left,
+		"right": NSTextAlignment.right,
+		"center": NSTextAlignment.center,
+		"justified": NSTextAlignment.justified,
+		"natural": NSTextAlignment.natural
 	]
 }
 
@@ -311,15 +311,15 @@ public class TextElementDefinition: ContentElementDefinition {
 
 
 
-public class TextElementLabel: UILabel {
-	public var padding = UIEdgeInsetsZero
+open class TextElementLabel: UILabel {
+	open var padding = UIEdgeInsets.zero
 
 
 	// MARK: - UILabel
 
 
-	public override func drawTextInRect(rect: CGRect) {
-		super.drawTextInRect(UIEdgeInsetsInsetRect(rect, padding))
+	open override func drawText(in rect: CGRect) {
+		super.drawText(in: UIEdgeInsetsInsetRect(rect, padding))
 	}
 
 

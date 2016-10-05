@@ -5,7 +5,7 @@
 
 import Foundation
 
-public func sameObjects(a: AnyObject?, _ b: AnyObject?) -> Bool {
+public func sameObjects(_ a: AnyObject?, _ b: AnyObject?) -> Bool {
 	if a == nil && b == nil {
 		return true
 	}
@@ -16,7 +16,7 @@ public func sameObjects(a: AnyObject?, _ b: AnyObject?) -> Bool {
 }
 
 extension String {
-	public static func same(a: String?, _ b: String?) -> Bool {
+	public static func same(_ a: String?, _ b: String?) -> Bool {
 		if a == nil && b == nil {
 			return true
 		}
@@ -27,9 +27,9 @@ extension String {
 	}
 }
 
-public extension SequenceType {
+public extension Sequence {
 
-	func find(@noescape predicate: (Self.Generator.Element) throws -> Bool) rethrows -> Self.Generator.Element? {
+	func find(_ predicate: (Self.Iterator.Element) throws -> Bool) rethrows -> Self.Iterator.Element? {
 		for element in self {
 			if try predicate(element) {
 				return element
@@ -40,7 +40,7 @@ public extension SequenceType {
 
 
 
-	func categorise<Key:Hashable, Value>(@noescape getKey: Generator.Element -> Key, @noescape _ getValue: Generator.Element -> Value) -> [Key:[Value]] {
+	func categorise<Key:Hashable, Value>(_ getKey: (Iterator.Element) -> Key, _ getValue: (Iterator.Element) -> Value) -> [Key:[Value]] {
 		var result: [Key:[Value]] = [:]
 		for item in self {
 			let key = getKey(item)
@@ -57,7 +57,7 @@ public extension SequenceType {
 
 
 extension Dictionary {
-	public mutating func getOrAdd(key: Key, @autoclosure _ createValue: () -> Value) -> Value {
+	public mutating func getOrAdd(_ key: Key, _ createValue: @autoclosure () -> Value) -> Value {
 		if let existing = self[key] {
 			return existing
 		}
@@ -70,13 +70,13 @@ extension Dictionary {
 
 extension Array {
 
-	public func copyFirst(amount: Int) -> [Element] {
+	public func copyFirst(_ amount: Int) -> [Element] {
 		return self.count <= amount ? self : [Element](prefix(amount))
 	}
 
 
 
-	func insertionIndexOf(elem: Element, @noescape isOrderedBefore: (Element, Element) -> Bool) -> Int {
+	func insertionIndexOf(_ elem: Element, isOrderedBefore: (Element, Element) -> Bool) -> Int {
 		var lo = 0
 		var hi = self.count - 1
 		while lo <= hi {
@@ -96,48 +96,48 @@ extension Array {
 }
 
 
-extension NSDate {
+extension Date {
 
-	public static func orderOf(a: NSDate?, _ b: NSDate?) -> NSComparisonResult {
+	public static func orderOf(_ a: Date?, _ b: Date?) -> ComparisonResult {
 		if a == nil && b == nil {
-			return .OrderedSame
+			return .orderedSame
 		}
 		if a == nil {
-			return .OrderedAscending
+			return .orderedAscending
 		}
 		if b == nil {
-			return .OrderedDescending
+			return .orderedDescending
 		}
 		return a!.compare(b!)
 	}
 
 
 
-	public static func isOrderedBefore(a: NSDate?, _ b: NSDate?) -> Bool {
-		return orderOf(a, b) == .OrderedAscending
+	public static func isOrderedBefore(_ a: Date?, _ b: Date?) -> Bool {
+		return orderOf(a, b) == .orderedAscending
 	}
 }
 
 
-public class ParseError: ErrorType, CustomStringConvertible {
-	public var message: String
-	public var scanner: NSScanner
+open class ParseError: Error, CustomStringConvertible {
+	open var message: String
+	open var scanner: Scanner
 
-	public init(_ message: String, _ scanner: NSScanner) {
+	public init(_ message: String, _ scanner: Scanner) {
 		self.message = message
 		self.scanner = scanner
 	}
 
 	// MARK: - CustomStringConvertible
 
-	public var description: String {
-		return "\(message) at: \(scanner.string.substringFromIndex(scanner.string.startIndex.advancedBy(scanner.scanLocation)))"
+	open var description: String {
+		return "\(message) at: \(scanner.string.substring(from: scanner.string.characters.index(scanner.string.startIndex, offsetBy: scanner.scanLocation)))"
 	}
 
 }
 
 
-extension NSScanner {
+extension Scanner {
 
 	convenience init(source: String, passWhitespaces: Bool) {
 		self.init(string: source)
@@ -150,13 +150,13 @@ extension NSScanner {
 
 
 	func passWhitespaces() {
-		scanCharactersFromSet(NSCharacterSet.whitespaceCharacterSet(), intoString: nil)
+		scanCharacters(from: CharacterSet.whitespaces, into: nil)
 	}
 
 
 
-	func pass(expected: String, passWhitespaces: Bool) -> Bool {
-		let passed = scanString(expected, intoString: nil)
+	func pass(_ expected: String, passWhitespaces: Bool) -> Bool {
+		let passed = scanString(expected, into: nil)
 		if passed && passWhitespaces {
 			self.passWhitespaces()
 		}
@@ -165,23 +165,23 @@ extension NSScanner {
 
 
 
-	func pass(expected: String) -> Bool {
+	func pass(_ expected: String) -> Bool {
 		return pass(expected, passWhitespaces: false)
 	}
 
 
 
-	func expect(expected: String, passWhitespaces: Bool) throws {
+	func expect(_ expected: String, passWhitespaces: Bool) throws {
 		if !pass(expected, passWhitespaces: passWhitespaces) {
-			throw ParseError("\(expected) expected", self)
+			throw ParseError("\(expected) expected", self) as Error
 		}
 	}
 
 
 
-	func passCharacters(expected: NSCharacterSet, passWhitespaces: Bool) -> String? {
+	func passCharacters(_ expected: CharacterSet, passWhitespaces: Bool) -> String? {
 		var passed: NSString?
-		if scanCharactersFromSet(expected, intoString: &passed) {
+		if scanCharacters(from: expected, into: &passed) {
 			if passWhitespaces {
 				self.passWhitespaces()
 			}
@@ -192,36 +192,36 @@ extension NSScanner {
 
 
 
-	func passCharacters(expected: NSCharacterSet) -> String? {
+	func passCharacters(_ expected: CharacterSet) -> String? {
 		return passCharacters(expected, passWhitespaces: false)
 	}
 
 
 
-	func expectCharacters(expected: NSCharacterSet, passWhitespaces: Bool, expectedDescription: String) throws -> String {
+	func expectCharacters(_ expected: CharacterSet, passWhitespaces: Bool, expectedDescription: String) throws -> String {
 		if let passed = passCharacters(expected, passWhitespaces: passWhitespaces) {
 			return passed
 		}
-		throw ParseError("\(expectedDescription) expected", self)
+		throw ParseError("\(expectedDescription) expected", self) as Error
 	}
 
 
 
-	func expectCharacters(expected: NSCharacterSet, expectedDescription: String) throws -> String {
+	func expectCharacters(_ expected: CharacterSet, expectedDescription: String) throws -> String {
 		return try expectCharacters(expected, passWhitespaces: false, expectedDescription: expectedDescription)
 	}
 
 
 
 
-	func passIdentifier(passWhitespaces passWhitespaces: Bool) -> String? {
+	func passIdentifier(passWhitespaces: Bool) -> String? {
 		var start: NSString?
-		guard scanCharactersFromSet(NSScanner.identifierStart, intoString: &start) else {
+		guard scanCharacters(from: Scanner.identifierStart, into: &start) else {
 			return nil
 		}
 		var identifier = String(start!)
 		var rest: NSString?
-		if scanCharactersFromSet(NSScanner.identifierRest, intoString: &rest) {
+		if scanCharacters(from: Scanner.identifierRest, into: &rest) {
 			identifier += String(rest!)
 		}
 		if passWhitespaces {
@@ -232,16 +232,16 @@ extension NSScanner {
 
 
 
-	func expectIdentifier(passWhitespaces passWhitespaces: Bool) throws -> String {
+	func expectIdentifier(passWhitespaces: Bool) throws -> String {
 		guard let passed = passIdentifier(passWhitespaces: passWhitespaces) else {
-			throw ParseError("identifier expected", self)
+			throw ParseError("identifier expected", self) as Error
 		}
 		return passed
 	}
 
 
 
-	func passFloat(passWhitespaces passWhitespaces: Bool) -> CGFloat? {
+	func passFloat(passWhitespaces: Bool) -> CGFloat? {
 		var value: Float = 0
 		guard scanFloat(&value) else {
 			return nil
@@ -254,16 +254,16 @@ extension NSScanner {
 
 
 
-	func passUntil(terminator: String) -> String? {
+	func passUntil(_ terminator: String) -> String? {
 		var value: NSString?
-		return scanUpToString(terminator, intoString: &value) ? String(value!) : nil
+		return scanUpTo(terminator, into: &value) ? String(value!) : nil
 	}
 
 
 
-	func passUntilEndOrOneOf(terminator: NSCharacterSet, passWhitespaces: Bool) -> String? {
+	func passUntilEndOrOneOf(_ terminator: CharacterSet, passWhitespaces: Bool) -> String? {
 		var value: NSString?
-		if scanUpToCharactersFromSet(terminator, intoString: &value) {
+		if scanUpToCharacters(from: terminator, into: &value) {
 			if passWhitespaces {
 				self.passWhitespaces()
 			}
@@ -274,46 +274,46 @@ extension NSScanner {
 
 
 
-	func expectUntil(terminator: String) throws -> String {
+	func expectUntil(_ terminator: String) throws -> String {
 		guard let passed = passUntil(terminator) else {
-			throw ParseError("can not find terminator \"\(terminator)\"", self)
+			throw ParseError("can not find terminator \"\(terminator)\"", self) as Error
 		}
 		return passed
 	}
 
-	private static let identifierStart = NSCharacterSet.union(NSCharacterSet.letterCharacterSet(), NSCharacterSet(charactersInString: "_"))
-	private static let identifierRest = NSCharacterSet.union(identifierStart, NSCharacterSet.decimalDigitCharacterSet())
+	fileprivate static let identifierStart = CharacterSet.union(CharacterSet.letters, CharacterSet(charactersIn: "_"))
+	fileprivate static let identifierRest = CharacterSet.union(identifierStart, CharacterSet.decimalDigits)
 
 }
 
 
-extension NSCharacterSet {
+extension CharacterSet {
 
-	static func union(sets: NSCharacterSet...) -> NSCharacterSet {
-		let builder = sets[0].mutableCopy() as! NSMutableCharacterSet
+	static func union(_ sets: CharacterSet...) -> CharacterSet {
+		let builder = (sets[0] as NSCharacterSet).mutableCopy() as! NSMutableCharacterSet
 		for i in 1 ..< sets.count {
-			builder.formUnionWithCharacterSet(sets[i])
+			builder.formUnion(with: sets[i])
 		}
-		return builder.copy() as! NSCharacterSet
+		return builder.copy() as! CharacterSet
 	}
 }
 
 
 
-extension NSBundle {
+extension Bundle {
 
-	private static let bundleIdByModuleName: [String:String] = {
+	fileprivate static let bundleIdByModuleName: [String:String] = {
 		var bundles = [String: String]()
-		for bundle in NSBundle.allBundles() {
+		for bundle in Bundle.allBundles {
 			if let id = bundle.bundleIdentifier {
-				let idParts = id.componentsSeparatedByString(".")
+				let idParts = id.components(separatedBy: ".")
 				let moduleName = idParts[idParts.count - 1]
 				bundles[moduleName] = id
 			}
 		}
-		for bundle in NSBundle.allFrameworks() {
+		for bundle in Bundle.allFrameworks {
 			if let id = bundle.bundleIdentifier {
-				let idParts = id.componentsSeparatedByString(".")
+				let idParts = id.components(separatedBy: ".")
 				let moduleName = idParts[idParts.count - 1]
 				bundles[moduleName] = id
 			}
@@ -321,14 +321,14 @@ extension NSBundle {
 		return bundles
 	}()
 
-	public static func fromModuleName(moduleName: String) -> NSBundle? {
+	public static func fromModuleName(_ moduleName: String) -> Bundle? {
 		let id = bundleIdByModuleName[moduleName]
-		return id != nil ? NSBundle(identifier: id!) : nil
+		return id != nil ? Bundle(identifier: id!) : nil
 	}
 
 
 
-	public static func requiredFromModuleName(moduleName: String) -> NSBundle {
+	public static func requiredFromModuleName(_ moduleName: String) -> Bundle {
 		if let bundle = fromModuleName(moduleName) {
 			return bundle
 		}

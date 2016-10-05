@@ -5,7 +5,7 @@
 import Foundation
 
 
-public class Test {
+open class Test {
 //	static func test(threading: DefaultThreading) {
 //		let sequence = Sequence.inBackground(threading) {
 //			(execution, value: String) in

@@ -5,10 +5,10 @@
 
 import Foundation
 
-public class MultipleElementContainer: FragmentElement {
+open class MultipleElementContainer: FragmentElement {
 
-	public var hidden = false
-	public var children: [FragmentElement]!
+	open var hidden = false
+	open var children: [FragmentElement]!
 
 
 	// MARK: - LayoutItem
@@ -18,14 +18,14 @@ public class MultipleElementContainer: FragmentElement {
 		super.init()
 	}
 
-	public override var visible: Bool {
+	open override var visible: Bool {
 		if hidden {
 			return false
 		}
-		return children.contains({ $0.visible })
+		return children.contains(where: { $0.visible })
 	}
 
-	public override func traversal(@noescape visit: (FragmentElement) -> Void) {
+	open override func traversal(_ visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		for item in children {
 			item.traversal(visit)
@@ -33,7 +33,7 @@ public class MultipleElementContainer: FragmentElement {
 	}
 
 
-	public override func bind(toModel values: [Any?]) {
+	open override func bind(toModel values: [Any?]) {
 		super.bind(toModel: values)
 		if let boundHidden = definition.boundHidden(values) {
 			hidden = boundHidden

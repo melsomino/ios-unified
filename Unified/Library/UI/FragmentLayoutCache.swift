@@ -10,20 +10,20 @@ private class FragmentFramesByKey {
 	var frames = [String: [CGRect]]()
 }
 
-public class FragmentLayoutCache {
+open class FragmentLayoutCache {
 
-	public func clear() {
-		cacheByWidth.removeAll(keepCapacity: true)
+	open func clear() {
+		cacheByWidth.removeAll(keepingCapacity: true)
 	}
 
 
 
-	public func cachedFramesForWidth(width: CGFloat, key: String) -> [CGRect]? {
+	open func cachedFramesForWidth(_ width: CGFloat, key: String) -> [CGRect]? {
 		return cacheByWidth[width]?.frames[key]
 	}
 
 
-	public func setFrames(frames: [CGRect], forWidth width: CGFloat, key: String) {
+	open func setFrames(_ frames: [CGRect], forWidth width: CGFloat, key: String) {
 		if let existing = cacheByWidth[width] {
 			existing.frames[key] = frames
 		}
@@ -35,7 +35,7 @@ public class FragmentLayoutCache {
 	}
 
 
-	public func cachedHeightForWidth(width: CGFloat, key: String) -> CGFloat? {
+	open func cachedHeightForWidth(_ width: CGFloat, key: String) -> CGFloat? {
 		return cacheByWidth[width]?.frames[key]?[0].height
 	}
 
@@ -44,14 +44,14 @@ public class FragmentLayoutCache {
 
 	public final func drop(cacheForKey key: String) {
 		for (_, frames) in cacheByWidth {
-			frames.frames.removeValueForKey(key)
+			frames.frames.removeValue(forKey: key)
 		}
 	}
 
 	// MARK: - Internals
 
 
-	private var cacheByWidth = [CGFloat: FragmentFramesByKey]()
+	fileprivate var cacheByWidth = [CGFloat: FragmentFramesByKey]()
 
 
 
