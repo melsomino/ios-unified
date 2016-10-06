@@ -22,12 +22,12 @@ open class SingleExecution {
 		}
 	}
 
-	open func onQueue(_ queue: ExecutionQueue, _ action: (Execution) throws -> Void) {
+	open func onQueue(_ queue: ExecutionQueue, _ action: @escaping (Execution) throws -> Void) {
 		cancel()
 		current = queue.newExecution(action)
 	}
 
-	open func inBackground(_ action: (Execution) throws -> Void) {
+	open func inBackground(_ action: @escaping (Execution) throws -> Void) {
 		onQueue(threading.backgroundQueue, action)
 	}
 

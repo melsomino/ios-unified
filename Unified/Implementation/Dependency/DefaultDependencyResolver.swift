@@ -67,7 +67,7 @@ open class DependencyContainer: DependencyResolver {
 
 
 
-	open func register<Interface>(_ dependency: Dependency<Interface>, _ factory: () -> Interface) {
+	open func register<Interface>(_ dependency: Dependency<Interface>, _ factory: @escaping () -> Interface) {
 		sync.lock()
 		setRegistration(DependencyRegistration<Interface>(factory), at: dependency.index)
 		sync.unlock()

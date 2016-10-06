@@ -14,8 +14,8 @@ open class DefaultDatabaseStatement: DatabaseStatement {
 		self.platformStatement = platformStatement
 	}
 
-	open func executeSelect() throws -> DatabaseGenerator<Row> {
-		return Row.fetch(platformStatement as! SelectStatement, arguments: StatementArguments(arguments)).generate()
+	open func executeSelect() throws -> DatabaseIterator<Row> {
+		return Row.fetch(platformStatement as! SelectStatement, arguments: StatementArguments(arguments)).makeIterator()
 	}
 
 	open func executeUpdate() throws {

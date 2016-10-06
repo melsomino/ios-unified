@@ -75,7 +75,7 @@ private struct Vertical_measure {
 		measured = SizeMeasure(width: 0, height: total_spacing)
 
 		for i in 0 ..< children.count {
-			let child = children[i].measure(in_bounds: CGSizeMake(bounds.width, 0))
+			let child = children[i].measure(in_bounds: CGSize(width: bounds.width, height: 0))
 			measured.width.min = max(measured.width.min, child.width.min)
 			measured.width.max = max(measured.width.max, child.width.max)
 			measured.height += child.height
@@ -90,7 +90,7 @@ private struct Vertical_measure {
 		var y = bounds.origin.y
 		let x = bounds.origin.x
 		for child in children {
-			let child_bounds = CGRectMake(x, y, bounds.width, child.measured.height)
+			let child_bounds = CGRect(x: x, y: y, width: bounds.width, height: child.measured.height)
 			child.element.layout(inBounds: child_bounds, usingMeasured: child.measured.maxSize)
 			y += child.measured.height + container.spacing
 		}

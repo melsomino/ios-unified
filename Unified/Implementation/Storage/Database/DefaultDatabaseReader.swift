@@ -8,7 +8,7 @@ import GRDB
 
 open class DefaultDatabaseReader: DatabaseReader {
 
-	init(_ platformReader: DatabaseGenerator<Row>) {
+	init(_ platformReader: DatabaseIterator<Row>) {
 		self.platformReader = platformReader
 	}
 
@@ -31,7 +31,7 @@ open class DefaultDatabaseReader: DatabaseReader {
 
 	open func getUuid(_ index: Int) -> Uuid? {
 		let string = getString(index)
-		return string != nil ? CloudApiPrimitiveTypeConverter.uuidFromJson(string!) : nil
+		return string != nil ? string!.toUuid() : nil
 	}
 
 	open func getString(_ index: Int) -> String? {
@@ -60,7 +60,7 @@ open class DefaultDatabaseReader: DatabaseReader {
 
 	// MARK: - Internals
 
-	fileprivate let platformReader: DatabaseGenerator<Row>
+	fileprivate let platformReader: DatabaseIterator<Row>
 	fileprivate var current: Row?
 
 }

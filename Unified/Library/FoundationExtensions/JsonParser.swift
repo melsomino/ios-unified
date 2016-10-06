@@ -214,7 +214,8 @@ extension Scanner {
 
 	fileprivate func substring(_ start: Int, _ end: Int) -> String {
 		let startIndex = string.characters.index(string.startIndex, offsetBy: start)
-		return string.substring(with: startIndex ..< startIndex.advancedBy(end - start))
+		let endIndex = string.characters.index(string.startIndex, offsetBy: end)
+		return string.substring(with: startIndex ..< endIndex)
 	}
 
 

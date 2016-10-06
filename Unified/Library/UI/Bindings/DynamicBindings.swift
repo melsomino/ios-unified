@@ -46,7 +46,7 @@ public struct DynamicBindings {
 	class HtmlToTextFormatter: Formatter {
 		static let defaultFormatter = HtmlToTextFormatter()
 		override func string(for obj: Any?) -> String? {
-			return HtmlParser.parse(String(obj))
+			return HtmlParser.parse(String(describing: obj))
 		}
 	}
 
@@ -147,7 +147,7 @@ public struct DynamicBindings {
 		guard !string.isEmpty else {
 			return (nil, nil)
 		}
-		guard let separatorRange = string.range(of: separator, options: .literal, range: string.characters.indices) else {
+		guard let separatorRange = string.range(of: separator) else {
 			return (string, nil)
 		}
 		let left = substring(string, string.startIndex, separatorRange.lowerBound)

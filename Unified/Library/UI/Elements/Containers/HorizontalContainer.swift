@@ -170,7 +170,7 @@ private struct Horizontal_layout {
 
 
 	mutating func pre_measure() {
-		let max_child_bounds = CGSizeMake(bounds.width - total_spacing, bounds.height)
+		let max_child_bounds = CGSize(width: bounds.width - total_spacing, height: bounds.height)
 		size = SizeMeasure(width: total_spacing, height: 0)
 		measure_children {
 			return $0.measure(in_bounds: max_child_bounds)
@@ -218,7 +218,7 @@ private struct Horizontal_layout {
 				let fill_with_ratio = fill_space / fill_width
 				measure_children {
 					$0.bounds_width = $0.element.horizontalAlignment == .fill ? $0.size.width.max * fill_with_ratio : $0.size.width.min
-					return $0.measure(in_bounds: CGSizeMake($0.bounds_width, 0))
+					return $0.measure(in_bounds: CGSize(width: $0.bounds_width, height: 0))
 				}
 				return
 			}
@@ -226,7 +226,7 @@ private struct Horizontal_layout {
 		let with_ratio = bounds.width / size.width.min
 		measure_children {
 			$0.bounds_width = $0.size.width.min * with_ratio
-			return $0.measure(in_bounds: CGSizeMake($0.bounds_width, 0))
+			return $0.measure(in_bounds: CGSize(width: $0.bounds_width, height: 0))
 		}
 	}
 
@@ -238,7 +238,7 @@ private struct Horizontal_layout {
 			let width = $0.size.width
 			if width.max > width.min {
 				$0.bounds_width = width.min + (width.max - width.min) * width_ratio
-				return $0.measure(in_bounds: CGSizeMake($0.bounds_width, 0))
+				return $0.measure(in_bounds: CGSize(width: $0.bounds_width, height: 0))
 			}
 			else {
 				$0.bounds_width = width.min
@@ -265,7 +265,7 @@ private struct Horizontal_layout {
 		let y = origin.y
 		var x = origin.x
 		for child in children {
-			let child_bounds = CGRectMake(x, y, child.bounds_width, size.height)
+			let child_bounds = CGRect(x: x, y: y, width: child.bounds_width, height: size.height)
 			var child_size = child.size.maxSize
 			if child_size.width > child_bounds.width {
 				child_size.width = child_bounds.width

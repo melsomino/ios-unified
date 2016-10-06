@@ -21,12 +21,12 @@ open class DefaultModuleDatabase: StorageDatabase {
 	}
 
 	open func createUpdateStatement(_ sql: String) throws -> DatabaseUpdateStatement {
-		return DefaultDatabaseUpdateStatement(try platformDatabase.updateStatement(sql))
+		return DefaultDatabaseUpdateStatement(try platformDatabase.makeUpdateStatement(sql))
 	}
 
 
 	open func createSelectStatement(_ sql: String) throws -> DatabaseSelectStatement {
-		return DefaultDatabaseSelectStatement(try platformDatabase.selectStatement(sql))
+		return DefaultDatabaseSelectStatement(try platformDatabase.makeSelectStatement(sql))
 	}
 
 

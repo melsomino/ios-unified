@@ -104,7 +104,7 @@ open class CloudApiStructConverter<StructType> {
 		let values = CloudApiParameterValue.converter.listFromJsonRecordset(source)
 		for value in values {
 			if let field = fieldByCloudName[value.parameter ?? ""] {
-				field.fieldSetter(object, value.value ?? NSNull())
+				field.fieldSetter(object, value.value as? AnyObject ?? NSNull())
 			}
 		}
 		return object
@@ -227,6 +227,7 @@ open class CloudApiStructConverter<StructType> {
 	typealias FieldBinding = (index:Int, field:CloudApiFieldConverter<StructType>)
 
 
+	
 	fileprivate func createFieldBindings(_ source: [String:AnyObject]) -> [FieldBinding] {
 		var bindings = [FieldBinding]()
 		if let schemaArray = source["s"] as? [AnyObject] {
@@ -290,7 +291,7 @@ open class CloudApiStructConverter<StructType> {
 		}
 		let encoded = string.data(using: String.Encoding.utf8)!
 		do {
-			return try JSONSerialization.jsonObject(with: encoded, options: [])
+			return try JSONSerialization.jsonObject(with: encoded, options: []) as AnyObject
 		} catch let error as NSError {
 			print("decodeJsonError: \(error)")
 			print("Invalid JSON:\n--------------------------------------\n\(string)\n--------------------------------------\nWe try to fix it")

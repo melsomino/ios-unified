@@ -82,7 +82,13 @@ open class HtmlElement: ContentElement {
 			let lastParagraphRange = getLastParagraphRange(builder)
 			if lastParagraphRange.location  >= 0 && lastParagraphRange.location < attributed.string.characters.count && lastParagraphRange.length > 0 {
 				let lastParagraphStyle = builder.attribute(NSParagraphStyleAttributeName, at: lastParagraphRange.location, effectiveRange: nil)
-				let newLastParagraphStyle = ((lastParagraphStyle ?? NSParagraphStyle.default) as AnyObject).mutableCopy() as! NSMutableParagraphStyle
+				var newLastParagraphStyle: NSMutableParagraphStyle
+				if let last = lastParagraphStyle as? NSParagraphStyle {
+					newLastParagraphStyle = last.mutableCopy() as! NSMutableParagraphStyle
+				}
+				else {
+					newLastParagraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+				}
 				newLastParagraphStyle.paragraphSpacing = 0
 				builder.addAttribute(NSParagraphStyleAttributeName, value: newLastParagraphStyle, range: lastParagraphRange)
 				attributed = (builder.copy() as! NSAttributedString)
