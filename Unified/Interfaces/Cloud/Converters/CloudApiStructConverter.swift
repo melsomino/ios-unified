@@ -145,12 +145,12 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func jsonArrayFromList(_ list: [StructType]) -> [AnyObject] {
+	open func jsonArrayFromList(_ list: [StructType]) -> AnyObject {
 		var array = [AnyObject]()
 		for object in list {
 			array.append(jsonObjectFromObject(object))
 		}
-		return array
+		return array as AnyObject
 	}
 
 
