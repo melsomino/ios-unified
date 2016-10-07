@@ -40,13 +40,9 @@ extension String {
 
 
 
-open class CloudApiPrimitiveTypeConverter {
+public class CloudApiPrimitiveTypeConverter {
 
-	private static func anyObjectOrNull<T>(from value: T?) -> AnyObject {
-		return value != nil ? value! as AnyObject : NSNull()
-	}
-	
-
+	private static func any
 	open static func uuidFromJson(_ value: AnyObject) -> Uuid? {
 		switch value {
 			case let uuid as Uuid: return uuid
@@ -57,8 +53,8 @@ open class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromUuid(_ value: Uuid?) -> AnyObject {
-		return anyObjectOrNull(from: value?.uuidString)
+	open static func jsonFromUuid(_ value: Uuid?) -> Any {
+		return value?.uuidString ?? NSNull()
 	}
 
 	
@@ -70,7 +66,7 @@ open class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonArrayFromUuidArray(_ array: [Uuid?]) -> AnyObject {
+	open static func jsonArrayFromUuidArray(_ array: [Uuid?]) -> Any {
 		return jsonFromArray(array) {
 			item in jsonFromUuid(item)
 		} as AnyObject

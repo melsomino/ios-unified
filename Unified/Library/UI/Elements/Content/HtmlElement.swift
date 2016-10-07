@@ -63,14 +63,14 @@ open class HtmlElement: ContentElement {
 			}
 			let font = resolveFont()
 			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(Int(font.pointSize))'>\(html)</div>"
-			let options: [String:AnyObject] = [
-				NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType as AnyObject,
-				NSCharacterEncodingDocumentAttribute: String.Encoding.utf8 as AnyObject,
-			]
 
 			var attributed: NSAttributedString!
 
 			if let utf8Data = html.data(using: String.Encoding.utf8) {
+				let options: [String:Any] = [
+					NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType,
+					NSCharacterEncodingDocumentAttribute: String.Encoding.utf8.rawValue
+				]
 				attributed = try? NSAttributedString(data: utf8Data, options: options, documentAttributes: nil)
 			}
 			if attributed == nil {

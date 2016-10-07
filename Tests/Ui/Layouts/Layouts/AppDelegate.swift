@@ -14,7 +14,7 @@ import Unified
 
 
 struct Header {
-	let title: String
+	let title: String?
 	let totalCount: String
 }
 

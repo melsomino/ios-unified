@@ -6,8 +6,8 @@
 import Foundation
 
 open class CloudApiFieldConverter<StructType> {
-	public typealias FieldSetter = (StructType, AnyObject) -> Void
-	public typealias FieldGetter = (StructType) -> AnyObject
+	public typealias FieldSetter = (StructType, Any) -> Void
+	public typealias FieldGetter = (StructType) -> Any
 
 	open let cloudName: String
 	open let cloudTypeName: String
