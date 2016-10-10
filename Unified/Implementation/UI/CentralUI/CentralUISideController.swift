@@ -151,12 +151,12 @@ open class CentralUISideController: UIViewController, UITableViewDelegate, UITab
 
 
 	open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		return MainMenuItemCell.cellForItem(centralUi.menuItemAtIndex((indexPath as NSIndexPath).row), selected: (indexPath as NSIndexPath).row == centralUi.selectedMenuItem?.index ?? -1, tableView: tableView, indexPath: indexPath)
+		return MainMenuItemCell.cellForItem(centralUi.menuItemAtIndex(indexPath.row), selected: indexPath.row == centralUi.selectedMenuItem?.index ?? -1, tableView: tableView, indexPath: indexPath)
 	}
 
 
 	open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		centralUi.selectedMenuItem = centralUi.menuItemAtIndex((indexPath as NSIndexPath).row)
+		centralUi.selectedMenuItem = centralUi.menuItemAtIndex(indexPath.row)
 		hideAnimated(nil)
 	}
 

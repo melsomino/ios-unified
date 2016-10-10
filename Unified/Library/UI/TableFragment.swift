@@ -246,7 +246,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 	open func onTableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
-		let model = models[(indexPath as NSIndexPath).row]
+		let model = models[indexPath.row]
 		let cellFactory = ensureCellFactory(forModelType: type(of: model))
 		let cell = tableView.dequeueReusableCell(withIdentifier: cellFactory.cellReuseId, for: indexPath) as! TableFragmentCell
 		if cell.fragment == nil {
@@ -265,7 +265,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 	open func onTableView(_ tableView: UITableView, heightForRowAtIndexPath indexPath: IndexPath) -> CGFloat {
-		let model = models[(indexPath as NSIndexPath).row]
+		let model = models[indexPath.row]
 		return ensureCellFactory(forModelType: type(of: model)).heightFor(model, inWidth: tableView.bounds.width)
 	}
 

@@ -46,7 +46,10 @@ public struct DynamicBindings {
 	class HtmlToTextFormatter: Formatter {
 		static let defaultFormatter = HtmlToTextFormatter()
 		override func string(for obj: Any?) -> String? {
-			return HtmlParser.parse(String(describing: obj))
+			guard let value = obj else {
+				return nil
+			}
+			return HtmlParser.plainText(from: String(describing: value))
 		}
 	}
 

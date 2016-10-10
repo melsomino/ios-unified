@@ -34,7 +34,7 @@ extension Scanner {
 
 
 
-	public static func parseJson(_ source: String) throws -> AnyObject {
+	public static func parseJson(_ source: String) throws -> Any {
 		let scanner = Scanner(source: source, passWhitespaces: false)
 		scanner.passWhitespaces()
 		if scanner.isAtEnd {
@@ -51,24 +51,24 @@ extension Scanner {
 
 
 
-	fileprivate func expectJsonValue() throws-> AnyObject {
+	fileprivate func expectJsonValue() throws-> Any {
 		if let string = try passJsonString() {
-			return string as AnyObject
+			return string
 		}
 		if let array = try passJsonArray() {
-			return array as AnyObject
+			return array
 		}
 		if let object = try passJsonObject() {
-			return object as AnyObject
+			return object
 		}
 		if let number = try passJsonNumber() {
 			return number
 		}
 		if pass("true", passWhitespaces: true) {
-			return true as AnyObject
+			return true
 		}
 		if pass("false", passWhitespaces: true) {
-			return false as AnyObject
+			return false
 		}
 		if pass("null", passWhitespaces: true) {
 			return NSNull()
@@ -80,11 +80,11 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonArray() throws -> [AnyObject]? {
+	fileprivate func passJsonArray() throws -> [Any]? {
 		if !pass("[", passWhitespaces: true) {
 			return nil
 		}
-		var array = [AnyObject]()
+		var array = [Any]()
 		if !pass("]", passWhitespaces: true) {
 			while true {
 				array.append(try expectJsonValue())
@@ -101,11 +101,11 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonObject() throws -> [String: AnyObject]? {
+	fileprivate func passJsonObject() throws -> [String: Any]? {
 		if !pass("{", passWhitespaces: true) {
 			return nil
 		}
-		var object = [String: AnyObject]()
+		var object = [String: Any]()
 		if !pass("}", passWhitespaces: true) {
 			while true {
 				guard let name = try passJsonString() else {
@@ -126,7 +126,7 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonNumber() throws -> AnyObject? {
+	fileprivate func passJsonNumber() throws -> Any? {
 		let saveLocation = scanLocation
 		pass("-")
 		if pass("0") {

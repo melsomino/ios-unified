@@ -11,7 +11,10 @@ import Foundation
 public struct HtmlParser {
 	var text = ""
 
-	public static func parse(_ html: String) -> String {
+	public static func plainText(from html: String) -> String {
+		guard !html.isEmpty else {
+			return ""
+		}
 		var parser = HtmlParser()
 		do {
 			let doc = try HTMLDocument(string: html)
