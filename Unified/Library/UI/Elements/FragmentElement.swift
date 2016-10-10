@@ -29,6 +29,7 @@ open class FragmentElement {
 	public final var margin = UIEdgeInsets.zero
 	public final var horizontalAlignment = FragmentAlignment.leading
 	public final var verticalAlignment = FragmentAlignment.leading
+	public final var preserveSpace = false
 
 
 	public final func measure(inBounds bounds: CGSize) -> SizeMeasure {
@@ -56,6 +57,10 @@ open class FragmentElement {
 	// MARK: - Overridable
 
 
+	open var includeInLayout: Bool {
+		return preserveSpace || visible
+	}
+	
 	open var visible: Bool {
 		return true
 	}
@@ -138,6 +143,7 @@ open class FragmentElementDefinition {
 	public final var horizontalAlignment = FragmentAlignment.leading
 	public final var verticalAlignment = FragmentAlignment.leading
 	public final var visible: DynamicBindings.Expression?
+	public final var preserveSpace = false
 
 
 	open static func register(_ name: String, definition: @escaping () -> FragmentElementDefinition) {
@@ -189,6 +195,8 @@ open class FragmentElementDefinition {
 				verticalAlignment = try context.getEnum(attribute, FragmentAlignment.vertical_names)
 			case "visible":
 				visible = try context.getExpression(attribute)
+			case "preserve-space":
+				preserveSpace = try context.getBool(attribute)
 			default:
 				try context.applyInsets(&margin, name: "margin", attribute: attribute)
 		}

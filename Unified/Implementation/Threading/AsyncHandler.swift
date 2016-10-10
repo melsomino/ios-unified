@@ -9,7 +9,7 @@ import Foundation
 
 
 open class AsyncQueue {
-	private var operationQueue = OperationQueue()
+	fileprivate var operationQueue = OperationQueue()
 }
 
 

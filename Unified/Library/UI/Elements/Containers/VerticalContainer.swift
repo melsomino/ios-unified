@@ -62,7 +62,7 @@ private struct Vertical_measure {
 	init(container: VerticalContainer) {
 		self.container = container
 		for element in container.children {
-			if element.visible {
+			if element.includeInLayout {
 				children.append(Element_measure(element: element))
 			}
 		}

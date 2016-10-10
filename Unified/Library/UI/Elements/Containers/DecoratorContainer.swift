@@ -77,6 +77,13 @@ open class DecoratorElement: ContentElement {
 		return false
 	}
 
+	open override var includeInLayout: Bool {
+		if hidden && !preserveSpace {
+			return false
+		}
+		return child.includeInLayout
+		
+	}
 
 	open override func traversal(_ visit: (FragmentElement) -> Void) {
 		super.traversal(visit)

@@ -25,6 +25,14 @@ open class MultipleElementContainer: FragmentElement {
 		return children.contains(where: { $0.visible })
 	}
 
+	open override var includeInLayout: Bool {
+		if hidden && !preserveSpace {
+			return false
+		}
+		return children.contains(where: { $0.includeInLayout })
+		
+	}
+	
 	open override func traversal(_ visit: (FragmentElement) -> Void) {
 		super.traversal(visit)
 		for item in children {

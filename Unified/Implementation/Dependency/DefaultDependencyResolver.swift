@@ -20,8 +20,8 @@ private protocol DependencyRegistrationEntry: class {
 
 class DependencyRegistration<Interface>: DependencyRegistrationEntry {
 	var sync = FastLock()
-	private let factory: (() -> Interface)?
-	private var implementation: Interface?
+	fileprivate let factory: (() -> Interface)?
+	fileprivate var implementation: Interface?
 
 	init(_ factory: @escaping () -> Interface) {
 		self.factory = factory

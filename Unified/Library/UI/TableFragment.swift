@@ -289,7 +289,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 	private var keyboardFrame = CGRect.zero
 	private var cellFactories = [CellFragmentFactory]()
 	private var layoutCache = FragmentLayoutCache()
-	private var loadingIndicator: UIRefreshControl!
+	fileprivate var loadingIndicator: UIRefreshControl!
 	private var reloadingIndicator: UIActivityIndicatorView!
 
 

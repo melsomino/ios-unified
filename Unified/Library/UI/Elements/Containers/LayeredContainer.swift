@@ -64,7 +64,7 @@ private struct Layered_measure {
 
 	init(elements: [FragmentElement]) {
 		for element in elements {
-			if element.visible {
+			if element.includeInLayout {
 				children.append(Element_measure(element: element))
 			}
 		}

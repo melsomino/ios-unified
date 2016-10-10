@@ -129,7 +129,7 @@ private struct Horizontal_layout {
 		self.container = container
 		self.bounds = bounds
 		for element in container.children {
-			if element.visible {
+			if element.includeInLayout {
 				if element.horizontalAlignment == .fill {
 					has_fill = true
 				}
