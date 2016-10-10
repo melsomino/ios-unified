@@ -42,8 +42,7 @@ extension String {
 
 public class CloudApiPrimitiveTypeConverter {
 
-	private static func any
-	open static func uuidFromJson(_ value: AnyObject) -> Uuid? {
+	open static func uuidFromJson(_ value: Any) -> Uuid? {
 		switch value {
 			case let uuid as Uuid: return uuid
 			case let string as String: return Uuid(uuidString: string)
@@ -58,7 +57,7 @@ public class CloudApiPrimitiveTypeConverter {
 	}
 
 	
-	open static func uuidArrayFromJsonArray(_ array: AnyObject) -> [Uuid?] {
+	open static func uuidArrayFromJsonArray(_ array: Any) -> [Uuid?] {
 		return arrayFromJson(array) {
 			item in uuidFromJson(item)
 		}
@@ -69,12 +68,12 @@ public class CloudApiPrimitiveTypeConverter {
 	open static func jsonArrayFromUuidArray(_ array: [Uuid?]) -> Any {
 		return jsonFromArray(array) {
 			item in jsonFromUuid(item)
-		} as AnyObject
+		}
 	}
 
 
 
-	open static func integerFromJson(_ value: AnyObject) -> Int? {
+	open static func integerFromJson(_ value: Any) -> Int? {
 		switch value {
 			case let s as String: return Int(s)
 			case let i as Int: return i
@@ -84,13 +83,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromInteger(_ value: Int?) -> AnyObject {
-		return anyObjectOrNull(from: value)
+	open static func jsonFromInteger(_ value: Int?) -> Any {
+		return value ?? NSNull()
 	}
 
 
 
-	open static func integerArrayFromJsonArray(_ array: AnyObject) -> [Int?] {
+	open static func integerArrayFromJsonArray(_ array: Any) -> [Int?] {
 		return arrayFromJson(array) {
 			item in integerFromJson(item)
 		}
@@ -98,15 +97,15 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonArrayFromIntegerArray(_ array: [Int?]) -> AnyObject {
+	open static func jsonArrayFromIntegerArray(_ array: [Int?]) -> Any {
 		return jsonFromArray(array) {
 			item in jsonFromInteger(item)
-		} as AnyObject
+		}
 	}
 
 
 
-	open static func int64FromJson(_ value: AnyObject) -> Int64? {
+	open static func int64FromJson(_ value: Any) -> Int64? {
 		switch value {
 			case let s as String: return Int64(s)
 			case let i64 as Int64: return i64
@@ -117,8 +116,8 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromInt64(_ value: Int64?) -> AnyObject {
-		return value != nil ? String(value!) as AnyObject : NSNull()
+	open static func jsonFromInt64(_ value: Int64?) -> Any {
+		return value != nil ? String(value!) : NSNull()
 	}
 
 
@@ -133,7 +132,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func booleanFromJson(_ value: AnyObject) -> Bool? {
+	open static func booleanFromJson(_ value: Any) -> Bool? {
 		switch value {
 			case let s as String: return boolFromString(s)
 			case let b as Bool: return b
@@ -143,13 +142,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromBoolean(_ value: Bool?) -> AnyObject {
-		return value as AnyObject? ?? NSNull()
+	open static func jsonFromBoolean(_ value: Bool?) -> Any {
+		return value ?? NSNull()
 	}
 
 
 
-	open static func booleanArrayFromJsonArray(_ array: AnyObject) -> [Bool?] {
+	open static func booleanArrayFromJsonArray(_ array: Any) -> [Bool?] {
 		return arrayFromJson(array) {
 			item in booleanFromJson(item)
 		}
@@ -157,7 +156,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonArrayFromBooleanArray(_ array: [Bool?]) -> AnyObject {
+	open static func jsonArrayFromBooleanArray(_ array: [Bool?]) -> Any {
 		return jsonFromArray(array) {
 			item in jsonFromBoolean(item)
 		}
@@ -165,7 +164,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func stringFromJson(_ value: AnyObject) -> String? {
+	open static func stringFromJson(_ value: Any) -> String? {
 		switch value {
 			case is NSNull: return nil
 			case let s as String: return s
@@ -175,13 +174,13 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromString(_ value: String?) -> AnyObject {
-		return anyObjectOrNull(from: value)
+	open static func jsonFromString(_ value: String?) -> Any {
+		return value ?? NSNull()
 	}
 
 
 
-	open static func stringArrayFromJsonArray(_ array: AnyObject) -> [String?] {
+	open static func stringArrayFromJsonArray(_ array: Any) -> [String?] {
 		return arrayFromJson(array) {
 			item in stringFromJson(item)
 		}
@@ -189,7 +188,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonArrayFromStringArray(_ array: [String?]) -> AnyObject {
+	open static func jsonArrayFromStringArray(_ array: [String?]) -> Any {
 		return jsonFromArray(array) {
 			item in jsonFromString(item)
 		}
@@ -232,7 +231,7 @@ public class CloudApiPrimitiveTypeConverter {
 	}
 
 
-	open static func dateTimeFromJson(_ value: AnyObject) -> Date? {
+	open static func dateTimeFromJson(_ value: Any) -> Date? {
 		switch value {
 			case let string as String:
 				if let date = defaultDateTimeFormatter.date(from: string) {
@@ -263,18 +262,18 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromDateTime(_ value: Date?) -> AnyObject {
+	open static func jsonFromDateTime(_ value: Date?) -> Any {
 		guard let value = value else {
 			return NSNull()
 		}
-		return defaultDateTimeFormatter.string(from: value) as AnyObject
+		return defaultDateTimeFormatter.string(from: value)
 	}
 
 
 
-	open static func arrayFromJson<T>(_ source: AnyObject, _ loadItem: (_:AnyObject) -> T?) -> [T?] {
+	open static func arrayFromJson<T>(_ source: Any, _ loadItem: (_:Any) -> T?) -> [T?] {
 		var result = [T?]()
-		if let sourceArray = source as? [AnyObject] {
+		if let sourceArray = source as? [Any] {
 			for sourceItem in sourceArray {
 				if !(sourceItem is NSNull) {
 					result.append(loadItem(sourceItem))
@@ -286,12 +285,12 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	open static func jsonFromArray<T>(_ source: [T?], _ saveItem: (_:T?) -> AnyObject) -> AnyObject {
-		var array = [AnyObject]()
+	open static func jsonFromArray<T>(_ source: [T?], _ saveItem: (_:T?) -> Any) -> Any {
+		var array = [Any]()
 		for sourceItem in source {
 			array.append(saveItem(sourceItem))
 		}
-		return array as AnyObject
+		return array
 	}
 }
 

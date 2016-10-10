@@ -83,12 +83,12 @@ open class DefaultCloudConnector: CloudConnector {
 
 
 
-	open func invokeService(_ serviceUrl: URL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject {
-		var json = [String: AnyObject]()
+	open func invokeService(_ serviceUrl: URL, _ protocolVersion: Int, _ method: String, _ params: Any) throws -> Any {
+		var json = [String: Any]()
 
-		json["jsonrpc"] = "2.0" as AnyObject?
-		json["protocol"] = protocolVersion as AnyObject?
-		json["method"] = method as AnyObject?
+		json["jsonrpc"] = "2.0"
+		json["protocol"] = protocolVersion
+		json["method"] = method
 		json["params"] = params
 
 		let httpRequest = NSMutableURLRequest(url: serviceUrl, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 60.0)
@@ -101,7 +101,7 @@ open class DefaultCloudConnector: CloudConnector {
 		httpRequest.addValue("application/json", forHTTPHeaderField: "Accept")
 
 
-		var invokeResult: AnyObject?
+		var invokeResult: Any?
 		var invokeError: CloudError?
 
 		let semaphore = DispatchSemaphore(value: 0)
@@ -111,13 +111,13 @@ open class DefaultCloudConnector: CloudConnector {
 
 			if httpResponseData != nil {
 				do {
-					let responseDict = try JSONSerialization.jsonObject(with: httpResponseData!, options: []) as! [String:AnyObject]
+					let responseDict = try JSONSerialization.jsonObject(with: httpResponseData!, options: []) as! [String:Any]
 
 					if let tracePath = self.debugResponseTracePath {
 						try? httpResponseData!.write(to: URL(fileURLWithPath: "\(tracePath)/\(Date()).json"), options: [.atomic])
 					}
 
-					if let errorDict = responseDict["error"] as? [String: AnyObject] {
+					if let errorDict = responseDict["error"] as? [String: Any] {
 						invokeError = CloudError("", errorDict)
 					}
 					else if let result = responseDict["result"] {
@@ -126,7 +126,7 @@ open class DefaultCloudConnector: CloudConnector {
 					else {
 						invokeError = CloudError("Response does not conforms to json rpc protocol", nil)
 					}
-				} catch let error as AnyObject {
+				} catch let error as Any {
 					invokeError = CloudError("\(error)", error)
 				} catch {
 					invokeError = CloudError("unknown error", nil)

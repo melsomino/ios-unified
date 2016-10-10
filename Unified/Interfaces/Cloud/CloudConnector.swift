@@ -8,7 +8,7 @@ import Foundation
 public protocol CloudConnector {
 	func makeUrl(_ relativePath: String) -> URL
 
-	func invokeService(_ serviceUrl: URL, _ protocolVersion: Int, _ method: String, _ params: AnyObject) throws -> AnyObject
+	func invokeService(_ serviceUrl: URL, _ protocolVersion: Int, _ method: String, _ params: Any) throws -> Any
 	func startDownload(_ request: URLRequest, progress: ((Int64, Int64) -> Void)?, error:  ((Error) -> Void)?, complete: @escaping (URL) -> Void)
 
 	func getFileCache(_ localPath: String) -> CloudFileCache
