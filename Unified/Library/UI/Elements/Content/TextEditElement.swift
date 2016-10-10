@@ -75,7 +75,7 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 			}
 		}
 	}
-	fileprivate var lockReflectView = 0
+	private var lockReflectView = 0
 
 
 	public init() {
@@ -85,7 +85,7 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 
 	// MARK: - FragmentElement
 
-	fileprivate func sizeOf(padding: UIEdgeInsets) -> CGSize {
+	private func sizeOf(padding: UIEdgeInsets) -> CGSize {
 		return CGSize(width: padding.left + padding.right, height: padding.top + padding.bottom)
 	}
 
@@ -251,7 +251,7 @@ open class TextEditDefinition: ViewElementDefinition {
 		}
 	}
 
-	fileprivate static let returnKeyByName: [String:UIReturnKeyType] = [
+	private static let returnKeyByName: [String:UIReturnKeyType] = [
 		"go": .go,
 		"google": .google,
 		"join": .join,
@@ -388,6 +388,6 @@ open class TextEditView: UITextView, UITextViewDelegate {
 
 	// MARK: - Internals
 
-	fileprivate var editing = false
+	private var editing = false
 
 }

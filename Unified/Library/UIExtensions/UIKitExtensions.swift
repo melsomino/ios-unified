@@ -126,7 +126,7 @@ private let splitControllerFix = SplitControllerFix()
 
 extension UIStoryboard {
 
-	fileprivate static func createController<Controller:UIViewController>(_ create: (UIStoryboard) -> UIViewController, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
+	private static func createController<Controller:UIViewController>(_ create: (UIStoryboard) -> UIViewController, inStoryboard storyboardName: String, dependency: DependencyResolver, initialization: ((Controller) -> Void)?) -> Controller {
 		let storyboard = UIStoryboard(name: storyboardName, bundle: Bundle(for: Controller.self))
 		let controller = create(storyboard)
 		let target = controller.unwrap() as Controller
@@ -206,7 +206,7 @@ extension UIColor {
 	}
 
 
-	fileprivate static let colorsByName = [
+	private static let colorsByName = [
 		"black": UIColor.black,
 		"darkGray": UIColor.darkGray,
 		"lightGray": UIColor.lightGray,

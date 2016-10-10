@@ -44,8 +44,8 @@ open class ListenerList<ListenerType> {
 		return live
 	}
 
-	fileprivate let items = NSHashTable<AnyObject>.weakObjects()
-	fileprivate var lock = FastLock()
+	private let items = NSHashTable<AnyObject>.weakObjects()
+	private var lock = FastLock()
 
 
 }

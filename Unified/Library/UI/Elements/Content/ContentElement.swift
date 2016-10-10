@@ -140,7 +140,7 @@ open class ContentElementDefinition: FragmentElementDefinition {
 		}
 	}
 
-	fileprivate func applyCornerRadius(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
+	private func applyCornerRadius(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
 			case .value(let string):
 				var size: Float = 0

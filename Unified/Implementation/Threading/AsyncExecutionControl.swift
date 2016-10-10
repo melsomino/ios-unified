@@ -9,7 +9,7 @@ import Foundation
 
 
 open class AsyncExecutionControl {
-	fileprivate let execution: AsyncExecution
+	private let execution: AsyncExecution
 
 	init(execution: AsyncExecution) {
 		self.execution = execution

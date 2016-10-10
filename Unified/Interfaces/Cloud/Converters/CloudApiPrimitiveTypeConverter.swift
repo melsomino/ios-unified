@@ -122,7 +122,7 @@ public class CloudApiPrimitiveTypeConverter {
 
 
 
-	fileprivate static func boolFromString(_ s: String) -> Bool? {
+	private static func boolFromString(_ s: String) -> Bool? {
 		switch s.lowercased() {
 			case "1", "t", "true": return true
 			case "0", "f", "false": return false
@@ -202,7 +202,7 @@ public class CloudApiPrimitiveTypeConverter {
 	}()
 
 
-	fileprivate static func createDateTimeFormatter(_ format: String, withTodayAsDefaultDate: Bool) -> DateFormatter {
+	private static func createDateTimeFormatter(_ format: String, withTodayAsDefaultDate: Bool) -> DateFormatter {
 		let formatter = DateFormatter()
 		formatter.locale = Locale(identifier: "en_US_POSIX")
 		formatter.dateFormat = format
@@ -213,20 +213,20 @@ public class CloudApiPrimitiveTypeConverter {
 		return formatter
 	}
 
-	fileprivate static var defaultDateTimeFormatter = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
-	fileprivate static var dateTimeFormatterWithMilliseconds = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
-	fileprivate static var dateFormatter: DateFormatter {
+	private static var defaultDateTimeFormatter = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
+	private static var dateTimeFormatterWithMilliseconds = CloudApiPrimitiveTypeConverter.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
+	private static var dateFormatter: DateFormatter {
 		return createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: true)
 	}
-	fileprivate static var dotSeparatedDateTimeFormatter: DateFormatter {
+	private static var dotSeparatedDateTimeFormatter: DateFormatter {
 		return createDateTimeFormatter("dd.MM.yyyy HH.mm.ss", withTodayAsDefaultDate: true)
 	}
 
-	fileprivate static var dotSeparatedDateFormatter: DateFormatter {
+	private static var dotSeparatedDateFormatter: DateFormatter {
 		return createDateTimeFormatter("dd.MM.yy", withTodayAsDefaultDate: true)
 	}
 
-	fileprivate static var dotSeparatedDayMonthFormatter: DateFormatter {
+	private static var dotSeparatedDayMonthFormatter: DateFormatter {
 		return createDateTimeFormatter("dd.MM", withTodayAsDefaultDate: true)
 	}
 

@@ -281,8 +281,8 @@ extension Scanner {
 		return passed
 	}
 
-	fileprivate static let identifierStart = CharacterSet.union(CharacterSet.letters, CharacterSet(charactersIn: "_"))
-	fileprivate static let identifierRest = CharacterSet.union(identifierStart, CharacterSet.decimalDigits)
+	private static let identifierStart = CharacterSet.union(CharacterSet.letters, CharacterSet(charactersIn: "_"))
+	private static let identifierRest = CharacterSet.union(identifierStart, CharacterSet.decimalDigits)
 
 }
 
@@ -302,7 +302,7 @@ extension CharacterSet {
 
 extension Bundle {
 
-	fileprivate static let bundleIdByModuleName: [String:String] = {
+	private static let bundleIdByModuleName: [String:String] = {
 		var bundles = [String: String]()
 		for bundle in Bundle.allBundles {
 			if let id = bundle.bundleIdentifier {

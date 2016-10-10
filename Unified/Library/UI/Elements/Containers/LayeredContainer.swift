@@ -39,7 +39,7 @@ private struct Layered_measure {
 
 
 
-	fileprivate struct Element_measure {
+	private struct Element_measure {
 		let element: FragmentElement
 		var measured = SizeMeasure.zero
 

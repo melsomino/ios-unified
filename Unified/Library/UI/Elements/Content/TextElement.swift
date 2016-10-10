@@ -181,16 +181,16 @@ open class TextElement: ContentElement {
 
 	// MARK: - Internals
 
-	fileprivate var effectivePaddingDirty = true
-	fileprivate var effectivePaddingValue = UIEdgeInsets.zero
+	private var effectivePaddingDirty = true
+	private var effectivePaddingValue = UIEdgeInsets.zero
 
-	fileprivate func textForMeasure() -> String {
+	private func textForMeasure() -> String {
 		return text ?? ""
 	}
 
 
 
-	fileprivate func measureText(_ text: String, font: UIFont, inWidth width: CGFloat) -> CGSize {
+	private func measureText(_ text: String, font: UIFont, inWidth width: CGFloat) -> CGSize {
 		return TextElement.measureText(text, font: font, padding: padding, inWidth: width)
 	}
 

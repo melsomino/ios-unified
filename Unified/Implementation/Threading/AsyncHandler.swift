@@ -9,7 +9,7 @@ import Foundation
 
 
 open class AsyncQueue {
-	fileprivate var operationQueue = OperationQueue()
+	private var operationQueue = OperationQueue()
 }
 
 
@@ -90,8 +90,8 @@ class AsyncHandler {
 
 class AsyncErrorHandler: AsyncHandler {
 
-	fileprivate let handler: (AnyObject?, Error) -> Void
-	fileprivate let error: Error
+	private let handler: (AnyObject?, Error) -> Void
+	private let error: Error
 
 	init(execution: AsyncExecution, target: AsyncExecutionTarget, error: Error, handler: @escaping (AnyObject?, Error) -> Void) {
 		self.handler = handler
@@ -117,7 +117,7 @@ class AsyncErrorHandler: AsyncHandler {
 
 class AsyncAlwaysHandler: AsyncHandler {
 
-	fileprivate let handler: (AnyObject!) -> Void
+	private let handler: (AnyObject!) -> Void
 
 	init(execution: AsyncExecution, target: AsyncExecutionTarget, handler: @escaping (AnyObject?) -> Void) {
 		self.handler = handler

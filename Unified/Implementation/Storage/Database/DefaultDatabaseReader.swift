@@ -60,7 +60,7 @@ open class DefaultDatabaseReader: DatabaseReader {
 
 	// MARK: - Internals
 
-	fileprivate let platformReader: DatabaseIterator<Row>
-	fileprivate var current: Row?
+	private let platformReader: DatabaseIterator<Row>
+	private var current: Row?
 
 }

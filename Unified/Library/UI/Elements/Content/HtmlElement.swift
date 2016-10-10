@@ -35,7 +35,7 @@ open class HtmlElement: ContentElement {
 
 	open var autoHideEmptyText = true
 
-	fileprivate func getLastParagraphRange(_ string: NSMutableAttributedString) -> NSRange {
+	private func getLastParagraphRange(_ string: NSMutableAttributedString) -> NSRange {
 		if string.length == 0 {
 			return NSMakeRange(0, 0)
 		}
@@ -43,7 +43,7 @@ open class HtmlElement: ContentElement {
 		return s.paragraphRange(for: NSMakeRange(string.length - 1, 1))
 	}
 
-	fileprivate func removeEmptyLinesFromEnd(_ string: NSAttributedString) -> NSAttributedString {
+	private func removeEmptyLinesFromEnd(_ string: NSAttributedString) -> NSAttributedString {
 		if !string.string.hasSuffix("\n") {
 			return string
 		}
@@ -171,16 +171,16 @@ open class HtmlElement: ContentElement {
 	// MARK: - Internals
 
 
-	fileprivate var defaultMaxLines = 0
-	fileprivate var defaultFont: UIFont?
-	fileprivate var defaultColor: UIColor?
+	private var defaultMaxLines = 0
+	private var defaultFont: UIFont?
+	private var defaultColor: UIColor?
 
-	fileprivate func attributedTextForMeasure() -> NSAttributedString {
+	private func attributedTextForMeasure() -> NSAttributedString {
 		return attributedText ?? NSAttributedString(string: "")
 	}
 
 
-	fileprivate func measureTextSize(inBounds bounds: CGSize) -> CGSize {
+	private func measureTextSize(inBounds bounds: CGSize) -> CGSize {
 		guard visible else {
 			return CGSize.zero
 		}
@@ -203,7 +203,7 @@ open class HtmlElement: ContentElement {
 
 
 
-	fileprivate func measureText(_ text: NSAttributedString, inWidth width: CGFloat) -> CGSize {
+	private func measureText(_ text: NSAttributedString, inWidth width: CGFloat) -> CGSize {
 		let constraintSize = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
 		let size = text.boundingRect(with: constraintSize,
 			options: NSStringDrawingOptions.usesLineFragmentOrigin,
@@ -212,7 +212,7 @@ open class HtmlElement: ContentElement {
 	}
 
 
-	fileprivate func resolveFont() -> UIFont {
+	private func resolveFont() -> UIFont {
 		return font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	}
 }
@@ -278,7 +278,7 @@ open class HtmlElementDefinition: ContentElementDefinition {
 	// MARK: - Internals
 
 
-	fileprivate func applyFontValue(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
+	private func applyFontValue(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
 			case .value(let string):
 				var size: Float = 0

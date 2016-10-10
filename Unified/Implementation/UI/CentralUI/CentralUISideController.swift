@@ -164,13 +164,13 @@ open class CentralUISideController: UIViewController, UITableViewDelegate, UITab
 	// MARK: - Internals
 
 
-	fileprivate var centralUi: CentralUI!
+	private var centralUi: CentralUI!
 
-	fileprivate var swipeRecognizer: UIPanGestureRecognizer!
-	fileprivate var swipeStartLocation = CGPoint.zero
-	fileprivate var swipeStarted = false
+	private var swipeRecognizer: UIPanGestureRecognizer!
+	private var swipeStartLocation = CGPoint.zero
+	private var swipeStarted = false
 
-	fileprivate static let menuWidth = CGFloat(270)
+	private static let menuWidth = CGFloat(270)
 
 	func showAnimated() {
 		let rootController = centralUi.rootController

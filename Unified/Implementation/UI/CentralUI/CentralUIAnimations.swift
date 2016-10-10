@@ -13,7 +13,7 @@ private enum AnimationStage {
 
 class CentralUIAnimations {
 
-	fileprivate static let duration = TimeInterval(0.25)
+	private static let duration = TimeInterval(0.25)
 
 	static func contentTransition(from oldController: UIViewController?, to newController: UIViewController?,
 		containerController: UIViewController, containerView: UIView, animation: CentralUIContentAnimation, completion: (() -> Void)? = nil) {
@@ -69,7 +69,7 @@ class CentralUIAnimations {
 	}
 
 
-	fileprivate static func animationStage(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect, _ animation: CentralUIContentAnimation) {
+	private static func animationStage(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect, _ animation: CentralUIContentAnimation) {
 		switch animation {
 			case .fade:
 				fadeAnimation(stage, view, bounds)
@@ -87,7 +87,7 @@ class CentralUIAnimations {
 	}
 
 
-	fileprivate static func fadeAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	private static func fadeAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
 			case .prepareToShow:
 				view.frame = bounds
@@ -106,7 +106,7 @@ class CentralUIAnimations {
 	}
 
 
-	fileprivate static func fromDownAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	private static func fromDownAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
 			case .prepareToShow:
 				view.frame = bounds.offsetBy(dx: 0, dy: bounds.size.height)
@@ -122,7 +122,7 @@ class CentralUIAnimations {
 		}
 	}
 
-	fileprivate static func fromUpAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	private static func fromUpAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
 			case .prepareToShow:
 				view.frame = bounds.offsetBy(dx: 0, dy: -bounds.size.height)
@@ -138,7 +138,7 @@ class CentralUIAnimations {
 		}
 	}
 
-	fileprivate static func noneAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
+	private static func noneAnimation(_ stage: AnimationStage, _ view: UIView, _ bounds: CGRect) {
 		switch stage {
 			case .prepareToShow:
 				view.frame = bounds

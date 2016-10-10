@@ -133,33 +133,33 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	// MARK: - Internals
 
 
-	fileprivate var devServerConnection: WebSocket?
+	private var devServerConnection: WebSocket?
 
-	fileprivate var listeners = ListenerList<RepositoryListener>()
-	fileprivate var loadedUniPaths = Set<String>()
-	fileprivate var fragmentDefinitionByName = [String: FragmentDefinition]()
-	fileprivate var lock = NSRecursiveLock()
+	private var listeners = ListenerList<RepositoryListener>()
+	private var loadedUniPaths = Set<String>()
+	private var fragmentDefinitionByName = [String: FragmentDefinition]()
+	private var lock = NSRecursiveLock()
 
 
-	fileprivate func makeTypeName(forType type: Any.Type) -> String {
+	private func makeTypeName(forType type: Any.Type) -> String {
 		return String(reflecting: type)
 	}
 
 
-	fileprivate func makeFragmentName(forModelType modelType: Any.Type, name: String?) -> String {
+	private func makeFragmentName(forModelType modelType: Any.Type, name: String?) -> String {
 		let modelTypeName = makeTypeName(forType: modelType)
 		return name != nil ? "\(modelTypeName).\(name!)" : modelTypeName
 	}
 
 
-	fileprivate func notify() {
+	private func notify() {
 		for listener in listeners.getLive() {
 			listener.repositoryChanged(self)
 		}
 	}
 
 
-	fileprivate func loadRepositoryFromDevServer(_ repositoryName: String, repositoryString: String) throws {
+	private func loadRepositoryFromDevServer(_ repositoryName: String, repositoryString: String) throws {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -176,7 +176,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
-	fileprivate func loadRepositoriesInBundle(forType type: Any.Type) throws {
+	private func loadRepositoriesInBundle(forType type: Any.Type) throws {
 		let typeName = makeTypeName(forType: type)
 		let typeNameParts = typeName.components(separatedBy: ".")
 		let bundle = typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type as! AnyClass)
@@ -199,7 +199,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
-	fileprivate func loadRepository(_ elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
+	private func loadRepository(_ elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
 		for fragmentsSection in elements.filter({ $0.name == "ui" || $0.name == "fragment" }) {
 			for fragment in fragmentsSection.children {
 				if overrideExisting || fragmentDefinitionByName[fragment.name] == nil {
@@ -214,7 +214,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 
 
 
-	fileprivate func bundle(forType type: Any.Type) -> Bundle {
+	private func bundle(forType type: Any.Type) -> Bundle {
 		let typeName = makeTypeName(forType: type)
 		let typeNameParts = typeName.components(separatedBy: ".")
 		return typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type as! AnyClass)
@@ -223,7 +223,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 
 
 
-	fileprivate func load(repository name: String, from bundle: Bundle) throws -> [DeclarationElement] {
+	private func load(repository name: String, from bundle: Bundle) throws -> [DeclarationElement] {
 		let context = DeclarationContext("[\(name).uni] in bundle [\(bundle.bundleIdentifier ?? "")]")
 		guard let path = bundle.path(forResource: name, ofType: ".uni") else {
 			throw DeclarationError("Unable to locate unified repository", context)

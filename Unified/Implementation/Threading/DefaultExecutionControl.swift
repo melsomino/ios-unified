@@ -19,5 +19,5 @@ open class DefaultExecutionControl: ExecutionControl {
 		return execution.complete
 	}
 
-	fileprivate let execution: DefaultExecution
+	private let execution: DefaultExecution
 }

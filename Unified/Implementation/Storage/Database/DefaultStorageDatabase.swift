@@ -38,5 +38,5 @@ open class DefaultModuleDatabase: StorageDatabase {
 	// MARK: - Internals
 
 
-	fileprivate let platformDatabase: Database
+	private let platformDatabase: Database
 }

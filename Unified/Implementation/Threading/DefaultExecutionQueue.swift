@@ -49,6 +49,6 @@ class DefaultExecutionQueue: ExecutionQueue {
 
 	// MARK: - Internals
 
-	fileprivate weak var threading: DefaultThreading!
-	fileprivate let platformQueue: OperationQueue
+	private weak var threading: DefaultThreading!
+	private let platformQueue: OperationQueue
 }

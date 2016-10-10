@@ -101,7 +101,7 @@ open class AlertStack: Dependent {
 	}
 
 
-	fileprivate var stack = [AlertPanel]()
+	private var stack = [AlertPanel]()
 }
 
 

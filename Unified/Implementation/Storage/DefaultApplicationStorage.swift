@@ -39,8 +39,8 @@ open class DefaultApplicationStorage: ApplicationStorage, ThreadingDependent {
 	// MARK: - Internals
 
 
-	fileprivate var moduleStorages = [String: DefaultModuleStorage]()
-	fileprivate var accountName: String?
+	private var moduleStorages = [String: DefaultModuleStorage]()
+	private var accountName: String?
 
 }
 

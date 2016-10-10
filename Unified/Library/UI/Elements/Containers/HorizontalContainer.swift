@@ -79,7 +79,7 @@ private struct Horizontal_layout {
 
 
 
-	fileprivate struct Element_layout {
+	private struct Element_layout {
 		let element: FragmentElement
 		var size = SizeMeasure.zero
 		var bounds_width = CGFloat(0)

@@ -8,7 +8,7 @@ import UIKit
 
 class MainMenuItemCell: UITableViewCell {
 
-	fileprivate static let reuseId = "MainMenuItemCell"
+	private static let reuseId = "MainMenuItemCell"
 
 
 	static func registerCellTypes(_ tableView: UITableView) {
@@ -57,7 +57,7 @@ class MainMenuItemCell: UITableViewCell {
 	// MARK: - Internals
 
 
-	fileprivate func setItem(_ item: CentralUIMenuItem, selected: Bool) {
+	private func setItem(_ item: CentralUIMenuItem, selected: Bool) {
 		itemImage.image = item.icon
 		itemTitle.text = item.title
 		itemCounts.text = ""

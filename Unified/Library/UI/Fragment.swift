@@ -45,7 +45,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 		}
 	}
 
-	open fileprivate(set) var frame = CGRect.zero
+	open private(set) var frame = CGRect.zero
 
 
 	public final func heightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
@@ -151,36 +151,36 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 	// MARK: - Internals
 
 
-	open fileprivate(set) var rootElement: FragmentElement!
-	fileprivate var contentElements = [ContentElement]()
-	fileprivate var modelValues = [Any?]()
-	fileprivate var currentDefinition: FragmentDefinition?
-	fileprivate func definitionRequired() {
+	open private(set) var rootElement: FragmentElement!
+	private var contentElements = [ContentElement]()
+	private var modelValues = [Any?]()
+	private var currentDefinition: FragmentDefinition?
+	private func definitionRequired() {
 		if currentDefinition == nil {
 			updateDefinitionFromRepository()
 		}
 	}
 
-	fileprivate var internalDefinition: FragmentDefinition! {
+	private var internalDefinition: FragmentDefinition! {
 		definitionRequired()
 		return currentDefinition
 	}
 
-	fileprivate func internalDidSetContainer() {
+	private func internalDidSetContainer() {
 		detachFromContainer()
 		attachToContainer()
 	}
 
 
 
-	fileprivate func heightWithMargin(_ frame: CGRect) -> CGFloat {
+	private func heightWithMargin(_ frame: CGRect) -> CGFloat {
 		let margin = rootElement!.margin
 		return frame.height + margin.top + margin.bottom
 	}
 
 
 
-	fileprivate func internalHeightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
+	private func internalHeightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
 		let layoutCacheKey = getLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
@@ -195,7 +195,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func internalPerformLayout() {
+	private func internalPerformLayout() {
 		if let bounds = container?.bounds.size {
 			if performLayoutInWidth {
 				performLayout(inWidth: bounds.width)
@@ -208,7 +208,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func internalPerformLayout(inWidth width: CGFloat) {
+	private func internalPerformLayout(inWidth width: CGFloat) {
 		let layoutCacheKey = resolveLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
@@ -244,7 +244,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func internalPerformLayout(inBounds bounds: CGSize) {
+	private func internalPerformLayout(inBounds bounds: CGSize) {
 		definitionRequired()
 		onBeforePerformLayoutInBounds(inBounds: bounds)
 		let measure = rootElement!.measure(inBounds: bounds)
@@ -257,7 +257,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func checkVisibilityOfContentElements(_ parent: FragmentElement!, parentHidden: Bool) {
+	private func checkVisibilityOfContentElements(_ parent: FragmentElement!, parentHidden: Bool) {
 		if parent == nil {
 			return
 		}
@@ -281,7 +281,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func internalTryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?) {
+	private func internalTryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?) {
 		guard let actionWithArgs = action?.evaluate(modelValues) else {
 			return
 		}
@@ -303,7 +303,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func internalDidSetModel() {
+	private func internalDidSetModel() {
 		definitionRequired()
 		if modelValues.count > 0 {
 			for i in 0 ..< modelValues.count {
@@ -332,7 +332,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func internalUpdateBackgroundSensitiveElements(toBackgroundColor color: UIColor) {
+	private func internalUpdateBackgroundSensitiveElements(toBackgroundColor color: UIColor) {
 		rootElement.traversal {
 			element in
 			guard let decorator = element as? DecoratorElement else {
@@ -344,7 +344,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func defaultGetLayoutCacheKey(forModel model: Any) -> String? {
+	private func defaultGetLayoutCacheKey(forModel model: Any) -> String? {
 		definitionRequired()
 		guard let keyProvider = currentDefinition!.layoutCacheKey, let definition = currentDefinition else {
 			return nil
@@ -363,7 +363,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func resolveLayoutCacheKey(forModel model: Any?) -> String? {
+	private func resolveLayoutCacheKey(forModel model: Any?) -> String? {
 		guard let model = model else {
 			return nil
 		}
@@ -372,7 +372,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func setDefinition(_ definition: FragmentDefinition?) {
+	private func setDefinition(_ definition: FragmentDefinition?) {
 		guard !sameObjects(definition, self.currentDefinition) else {
 			return
 		}
@@ -404,7 +404,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func detachFromContainer() {
+	private func detachFromContainer() {
 		for element in contentElements {
 			element.view?.removeFromSuperview()
 		}
@@ -412,7 +412,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func attachToContainer() {
+	private func attachToContainer() {
 		guard let container = container else {
 			return
 		}
@@ -429,7 +429,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	fileprivate func initializeContainer() {
+	private func initializeContainer() {
 		container?.backgroundColor = currentDefinition?.containerBackgroundColor
 		container?.layer.cornerRadius = currentDefinition?.containerCornerRadius ?? 0
 		if currentDefinition?.containerCornerRadius != nil {
@@ -497,11 +497,11 @@ open class FragmentDefinition {
 	// MARK: - Internals
 
 
-	fileprivate let rootElementDefinition: FragmentElementDefinition
-	fileprivate let ids: Set<String>
+	private let rootElementDefinition: FragmentElementDefinition
+	private let ids: Set<String>
 
 
-	fileprivate func internalCreateRootElement(forFragment fragment: Fragment) -> FragmentElement {
+	private func internalCreateRootElement(forFragment fragment: Fragment) -> FragmentElement {
 		let mirror = Mirror(reflecting: fragment)
 		var existingElementById = [String: FragmentElement]()
 		for member in mirror.children {
@@ -520,7 +520,7 @@ open class FragmentDefinition {
 
 
 
-	fileprivate static func internalFromDeclaration(_ declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
+	private static func internalFromDeclaration(_ declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
 		var containerBackgroundColor: UIColor?
 		var containerCornerRadius: CGFloat?
 		var selectAction: DynamicBindings.Expression?
@@ -564,7 +564,7 @@ open class FragmentDefinition {
 
 
 
-	fileprivate func createOrReuseElement(_ fragment: Fragment, definition: FragmentElementDefinition, existingElementById: [String:FragmentElement]) -> FragmentElement {
+	private func createOrReuseElement(_ fragment: Fragment, definition: FragmentElementDefinition, existingElementById: [String:FragmentElement]) -> FragmentElement {
 		var children = [FragmentElement]()
 		for childDefinition in definition.childrenDefinitions {
 			children.append(createOrReuseElement(fragment, definition: childDefinition, existingElementById: existingElementById))

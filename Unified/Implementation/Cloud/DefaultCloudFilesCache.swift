@@ -34,16 +34,16 @@ open class DefaultCloudFilesCache: CloudFileCache {
 	// MARK: - Internals
 
 
-	fileprivate var cloudConnector: CloudConnector
-	fileprivate var localPath: String
-	fileprivate var fileFromRelativeUrlHash = [String: DefaultCloudFile]()
-	fileprivate var lock = NSLock()
+	private var cloudConnector: CloudConnector
+	private var localPath: String
+	private var fileFromRelativeUrlHash = [String: DefaultCloudFile]()
+	private var lock = NSLock()
 
-	fileprivate func calcHash(_ url: String) -> String {
+	private func calcHash(_ url: String) -> String {
 		return StringHashes.getHash(url)
 	}
 
-	fileprivate func getFileExtension(_ url: URL) -> String {
+	private func getFileExtension(_ url: URL) -> String {
 		let path = url.absoluteString
 		guard let lastDotPos = path.range(of: ".", options: .backwards) else {
 			return ""

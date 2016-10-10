@@ -79,7 +79,7 @@ public enum FragmentAlignment {
 
 	// MARK: - Internals
 
-	fileprivate func calc_frame(_ size: CGFloat, _ bounds_origin: CGFloat, _ bounds_size: CGFloat) -> (CGFloat, CGFloat) {
+	private func calc_frame(_ size: CGFloat, _ bounds_origin: CGFloat, _ bounds_size: CGFloat) -> (CGFloat, CGFloat) {
 		switch self {
 			case .leading:
 				return (bounds_origin, size)

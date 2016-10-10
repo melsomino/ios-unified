@@ -183,15 +183,15 @@ class DecoratorView: UIView {
 	// MARK: - Internals
 
 
-	fileprivate var gradient_layer: CAGradientLayer?
-	fileprivate var default_background_color_assigned = false
-	fileprivate var default_background_color: UIColor?
+	private var gradient_layer: CAGradientLayer?
+	private var default_background_color_assigned = false
+	private var default_background_color: UIColor?
 
 	private func gradientStops(_ a: CGFloat, _ b: CGFloat, _ c: CGFloat) -> [NSNumber] {
 		return [NSNumber(value: a.native), NSNumber(value: b.native), NSNumber(value: c.native)]
 	}
 	
-	fileprivate func check_default_background_color_assigned() {
+	private func check_default_background_color_assigned() {
 		if !default_background_color_assigned {
 			default_background_color = backgroundColor
 			default_background_color_assigned = true
@@ -199,13 +199,13 @@ class DecoratorView: UIView {
 	}
 
 
-	fileprivate func resolve_background_color() -> UIColor {
+	private func resolve_background_color() -> UIColor {
 		check_default_background_color_assigned()
 		return decoratorBackgroundColor ?? default_background_color ?? UIColor.clear
 	}
 
 
-	fileprivate func background_properties_changed() {
+	private func background_properties_changed() {
 		check_default_background_color_assigned()
 
 		if let left = transparentGradientLeft, let back_color = decoratorBackgroundColor {

@@ -42,7 +42,7 @@ open class DefaultCloudConnector: CloudConnector {
 	}
 
 
-	fileprivate class DownloadProgressReporter: NSObject, URLSessionDownloadDelegate {
+	private class DownloadProgressReporter: NSObject, URLSessionDownloadDelegate {
 
 		var progressHandler: ((Int64, Int64) -> Void)?
 		var errorHandler: ((Error) -> Void)?

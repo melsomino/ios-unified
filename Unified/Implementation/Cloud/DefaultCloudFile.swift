@@ -55,14 +55,14 @@ open class DefaultCloudFile: CloudFile {
 	// MARK: - Internals
 
 
-	fileprivate let cloudConnector: CloudConnector
-	fileprivate let url: URL
-	fileprivate var listeners = ListenerList<CloudFileListener>()
-	fileprivate var lock = FastLock()
-	fileprivate var _state = CloudFileState.loading(0)
+	private let cloudConnector: CloudConnector
+	private let url: URL
+	private var listeners = ListenerList<CloudFileListener>()
+	private var lock = FastLock()
+	private var _state = CloudFileState.loading(0)
 
 
-	fileprivate func setState(_ newState: CloudFileState) {
+	private func setState(_ newState: CloudFileState) {
 		let liveListeners: [CloudFileListener] = lock.locked {
 			self._state = newState
 			return self.listeners.getLive()
@@ -74,7 +74,7 @@ open class DefaultCloudFile: CloudFile {
 	}
 
 
-	fileprivate func startDownload() {
+	private func startDownload() {
 		weak var weakSelf = self
 
 		let request = URLRequest(url: url)

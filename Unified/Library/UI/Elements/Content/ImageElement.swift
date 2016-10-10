@@ -103,7 +103,7 @@ class ImageElementDefinition: ContentElementDefinition {
 	}
 
 
-	fileprivate static let imageAlignments: [String:UIViewContentMode] = [
+	private static let imageAlignments: [String:UIViewContentMode] = [
 		"scale-to-fill": .scaleToFill,
 		"scale-aspect-fit": .scaleAspectFit,
 		"scale-aspect-fill": .scaleAspectFill,

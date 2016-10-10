@@ -35,6 +35,6 @@ open class SingleExecution {
 	// MARK: - Internals
 
 
-	fileprivate let threading: Threading
-	fileprivate var current: ExecutionControl?
+	private let threading: Threading
+	private var current: ExecutionControl?
 }

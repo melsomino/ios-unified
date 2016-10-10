@@ -40,8 +40,8 @@ open class CloudImageView: UIImageView, CloudFileListener {
 	// MARK: - Internals
 
 
-	fileprivate var currentState = CloudFileState.loading(0)
-	fileprivate var pendingImageFilePath = ""
+	private var currentState = CloudFileState.loading(0)
+	private var pendingImageFilePath = ""
 
 
 	deinit {
@@ -52,7 +52,7 @@ open class CloudImageView: UIImageView, CloudFileListener {
 
 
 
-	fileprivate func reflectImageState(animated: Bool) {
+	private func reflectImageState(animated: Bool) {
 		let state = imageFile?.state ?? .loading(0)
 		switch state {
 			case .loaded:
@@ -68,7 +68,7 @@ open class CloudImageView: UIImageView, CloudFileListener {
 
 
 
-	fileprivate func startLoadImage(_ imageFilePath: String) {
+	private func startLoadImage(_ imageFilePath: String) {
 		pendingImageFilePath = imageFilePath
 		let bounds = imageSize ?? self.bounds.size
 		weak var weakSelf = self

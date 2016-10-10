@@ -45,7 +45,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 	}
 
 
-	open fileprivate(set) var bottomBarFragment: Fragment?
+	open private(set) var bottomBarFragment: Fragment?
 
 	public final var models = [Any]()
 
@@ -78,7 +78,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 		return internalEnsureCellFactory(forModelType: modelType)
 	}
 
-	fileprivate class ModelUpdates: TableModelUpdates {
+	private class ModelUpdates: TableModelUpdates {
 		let owner: TableFragment
 		init(owner: TableFragment) {
 			self.owner = owner
@@ -286,11 +286,11 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 	// MARK: - Internals
 
 
-	fileprivate var keyboardFrame = CGRect.zero
-	fileprivate var cellFactories = [CellFragmentFactory]()
-	fileprivate var layoutCache = FragmentLayoutCache()
-	fileprivate var loadingIndicator: UIRefreshControl!
-	fileprivate var reloadingIndicator: UIActivityIndicatorView!
+	private var keyboardFrame = CGRect.zero
+	private var cellFactories = [CellFragmentFactory]()
+	private var layoutCache = FragmentLayoutCache()
+	private var loadingIndicator: UIRefreshControl!
+	private var reloadingIndicator: UIActivityIndicatorView!
 
 
 	func keyboardWillAppear(_ notification: Notification) {
@@ -332,7 +332,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	fileprivate func adjustBottomBar() {
+	private func adjustBottomBar() {
 		guard let controller = controller as? UITableViewController else {
 			return
 		}
@@ -368,7 +368,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	fileprivate func internalCreateController() -> UIViewController {
+	private func internalCreateController() -> UIViewController {
 		let controller = TableFragmentController()
 		controller.fragment = self
 		self.controller = controller
@@ -379,7 +379,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	fileprivate func internalEnsureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
+	private func internalEnsureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
 		for cellFactory in cellFactories {
 			if cellFactory.modelType == modelType {
 				return cellFactory
@@ -396,7 +396,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	fileprivate func internalStartLoad(showLoadingIndicator: Bool) {
+	private func internalStartLoad(showLoadingIndicator: Bool) {
 		if showLoadingIndicator {
 			reloadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
 			reloadingIndicator.color = UIColor.darkGray
@@ -453,13 +453,13 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	fileprivate func defaultLoadModels(_ execution: Execution, models: inout [Any]) throws {
+	private func defaultLoadModels(_ execution: Execution, models: inout [Any]) throws {
 		try modelsLoader?(execution, &models)
 	}
 
 
 
-	fileprivate func errorUserMessage(_ error: Error) -> String {
+	private func errorUserMessage(_ error: Error) -> String {
 		switch error {
 			case let error as NSError:
 				return error.localizedDescription
@@ -504,11 +504,11 @@ class TableFragmentCell: UITableViewCell {
 
 	// MARK: - Internals
 
-	fileprivate var currentHighlight = false
-	fileprivate var currentSelect = false
+	private var currentHighlight = false
+	private var currentSelect = false
 
 
-	fileprivate func change(highlight: Bool, select: Bool) {
+	private func change(highlight: Bool, select: Bool) {
 		let prevHighlight = currentHighlight || currentSelect
 		currentHighlight = highlight
 		currentSelect = select
@@ -566,7 +566,7 @@ open class CellFragmentFactory {
 	// MARK: - Internals
 
 
-	fileprivate func internalCreateFragment() -> Fragment {
+	private func internalCreateFragment() -> Fragment {
 		let fragment = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: modelType)
 		fragment.performLayoutInWidth = true
 		fragment.layoutCache = layoutCache
@@ -662,13 +662,13 @@ class TableFragmentController: UITableViewController {
 	// MARK: - Internals
 
 
-	@objc fileprivate func onLoadingIndicatorRefresh() {
+	@objc private func onLoadingIndicatorRefresh() {
 		fragment.onLoadingIndicatorRefresh()
 	}
 
 
 
-	fileprivate func adjustTableInsets() {
+	private func adjustTableInsets() {
 //		let isPortrait = view.bounds.width < view.bounds.height
 //		var top = isPortrait ? CGFloat(20) : CGFloat(0)
 //		if let navigationBarFrame = self.navigationController?.navigationBar.frame {

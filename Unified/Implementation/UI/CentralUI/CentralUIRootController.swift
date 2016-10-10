@@ -32,5 +32,5 @@ open class CentralUIRootController: UIViewController {
 
 
 
-	open fileprivate(set) var contentController: UIViewController!
+	open private(set) var contentController: UIViewController!
 }

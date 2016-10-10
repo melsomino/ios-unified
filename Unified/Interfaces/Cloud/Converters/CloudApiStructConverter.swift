@@ -13,7 +13,7 @@ open class CloudApiStructConverter<StructType> {
 	open let objectFactory: ObjectFactory
 	open let fields: [CloudApiFieldConverter<StructType>]
 
-	fileprivate var fieldByCloudName = [String: CloudApiFieldConverter < StructType>]()
+	private var fieldByCloudName = [String: CloudApiFieldConverter < StructType>]()
 
 
 
@@ -229,7 +229,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 	
-	fileprivate func createFieldBindings(_ source: [String:Any]) -> [FieldBinding] {
+	private func createFieldBindings(_ source: [String:Any]) -> [FieldBinding] {
 		var bindings = [FieldBinding]()
 		if let schemaArray = source["s"] as? [Any] {
 			var index = 0
@@ -249,7 +249,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	fileprivate func jsonSchema() -> [Any] {
+	private func jsonSchema() -> [Any] {
 		var schema = [Any]()
 		for field in fields {
 			var fieldSchema = [String: Any]()
@@ -264,7 +264,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	fileprivate func objectFromJsonRecordData(_ source: [Any], _ bindings: [FieldBinding]) -> StructType {
+	private func objectFromJsonRecordData(_ source: [Any], _ bindings: [FieldBinding]) -> StructType {
 		let object = objectFactory()
 		for binding in bindings {
 			binding.field.fieldSetter(object, source[binding.index])
@@ -275,7 +275,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	fileprivate func jsonRecordDataFromObject(_ object: StructType) -> [Any] {
+	private func jsonRecordDataFromObject(_ object: StructType) -> [Any] {
 		var data = [Any]()
 		for field in fields {
 			data.append(field.fieldGetter(object) ?? NSNull())
@@ -286,7 +286,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	fileprivate func decodeJsonString(_ source: Any) -> Any {
+	private func decodeJsonString(_ source: Any) -> Any {
 		guard let string = source as? String else {
 			return source
 		}
@@ -308,7 +308,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	fileprivate func encodeJsonString(_ source: Any) -> Any {
+	private func encodeJsonString(_ source: Any) -> Any {
 		guard source is [Any] || source is [String:Any] else {
 			return source
 		}

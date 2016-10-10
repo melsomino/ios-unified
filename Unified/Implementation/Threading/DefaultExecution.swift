@@ -46,7 +46,7 @@ open class DefaultExecution : Execution {
 	// MARK: - Internals
 
 
-	fileprivate weak var threading: DefaultThreading!
-	fileprivate var cancellationHandler: (() -> Void)?
+	private weak var threading: DefaultThreading!
+	private var cancellationHandler: (() -> Void)?
 
 }

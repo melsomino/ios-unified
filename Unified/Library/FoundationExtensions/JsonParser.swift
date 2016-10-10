@@ -23,7 +23,7 @@ open class JsonError: Error {
 extension Scanner {
 
 
-	fileprivate static let jsonNumberFormatter: NumberFormatter = {
+	private static let jsonNumberFormatter: NumberFormatter = {
 		let formatter = NumberFormatter()
 		formatter.numberStyle = NumberFormatter.Style.decimal
 		formatter.decimalSeparator = "."
@@ -51,7 +51,7 @@ extension Scanner {
 
 
 
-	fileprivate func expectJsonValue() throws-> Any {
+	private func expectJsonValue() throws-> Any {
 		if let string = try passJsonString() {
 			return string
 		}
@@ -80,7 +80,7 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonArray() throws -> [Any]? {
+	private func passJsonArray() throws -> [Any]? {
 		if !pass("[", passWhitespaces: true) {
 			return nil
 		}
@@ -101,7 +101,7 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonObject() throws -> [String: Any]? {
+	private func passJsonObject() throws -> [String: Any]? {
 		if !pass("{", passWhitespaces: true) {
 			return nil
 		}
@@ -126,7 +126,7 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonNumber() throws -> Any? {
+	private func passJsonNumber() throws -> Any? {
 		let saveLocation = scanLocation
 		pass("-")
 		if pass("0") {
@@ -155,7 +155,7 @@ extension Scanner {
 
 
 
-	fileprivate func passJsonString() throws -> String? {
+	private func passJsonString() throws -> String? {
 		if !pass("\"") {
 			return nil
 		}
@@ -212,7 +212,7 @@ extension Scanner {
 
 
 
-	fileprivate func substring(_ start: Int, _ end: Int) -> String {
+	private func substring(_ start: Int, _ end: Int) -> String {
 		let startIndex = string.characters.index(string.startIndex, offsetBy: start)
 		let endIndex = string.characters.index(string.startIndex, offsetBy: end)
 		return string.substring(with: startIndex ..< endIndex)
@@ -221,5 +221,5 @@ extension Scanner {
 
 
 
-	fileprivate static let backslashOrDoubleQuotationMark = CharacterSet(charactersIn: "\"\\")
+	private static let backslashOrDoubleQuotationMark = CharacterSet(charactersIn: "\"\\")
 }

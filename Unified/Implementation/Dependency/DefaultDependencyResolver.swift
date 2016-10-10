@@ -20,8 +20,8 @@ private protocol DependencyRegistrationEntry: class {
 
 class DependencyRegistration<Interface>: DependencyRegistrationEntry {
 	var sync = FastLock()
-	fileprivate let factory: (() -> Interface)?
-	fileprivate var implementation: Interface?
+	private let factory: (() -> Interface)?
+	private var implementation: Interface?
 
 	init(_ factory: @escaping () -> Interface) {
 		self.factory = factory
@@ -139,11 +139,11 @@ open class DependencyContainer: DependencyResolver {
 
 
 
-	fileprivate var sync = FastLock()
-	fileprivate var resolveOnRegisterLock = 0
-	fileprivate var registrations = [DependencyRegistrationEntry?]()
+	private var sync = FastLock()
+	private var resolveOnRegisterLock = 0
+	private var registrations = [DependencyRegistrationEntry?]()
 
-	fileprivate func setRegistration<Interface>(_ registration: DependencyRegistration<Interface>, at index: Int) {
+	private func setRegistration<Interface>(_ registration: DependencyRegistration<Interface>, at index: Int) {
 		while index >= registrations.count {
 			registrations.append(nil)
 		}

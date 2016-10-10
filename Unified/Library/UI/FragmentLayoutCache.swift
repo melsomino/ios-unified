@@ -51,7 +51,7 @@ open class FragmentLayoutCache {
 	// MARK: - Internals
 
 
-	fileprivate var cacheByWidth = [CGFloat: FragmentFramesByKey]()
+	private var cacheByWidth = [CGFloat: FragmentFramesByKey]()
 
 
 

@@ -26,9 +26,9 @@ open class AsyncExecution {
 	// MARK: - Internals
 
 
-	fileprivate var planned = [AsyncWork]()
-	fileprivate var running = [AsyncWork]()
-	fileprivate var error: Error?
+	private var planned = [AsyncWork]()
+	private var running = [AsyncWork]()
+	private var error: Error?
 
 	var errorHandler: ((AnyObject?, Error) -> Void)?
 	var errorHandlerTarget = AsyncExecutionTarget.background

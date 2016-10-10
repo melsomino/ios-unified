@@ -10,9 +10,9 @@ class StringHashes {
 		return String(Fnv1.fromString(string)) + String(CRC32.fromString(string))
 	}
 
-	fileprivate class Fnv1 {
+	private class Fnv1 {
 
-		fileprivate struct Constants {
+		private struct Constants {
 #if arch(arm64) || arch(x86_64) // 64-bit
 			static let OffsetBasis: UInt = 14695981039346656037
 			static let FNVPrime: UInt = 1099511628211
@@ -23,7 +23,7 @@ class StringHashes {
 		}
 
 
-		fileprivate static func fnv1<S:Sequence>(_ bytes: S) -> UInt where S.Iterator.Element == UInt8 {
+		private static func fnv1<S:Sequence>(_ bytes: S) -> UInt where S.Iterator.Element == UInt8 {
 			var hash = Constants.OffsetBasis
 			for byte in bytes {
 				hash = hash &* Constants.FNVPrime // &* means multiply with overflow
@@ -41,7 +41,7 @@ class StringHashes {
 
 	class CRC32 {
 
-		fileprivate static let table32:[UInt32] = [0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
+		private static let table32:[UInt32] = [0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
 			0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
 			0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
 			0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,

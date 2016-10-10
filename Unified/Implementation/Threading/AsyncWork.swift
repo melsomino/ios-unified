@@ -9,7 +9,7 @@ import Foundation
 
 
 class AsyncWork: AsyncHandler {
-	fileprivate var work: (AsyncExecution, AnyObject?) throws -> Void
+	private var work: (AsyncExecution, AnyObject?) throws -> Void
 
 	init(execution: AsyncExecution, target: AsyncExecutionTarget, work: @escaping (AsyncExecution, AnyObject?) throws -> Void) {
 		self.work = work

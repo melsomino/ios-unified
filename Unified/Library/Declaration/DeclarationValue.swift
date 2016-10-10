@@ -263,7 +263,7 @@ open class DeclarationContext {
 	// MARK: - Internals
 
 
-	fileprivate func font(_ font: UIFont, withTrait trait: UIFontDescriptorSymbolicTraits) -> UIFont {
+	private func font(_ font: UIFont, withTrait trait: UIFontDescriptorSymbolicTraits) -> UIFont {
 		let descriptor = font.fontDescriptor
 		return UIFont(descriptor: descriptor.withSymbolicTraits(descriptor.symbolicTraits.union(trait))!, size: font.pointSize)
 	}
@@ -296,7 +296,7 @@ open class DeclarationContext {
 	}
 
 
-	fileprivate func parseFloat(_ string: String, attribute: DeclarationAttribute) throws -> CGFloat {
+	private func parseFloat(_ string: String, attribute: DeclarationAttribute) throws -> CGFloat {
 		var value: Float = 0
 		if Scanner(string: string).scanFloat(&value) {
 			return CGFloat(value)

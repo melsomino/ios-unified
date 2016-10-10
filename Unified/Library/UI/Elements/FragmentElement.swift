@@ -219,7 +219,7 @@ open class FragmentElementDefinition {
 	// MARK: - Internals
 
 
-	fileprivate static func loadFrom(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
+	private static func loadFrom(declaration element: DeclarationElement, context: DeclarationContext) throws -> FragmentElementDefinition {
 		guard let definition_factory = FragmentElementDefinition.definition_factory_by_name[element.name] else {
 			throw DeclarationError("Unknown layout element", element, context)
 		}
@@ -243,7 +243,7 @@ open class FragmentElementDefinition {
 	}
 
 
-	fileprivate static var definition_factory_by_name: [String:() -> FragmentElementDefinition] = [
+	private static var definition_factory_by_name: [String:() -> FragmentElementDefinition] = [
 		"vertical": {
 			VerticalContainerDefinition()
 		},
