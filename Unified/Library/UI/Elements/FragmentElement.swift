@@ -221,6 +221,7 @@ open class FragmentElementDefinition {
 		element.margin = margin
 		element.horizontalAlignment = horizontalAlignment
 		element.verticalAlignment = verticalAlignment
+		element.preserveSpace = preserveSpace
 	}
 
 

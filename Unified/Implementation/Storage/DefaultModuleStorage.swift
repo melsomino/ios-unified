@@ -117,14 +117,14 @@ open class DefaultModuleStorage: ModuleStorage {
 			let database = DefaultModuleDatabase(platformDatabase)
 			if let info = try self.selectDatabaseInfo(database) {
 				if info.databaseVersion != maintenance.requiredVersion {
-					if !(try maintenance.migrate(database, fromVersion: info.databaseVersion)) {
-						try maintenance.createTables(database)
+					if !(try maintenance.migrate(database: database, fromVersion: info.databaseVersion)) {
+						try maintenance.createTables(database: database)
 					}
 				}
 				try self.updateDatabaseInfo(database, DatabaseInfoRecord(databaseVersion: maintenance.requiredVersion))
 				return
 			}
-			try maintenance.createTables(database)
+			try maintenance.createTables(database: database)
 			try self.createDatabaseInfo(database, DatabaseInfoRecord(databaseVersion: maintenance.requiredVersion))
 		}
 	}
