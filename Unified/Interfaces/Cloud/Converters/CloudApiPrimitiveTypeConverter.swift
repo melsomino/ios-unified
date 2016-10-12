@@ -240,7 +240,7 @@ public class CloudApiPrimitiveTypeConverter {
 				if let date = dateTimeFormatterWithMilliseconds.date(from: string) {
 					return date
 				}
-				if let date = dateFormatter.date(from: string) {
+				if string.contains("-"), let date = dateFormatter.date(from: string) {
 					return date
 				}
 				if let date = dotSeparatedDateTimeFormatter.date(from: string) {
