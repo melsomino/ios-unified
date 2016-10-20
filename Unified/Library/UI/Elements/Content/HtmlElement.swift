@@ -135,7 +135,7 @@ open class HtmlElement: ContentElement {
 		}
 		label.font = font ?? defaultFont
 		label.textColor = color ?? defaultColor
-		label.numberOfLines = maxLines ?? defaultMaxLines
+		label.numberOfLines = maxLines
 		label.lineBreakMode = nowrap ? .byClipping : .byTruncatingTail
 		label.attributedText = attributedText
 	}

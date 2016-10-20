@@ -86,7 +86,7 @@ private struct Vertical_measure {
 
 
 	mutating func layout(in_bounds bounds: CGRect) {
-		measure(in_bounds: bounds.size)
+		let _ = measure(in_bounds: bounds.size)
 		var y = bounds.origin.y
 		let x = bounds.origin.x
 		for child in children {

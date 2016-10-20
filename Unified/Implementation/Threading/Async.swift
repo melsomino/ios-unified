@@ -11,8 +11,7 @@ import Foundation
 open class Async {
 	open static func on(_ target: AsyncExecutionTarget, with owner: AnyObject?, work: @escaping (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecutionControl {
 		let executionControl = AsyncExecutionControl(execution: AsyncExecution(owner: owner))
-		executionControl.then(on: target, work: work)
-		return executionControl
+		return executionControl.then(on: target, work: work)
 	}
 }
 

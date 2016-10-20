@@ -16,7 +16,7 @@ public extension Threading {
 
 	public final func inBackground<Owner:AnyObject>(with owner: Owner, work: @escaping (Owner, Execution) throws -> Void, onComplete: @escaping (Owner) -> Void, onError: @escaping (Owner, Error) -> Void) {
 		weak var weakOwner: Owner? = owner
-		backgroundQueue.newExecution {
+		let _ = backgroundQueue.newExecution {
 			execution in
 			do {
 				if let strongOwner = weakOwner {

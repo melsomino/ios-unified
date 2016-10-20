@@ -138,11 +138,11 @@ open class DefaultCloudConnector: CloudConnector {
 			semaphore.signal()
 		}) 
 		task.resume()
-		semaphore.wait(timeout: DispatchTime.distantFuture)
+		let _ = semaphore.wait(timeout: DispatchTime.distantFuture)
 
 
 		if invokeError != nil {
-			throw invokeError! as! Error
+			throw invokeError!
 		}
 		return invokeResult!
 	}
