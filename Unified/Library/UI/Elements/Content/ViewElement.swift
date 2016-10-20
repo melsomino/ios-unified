@@ -6,7 +6,10 @@
 import Foundation
 import UIKit
 
+
+
 open class ViewElement: ContentElement {
+
 	open var width: CGFloat?
 	open var height: CGFloat?
 
@@ -48,18 +51,22 @@ open class ViewElement: ContentElement {
 
 
 
-
 open class ViewElementDefinition: ContentElementDefinition {
+
 	open var width: CGFloat?
 	open var height: CGFloat?
+
 
 	open override func createElement() -> FragmentElement {
 		return ViewElement()
 	}
 
+
 	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
-		let view = element as! ViewElement
+		guard let view = element as? ViewElement else {
+			return
+		}
 		view.width = width
 		view.height = height
 	}
@@ -80,8 +87,5 @@ open class ViewElementDefinition: ContentElementDefinition {
 	}
 
 }
-
-
-
 
 
