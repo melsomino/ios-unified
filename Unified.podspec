@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = 'Unified'
-  spec.version = '0.1.9'
+  spec.version = '0.2.0'
   spec.summary = 'Unified framework'
   spec.license = { :type => 'MIT' }
   spec.homepage = 'https://github.com/melsomino/unified-ios'
