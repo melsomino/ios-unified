@@ -408,7 +408,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 			reloadingIndicator.startAnimating()
 		}
 		weak var weakSelf = self
-		threading.backgroundQueue.newExecution {
+		let _ = threading.backgroundQueue.newExecution {
 			execution in
 			guard weakSelf != nil else {
 				return

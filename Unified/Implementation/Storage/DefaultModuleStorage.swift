@@ -95,10 +95,10 @@ open class DefaultModuleStorage: ModuleStorage {
 
 		do {
 			guard accountName != nil else {
-				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": storage does not bound to account name") as! Error
+				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": storage does not bound to account name")
 			}
 			guard let maintenance = databaseMaintenance else {
-				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified") as! Error
+				throw StorageError(message: "Can not initialize database for module \"\(moduleName)\": database maintenance is not specified")
 			}
 			let newDatabase = try DatabaseQueue(path: self.ensureDirectoryPath("") + "/Database.sqlite")
 			try upgradeDatabaseIfNeeded(newDatabase, maintenance: maintenance)

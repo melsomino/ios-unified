@@ -198,7 +198,7 @@ open class FragmentElementDefinition {
 			case "preserve-space":
 				preserveSpace = try context.getBool(attribute)
 			default:
-				try context.applyInsets(&margin, name: "margin", attribute: attribute)
+				let _ = try context.applyInsets(&margin, name: "margin", attribute: attribute)
 		}
 	}
 

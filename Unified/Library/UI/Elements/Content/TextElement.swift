@@ -117,7 +117,7 @@ open class TextElement: ContentElement {
 		view.font = font ?? TextElement.defaultFont
 		view.padding = effectivePadding
 		view.textColor = color ?? UIColor.darkText
-		view.numberOfLines = maxLines ?? 0
+		view.numberOfLines = maxLines
 		view.lineBreakMode = .byTruncatingTail
 		view.text = text
 	}

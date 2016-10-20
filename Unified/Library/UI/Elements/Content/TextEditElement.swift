@@ -93,7 +93,7 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 
 	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let font = self.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
-		let maxLines = self.maxLines ?? 0
+		let maxLines = self.maxLines
 		let padding = sizeOf(padding: self.padding)
 		var size = TextElement.measureText(text, font: font, padding: UIEdgeInsets.zero, inWidth: bounds.width - padding.width)
 		if size.height < font.lineHeight {

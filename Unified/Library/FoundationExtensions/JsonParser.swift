@@ -128,7 +128,7 @@ extension Scanner {
 
 	private func passJsonNumber() throws -> Any? {
 		let saveLocation = scanLocation
-		pass("-")
+		let _ = pass("-")
 		if pass("0") {
 		}
 		else if passCharacters(CharacterSet.decimalDigits) != nil {
@@ -138,12 +138,12 @@ extension Scanner {
 			return nil
 		}
 		if pass(".") {
-			try expectCharacters(CharacterSet.decimalDigits, expectedDescription: "Decimal digits")
+			let _ = try expectCharacters(CharacterSet.decimalDigits, expectedDescription: "Decimal digits")
 		}
 		if pass("e") || pass("E") {
 			if pass("+") || pass("-") {
 			}
-			try expectCharacters(CharacterSet.decimalDigits, expectedDescription: "Decimal digits")
+			let _ = try expectCharacters(CharacterSet.decimalDigits, expectedDescription: "Decimal digits")
 		}
 		if let number = Scanner.jsonNumberFormatter.number(from: substring(saveLocation, scanLocation)) {
 			return number

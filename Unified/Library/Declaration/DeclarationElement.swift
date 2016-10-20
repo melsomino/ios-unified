@@ -104,7 +104,7 @@ extension Scanner {
 			let saveLocation = scanLocation
 			passWhitespaces()
 			if pass("#", passWhitespaces: false) {
-				passUntilEndOrOneOf(CharacterSet.newlines, passWhitespaces: false)
+				let _ = passUntilEndOrOneOf(CharacterSet.newlines, passWhitespaces: false)
 			}
 			if isAtEnd {
 				return

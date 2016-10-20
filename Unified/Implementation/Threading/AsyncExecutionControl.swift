@@ -17,7 +17,7 @@ open class AsyncExecutionControl {
 
 
 	public final func then(on target: AsyncExecutionTarget, work: @escaping (AsyncExecution, AnyObject?) throws -> Void) -> AsyncExecutionControl {
-		execution.then(on: target, work: work)
+		let _ = execution.then(on: target, work: work)
 		return self
 	}
 
