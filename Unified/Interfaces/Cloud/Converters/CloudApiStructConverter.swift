@@ -48,8 +48,8 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func listFromJsonRecordset(_ source: Any) -> [StructType] {
-		var objects = [StructType]()
+	open func listFromJsonRecordset(_ source: Any) -> [StructType?] {
+		var objects = [StructType?]()
 		if let sourceObject = source as? [String:Any] {
 			if let table = sourceObject["d"] as? [Any] {
 				let bindings = createFieldBindings(sourceObject)
@@ -66,8 +66,8 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func listFromJsonArray(_ source: Any) -> [StructType] {
-		var objects = [StructType]()
+	open func listFromJsonArray(_ source: Any) -> [StructType?] {
+		var objects = [StructType?]()
 		guard let sourceArray = source as? [Any] else {
 			return objects
 		}
@@ -101,10 +101,11 @@ open class CloudApiStructConverter<StructType> {
 
 
 	open func listFromJsonParameterRecordset(_ source: Any) -> StructType? {
+
 		let object = objectFactory()
 		let values = CloudApiParameterValue.converter.listFromJsonRecordset(source)
 		for value in values {
-			if let field = fieldByCloudName[value.parameter ?? ""] {
+			if let value = value, let field = fieldByCloudName[value.parameter ?? ""] {
 				field.fieldSetter(object, value.value ?? NSNull())
 			}
 		}
@@ -116,12 +117,12 @@ open class CloudApiStructConverter<StructType> {
 
 
 	open func jsonRecordFromObject(_ source: StructType?) -> Any {
-		guard source != nil else {
+		guard let source = source else {
 			return NSNull()
 		}
 		var record = [String: Any]()
 		record["s"] = jsonSchema()
-		record["d"] = jsonRecordDataFromObject(source!)
+		record["d"] = jsonRecordDataFromObject(source)
 		record["_type"] = "record"
 		return record
 	}
@@ -130,7 +131,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func jsonRecordsetFromList(_ list: [StructType]) -> Any {
+	open func jsonRecordsetFromList(_ list: [StructType?]) -> Any {
 		var data = [Any]()
 		for object in list {
 			data.append(jsonRecordDataFromObject(object))
@@ -146,7 +147,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func jsonArrayFromList(_ list: [StructType]) -> Any {
+	open func jsonArrayFromList(_ list: [StructType?]) -> Any {
 		var array = [Any]()
 		for object in list {
 			array.append(jsonObjectFromObject(object))
@@ -178,7 +179,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func listFromJsonStringRecordset(_ source: Any) -> [StructType] {
+	open func listFromJsonStringRecordset(_ source: Any) -> [StructType?] {
 		return listFromJsonRecordset(decodeJsonString(source))
 	}
 
@@ -209,7 +210,7 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	open func jsonStringRecordsetFromList(_ list: [StructType]) -> Any {
+	open func jsonStringRecordsetFromList(_ list: [StructType?]) -> Any {
 		return encodeJsonString(jsonRecordsetFromList(list))
 	}
 
@@ -275,10 +276,13 @@ open class CloudApiStructConverter<StructType> {
 
 
 
-	private func jsonRecordDataFromObject(_ object: StructType) -> [Any] {
+	private func jsonRecordDataFromObject(_ object: StructType?) -> Any {
+		guard let object = object else {
+			return NSNull()
+		}
 		var data = [Any]()
 		for field in fields {
-			data.append(field.fieldGetter(object) ?? NSNull())
+			data.append(field.fieldGetter(object))
 		}
 		return data
 	}
