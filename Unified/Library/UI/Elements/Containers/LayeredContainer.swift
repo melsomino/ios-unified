@@ -86,7 +86,7 @@ private struct Layered_measure {
 
 
 	mutating func layout(in_bounds bounds: CGRect) {
-		measure(in_bounds: bounds.size)
+		let _ = measure(in_bounds: bounds.size)
 		for child in children {
 			child.element.layout(inBounds: bounds, usingMeasured: child.measured.maxSize)
 		}

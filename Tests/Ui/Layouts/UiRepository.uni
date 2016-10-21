@@ -6,7 +6,7 @@ Layouts.TestLayout
 			vertical
 				layered
 					view background=red corner-radius=3
-					label #text color=yellow margin=(8 4)
+					label text color=yellow margin=(8 4)
 				label #details
 			label #warning font=('Helvetica Neue' 24) color=red
 			label #footer font=13 color=aaa

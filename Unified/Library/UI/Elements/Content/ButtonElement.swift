@@ -144,7 +144,7 @@ open class ButtonElement: ContentElement {
 
 	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let imageSize = image?.size ?? CGSize.zero
-		let titleSize = TextElement.measureText(title, font: font, padding: UIEdgeInsets.zero, inWidth: CGFloat.greatestFiniteMagnitude)
+		let titleSize = TextElement.measureText(title, font: font, inWidth: CGFloat.greatestFiniteMagnitude)
 		let spacing = CGFloat(0)
 		let measured = SizeMeasure(width: imageSize.width + spacing + titleSize.width, height: max(imageSize.height, titleSize.height))
 		return FragmentElement.expand(measure: measured, edges: padding)

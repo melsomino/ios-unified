@@ -79,7 +79,7 @@ let KissDestroyer = Album(artist: "Kiss", title: "Destroyer", issued: makeDate(5
 
 
 func test_html() {
-	let text = HtmlParser.parse("<p>Параграф <a href='sdsfds'>fdsfds</a> <b>1</b></p><p>Параграф<br><i>2</i></p>")
+	let text = HtmlParser.plainText(from: "<p>Параграф <a href='sdsfds'>fdsfds</a> <b>1</b></p><p>Параграф<br><i>2</i></p>")
 	print(text)
 }
 
@@ -95,7 +95,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 	var dependency: DependencyResolver!
 
 
+	public func repositoryChanged(_ repository: Repository) {
+	}
+
+
+
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+
 
 		test_html()
 

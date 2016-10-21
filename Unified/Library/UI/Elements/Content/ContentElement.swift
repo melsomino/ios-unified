@@ -47,6 +47,27 @@ open class ContentElement: FragmentElement {
 		}
 	}
 
+	public var shadowOpacity = CGFloat(0) {
+		didSet {
+			initializeView()
+		}
+	}
+	public var shadowRadius = CGFloat(3) {
+		didSet {
+			initializeView()
+		}
+	}
+	public var shadowOffset = CGSize(width: 0, height: 3) {
+		didSet {
+			initializeView()
+		}
+	}
+	public var shadowColor = UIColor.black.cgColor {
+		didSet {
+			initializeView()
+		}
+	}
+
 	open var corners = UIRectCorner.allCorners {
 		didSet {
 			initializeView()
@@ -67,26 +88,35 @@ open class ContentElement: FragmentElement {
 		return UIView()
 	}
 
+
+
 	open func onViewCreated() {
 		defaultBackgroundColor = view.backgroundColor
 	}
+
+
 
 	open func initializeView() {
 		guard let view = view else {
 			return
 		}
 
-		view.backgroundColor = backgroundColor ?? defaultBackgroundColor
+		let layer = view.layer
+		layer.backgroundColor = (backgroundColor ?? defaultBackgroundColor ?? UIColor.clear).cgColor
 
 		if let radius = cornerRadius {
-			view.clipsToBounds = true
-			view.layer.cornerRadius = radius
+//			view.clipsToBounds = true
+			layer.cornerRadius = radius
 		}
 		else {
-			view.layer.cornerRadius = 0
+			layer.cornerRadius = 0
 		}
-		view.layer.borderWidth = borderWidth ?? 0
-		view.layer.borderColor = (borderColor ?? UIColor.clear).cgColor
+		layer.borderWidth = borderWidth ?? 0
+		layer.borderColor = (borderColor ?? UIColor.clear).cgColor
+		layer.shadowOpacity = Float(shadowOpacity)
+		layer.shadowRadius = shadowRadius
+		layer.shadowOffset = shadowOffset
+		layer.shadowColor = shadowColor
 	}
 
 
@@ -100,6 +130,7 @@ open class ContentElement: FragmentElement {
 	open override func layoutContent(inBounds bounds: CGRect) {
 		frame = bounds
 	}
+
 
 
 	open override func bind(toModel values: [Any?]) {
@@ -124,6 +155,10 @@ open class ContentElementDefinition: FragmentElementDefinition {
 	open var borderWidth: CGFloat?
 	open var borderColor: UIColor?
 
+	public var shadowOpacity = CGFloat(0)
+	public var shadowRadius = CGFloat(3)
+	public var shadowOffset = CGSize(width: 0, height: 3)
+	public var shadowColor = UIColor.black.cgColor
 
 	open override func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		switch attribute.name {
@@ -135,10 +170,20 @@ open class ContentElementDefinition: FragmentElementDefinition {
 				borderWidth = try context.getFloat(attribute)
 			case "border-color":
 				borderColor = try context.getColor(attribute)
+			case "shadow-opacity":
+				shadowOpacity = try context.getFloat(attribute)
+			case "shadow-radius":
+				shadowRadius = try context.getFloat(attribute)
+			case "shadow-offset":
+				shadowOffset = try context.getSize(attribute)
+			case "shadow-color":
+				shadowColor = try context.getColor(attribute).cgColor
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}
 	}
+
+
 
 	private func applyCornerRadius(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
 		switch value {
@@ -185,6 +230,10 @@ open class ContentElementDefinition: FragmentElementDefinition {
 		contentElement.cornerRadius = cornerRadius
 		contentElement.borderWidth = borderWidth
 		contentElement.borderColor = borderColor
+		contentElement.shadowOpacity = shadowOpacity
+		contentElement.shadowRadius = shadowRadius
+		contentElement.shadowOffset = shadowOffset
+		contentElement.shadowColor = shadowColor
 	}
 
 }
