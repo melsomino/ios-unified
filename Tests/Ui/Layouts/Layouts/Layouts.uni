@@ -13,15 +13,15 @@ fragments
 
 ui
 	Layouts.Header layout-cache-key=1
-		horizontal margin=12 spacing=12
+		horizontal margin=12 spacing=12 hor=fill
 			view size=20 background-color=555 shadow-opacity=0.5 corner-radius=0
 			text A font=14 color=white  shadow-opacity=0.5
 				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
 			button title=A font=14 color=white action=test shadow-opacity=0.5
 				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
-			decorator shadow-opacity=0.5
-				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
-				text A font=14 color=white
+			decorator shadow-opacity=0.2 shadow-radius=5 shadow-offset=(0 2) hor=right
+				~ background-color=ccc padding=(10 5) corner-radius=13.5 border-color1=555 border-width1=1
+				text Aaaaaaaaaaa font=14 color=555
 
 		# horizontal hor=fill margin=12 
 		# 	horizontal hor=left spacing=8

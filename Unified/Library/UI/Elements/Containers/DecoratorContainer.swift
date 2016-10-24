@@ -32,6 +32,7 @@ open class DecoratorElement: ContentElement {
 		}
 	}
 
+
 	// MARK: - UiContentElement
 
 
@@ -41,20 +42,21 @@ open class DecoratorElement: ContentElement {
 
 
 	open override func initializeView() {
+		super.initializeView()
 		guard let view = view else {
 			return
 		}
 
-		view.layer.borderWidth = borderWidth ?? 0
-		view.layer.borderColor = (borderColor ?? UIColor.clear).cgColor
+//		view.layer.borderWidth = borderWidth ?? 0
+//		view.layer.borderColor = (borderColor ?? UIColor.clear).cgColor
 
-		if let radius = cornerRadius {
-			view.clipsToBounds = true
-			view.layer.cornerRadius = radius
-		}
-		else {
-			view.layer.cornerRadius = 0
-		}
+//		if let radius = cornerRadius {
+//			view.clipsToBounds = true
+//			view.layer.cornerRadius = radius
+//		}
+//		else {
+//			view.layer.cornerRadius = 0
+//		}
 
 		guard let decorator = view as? DecoratorView else {
 			return
