@@ -9,6 +9,8 @@ public typealias Uuid = UUID
 
 public let UuidZero = NSUUID(uuidBytes: [UInt8](repeating: 0, count: 16)) as UUID
 
+
+
 extension Uuid {
 
 	public static func same(_ a: Uuid?, _ b: Uuid?) -> Bool {
@@ -23,6 +25,7 @@ extension Uuid {
 }
 
 
+
 extension String {
 
 	public func toUuid() -> Uuid? {
@@ -35,8 +38,6 @@ extension String {
 		return value != nil ? value!.uuidString : ""
 	}
 }
-
-
 
 
 
@@ -378,6 +379,7 @@ public class JsonEncoder {
 }
 
 
+
 public class SbisType<T> {
 	public let fields: [String]
 	public let decode: (SbisValues) -> T
@@ -387,6 +389,7 @@ public class SbisType<T> {
 		self.decode = decode
 	}
 }
+
 
 
 public enum SbisValues {
@@ -470,6 +473,30 @@ public enum SbisValues {
 	}
 
 
+	public func stringWithJsonObject<T>(_ index: Int, type: SbisType<T>) -> T? {
+		guard let stringValue = string(index) else {
+			return nil
+		}
+		guard let jsonData = stringValue.data(using: .utf8) else {
+			return nil
+		}
+		var jsonValue: Any
+		do {
+			jsonValue = try JSONSerialization.jsonObject(with: jsonData)
+		} catch let error {
+			print(error)
+			do {
+				jsonValue = try Scanner.parseJson(stringValue)
+			}
+			catch let error {
+				print(error)
+				return nil
+			}
+		}
+		return SbisDecoder.jsonObject(jsonValue, type: type)
+	}
+
+
 
 	public func sbisRecord<T>(_ index: Int, type: SbisType<T>) -> T? {
 		return SbisDecoder.sbisRecord(self[index], type: type)
@@ -505,7 +532,6 @@ public enum SbisValues {
 	case fromSbisRecord([Int], [Any])
 	case fromJsonObject([String], [String: Any])
 }
-
 
 
 
@@ -548,8 +574,6 @@ public class SbisDecoder {
 
 
 
-
-
 	public static func sbisRecordset<T>(_ value: Any, type: SbisType<T>) -> [T?] {
 		var result = [T?]()
 		guard let (indexes, values) = getIndexesAndValues(source: value, fields: type.fields) else {
@@ -583,7 +607,7 @@ public class SbisDecoder {
 		var indexes = [Int](repeating: -1, count: fields.count)
 		index = 0
 		for field in fields {
-			if let dataIndex = dataIndexByLowercaseName[field] {
+			if let dataIndex = dataIndexByLowercaseName[field.lowercased()] {
 				indexes[index] = dataIndex
 			}
 			index += 1

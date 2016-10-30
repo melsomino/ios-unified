@@ -197,9 +197,12 @@ extension Scanner {
 			}
 			else if pass("u") {
 				if scanLocation + 4 > string.characters.count {
-					throw JsonError("Invalid hex escape ins string value")
+					throw JsonError("Invalid hex escape in string value")
 				}
-				value += String(Int32(strtoul(substring(scanLocation, scanLocation + 4), nil, 16)))
+				guard let scalar = UnicodeScalar(UInt32(strtoul(substring(scanLocation, scanLocation + 4), nil, 16))) else {
+					throw JsonError("Invalid hex escape in string value")
+				}
+				value += String(Character(scalar))
 				scanLocation += 4
 			}
 			else {
