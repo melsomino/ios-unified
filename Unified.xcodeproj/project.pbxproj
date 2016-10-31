@@ -57,6 +57,7 @@
 		EBE700C117ABE4BB9B62B848 /* MultipleElementContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7045FDA8C35F6C55E5E07 /* MultipleElementContainer.swift */; };
 		EBE700E59DCCA9671B88713A /* CentralUISideController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE703A40A4B4050DC75865B /* CentralUISideController.swift */; };
 		EBE700F3FC86E0D178AAC7C3 /* MainMenuItemCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = EBE706902484F10D17B64616 /* MainMenuItemCell.xib */; };
+		EBE701205D629B0088398AC3 /* JsonDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE704547981B136DA97050F /* JsonDecoder.swift */; };
 		EBE701237ED051202F216CE5 /* CentralUiDesign.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70BC42F276614D2B9B0BD /* CentralUiDesign.swift */; };
 		EBE701529640AD8B660E94A1 /* CentralUIAnimations.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70F375318AA2084108B53 /* CentralUIAnimations.swift */; };
 		EBE701B28E05EE911D0826AB /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE709234D6A9BAA81EF22F9 /* FoundationExtensions.swift */; };
@@ -73,10 +74,12 @@
 		EBE703670D45E0BF671B2DF8 /* MainMenu.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EBE700FAF79E52F3A083D28F /* MainMenu.storyboard */; };
 		EBE703BA9A7440E71B908FF5 /* ButtonElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70178E7A87D83084FA5E3 /* ButtonElement.swift */; };
 		EBE7041AF9F4763ECC394E02 /* DefaultDatabaseReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70BA5C939812F8F0DC053 /* DefaultDatabaseReader.swift */; };
+		EBE70426FDA136315AD33CFA /* SbisValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7050E6C5508B8EA1690A3 /* SbisValues.swift */; };
 		EBE70457624697DA21BF96F5 /* DatabaseMaintenance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7029D3005280707E4993F /* DatabaseMaintenance.swift */; };
 		EBE704763F59FB842D8A6A98 /* CloudApiParameterValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7065F25809655D1E07F1C /* CloudApiParameterValue.swift */; };
 		EBE704911BF1217900E191AE /* DatabaseUpdateStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE701FE8C58D7F31C419A04 /* DatabaseUpdateStatement.swift */; };
 		EBE704CFE8EE60406574849C /* Execution.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE706DC9AFDD27FD5492706 /* Execution.swift */; };
+		EBE704DE76A67B4ED9201208 /* JsonEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE704CCE97D2B3291B34D67 /* JsonEncoder.swift */; };
 		EBE7051CCAFC32438AF0C153 /* DefaultExecutionQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE709C0D6F6AF799E7E4073 /* DefaultExecutionQueue.swift */; };
 		EBE705377C12925F3EE3C831 /* TextElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70ED1A5DBD9F5451C1DFC /* TextElement.swift */; };
 		EBE7055EC44F98DAD089E86C /* StorageDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE706EED44A86BD8D879292 /* StorageDatabase.swift */; };
@@ -90,6 +93,7 @@
 		EBE7061914FA48E5D8202BB5 /* ApplicationStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70E0F55B961A031AE2182 /* ApplicationStorage.swift */; };
 		EBE7062F4B36A7AEB5D2EA79 /* DefaultExecutionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7098F8C18D44E4CFE8637 /* DefaultExecutionControl.swift */; };
 		EBE7066C5440BB4C0952371F /* SpinLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70DB4BCA926D6ACDEA101 /* SpinLock.swift */; };
+		EBE7069ED9B11A061EA2FEAB /* SbisDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE701C119FF3E3DC3970342 /* SbisDecoder.swift */; };
 		EBE706BCAD9C45145A6D7C1F /* DefaultApplicationStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE705364AC143A10CD19587 /* DefaultApplicationStorage.swift */; };
 		EBE707091043CA8D70632B74 /* Fragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE702CDA10E2B4457EE5A5D /* Fragment.swift */; };
 		EBE7078C56954D55502DCE7D /* AlertStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE708F12FC630E6A85F0E02 /* AlertStack.swift */; };
@@ -183,6 +187,7 @@
 		EBE70178E7A87D83084FA5E3 /* ButtonElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonElement.swift; sourceTree = "<group>"; };
 		EBE701A89D442FCEF2E00FF2 /* JsonParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonParser.swift; sourceTree = "<group>"; };
 		EBE701B46FD34928AD11DC90 /* SortedTableSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SortedTableSync.swift; sourceTree = "<group>"; };
+		EBE701C119FF3E3DC3970342 /* SbisDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SbisDecoder.swift; sourceTree = "<group>"; };
 		EBE701E56AECB6B6A05A92AF /* DefaultMenuItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultMenuItem.swift; sourceTree = "<group>"; };
 		EBE701EFD2ACE35D677632A4 /* DependencyResolver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DependencyResolver.swift; sourceTree = "<group>"; };
 		EBE701FE8C58D7F31C419A04 /* DatabaseUpdateStatement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseUpdateStatement.swift; sourceTree = "<group>"; };
@@ -196,9 +201,12 @@
 		EBE70385F01193484AE4EC1E /* Component.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Component.swift; sourceTree = "<group>"; };
 		EBE703A40A4B4050DC75865B /* CentralUISideController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUISideController.swift; sourceTree = "<group>"; };
 		EBE703E7C026668623B4EE38 /* CloudConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudConnector.swift; sourceTree = "<group>"; };
+		EBE704547981B136DA97050F /* JsonDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonDecoder.swift; sourceTree = "<group>"; };
 		EBE70457BDF24AFA80836BFE /* DefaultCloudFile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultCloudFile.swift; sourceTree = "<group>"; };
 		EBE7045FDA8C35F6C55E5E07 /* MultipleElementContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultipleElementContainer.swift; sourceTree = "<group>"; };
 		EBE70474138A6D547C2D7DCF /* DatabaseReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseReader.swift; sourceTree = "<group>"; };
+		EBE704CCE97D2B3291B34D67 /* JsonEncoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonEncoder.swift; sourceTree = "<group>"; };
+		EBE7050E6C5508B8EA1690A3 /* SbisValues.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SbisValues.swift; sourceTree = "<group>"; };
 		EBE705364AC143A10CD19587 /* DefaultApplicationStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultApplicationStorage.swift; sourceTree = "<group>"; };
 		EBE705A7323F5528AF5947D4 /* DeclarationElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeclarationElement.swift; sourceTree = "<group>"; };
 		EBE705E175093C8F487B29DD /* DatabaseSelectStatement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseSelectStatement.swift; sourceTree = "<group>"; };
@@ -417,6 +425,10 @@
 				EBE7065F25809655D1E07F1C /* CloudApiParameterValue.swift */,
 				EBE70CC8D28B65361DBC2E1A /* CloudApiStructConverter.swift */,
 				EBE70666E01B07ECE402F862 /* CloudApiPrimitiveTypeConverter.swift */,
+				EBE704CCE97D2B3291B34D67 /* JsonEncoder.swift */,
+				EBE704547981B136DA97050F /* JsonDecoder.swift */,
+				EBE7050E6C5508B8EA1690A3 /* SbisValues.swift */,
+				EBE701C119FF3E3DC3970342 /* SbisDecoder.swift */,
 			);
 			path = Converters;
 			sourceTree = "<group>";
@@ -835,6 +847,10 @@
 				CF7B9ECDB9454277DE2023B6 /* Queryable.swift in Sources */,
 				CF7B925849E6A328488644EA /* Helpers.swift in Sources */,
 				CF7B9E60C25B3CE66C058DEE /* module.modulemap in Sources */,
+				EBE704DE76A67B4ED9201208 /* JsonEncoder.swift in Sources */,
+				EBE701205D629B0088398AC3 /* JsonDecoder.swift in Sources */,
+				EBE70426FDA136315AD33CFA /* SbisValues.swift in Sources */,
+				EBE7069ED9B11A061EA2FEAB /* SbisDecoder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
