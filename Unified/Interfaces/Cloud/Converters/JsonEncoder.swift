@@ -92,6 +92,23 @@ public class JsonEncoder {
 
 	// DateTime
 
+	public static var dateFormatter = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: false)
+	public static var timeFormatter = JsonDecoder.createDateTimeFormatter("HH:mm:ssx", withTodayAsDefaultDate: false)
+
+	public static func date(_ value: Date?) -> Any {
+		guard let value = value else {
+			return NSNull()
+		}
+		return JsonEncoder.dateFormatter.string(from: value)
+	}
+
+	public static func time(_ value: Date?) -> Any {
+		guard let value = value else {
+			return NSNull()
+		}
+		return JsonEncoder.timeFormatter.string(from: value)
+	}
+
 
 	public static func dateTime(_ value: Date?) -> Any {
 		guard let value = value else {

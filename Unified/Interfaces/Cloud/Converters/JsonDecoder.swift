@@ -142,7 +142,7 @@ public class JsonDecoder {
 	}()
 
 
-	private static func createDateTimeFormatter(_ format: String, withTodayAsDefaultDate: Bool) -> DateFormatter {
+	public static func createDateTimeFormatter(_ format: String, withTodayAsDefaultDate: Bool) -> DateFormatter {
 		let formatter = DateFormatter()
 		formatter.locale = Locale(identifier: "en_US_POSIX")
 		formatter.dateFormat = format
