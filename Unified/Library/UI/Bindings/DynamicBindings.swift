@@ -317,6 +317,8 @@ public struct DynamicBindings {
 			switch value {
 				case let v as Uuid:
 					return String.fromUuid(v)
+				case let v as Bool:
+					return String(v)
 				case let v as Int:
 					return String(v)
 				case let v as Float:
