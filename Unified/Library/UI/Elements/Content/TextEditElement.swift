@@ -165,6 +165,10 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 		delegate?.tryExecuteAction(definition.textChangeAction, defaultArgs: text)
 		if maxLines > 0 {
 			delegate?.layoutChanged(forElement: self)
+			if let editor = view as? TextEditView {
+				let point = CGPoint(x: 0, y: editor.contentSize.height - editor.bounds.size.height)
+				editor.setContentOffset(point, animated: true)
+			}
 		}
 	}
 

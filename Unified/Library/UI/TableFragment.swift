@@ -201,6 +201,9 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 	open func layoutChanged(forFragment fragment: Fragment) {
 		if fragment == bottomBarFragment {
+			if let cacheKey = fragment.getLayoutCacheKey(forModel: fragment.model!) {
+				layoutCache.drop(cacheForKey: cacheKey)
+			}
 			UIView.animate(withDuration: 0.25, animations: {
 				self.adjustBottomBar()
 			})
