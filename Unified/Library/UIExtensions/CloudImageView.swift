@@ -10,6 +10,7 @@ open class CloudImageView: UIImageView, CloudFileListener {
 
 	open var imageSize: CGSize?
 
+	open var placeholder: UIImage?
 	open var imageFile: CloudFile! {
 		didSet {
 			oldValue?.removeListener(self)
@@ -58,9 +59,9 @@ open class CloudImageView: UIImageView, CloudFileListener {
 			case .loaded:
 				startLoadImage(imageFile.localPath)
 			case .loading:
-				image = nil
+				image = placeholder
 			case .failed:
-				image = nil
+				image = placeholder
 		}
 		currentState = state
 	}
