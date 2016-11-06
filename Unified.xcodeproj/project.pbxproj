@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2908A8BB1D2E2B5D00CB1D19 /* CentralUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2908A8BA1D2E2B5D00CB1D19 /* CentralUI.xcassets */; };
 		29269C901D0FB98000135FF8 /* Unified.h in Headers */ = {isa = PBXBuildFile; fileRef = 29269C8F1D0FB98000135FF8 /* Unified.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		CF7B9085CA4EAD158114826D /* AsyncExecution.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9081D7046152CBF774EF /* AsyncExecution.swift */; };
 		CF7B90CAF0769285031EF9CA /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9F1466F5E835745AE986 /* Element.swift */; };
 		CF7B910160A501E314129812 /* xmlregexp.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B950BA871F2F9D1FFC937 /* xmlregexp.h */; };
 		CF7B916D5B4E120ACA461955 /* xmlIO.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9FC531A6E3DD6E7B3277 /* xmlIO.h */; };
@@ -25,14 +24,12 @@
 		CF7B93D6586EC1920E8D22E2 /* xmlstring.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B985BE8CA33940D8ABEEC /* xmlstring.h */; };
 		CF7B93FCFF05137A8661FBB1 /* xlink.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9719217A9425AEEE5E60 /* xlink.h */; };
 		CF7B942CE65746B261B40A5E /* DefaultCentralUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUI.swift */; };
-		CF7B944FF707A6C1ABF7FA76 /* AsyncExecutionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9423E375F928156AA7B1 /* AsyncExecutionControl.swift */; };
 		CF7B9452BB7D629CFF6F586D /* HTMLtree.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9C808041D31A829281A2 /* HTMLtree.h */; };
 		CF7B94C14FF53AC1F028EDF2 /* NodeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B97D95E5C68D9BBE3D2AA /* NodeSet.swift */; };
 		CF7B9530F83DFFFD27211D0E /* entities.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B920D3CCBDF1DA25D352B /* entities.h */; };
 		CF7B95803543AC9DC6E4AFFC /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B95A702D3E0496A47A832 /* hash.h */; };
 		CF7B9612DC35C15D218CFB7E /* valid.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B92C022BE590078748D6A /* valid.h */; };
 		CF7B96EAFED9C5417760E940 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B934C518FDFC715EF013C /* Node.swift */; };
-		CF7B97B7B3BA3D280481957C /* AsyncHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9C4B04E76BE9E18F6FD1 /* AsyncHandler.swift */; };
 		CF7B97D97DAB33278C620ADB /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9FB944B9581284522A5C /* dict.h */; };
 		CF7B97E38459F3A692CA012E /* xpath.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B990D8712D37FDE33EC18 /* xpath.h */; };
 		CF7B987BA33B940577507AE9 /* list.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B992C8628E85F82FF9B53 /* list.h */; };
@@ -44,14 +41,12 @@
 		CF7B9ADEBEC2444746602DFF /* xmlautomata.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9E028E97D568B0E6D208 /* xmlautomata.h */; };
 		CF7B9AFFEA90B93A9A8E5C25 /* DynamicBindings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B90F77D530F911B8CB956 /* DynamicBindings.swift */; };
 		CF7B9C0DA0A838BBD0E64778 /* xmlmemory.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9D1D5DEA899F6E84792D /* xmlmemory.h */; };
-		CF7B9C1E6635A62127DF92F5 /* AsyncWork.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9105549218D6127BBED9 /* AsyncWork.swift */; };
 		CF7B9D41419743AE7377CF66 /* SAX.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B96C07DCE594AAAA81792 /* SAX.h */; };
 		CF7B9DB55F8484D745FD4F4E /* PickerElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9DE73960323684EE8A66 /* PickerElement.swift */; };
 		CF7B9E60C25B3CE66C058DEE /* module.modulemap in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9F3401A9C47E8D25AD58 /* module.modulemap */; };
 		CF7B9E8379EE47F02904E039 /* TableFragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B98D5E3446F0A08CC3E67 /* TableFragment.swift */; };
 		CF7B9EB465155EDB3F8A7B57 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9C732F3279ECDA361BB2 /* Error.swift */; };
 		CF7B9ECDB9454277DE2023B6 /* Queryable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B91DFA12CFDE427887103 /* Queryable.swift */; };
-		CF7B9ED0519125DA23F55A34 /* Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B933A7309F41B80D6065A /* Async.swift */; };
 		CF7B9F0978795BE43A208C5F /* TextEditElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF7B9FFC6AA72719718278FF /* TextEditElement.swift */; };
 		CF7B9F957B0FC0DEB7CA5793 /* encoding.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9A969DA6C7CE4055F8FF /* encoding.h */; };
 		CF7B9FD6062F3967EC34F1CC /* xpathInternals.h in Headers */ = {isa = PBXBuildFile; fileRef = CF7B9F53F71A63EEA2B15271 /* xpathInternals.h */; };
@@ -140,16 +135,12 @@
 		29269C8C1D0FB98000135FF8 /* Unified.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Unified.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		29269C8F1D0FB98000135FF8 /* Unified.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Unified.h; sourceTree = "<group>"; };
 		29269C911D0FB98000135FF8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CF7B9081D7046152CBF774EF /* AsyncExecution.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncExecution.swift; sourceTree = "<group>"; };
 		CF7B90F77D530F911B8CB956 /* DynamicBindings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicBindings.swift; sourceTree = "<group>"; };
-		CF7B9105549218D6127BBED9 /* AsyncWork.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncWork.swift; sourceTree = "<group>"; };
 		CF7B914E0F4625C2DBE48B80 /* xmlerror.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlerror.h; sourceTree = "<group>"; };
 		CF7B91DFA12CFDE427887103 /* Queryable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queryable.swift; sourceTree = "<group>"; };
 		CF7B920D3CCBDF1DA25D352B /* entities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = entities.h; sourceTree = "<group>"; };
 		CF7B92C022BE590078748D6A /* valid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = valid.h; sourceTree = "<group>"; };
-		CF7B933A7309F41B80D6065A /* Async.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Async.swift; sourceTree = "<group>"; };
 		CF7B934C518FDFC715EF013C /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
-		CF7B9423E375F928156AA7B1 /* AsyncExecutionControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncExecutionControl.swift; sourceTree = "<group>"; };
 		CF7B944A8B6C8592A5C7FA6A /* tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tree.h; sourceTree = "<group>"; };
 		CF7B94A7DB3645DF3A3CB3F8 /* DefaultCentralUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultCentralUI.swift; sourceTree = "<group>"; };
 		CF7B950BA871F2F9D1FFC937 /* xmlregexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlregexp.h; sourceTree = "<group>"; };
@@ -170,7 +161,6 @@
 		CF7B9A5B3B225B37561B4EA1 /* FragmentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FragmentTypes.swift; sourceTree = "<group>"; };
 		CF7B9A969DA6C7CE4055F8FF /* encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoding.h; sourceTree = "<group>"; };
 		CF7B9BD052C7FA459041FC71 /* xmlversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlversion.h; sourceTree = "<group>"; };
-		CF7B9C4B04E76BE9E18F6FD1 /* AsyncHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncHandler.swift; sourceTree = "<group>"; };
 		CF7B9C732F3279ECDA361BB2 /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		CF7B9C808041D31A829281A2 /* HTMLtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLtree.h; sourceTree = "<group>"; };
 		CF7B9CC97B296480396F71AD /* CentralUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUI.swift; sourceTree = "<group>"; };
@@ -642,11 +632,6 @@
 				EBE7068B2C60B58887EB06E3 /* DefaultThreading.swift */,
 				EBE709C0D6F6AF799E7E4073 /* DefaultExecutionQueue.swift */,
 				EBE7098F8C18D44E4CFE8637 /* DefaultExecutionControl.swift */,
-				CF7B933A7309F41B80D6065A /* Async.swift */,
-				CF7B9105549218D6127BBED9 /* AsyncWork.swift */,
-				CF7B9081D7046152CBF774EF /* AsyncExecution.swift */,
-				CF7B9423E375F928156AA7B1 /* AsyncExecutionControl.swift */,
-				CF7B9C4B04E76BE9E18F6FD1 /* AsyncHandler.swift */,
 			);
 			path = Threading;
 			sourceTree = "<group>";
@@ -835,11 +820,6 @@
 				EBE70249B382C36AE3BB3531 /* HtmlElement.swift in Sources */,
 				EBE70E92567230A18823755D /* VerticalContainer.swift in Sources */,
 				EBE709D47EE0A00A58B457A4 /* HorizontalContainer.swift in Sources */,
-				CF7B9ED0519125DA23F55A34 /* Async.swift in Sources */,
-				CF7B9C1E6635A62127DF92F5 /* AsyncWork.swift in Sources */,
-				CF7B9085CA4EAD158114826D /* AsyncExecution.swift in Sources */,
-				CF7B944FF707A6C1ABF7FA76 /* AsyncExecutionControl.swift in Sources */,
-				CF7B97B7B3BA3D280481957C /* AsyncHandler.swift in Sources */,
 				EBE70E8506792F20FAB74B8D /* DecoratorContainer.swift in Sources */,
 				CF7B9E8379EE47F02904E039 /* TableFragment.swift in Sources */,
 				EBE703BA9A7440E71B908FF5 /* ButtonElement.swift in Sources */,

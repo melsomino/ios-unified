@@ -113,7 +113,6 @@ open class TextElement: ContentElement {
 			return
 		}
 		view.textAlignment = textAlignment ?? .natural
-		view.backgroundColor = backgroundColor ?? UIColor.clear
 		view.font = font ?? TextElement.defaultFont
 		view.padding = effectivePadding
 		view.textColor = color ?? UIColor.darkText
@@ -154,7 +153,7 @@ open class TextElement: ContentElement {
 			return SizeMeasure.zero
 		}
 		let font = self.font ?? TextElement.defaultFont
-		var text_size = measureText(measured_text, font: font, inWidth: nowrap ? CGFloat.greatestFiniteMagnitude : bounds.width)
+		var text_size = TextElement.measureText(measured_text, font: font, inWidth: nowrap ? CGFloat.greatestFiniteMagnitude : bounds.width)
 		if maxLines > 0 {
 			let line_height = font.lineHeight
 			let max_height = line_height * CGFloat(maxLines)
@@ -190,25 +189,16 @@ open class TextElement: ContentElement {
 
 
 
-	private func measureText(_ text: String, font: UIFont, inWidth width: CGFloat) -> CGSize {
-		return TextElement.measureText(text, font: font, padding: padding, inWidth: width)
-	}
-
-
-
-	open static func measureText(_ text: String?, font: UIFont?, padding: UIEdgeInsets, inWidth width: CGFloat) -> CGSize {
+	open static func measureText(_ text: String?, font: UIFont?, inWidth width: CGFloat) -> CGSize {
 		guard let text = text , !text.isEmpty else {
 			return CGSize.zero
 		}
 		let font = font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
 		let constraintSize = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
-		var size = text.boundingRect(with: constraintSize,
+		return text.boundingRect(with: constraintSize,
 			options: NSStringDrawingOptions.usesLineFragmentOrigin,
 			attributes: [NSFontAttributeName: font],
 			context: nil).size
-		size.width += padding.left + padding.right
-		size.height += padding.top + padding.bottom
-		return size
 	}
 
 

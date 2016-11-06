@@ -13,24 +13,20 @@ open class ListenerList<ListenerType> {
 
 
 	open func add(_ listener: ListenerType) {
-		guard let object = listener as? AnyObject else {
-			fatalError("Object (\(listener)) should be subclass of AnyObject (ListenerList.add)")
-		}
 		lock.lock()
-		items.add(object)
+		items.add(listener as AnyObject)
 		lock.unlock()
 	}
 
 
 
 	open func remove(_ listener: ListenerType) {
-		guard let object = listener as? AnyObject else {
-			fatalError("Object (\(listener)) should be subclass of AnyObject (ListenerList.remove)")
-		}
 		lock.lock()
-		items.remove(object)
+		items.remove(listener as AnyObject)
 		lock.unlock()
 	}
+
+
 
 	open func getLive() -> [ListenerType] {
 		var live = [ListenerType]()

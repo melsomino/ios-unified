@@ -1,20 +1,38 @@
 repository Layouts
 
+color
+	sheet aaa
+
+string
+	title Albums
+
+fragments
+	AlbumsFragment.AlbumsFragment
+		navigation-bar title=@Demo
+
+
 ui
 	Layouts.Header layout-cache-key=1
-		horizontal hor=fill margin=12 
-			horizontal hor=left spacing=8
-				button title='1' color=7dc029 border-width=1 border-color=7dc029 
-					~ corner-radius=3 padding=(12 6) action=topic-like font=(15)
-				button title='2' color=e04837 border-width=1 border-color=e04837
-					~ corner-radius=3 padding=(12 6) action=topic-dislike font=(15)
-			horizontal hor=right ver=center spacing=4
-				view size=40 ver=center margin-top=2 background-color=gray
-				text 300 font=14 color=b8b0a0 ver=center nowrap
+		horizontal margin=12 spacing=12 hor=fill
+			view size=20 background-color=555 shadow-opacity=0.5 corner-radius=0
+			text A font=14 color=white  shadow-opacity=0.5
+				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
+			button title=A font=14 color=white action=test shadow-opacity=0.5
+				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
+			decorator shadow-opacity=0.2 shadow-radius=5 shadow-offset=(0 2) hor=right
+				~ background-color=ccc padding=(10 5) corner-radius=13.5 border-color1=555 border-width1=1
+				text Aaaaaaaaaaa font=14 color=555
 
-					
-					
-
+		# horizontal hor=fill margin=12 
+		# 	horizontal hor=left spacing=8
+		# 		button title='1122' color=7dc029 border-width=1 border-color=7dc029 
+		# 			~ corner-radius=3 padding=(12 6) action=topic-like font=(15)
+		# 		button title='2222' color=e04837 border-width=1 border-color=e04837
+		# 			~ corner-radius=3 padding=(12 6) action=topic-dislike font=(15)
+		# 	horizontal hor=right ver=center spacing=4
+		# 		view size=40 ver=center margin-top=2 background-color=gray
+		#		text 300 font=14 color=white ver=center nowrap text-alignment1=center
+		#			~ background-color=blue padding=10
 
 
 	Layouts.Album background-color=f1f1f1
