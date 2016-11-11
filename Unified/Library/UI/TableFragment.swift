@@ -23,11 +23,11 @@ open class EmptyTableFragment {
 }
 
 public protocol TableModelUpdates {
-	func insert(_ model: Any, at index: Int)
+	func insert(_ model: AnyObject, at index: Int)
 
 
 
-	func update(_ model: Any, at index: Int)
+	func update(_ model: AnyObject, at index: Int)
 
 
 
@@ -37,7 +37,7 @@ public protocol TableModelUpdates {
 open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
 	public final weak var controller: UIViewController!
-	public final var modelsLoader: ((Execution, inout [Any]) throws -> Void)?
+	public final var modelsLoader: ((Execution, inout [AnyObject]) throws -> Void)?
 	public final var modelsSync: ((Execution) throws -> Void)?
 	public final var emptyMessage = "Нет данных"
 	public final var tableView: UITableView! {
@@ -47,7 +47,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 	open private(set) var bottomBarFragment: Fragment?
 
-	public final var models = [Any]()
+	public final var models = [AnyObject]()
 
 
 	public final func createController() -> UIViewController {
@@ -56,7 +56,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	public final func setBottomBar(model: Any?, fragment: () -> Fragment) {
+	public final func setBottomBar(model: AnyObject?, fragment: () -> Fragment) {
 		internalSetBottomBar(model: model, fragment: fragment)
 	}
 
@@ -74,7 +74,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	public final func ensureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
+	public final func ensureCellFactory(forModelType modelType: AnyObject.Type) -> CellFragmentFactory {
 		return internalEnsureCellFactory(forModelType: modelType)
 	}
 
@@ -86,14 +86,14 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-		func insert(_ model: Any, at index: Int) {
+		func insert(_ model: AnyObject, at index: Int) {
 			owner.models.insert(model, at: index)
 			owner.tableView.insertRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
 
 
-		func update(_ model: Any, at index: Int) {
+		func update(_ model: AnyObject, at index: Int) {
 			owner.models[index] = model
 			let cellFactory = owner.ensureCellFactory(forModelType: type(of: model))
 			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: model) {
@@ -120,14 +120,14 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	public final func registerFragmentClass(for modelType: Any.Type, fragmentClass: @escaping () -> Fragment) {
+	public final func registerFragmentClass(for modelType: AnyObject.Type, fragmentClass: @escaping () -> Fragment) {
 		return ensureCellFactory(forModelType: modelType).fragmentFactory = fragmentClass
 	}
 
 
 
 	public final func startLoad() {
-		models = [Any]()
+		models = [AnyObject]()
 		tableView.reloadData()
 		internalStartLoad(showLoadingIndicator: true)
 	}
@@ -156,7 +156,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 	// MARK: - Overridable
 
 
-	open func loadModels(_ execution: Execution, models: inout [Any]) throws {
+	open func loadModels(_ execution: Execution, models: inout [AnyObject]) throws {
 		try defaultLoadModels(execution, models: &models)
 	}
 
@@ -312,7 +312,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	public final func internalSetBottomBar(model: Any?, fragment: () -> Fragment) {
+	public final func internalSetBottomBar(model: AnyObject?, fragment: () -> Fragment) {
 		guard let model = model else {
 			if let fragment = bottomBarFragment {
 				fragment.container?.removeFromSuperview()
@@ -383,7 +383,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	private func internalEnsureCellFactory(forModelType modelType: Any.Type) -> CellFragmentFactory {
+	private func internalEnsureCellFactory(forModelType modelType: AnyObject.Type) -> CellFragmentFactory {
 		for cellFactory in cellFactories {
 			if cellFactory.modelType == modelType {
 				return cellFactory
@@ -418,7 +418,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 				return
 			}
 			var loadError: Error? = nil
-			var models = [Any]()
+			var models = [AnyObject]()
 			do {
 				try weakSelf?.loadModels(execution, models: &models)
 			}
@@ -465,7 +465,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 	}
 
 
-	private func defaultLoadModels(_ execution: Execution, models: inout [Any]) throws {
+	private func defaultLoadModels(_ execution: Execution, models: inout [AnyObject]) throws {
 		try modelsLoader?(execution, &models)
 	}
 
@@ -534,7 +534,7 @@ class TableFragmentCell: UITableViewCell {
 open class CellFragmentFactory {
 	final let dependency: DependencyResolver
 	final let cellReuseId: String
-	final let modelType: Any.Type
+	final let modelType: AnyObject.Type
 	final let layoutCache: FragmentLayoutCache?
 	final var fragmentDefinition: FragmentDefinition!
 	public final var fragmentFactory: (() -> Fragment)?
@@ -551,13 +551,13 @@ open class CellFragmentFactory {
 
 
 
-	public final func heightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
+	public final func heightFor(_ model: AnyObject, inWidth width: CGFloat) -> CGFloat {
 		return heightCalculator.heightFor(model, inWidth: width)
 	}
 
 
 
-	public init(forModelType modelType: Any.Type, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
+	public init(forModelType modelType: AnyObject.Type, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
 		self.modelType = modelType
 		self.layoutCache = layoutCache
 		self.dependency = dependency

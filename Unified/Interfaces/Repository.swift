@@ -18,11 +18,15 @@ public protocol Repository: class {
 	func removeListener(_ listener: RepositoryListener)
 
 	func load(repository name: String) throws -> [DeclarationElement]
-	func load(repository name: String, forType: Any.Type) throws -> [DeclarationElement]
-	func load(declarations name: String, fromModuleWithType: Any.Type) throws -> [DeclarationElement]
+	func load(repository name: String, forType: AnyObject.Type) throws -> [DeclarationElement]
+	func load(declarations name: String, fromModuleWithType: AnyObject.Type) throws -> [DeclarationElement]
 
-	func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition
+	func fragmentDefinition(forModelType modelType: AnyObject.Type, name: String?) throws -> FragmentDefinition
 
+	func register(section: String, itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject))
+
+	func findDefinition(for item: String, in section: String, bundle: Bundle?) throws -> AnyObject?
+	func findDefinition(for type: AnyObject.Type, with suffix: String?, in section: String) throws -> AnyObject?
 }
 
 

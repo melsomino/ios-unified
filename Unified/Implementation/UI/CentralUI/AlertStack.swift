@@ -77,7 +77,7 @@ open class AlertStack: Dependent {
 				panel.frame = frame
 				frame.origin.y += CentralUIDesign.informationPanelHeight
 			}
-		}) 
+		})
 	}
 
 
@@ -108,11 +108,18 @@ open class AlertStack: Dependent {
 
 
 
-public struct Alert {
-	let icon: UIImage
-	let message: String
-	let actionArg: Any?
-	let action: ((Any?) -> Void)?
+public class Alert {
+	final let icon: UIImage
+	final let message: String
+	final let actionArg: Any?
+	final let action: ((Any?) -> Void)?
+
+	init(icon: UIImage, message: String, actionArg: Any?, action: ((Any?) -> Void)?) {
+		self.icon = icon
+		self.message = message
+		self.actionArg = actionArg
+		self.action = action
+	}
 }
 
 

@@ -8,10 +8,25 @@ import Starscream
 
 
 
+class RepositorySection {
+	let itemFactory: (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)
+	var itemByName = [String: AnyObject]()
+	init(itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)) {
+		self.itemFactory = itemFactory
+	}
+}
+
 
 
 open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralUIDependent {
 
+	init() {
+		for (sectionName, itemFactory) in DefaultRepository.itemFactoryBySectionName {
+			if sectionByName[sectionName] == nil {
+				sectionByName[sectionName] = RepositorySection(itemFactory: itemFactory)
+			}
+		}
+	}
 
 	// MARK: - Repository
 
@@ -19,7 +34,9 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		return try load(repository: name, from: Bundle.main)
 	}
 
-	open func load(repository name: String, forType type: Any.Type) throws -> [DeclarationElement] {
+
+
+	open func load(repository name: String, forType type: AnyObject.Type) throws -> [DeclarationElement] {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -27,7 +44,9 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		return try load(repository: name, from: bundle(forType: type))
 	}
 
-	open func load(declarations name: String, fromModuleWithType type: Any.Type) throws -> [DeclarationElement] {
+
+
+	open func load(declarations name: String, fromModuleWithType type: AnyObject.Type) throws -> [DeclarationElement] {
 		lock.lock()
 		defer {
 			lock.unlock()
@@ -44,21 +63,55 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
-	open func fragmentDefinition(forModelType modelType: Any.Type, name: String?) throws -> FragmentDefinition {
+
+	open func fragmentDefinition(forModelType modelType: AnyObject.Type, name: String?) throws -> FragmentDefinition {
+		if let definition = try findDefinition(for: modelType, with: name, in: FragmentDefinition.RepositorySection) as? FragmentDefinition {
+			return definition
+		}
+		fatalError("Repository does not contains fragment definition: \(String(reflecting: modelType))")
+	}
+
+	open func register(section: String, itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)) {
+		lock.lock()
+		defer {
+			lock.unlock()
+		}
+		sectionByName[section] = RepositorySection(itemFactory: itemFactory)
+	}
+
+
+	open func findDefinition(for item: String, in section: String, bundle: Bundle?) throws -> AnyObject? {
 		lock.lock()
 		defer {
 			lock.unlock()
 		}
 
-		let fragmentName = makeFragmentName(forModelType: modelType, name: name)
-		if let factory = fragmentDefinitionByName[fragmentName] {
-			return factory
+		guard let section = sectionByName[section] else {
+			return nil
 		}
-		try loadRepositoriesInBundle(forType: modelType)
-		if let factory = fragmentDefinitionByName[fragmentName] {
-			return factory
+
+		if let item = section.itemByName[item] {
+			return item
 		}
-		fatalError("Repository does not contains fragment definition: \(fragmentName)")
+
+		var resolvedBundle: Bundle
+		if bundle != nil {
+			resolvedBundle = bundle!
+		}
+		else {
+			let nameParts = item.components(separatedBy: ".")
+			resolvedBundle = nameParts.count > 1 ? Bundle.requiredFromModuleName(nameParts[0]) : Bundle.main
+		}
+
+		try loadRepositories(bundle: resolvedBundle)
+		return section.itemByName[item]
+	}
+
+
+
+	open func findDefinition(for type: AnyObject.Type, with suffix: String?, in section: String) throws -> AnyObject? {
+		let itemName = suffix == nil ? makeTypeName(forType: type) : "\(makeTypeName(forType: type)).\(suffix!)"
+		return try findDefinition(for: itemName, in: section, bundle: nil)
 	}
 
 
@@ -79,12 +132,14 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
+
 	open func removeListener(_ listener: RepositoryListener) {
 		listeners.remove(listener)
 	}
 
 
 	open var dependency: DependencyResolver!
+
 
 
 	// MARK: - DevServer WebSocket Delegate
@@ -100,7 +155,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 					try loadRepositoryFromDevServer(parts[0], repositoryString: parts[1])
 					notify()
 				}
-					catch let error {
+				catch let error {
 					optionalCentralUI?.pushAlert(.error, message: String(describing: error))
 					print(error)
 				}
@@ -110,11 +165,13 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
+
 	open func websocketDidConnect(socket: WebSocket) {
 		let device = UIDevice.current
 		socket.write(string: "client-info`\(device.name), iOS \(device.systemVersion)")
 		print("dev server connected")
 	}
+
 
 
 	open func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
@@ -124,6 +181,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			self?.devServerConnection?.connect()
 		}
 	}
+
 
 
 	open func websocketDidReceiveData(socket: WebSocket, data: Data) {
@@ -137,19 +195,21 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 
 	private var listeners = ListenerList<RepositoryListener>()
 	private var loadedUniPaths = Set<String>()
-	private var fragmentDefinitionByName = [String: FragmentDefinition]()
+	private var sectionByName = [String: RepositorySection]()
 	private var lock = NSRecursiveLock()
 
 
-	private func makeTypeName(forType type: Any.Type) -> String {
+	private func makeTypeName(forType type: AnyObject.Type) -> String {
 		return String(reflecting: type)
 	}
 
 
-	private func makeFragmentName(forModelType modelType: Any.Type, name: String?) -> String {
+
+	private func makeFragmentName(forModelType modelType: AnyObject.Type, name: String?) -> String {
 		let modelTypeName = makeTypeName(forType: modelType)
 		return name != nil ? "\(modelTypeName).\(name!)" : modelTypeName
 	}
+
 
 
 	private func notify() {
@@ -157,6 +217,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			listener.repositoryChanged(self)
 		}
 	}
+
 
 
 	private func loadRepositoryFromDevServer(_ repositoryName: String, repositoryString: String) throws {
@@ -169,18 +230,14 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		do {
 			elements = try DeclarationElement.parse(repositoryString)
 		}
-			catch let error as ParseError {
+		catch let error as ParseError {
 			throw DeclarationError(error, context)
 		}
-		try loadRepository(elements, context: context, overrideExisting: true)
+		try loadRepository(elements: elements, context: context, overrideExisting: true)
 	}
 
 
-	private func loadRepositoriesInBundle(forType type: Any.Type) throws {
-		let typeName = makeTypeName(forType: type)
-		let typeNameParts = typeName.components(separatedBy: ".")
-		let bundle = typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type as! AnyClass)
-
+	private func loadRepositories(bundle: Bundle) throws {
 		for uniPath in bundle.paths(forResourcesOfType: ".uni", inDirectory: nil) {
 			guard !loadedUniPaths.contains(uniPath) else {
 				continue
@@ -191,33 +248,52 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			do {
 				elements = try DeclarationElement.load(uniPath)
 			}
-				catch let error as ParseError {
+			catch let error as ParseError {
 				throw DeclarationError(error, context)
 			}
-			try loadRepository(elements, context: context, overrideExisting: false)
+			try loadRepository(elements: elements, context: context, overrideExisting: false)
 		}
 	}
 
 
-	private func loadRepository(_ elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
-		for fragmentsSection in elements.filter({ $0.name == "ui" || $0.name == "fragment" }) {
-			for fragment in fragmentsSection.children {
-				if overrideExisting || fragmentDefinitionByName[fragment.name] == nil {
-					context.reset()
-					let fragmentDefinition = try FragmentDefinition.fromDeclaration(fragment, context: context)
-					fragmentDefinitionByName[fragment.name] = fragmentDefinition
+
+	private func loadElement(section: RepositorySection, element: DeclarationElement, startAttribute: Int, context: DeclarationContext, overrideExisting: Bool) throws {
+		context.reset()
+		let (name, item) = try section.itemFactory(element, startAttribute, context)
+		if overrideExisting || section.itemByName[name] == nil {
+			section.itemByName[name] = item
+		}
+	}
+
+
+	private static var itemFactoryBySectionName = [String: (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)]()
+
+	public static func register(section: String, itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)) {
+		itemFactoryBySectionName[section] = itemFactory
+	}
+
+	private func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
+		for element in elements {
+			guard let section = sectionByName[element.name] else {
+				continue
+			}
+			if (element.attributes.count == 1) || element.attributes[0].value.isMissing {
+				for itemElement in element.children {
+					try loadElement(section: section, element: itemElement, startAttribute: 0, context: context, overrideExisting: overrideExisting)
 				}
 			}
+			else {
+				try loadElement(section: section, element: element, startAttribute: 1, context: context, overrideExisting: overrideExisting)
+			}
 		}
-
 	}
 
 
 
-	private func bundle(forType type: Any.Type) -> Bundle {
+	private func bundle(forType type: AnyObject.Type) -> Bundle {
 		let typeName = makeTypeName(forType: type)
 		let typeNameParts = typeName.components(separatedBy: ".")
-		return typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type as! AnyClass)
+		return typeNameParts.count > 1 ? Bundle.requiredFromModuleName(typeNameParts[0]) : Bundle(for: type)
 	}
 
 
@@ -231,7 +307,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		do {
 			return try DeclarationElement.load(path)
 		}
-			catch let error as ParseError {
+		catch let error as ParseError {
 			throw DeclarationError(error, context)
 		}
 	}

@@ -16,8 +16,13 @@ public protocol FragmentDelegate: class {
 
 open class Fragment: NSObject, RepositoryDependent, RepositoryListener, FragmentElementDelegate {
 
-	public final let modelType: Any.Type
-	public final var layoutCacheKeyProvider: ((Any) -> String?)?
+	public static func setup() {
+		FragmentDefinition.setup()
+		FrameDefinition.setup()
+	}
+
+	public final let modelType: AnyObject.Type
+	public final var layoutCacheKeyProvider: ((AnyObject) -> String?)?
 	public final var performLayoutInWidth = false
 	public final var definition: FragmentDefinition! {
 		return internalDefinition
@@ -39,7 +44,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 		}
 	}
 
-	open var model: Any? {
+	open var model: AnyObject? {
 		didSet {
 			internalDidSetModel()
 		}
@@ -48,7 +53,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 	open private(set) var frame = CGRect.zero
 
 
-	public final func heightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
+	public final func heightFor(_ model: AnyObject, inWidth width: CGFloat) -> CGFloat {
 		return internalHeightFor(model, inWidth: width)
 	}
 
@@ -78,7 +83,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	public init(forModelType modelType: Any.Type) {
+	public init(forModelType modelType: AnyObject.Type) {
 		self.modelType = modelType
 	}
 
@@ -117,7 +122,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	open func getLayoutCacheKey(forModel model: Any) -> String? {
+	open func getLayoutCacheKey(forModel model: AnyObject) -> String? {
 		return defaultGetLayoutCacheKey(forModel: model)
 	}
 
@@ -180,7 +185,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	private func internalHeightFor(_ model: Any, inWidth width: CGFloat) -> CGFloat {
+	private func internalHeightFor(_ model: AnyObject, inWidth width: CGFloat) -> CGFloat {
 		let layoutCacheKey = getLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
 			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
@@ -344,7 +349,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	private func defaultGetLayoutCacheKey(forModel model: Any) -> String? {
+	private func defaultGetLayoutCacheKey(forModel model: AnyObject) -> String? {
 		definitionRequired()
 		guard let keyProvider = currentDefinition!.layoutCacheKey, let definition = currentDefinition else {
 			return nil
@@ -363,7 +368,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 
-	private func resolveLayoutCacheKey(forModel model: Any?) -> String? {
+	private func resolveLayoutCacheKey(forModel model: AnyObject?) -> String? {
 		guard let model = model else {
 			return nil
 		}
@@ -464,12 +469,6 @@ open class FragmentDefinition {
 
 
 
-	open static func fromDeclaration(_ declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
-		return try FragmentDefinition.internalFromDeclaration(declaration, context: context)
-	}
-
-
-
 	init(rootElementDefinition: FragmentElementDefinition,
 		bindings: DynamicBindings,
 		hasBindings: Bool,
@@ -520,15 +519,15 @@ open class FragmentDefinition {
 
 
 
-	private static func internalFromDeclaration(_ declaration: DeclarationElement, context: DeclarationContext) throws -> FragmentDefinition {
+	public static func from(element: DeclarationElement, startAttribute: Int, context: DeclarationContext) throws -> FragmentDefinition {
 		var containerBackgroundColor: UIColor?
 		var containerCornerRadius: CGFloat?
 		var selectAction: DynamicBindings.Expression?
 		var selectionStyle = UITableViewCellSelectionStyle.default
 		var layoutCacheKey: DynamicBindings.Expression?
 
-		for index in 1 ..< declaration.attributes.count {
-			let attribute = declaration.attributes[index]
+		for index in startAttribute + 1 ..< element.attributes.count {
+			let attribute = element.attributes[index]
 			switch attribute.name {
 				case "background-color":
 					containerBackgroundColor = try context.getColor(attribute)
@@ -544,7 +543,7 @@ open class FragmentDefinition {
 					break
 			}
 		}
-		let rootElementDefinition = try FragmentElementDefinition.from(declaration: declaration.children[0], context: context)
+		let rootElementDefinition = try FragmentElementDefinition.from(declaration: element.children[0], context: context)
 		var ids = Set<String>()
 		rootElementDefinition.traversal {
 			if let id = $0.id {
@@ -581,4 +580,12 @@ open class FragmentDefinition {
 		"gray": .gray,
 		"default": .default
 	]
+
+	static let RepositorySection = "ui"
+	static func setup() {
+		DefaultRepository.register(section: RepositorySection) {
+			element, startAttribute, context in
+			return (element.attributes[startAttribute].name, try FragmentDefinition.from(element: element, startAttribute: startAttribute, context: context))
+		}
+	}
 }

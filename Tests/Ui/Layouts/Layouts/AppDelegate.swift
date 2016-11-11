@@ -13,29 +13,44 @@ import Unified
 
 
 
-struct Header {
+class Header {
 	let title: String?
 	let totalCount: String
+	init(title: String?, totalCount: String) {
+		self.title = title
+		self.totalCount = totalCount
+	}
 }
 
 
 
 
 
-struct AlbumTrack {
+class AlbumTrack {
 	let title: String
 	let duration: TimeInterval
+	init(title: String, duration: TimeInterval) {
+		self.title = title
+		self.duration = duration
+	}
 }
 
 
 
 
 
-struct Album {
+class Album {
 	let artist: String
 	let title: String
 	let issued: Date
 	let tracks: [AlbumTrack]
+	init(artist: String, title: String, issued: Date, tracks: [AlbumTrack]) {
+		self.artist = artist
+		self.title = title
+		self.issued = issued
+		self.tracks = tracks
+	}
+
 }
 
 
@@ -102,6 +117,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
+		Fragment.setup()
 
 		test_html()
 
@@ -135,8 +151,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 
 
-class AlbumsFragment: TableFragment {
-	override func loadModels(_ execution: Execution, models: inout [Any]) throws {
+class AlbumsFragment: ListFragment {
+
+
+
+	override func loadModels(_ execution: Execution, models: inout [AnyObject]) throws {
 		models.append(Header(title: "Требования ФНС", totalCount: "20"))
 //		models.append(Header(title: "Задачи", totalCount: "21"))
 //		models = join(KissDestroyer, children: KissDestroyer.tracks)
