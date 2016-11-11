@@ -72,10 +72,13 @@ open class DeclarationContext {
 	}
 
 
+
 	public final func reset() {
 		bindings.clear()
 		hasBindings = false
 	}
+
+
 
 	open func getFloat(_ attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> CGFloat {
 		switch value {
@@ -87,12 +90,14 @@ open class DeclarationContext {
 	}
 
 
+
 	open func getFloat(_ attribute: DeclarationAttribute) throws -> CGFloat {
 		return try getFloat(attribute, attribute.value)
 	}
 
 
-	open func getEnum<Enum>(_ attribute: DeclarationAttribute, _ valuesByLowercaseName: [String:Enum]) throws -> Enum {
+
+	open func getEnum<Enum>(_ attribute: DeclarationAttribute, _ valuesByLowercaseName: [String: Enum]) throws -> Enum {
 		switch attribute.value {
 			case .value(let value):
 				if let resolved = valuesByLowercaseName[value.lowercased()] {
@@ -105,6 +110,7 @@ open class DeclarationContext {
 	}
 
 
+
 	open func getString(_ attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> String {
 		switch value {
 			case .value(let string):
@@ -115,9 +121,11 @@ open class DeclarationContext {
 	}
 
 
+
 	open func getString(_ attribute: DeclarationAttribute) throws -> String {
 		return try getString(attribute, attribute.value)
 	}
+
 
 
 	open func getExpression(_ attribute: DeclarationAttribute, _ value: DeclarationValue) throws -> DynamicBindings.Expression? {
@@ -131,14 +139,17 @@ open class DeclarationContext {
 	}
 
 
+
 	open func getExpression(_ attribute: DeclarationAttribute) throws -> DynamicBindings.Expression? {
 		return try getExpression(attribute, attribute.value)
 	}
 
 
+
 	open func getImage(_ attribute: DeclarationAttribute) throws -> UIImage {
 		return try getImage(attribute, value: attribute.value)
 	}
+
 
 
 	open func getImage(_ attribute: DeclarationAttribute, value: DeclarationValue) throws -> UIImage {
@@ -165,6 +176,7 @@ open class DeclarationContext {
 	}
 
 
+
 	open func getBool(_ attribute: DeclarationAttribute) throws -> Bool {
 		switch attribute.value {
 			case .value(let string):
@@ -183,6 +195,7 @@ open class DeclarationContext {
 	}
 
 
+
 	open func getSize(_ attribute: DeclarationAttribute) throws -> CGSize {
 		switch attribute.value {
 			case .value(let string):
@@ -197,6 +210,7 @@ open class DeclarationContext {
 				throw DeclarationError("Missing size value", attribute, self)
 		}
 	}
+
 
 
 	open func getInsets(_ attribute: DeclarationAttribute) throws -> UIEdgeInsets {
@@ -219,6 +233,7 @@ open class DeclarationContext {
 				throw DeclarationError("Missing insets value", attribute, self)
 		}
 	}
+
 
 
 	public final func applyInsets(_ insets: inout UIEdgeInsets, name: String, attribute: DeclarationAttribute) throws -> Bool {
@@ -255,6 +270,7 @@ open class DeclarationContext {
 	}
 
 
+
 	public final func getFont(_ attribute: DeclarationAttribute, defaultFont: UIFont?) throws -> UIFont {
 		return try getFont(attribute, value: attribute.value, defaultFont: defaultFont ?? UIFont.systemFont(ofSize: UIFont.systemFontSize))
 	}
@@ -265,25 +281,46 @@ open class DeclarationContext {
 
 	private func font(_ font: UIFont, withTrait trait: UIFontDescriptorSymbolicTraits) -> UIFont {
 		let descriptor = font.fontDescriptor
-		return UIFont(descriptor: descriptor.withSymbolicTraits(descriptor.symbolicTraits.union(trait))!, size: font.pointSize)
+		if let descriptorWithTraits = descriptor.withSymbolicTraits(descriptor.symbolicTraits.union(trait)) {
+			return UIFont(descriptor: descriptorWithTraits, size: font.pointSize)
+		}
+		return font
 	}
+
+
 
 	public final func getFont(_ attribute: DeclarationAttribute, value: DeclarationValue, defaultFont: UIFont) throws -> UIFont {
 		switch value {
 			case .value(let string):
-				var size: Float = 0
+
+				if #available(iOS 9, *) {
+					if let style = DeclarationContext.textStyleByName[string] {
+						return UIFont.preferredFont(forTextStyle: style)
+					}
+				}
 				if string == "bold" {
 					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.traitBold)
 				}
 				if string == "italic" {
 					return font(defaultFont, withTrait: UIFontDescriptorSymbolicTraits.traitItalic)
 				}
-				else if Scanner(string: string).scanFloat(&size) {
-					return defaultFont.withSize(CGFloat(size))
+
+				if let delta = float(from: string, prefix: "+", suffix: nil) {
+					return defaultFont.withSize(defaultFont.pointSize + delta)
 				}
-				else {
-					return UIFont(name: string, size: defaultFont.pointSize) ?? defaultFont
+				if let delta = float(from: string, prefix: "-", suffix: nil) {
+					return defaultFont.withSize(defaultFont.pointSize - delta)
 				}
+				if let ratio = float(from: string, prefix: "*", suffix: nil) {
+					return defaultFont.withSize(defaultFont.pointSize * ratio)
+				}
+				if let percent = float(from: string, prefix: nil, suffix: "%") {
+					return defaultFont.withSize(defaultFont.pointSize * percent / 100)
+				}
+				if let size = float(from: string, prefix: nil, suffix: nil) {
+					return defaultFont.withSize(size)
+				}
+				return UIFont(name: string, size: defaultFont.pointSize) ?? defaultFont
 			case .list(let values):
 				var font = defaultFont
 				for value in values {
@@ -295,6 +332,46 @@ open class DeclarationContext {
 		}
 	}
 
+
+
+	private func float(from: String, prefix: String?, suffix: String?) -> CGFloat? {
+		var string: String
+		if let prefix = prefix {
+			if !from.hasPrefix(prefix) {
+				return nil
+			}
+			string = from.substring(from: from.index(from.startIndex, offsetBy: 1))
+		}
+		else if let suffix = suffix {
+			if !from.hasSuffix(suffix) {
+				return nil
+			}
+			string = from.substring(to: from.index(from.endIndex, offsetBy: -1))
+		}
+		else {
+			string = from
+		}
+		var size = Float(0)
+		if Scanner(string: string).scanFloat(&size) {
+			return CGFloat(size)
+		}
+		return nil
+	}
+
+
+	@available(iOS 9.0, *)
+	private static let textStyleByName: [String: UIFontTextStyle] = [
+		"@title1": .title1,
+		"@title2": .title2,
+		"@title3": .title3,
+		"@headline": .headline,
+		"@subheadline": .subheadline,
+		"@body": .body,
+		"@footnote": .footnote,
+		"@caption1": .caption1,
+		"@caption2": .caption2,
+		"@callout": .callout
+	]
 
 	private func parseFloat(_ string: String, attribute: DeclarationAttribute) throws -> CGFloat {
 		var value: Float = 0

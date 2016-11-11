@@ -89,10 +89,24 @@ private struct Vertical_measure {
 		let _ = measure(in_bounds: bounds.size)
 		var y = bounds.origin.y
 		let x = bounds.origin.x
+		var fill_space = bounds.height - total_spacing
+		var fill_count = 0
 		for child in children {
-			let child_bounds = CGRect(x: x, y: y, width: bounds.width, height: child.measured.height)
+			if child.element.verticalAlignment != .fill {
+				fill_count += 1
+				fill_space -= child.measured.height
+			}
+		}
+		if fill_count > 0 {
+			fill_space /= CGFloat(fill_count)
+		}
+		for child in children {
+			var child_bounds = CGRect(x: x, y: y, width: bounds.width, height: child.measured.height)
+			if fill_space > 0 && child.element.verticalAlignment == .fill {
+				child_bounds.size.height = fill_space
+			}
 			child.element.layout(inBounds: child_bounds, usingMeasured: child.measured.maxSize)
-			y += child.measured.height + container.spacing
+			y += child_bounds.height + container.spacing
 		}
 	}
 }

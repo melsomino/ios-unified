@@ -49,7 +49,7 @@ public struct DynamicBindings {
 			guard let value = obj else {
 				return nil
 			}
-			return HtmlParser.plainText(from: String(describing: value))
+			return HtmlParser.plainText(from: String(describing: value)).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
 		}
 	}
 

@@ -104,8 +104,10 @@ open class ContentElement: FragmentElement {
 		let layer = view.layer
 		layer.backgroundColor = (backgroundColor ?? defaultBackgroundColor ?? UIColor.clear).cgColor
 
-		if let radius = cornerRadius {
-//			view.clipsToBounds = true
+		if let radius = cornerRadius, radius > 0 {
+			if shadowOpacity == 0 {
+				view.clipsToBounds = true
+			}
 			layer.cornerRadius = radius
 		}
 		else {

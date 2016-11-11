@@ -285,6 +285,9 @@ open class FragmentElementDefinition {
 		},
 		"edit": {
 			TextEditDefinition()
+		},
+		"waiting": {
+			WaitingElementDefinition()
 		}
 	]
 

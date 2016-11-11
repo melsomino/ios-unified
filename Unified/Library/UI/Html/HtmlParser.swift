@@ -21,7 +21,8 @@ public struct HtmlParser {
 			if let body = doc.body {
 				parser.parse_node(body)
 			}
-		} catch {
+		}
+		catch {
 
 		}
 		return parser.text
@@ -35,17 +36,15 @@ public struct HtmlParser {
 			for child in element.childNodes(ofTypes: [.Element, .Text, .CDataSection]) {
 				parse_node(child)
 			}
-			switch tag {
-				case "br", "p", "div", "li":
-					text += "\n"
-				default:
-					break
+			if HtmlParser.new_line_tags.contains(tag) {
+				text += "\n"
 			}
 		}
 		else {
-			text += node.stringValue
+			text += node.stringValue.replacingOccurrences(of: "\n", with: "")
 		}
 	}
 
+	private static let new_line_tags = Set<String>(["br", "p", "div", "li", "pre", "h1", "h2", "h3", "h4"])
 
 }
