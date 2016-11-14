@@ -440,7 +440,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 					strongSelf.loadingIndicator.endRefreshing()
 				}
 				if let error = loadError {
-					strongSelf.optionalCentralUI?.pushAlert(.error, message: TableFragment.userMessage(fromError: error))
+					strongSelf.optionalCentralUI?.push(alert: .error, message: error.userMessage)
 					print(error)
 					return
 				}
@@ -452,15 +452,6 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 				strongSelf.tableView?.reloadData()
 				strongSelf.onModelsLoaded()
 			}
-		}
-	}
-
-	private static func userMessage(fromError error: Error) -> String {
-		switch error {
-			case let nsError as NSError:
-				return nsError.localizedDescription
-			default:
-				return String(describing: error)
 		}
 	}
 

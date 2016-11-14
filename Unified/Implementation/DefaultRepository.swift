@@ -156,7 +156,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 					notify()
 				}
 				catch let error {
-					optionalCentralUI?.pushAlert(.error, message: String(describing: error))
+					optionalCentralUI?.push(alert: .error, message: error.userMessage)
 					print(error)
 				}
 			default:

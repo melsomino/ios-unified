@@ -29,43 +29,71 @@ private func parse(element: DeclarationElement, startAttribute: Int,
 
 
 public class FrameNavigationBarDefinition {
-	public final let backgroundColor: UIColor?
+	public final let barTintColor: UIColor?
+	public final let tintColor: UIColor?
+	public final let translucent: Bool
+	public final let title: DynamicBindings.Expression
 
-	public init(backgroundColor: UIColor?) {
-		self.backgroundColor = backgroundColor
+	public init(barTintColor: UIColor?, tintColor: UIColor?, translucent: Bool,
+		title: DynamicBindings.Expression) {
+		self.barTintColor = barTintColor
+		self.tintColor = tintColor
+		self.translucent = translucent
+		self.title = title
 	}
 
 
 
 	public static func from(element: DeclarationElement, context: DeclarationContext) throws -> FrameNavigationBarDefinition {
-		var backgroundColor: UIColor?
+		var barTintColor: UIColor?
+		var tintColor: UIColor?
+		var translucent = true
+		var title: DynamicBindings.Expression = DynamicBindings.zeroExpression
 		try parse(element: element, startAttribute: 0, attributes: [
-			"background-color": {
-				backgroundColor = try context.getColor($0)
+			"bar-tint-color": {
+				barTintColor = try context.getColor($0)
+			},
+			"tint-color": {
+				tintColor = try context.getColor($0)
+			},
+			"translucent": {
+				translucent = try context.getBool($0)
+			},
+			"title": {
+				title = try context.getExpression($0) ?? title
 			}
 		], children: [:])
-		return FrameNavigationBarDefinition(backgroundColor: backgroundColor)
+		return FrameNavigationBarDefinition(barTintColor: barTintColor, tintColor: tintColor, translucent: translucent, title: title)
 	}
 
 
 
-	public final func apply(controller: UIViewController) {
-//		let navigation = controller.navigationItem
+	final func apply(values: [Any?], controller: UIViewController) {
 		if let bar: UINavigationBar = controller.navigationController?.navigationBar {
-			bar.backgroundColor = backgroundColor
+			bar.barTintColor = barTintColor
+			bar.tintColor = tintColor
+			bar.isTranslucent = translucent
 		}
+		let navigation = controller.navigationItem
+		navigation.title = title.evaluate(values)
 	}
 
-	public static let zero = FrameNavigationBarDefinition(backgroundColor: nil)
+	public static let zero = FrameNavigationBarDefinition(barTintColor: nil, tintColor: nil, translucent: true, title: DynamicBindings.zeroExpression)
 }
 
 
 
 public class FrameDefinition {
+	public static let zero = FrameDefinition(bindings: DynamicBindings(), backgroundColor: .white, navigationBar: FrameNavigationBarDefinition.zero)
+
+	public static let RepositorySection = "ui-frame"
+
+	public final let bindings: DynamicBindings
 	public final let navigationBar: FrameNavigationBarDefinition
 	public final let backgroundColor: UIColor
 
-	init(backgroundColor: UIColor, navigationBar: FrameNavigationBarDefinition) {
+	init(bindings: DynamicBindings, backgroundColor: UIColor, navigationBar: FrameNavigationBarDefinition) {
+		self.bindings = bindings
 		self.backgroundColor = backgroundColor
 		self.navigationBar = navigationBar
 	}
@@ -87,13 +115,25 @@ public class FrameDefinition {
 				}
 			]
 		)
-		return FrameDefinition(backgroundColor: backgroundColor, navigationBar: navigationBar)
+		return FrameDefinition(bindings: context.bindings, backgroundColor: backgroundColor, navigationBar: navigationBar)
+	}
+
+	final func apply(model: AnyObject, controller: UIViewController) {
+		var values = [Any?](repeating: nil, count: bindings.valueIndexByName.count)
+		let mirror = Mirror(reflecting: model)
+		for member in mirror.children {
+			if let name = member.label {
+				if let index = bindings.valueIndexByName[name] {
+					values[index] = member.value
+				}
+			}
+		}
+		navigationBar.apply(values: values, controller: controller)
 	}
 
 
-
 	static func setup() {
-		DefaultRepository.register(section: "ui-frame") {
+		DefaultRepository.register(section: RepositorySection) {
 			element, startAttribute, context in
 			return (element.attributes[startAttribute].name, try FrameDefinition.from(element: element, startAttribute: startAttribute, context: context))
 		}

@@ -1,30 +1,19 @@
 repository Layouts
 
 ui-frame
-	AlbumsFragment.AlbumsFragment
-		navigation-bar title=Альбомы
+	Layouts.AlbumsViewModel background-color=red
+		navigation-bar title={artist} bar-tint-color1=white translucent=true
 
 
 ui
-	Layouts.Header layout-cache-key=1
-		horizontal margin=22 spacing=12 hor=fill
-			view size=20 background-color=555 shadow-opacity=0.5 corner-radius=0
-			text A font=14 color=white  shadow-opacity=0.5
-				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
-			button title=A font=14 color=white action=test shadow-opacity=0.5
-				~ background-color=888 padding=(10 5) corner-radius=10 border-color1=555 border-width1=1
-			decorator shadow-opacity=0.2 shadow-radius=5 shadow-offset=(0 2) hor=right
-				~ background-color=ccc padding=(10 5) corner-radius=13.5 border-color1=555 border-width1=1
-				text Aaaaaaaaaaa font=14 color=555
-
 	Layouts.Album background-color=f1f1f1
 		horizontal margin=12 margin-top=25
 			vertical
 				text {artist} font=40 color=red
 				text {title} font=20 color=gray
-			text {issued} font=12 color=gray align=top
+			text '{issued format=date(MMM yyyy)}' font=12 color=gray align=top baseline-font-top=40
 
-	Layouts.AlbumTrack
+	Layouts.AlbumTrack background-color=red
 		horizontal margin=12
 			text {title} color=e33 max-lines=3 font=20
 			text {duration} font=8 color=333 align=right

@@ -3,7 +3,16 @@
 //
 
 import Foundation
-import  UIKit
+import UIKit
+
+
+
+public class UnifiedRuntime {
+	public static func setup() {
+		UnifiedUi.setup()
+	}
+}
+
 
 
 extension DependencyContainer {

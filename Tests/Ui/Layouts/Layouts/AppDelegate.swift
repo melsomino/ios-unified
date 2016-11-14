@@ -11,21 +11,6 @@ import Unified
 
 
 
-
-
-class Header {
-	let title: String?
-	let totalCount: String
-	init(title: String?, totalCount: String) {
-		self.title = title
-		self.totalCount = totalCount
-	}
-}
-
-
-
-
-
 class AlbumTrack {
 	let title: String
 	let duration: TimeInterval
@@ -34,8 +19,6 @@ class AlbumTrack {
 		self.duration = duration
 	}
 }
-
-
 
 
 
@@ -52,8 +35,6 @@ class Album {
 	}
 
 }
-
-
 
 
 
@@ -88,20 +69,6 @@ let KissDestroyer = Album(artist: "Kiss", title: "Destroyer", issued: makeDate(5
 
 
 
-
-
-
-
-
-func test_html() {
-	let text = HtmlParser.plainText(from: "<p>Параграф <a href='sdsfds'>fdsfds</a> <b>1</b></p><p>Параграф<br><i>2</i></p>")
-	print(text)
-}
-
-
-
-
-
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, RepositoryDependent {
 
@@ -117,9 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
-		Fragment.setup()
-
-		test_html()
+		UnifiedRuntime.setup()
 
 		dependency = DependencyContainer {
 			container in
@@ -131,6 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 		repository.devServerUrl = RepositoryDefaultDevServerUrl
 
 		let fragment = AlbumsFragment(dependency: dependency)
+		fragment.model = AlbumsViewModel(artist: "Kiss")
 
 		window = UIWindow(frame: UIScreen.main.bounds)
 		window!.rootViewController = centralUI.rootController
@@ -147,25 +113,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 
 }
 
-
-
+class AlbumsViewModel {
+	public var artist = ""
+	public init(artist: String) {
+		self.artist = artist
+	}
+}
 
 
 class AlbumsFragment: ListFragment {
 
-
-
-	override func loadModels(_ execution: Execution, models: inout [AnyObject]) throws {
-		models.append(Header(title: "Требования ФНС", totalCount: "20"))
-//		models.append(Header(title: "Задачи", totalCount: "21"))
-//		models = join(KissDestroyer, children: KissDestroyer.tracks)
+	override func loadPortion(items: inout [AnyObject], from: Any?, async: Execution) throws -> Any? {
+		items.append(KissDestroyer)
+		for track in KissDestroyer.tracks {
+			items.append(track)
+		}
+		return nil
 	}
 
 
 
-	override func onControllerAttached() {
-		super.onControllerAttached()
-		controller.navigationItem.title = "Layouts"
+	override func onInit() {
+		super.onInit()
+		controller.navigationItem.title = "Albums"
 		controller.navigationItem.leftBarButtonItem = centralUI.createMenuIntegrationBarButtonItem()
 	}
 

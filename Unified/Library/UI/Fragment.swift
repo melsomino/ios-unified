@@ -6,6 +6,12 @@
 import Foundation
 import UIKit
 
+class UnifiedUi {
+	public static func setup() {
+		FragmentDefinition.setup()
+		FrameDefinition.setup()
+	}
+}
 
 public protocol FragmentDelegate: class {
 	var controller: UIViewController! { get }
@@ -16,10 +22,6 @@ public protocol FragmentDelegate: class {
 
 open class Fragment: NSObject, RepositoryDependent, RepositoryListener, FragmentElementDelegate {
 
-	public static func setup() {
-		FragmentDefinition.setup()
-		FrameDefinition.setup()
-	}
 
 	public final let modelType: AnyObject.Type
 	public final var layoutCacheKeyProvider: ((AnyObject) -> String?)?

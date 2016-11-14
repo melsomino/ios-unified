@@ -32,6 +32,8 @@ public protocol ListFragmentUpdates: class {
 
 open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
+	private var frameDefinition = FrameDefinition.zero
+
 	public final weak var controller: UIViewController!
 	public final var emptyMessage = "Нет данных"
 	public final var tableView: UITableView! {
@@ -39,7 +41,11 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	}
 
 
-	public final var model: AnyObject?
+	public final var model: AnyObject? {
+		didSet {
+			onModelChange()
+		}
+	}
 	public final var items = [AnyObject]()
 
 
@@ -199,7 +205,9 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	open func onResize() {
 	}
 
-
+	open func onModelChange() {
+		reloadFrameDefinition()
+	}
 
 	open func onItemsLoaded() {
 	}
@@ -227,6 +235,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	open func repositoryChanged(_ repository: Repository) {
+		reloadFrameDefinition()
 		layoutCache.clear()
 		tableView?.reloadData()
 	}
@@ -383,7 +392,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		reloadingIndicator?.removeFromSuperview()
 		reloadingIndicator = nil
 		if let error = loadError {
-			optionalCentralUI?.pushAlert(.error, message: ListFragment.userMessage(fromError: error))
+			optionalCentralUI?.push(alert: .error, message: error.userMessage)
 			print(error)
 			return
 		}
@@ -424,16 +433,22 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
-	private static func userMessage(fromError error: Error) -> String {
-		switch error {
-			case let nsError as NSError:
-				return nsError.localizedDescription
-			default:
-				return String(describing: error)
+
+	fileprivate func reloadFrameDefinition() {
+		guard let controller = controller, let model = model else {
+			return
 		}
+		var repositoryDefinition: FrameDefinition?
+		do {
+			repositoryDefinition = try optionalRepository?.findDefinition(for: type(of: model), with: nil, in: FrameDefinition.RepositorySection) as? FrameDefinition
+		}
+		catch let error {
+			optionalCentralUI?.push(alert: .error, message: error.userMessage)
+		}
+		frameDefinition = repositoryDefinition ?? FrameDefinition.zero
+		frameDefinition.apply(model: model, controller: controller)
+		tableView.backgroundColor = frameDefinition.backgroundColor
 	}
-
-
 }
 
 
@@ -566,6 +581,7 @@ class ListFragmentController: UITableViewController {
 		fragment.loadingIndicator = UIRefreshControl()
 		refreshControl = fragment.loadingIndicator
 		fragment.loadingIndicator.addTarget(self, action: #selector(onLoadingIndicatorRefresh), for: .valueChanged)
+		fragment.reloadFrameDefinition()
 		fragment.onInit()
 		fragment.startLoad()
 	}

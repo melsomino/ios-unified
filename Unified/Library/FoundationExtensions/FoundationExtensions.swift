@@ -15,6 +15,8 @@ public func sameObjects(_ a: AnyObject?, _ b: AnyObject?) -> Bool {
 	return a! === b!
 }
 
+
+
 extension String {
 	public static func same(_ a: String?, _ b: String?) -> Bool {
 		if a == nil && b == nil {
@@ -26,6 +28,21 @@ extension String {
 		return a! == b!
 	}
 }
+
+
+
+extension Error {
+	public var userMessage: String {
+		switch self {
+			case let nsError as NSError:
+				return nsError.localizedDescription
+			default:
+				return String(describing: self)
+		}
+	}
+}
+
+
 
 public extension Sequence {
 
@@ -40,8 +57,8 @@ public extension Sequence {
 
 
 
-	func categorise<Key:Hashable, Value>(_ getKey: (Iterator.Element) -> Key, _ getValue: (Iterator.Element) -> Value) -> [Key:[Value]] {
-		var result: [Key:[Value]] = [:]
+	func categorise<Key:Hashable, Value>(_ getKey: (Iterator.Element) -> Key, _ getValue: (Iterator.Element) -> Value) -> [Key: [Value]] {
+		var result: [Key: [Value]] = [:]
 		for item in self {
 			let key = getKey(item)
 			let value = getValue(item)
@@ -52,7 +69,6 @@ public extension Sequence {
 		return result
 	}
 }
-
 
 
 
@@ -67,6 +83,8 @@ extension Dictionary {
 	}
 
 }
+
+
 
 extension Array {
 
@@ -96,6 +114,7 @@ extension Array {
 }
 
 
+
 extension Date {
 
 	public static func orderOf(_ a: Date?, _ b: Date?) -> ComparisonResult {
@@ -119,6 +138,7 @@ extension Date {
 }
 
 
+
 open class ParseError: Error, CustomStringConvertible {
 	open var message: String
 	open var scanner: Scanner
@@ -135,6 +155,7 @@ open class ParseError: Error, CustomStringConvertible {
 	}
 
 }
+
 
 
 extension Scanner {
@@ -213,7 +234,6 @@ extension Scanner {
 
 
 
-
 	func passIdentifier(passWhitespaces: Bool) -> String? {
 		var start: NSString?
 		guard scanCharacters(from: Scanner.identifierStart, into: &start) else {
@@ -287,6 +307,7 @@ extension Scanner {
 }
 
 
+
 extension CharacterSet {
 
 	static func union(_ sets: CharacterSet...) -> CharacterSet {
@@ -302,7 +323,7 @@ extension CharacterSet {
 
 extension Bundle {
 
-	private static let bundleIdByModuleName: [String:String] = {
+	private static let bundleIdByModuleName: [String: String] = {
 		var bundles = [String: String]()
 		for bundle in Bundle.allBundles {
 			if let id = bundle.bundleIdentifier {

@@ -35,6 +35,8 @@ public struct DynamicBindings {
 	}
 
 
+	public static let zeroExpression: Expression = Literal(value: "", next: nil)
+
 	// MARK: - Internals
 
 

@@ -95,11 +95,11 @@ public protocol CentralUI: class {
 
 
 
-extension CentralUI {
-	public func pushAlert(_ alert: CentralUIAlert, message: String, icon: UIImage) {
+public extension CentralUI {
+	public func push(alert: CentralUIAlert, message: String, icon: UIImage) {
 		pushAlert(alert, message: message, icon: icon, actionArg: nil, action: nil)
 	}
-	public func pushAlert(_ alert: CentralUIAlert, message: String) {
+	public func push(alert: CentralUIAlert, message: String) {
 		pushAlert(alert, message: message, icon: nil, actionArg: nil, action: nil)
 	}
 }
