@@ -289,23 +289,9 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 	private func internalTryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?) {
-		guard let actionWithArgs = action?.evaluate(modelValues) else {
-			return
+		if let (name, args) = Fragment.parse(action: action, values: modelValues, defaultArgs: defaultArgs) {
+			onAction(name, args: args)
 		}
-		var name: String
-		var args: String?
-		if let argsSeparator = actionWithArgs.rangeOfCharacter(from: CharacterSet.whitespaces) {
-			name = actionWithArgs.substring(to: argsSeparator.lowerBound)
-			args = actionWithArgs.substring(from: argsSeparator.upperBound).trimmingCharacters(in: CharacterSet.whitespaces)
-			if args!.isEmpty {
-				args = defaultArgs
-			}
-		}
-		else {
-			name = actionWithArgs
-			args = defaultArgs
-		}
-		onAction(name, args: args)
 	}
 
 
@@ -444,6 +430,25 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 		}
 	}
 
+	static func parse(action: DynamicBindings.Expression?, values: [Any?], defaultArgs: String?) -> (String, String?)? {
+		guard let actionWithArgs = action?.evaluate(values) else {
+			return nil
+		}
+		var name: String
+		var args: String?
+		if let argsSeparator = actionWithArgs.rangeOfCharacter(from: CharacterSet.whitespaces) {
+			name = actionWithArgs.substring(to: argsSeparator.lowerBound)
+			args = actionWithArgs.substring(from: argsSeparator.upperBound).trimmingCharacters(in: CharacterSet.whitespaces)
+			if args!.isEmpty {
+				args = defaultArgs
+			}
+		}
+		else {
+			name = actionWithArgs
+			args = defaultArgs
+		}
+		return (name, args)
+	}
 }
 
 

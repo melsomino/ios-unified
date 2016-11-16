@@ -294,6 +294,8 @@ public struct DynamicBindings {
 		override func evaluateOwnValue(_ values: [Any?]) -> String? {
 			return value
 		}
+
+		public static let zero = Literal(value: "", next: nil)
 	}
 
 

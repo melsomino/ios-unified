@@ -440,7 +440,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 					strongSelf.loadingIndicator.endRefreshing()
 				}
 				if let error = loadError {
-					strongSelf.optionalCentralUI?.push(alert: .error, message: error.userMessage)
+					strongSelf.optionalCentralUI?.push(alert: .error, message: error.userDescription)
 					print(error)
 					return
 				}

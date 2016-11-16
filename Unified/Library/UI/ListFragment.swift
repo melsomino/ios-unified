@@ -32,7 +32,7 @@ public protocol ListFragmentUpdates: class {
 
 open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, RepositoryDependent, RepositoryListener, CentralUIDependent {
 
-	private var frameDefinition = FrameDefinition.zero
+	public private(set) var frameDefinition = FrameDefinition.zero
 
 	public final weak var controller: UIViewController!
 	public final var emptyMessage = "Нет данных"
@@ -320,6 +320,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	private var layoutCache = FragmentLayoutCache()
 	fileprivate var loadingIndicator: UIRefreshControl!
 	private var reloadingIndicator: UIActivityIndicatorView!
+	private var actionRouters = [ActionRouter]()
 
 
 	func keyboardWillAppear(_ notification: Notification) {
@@ -392,7 +393,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		reloadingIndicator?.removeFromSuperview()
 		reloadingIndicator = nil
 		if let error = loadError {
-			optionalCentralUI?.push(alert: .error, message: error.userMessage)
+			optionalCentralUI?.push(alert: .error, message: error.userDescription)
 			print(error)
 			return
 		}
@@ -443,10 +444,10 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			repositoryDefinition = try optionalRepository?.findDefinition(for: type(of: model), with: nil, in: FrameDefinition.RepositorySection) as? FrameDefinition
 		}
 		catch let error {
-			optionalCentralUI?.push(alert: .error, message: error.userMessage)
+			optionalCentralUI?.push(alert: .error, message: error.userDescription)
 		}
 		frameDefinition = repositoryDefinition ?? FrameDefinition.zero
-		frameDefinition.apply(model: model, controller: controller)
+		actionRouters = frameDefinition.apply(controller: controller, model: model, delegate: self, dependency: dependency)
 		tableView.backgroundColor = frameDefinition.backgroundColor
 	}
 }
@@ -613,7 +614,7 @@ class ListFragmentController: UITableViewController {
 
 
 	override var preferredStatusBarStyle: UIStatusBarStyle {
-		return .lightContent
+		return fragment.frameDefinition.statusBar
 	}
 
 

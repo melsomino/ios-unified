@@ -51,6 +51,7 @@ public struct DeclarationElement {
 	}
 
 
+
 	public static func parse(_ source: String) throws -> [DeclarationElement] {
 		let scanner = Scanner(source: source, passWhitespaces: false)
 		return try parseElements(scanner, elementIndent: 0)
@@ -76,6 +77,7 @@ public struct DeclarationElement {
 
 		return DeclarationElement(attributes: attributes, children: children)
 	}
+
 
 
 	static func parseElements(_ scanner: Scanner, elementIndent: Int) throws -> [DeclarationElement] {
@@ -117,6 +119,7 @@ extension Scanner {
 	}
 
 
+
 	func passDeclarationIndent(_ expected: Int) -> Bool {
 		var indent = 0
 		let saveLocation = scanLocation
@@ -137,6 +140,7 @@ extension Scanner {
 		}
 		return indent == expected
 	}
+
 
 
 	func parseDeclarationAttributes(_ elementIndent: Int) throws -> [DeclarationAttribute] {
@@ -160,6 +164,7 @@ extension Scanner {
 	}
 
 
+
 	func passAttributeValue() throws -> DeclarationValue {
 		if pass("(", passWhitespaces: true) {
 			var values = [DeclarationValue]()
@@ -175,6 +180,7 @@ extension Scanner {
 	}
 
 
+
 	func passNameOrValue() throws -> String? {
 		if pass("'", passWhitespaces: false) {
 			let value = passUntil("'") ?? ""
@@ -188,6 +194,7 @@ extension Scanner {
 		}
 		return passUntilEndOrOneOf(nameOrValueTerminator, passWhitespaces: true)
 	}
+
 
 
 	func expectName(passWhitespaces: Bool) throws -> String {

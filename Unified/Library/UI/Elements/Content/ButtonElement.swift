@@ -71,6 +71,14 @@ open class ButtonElement: ContentElement {
 	}
 
 
+	open var lineBreak: NSLineBreakMode = .byTruncatingMiddle {
+		didSet {
+			if let button = view as? UIButton {
+				button.titleLabel?.lineBreakMode = lineBreak
+			}
+		}
+	}
+
 	open var image: UIImage? {
 		didSet {
 			if let button = view as? UIButton {
@@ -103,7 +111,10 @@ open class ButtonElement: ContentElement {
 		else {
 			button.tintColor = color
 		}
-		button.titleLabel?.font = font
+		if let label = button.titleLabel {
+			label.lineBreakMode = lineBreak
+			label.font = font
+		}
 		button.contentEdgeInsets = padding
 	}
 
@@ -144,9 +155,20 @@ open class ButtonElement: ContentElement {
 
 	open override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		let imageSize = image?.size ?? CGSize.zero
-		let titleSize = TextElement.measureText(title, font: font, inWidth: CGFloat.greatestFiniteMagnitude)
+		var titleSize: SizeMeasure
+
+		switch lineBreak {
+			case .byWordWrapping, .byCharWrapping:
+				let size = TextElement.measureText(title, font: font, inWidth: bounds.width - imageSize.width - padding.left + padding.right)
+				titleSize = SizeMeasure(width: (CGFloat(5), size.width), height: size.height)
+			default:
+				let size = TextElement.measureText(title, font: font, inWidth: CGFloat.greatestFiniteMagnitude)
+				titleSize = SizeMeasure(width: size.width, height: size.height)
+		}
 		let spacing = CGFloat(0)
-		let measured = SizeMeasure(width: imageSize.width + spacing + titleSize.width, height: max(imageSize.height, titleSize.height))
+		let measured = SizeMeasure(
+			width: (imageSize.width + spacing + titleSize.width.min, imageSize.width + spacing + titleSize.width.max),
+			height: max(imageSize.height, titleSize.height))
 		return FragmentElement.expand(measure: measured, edges: padding)
 	}
 
@@ -203,6 +225,7 @@ open class ButtonElementDefinition: ContentElementDefinition {
 	var image: UIImage?
 	var title: DynamicBindings.Expression?
 	var action: DynamicBindings.Expression?
+	var lineBreak = NSLineBreakMode.byTruncatingMiddle
 
 
 	// MARK: - UiElementDefinition
@@ -222,6 +245,8 @@ open class ButtonElementDefinition: ContentElementDefinition {
 				action = try context.getExpression(attribute)
 			case "image":
 				image = try context.getImage(attribute)
+			case "line-break":
+				lineBreak = try context.getEnum(attribute, ButtonElementDefinition.lineBreakByName)
 			default:
 				if try context.applyInsets(&padding, name: "padding", attribute: attribute) {
 				}
@@ -244,16 +269,28 @@ open class ButtonElementDefinition: ContentElementDefinition {
 	open override func initialize(_ element: FragmentElement, children: [FragmentElement]) {
 		super.initialize(element, children: children)
 
-		let button = element as! ButtonElement
-		button.type = type
-		button.image = image
-		button.color = color
-		button.font = font
-		button.padding = padding
+		guard let element = element as? ButtonElement else {
+			return
+		}
+		element.type = type
+		element.image = image
+		element.color = color
+		element.font = font
+		element.padding = padding
+		element.lineBreak = lineBreak
 	}
 
 
 	// MARK: - Internals
+
+	static let lineBreakByName: [String: NSLineBreakMode] = [
+		"word-wrap": .byWordWrapping,
+		"char-wrap": .byCharWrapping,
+		"clip": .byClipping,
+		"truncate-head": .byTruncatingHead,
+		"truncate-tail": .byTruncatingTail,
+		"truncate-middle": .byTruncatingMiddle
+	]
 
 	static let typesByName: [String:UIButtonType] = [
 		"system": .system,
