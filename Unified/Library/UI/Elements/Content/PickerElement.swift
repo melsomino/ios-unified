@@ -103,7 +103,7 @@ open class PickerElement: ViewElement, PickerElementDelegate {
 			else {
 				actionWithArgs = "\(action) \(item)"
 			}
-			delegate?.tryExecuteAction(DynamicBindings.Literal(value: actionWithArgs, next: nil), defaultArgs: nil)
+			fragment?.tryExecuteAction(DynamicBindings.Literal(value: actionWithArgs, next: nil), defaultArgs: nil)
 		}
 	}
 

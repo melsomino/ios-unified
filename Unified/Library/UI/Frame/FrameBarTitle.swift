@@ -5,8 +5,10 @@
 import Foundation
 import UIKit
 
+
+
 class FrameBarTitle {
-	func apply(frame: FrameBuilder) {
+	func apply(frame: FrameBuilder) throws {
 	}
 
 
@@ -15,13 +17,11 @@ class FrameBarTitle {
 		var text: DynamicBindings.Expression?
 		var textAttributes = [String: Any]()
 		var action: DynamicBindings.Expression?
+
 		for attribute in element.attributes[1 ..< element.attributes.count] {
 			switch attribute.name {
 				case "text":
-					guard let expression = try context.getExpression(attribute) else {
-						throw DeclarationError("Invalid navigation bar title definition", attribute, context)
-					}
-					text = expression
+					text = try context.getExpression(attribute)
 				case "font":
 					textAttributes[NSFontAttributeName] = try context.getFont(attribute, defaultFont: nil)
 				case "color":
@@ -35,7 +35,8 @@ class FrameBarTitle {
 		if let text = text {
 			return FrameBarTitleText(text: text, attributes: textAttributes, action: action)
 		}
-		throw DeclarationError("Invalid navigation bar item definition", element, context)
+		let fragmentDefinition = try FragmentDefinition.from(element: element, startAttribute: 0, context: context)
+		return FrameBarTitleFragment(definition: fragmentDefinition, action: action)
 	}
 }
 
@@ -54,7 +55,7 @@ class FrameBarTitleText: FrameBarTitle {
 
 
 
-	override func apply(frame: FrameBuilder) {
+	override func apply(frame: FrameBuilder) throws {
 		guard let action = action else {
 			frame.navigation.title = text.evaluate(frame.modelValues)
 			frame.bar?.titleTextAttributes = attributes
@@ -72,7 +73,7 @@ class FrameBarTitleText: FrameBarTitle {
 		titleView.frame = CGRect(origin: CGPoint.zero, size: CGSize(width: width, height: 500))
 		frame.navigation.titleView = titleView
 
-		let recognizer = UITapGestureRecognizer(target: frame.target(action: action), action: frame.action)
+		let recognizer = UITapGestureRecognizer(target: frame.actionRouter(action), action: #selector(ActionRouter.onAction))
 		titleView.isUserInteractionEnabled = true
 		titleView.addGestureRecognizer(recognizer)
 	}
@@ -83,14 +84,25 @@ class FrameBarTitleText: FrameBarTitle {
 
 
 class FrameBarTitleFragment: FrameBarTitle {
-	init(element: DeclarationElement, context: DeclarationContext) throws {
+	let action: DynamicBindings.Expression?
+	let definition: FragmentDefinition
 
+	init(definition: FragmentDefinition, action: DynamicBindings.Expression?) {
+		self.definition = definition
+		self.action = action
 	}
 
 
 
-	override func apply(frame: FrameBuilder) {
-		super.apply(frame: frame)
+	override func apply(frame: FrameBuilder) throws {
+		let actor = frame.fragmentActor(definition: definition, createContainer: true, measureInWidth: 320)
+		frame.navigation.titleView = actor.container
+
+		if let action = action, let container = actor.container {
+			let recognizer = UITapGestureRecognizer(target: frame.actionRouter(action), action: #selector(ActionRouter.onAction))
+			container.isUserInteractionEnabled = true
+			container.addGestureRecognizer(recognizer)
+		}
 	}
 }
 

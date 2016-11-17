@@ -131,8 +131,8 @@ open class ButtonElement: ContentElement {
 
 
 	func onTouchUpInside() {
-		if let action = (definition as? ButtonElementDefinition)?.action, let delegate = delegate {
-			delegate.tryExecuteAction(action, defaultArgs: nil)
+		if let action = (definition as? ButtonElementDefinition)?.action, let fragment = fragment {
+			fragment.tryExecuteAction(action, defaultArgs: nil)
 		}
 	}
 

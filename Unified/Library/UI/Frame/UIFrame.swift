@@ -28,7 +28,13 @@ func parse(element: DeclarationElement, startAttribute: Int,
 
 
 
-class ActionRouter {
+class FrameActor {
+
+}
+
+
+
+class ActionRouter: FrameActor {
 	let action: String
 	let args: String?
 	weak var delegate: FragmentDelegate?
@@ -55,6 +61,18 @@ class ActionRouter {
 
 
 
+class FragmentActor: FrameActor {
+	let fragment: Fragment
+	let container: FragmentContainer?
+	init(fragment: Fragment, container: FragmentContainer?) {
+		self.fragment = fragment
+		self.container = container
+	}
+}
+
+
+
+
 class FrameBuilder {
 	let navigation: UINavigationItem
 	let bar: UINavigationBar?
@@ -62,8 +80,7 @@ class FrameBuilder {
 	let modelValues: [Any?]
 	let delegate: FragmentDelegate
 	let dependency: DependencyResolver
-	let action = #selector(ActionRouter.onAction)
-	var actions = [ActionRouter]()
+	var actors = [FrameActor]()
 
 	var optionalCentralUI: CentralUI? {
 		return dependency.optional(CentralUIDependency)
@@ -100,14 +117,33 @@ class FrameBuilder {
 
 
 
-	func target(action: DynamicBindings.Expression?) -> ActionRouter {
+	func actionRouter(_ action: DynamicBindings.Expression?) -> FrameActor {
 		let router = ActionRouter(action: action, values: modelValues, delegate: delegate)
-		actions.append(router)
+		actors.append(router)
 		return router
 	}
+
+
+
+	func fragmentActor(definition: FragmentDefinition, createContainer: Bool, measureInWidth: CGFloat) -> FragmentActor {
+		let fragment = Fragment(forModelType: AnyObject.self)
+		fragment.dependency = dependency
+		fragment.definition = definition
+		fragment.model = model
+		fragment.delegate = delegate
+		var fragmentContainer: FragmentContainer?
+		if createContainer {
+			fragment.performLayoutInWidth = false
+			let container = FragmentContainer()
+			let size = fragment.rootElement!.measure(inBounds: CGSize(width: measureInWidth, height: 0)).maxSize
+			container.frame = CGRect(x:0, y:0, width: size.width, height: size.height)
+			fragment.container = container
+			container.fragment = fragment
+			fragmentContainer = container
+		}
+		return FragmentActor(fragment: fragment, container: fragmentContainer)
+	}
 }
-
-
 
 
 
@@ -116,7 +152,6 @@ class FrameBuilder {
 public class FrameDefinition {
 	public static let zero = FrameDefinition(bindings: DynamicBindings(), backgroundColor: .white, statusBar: .default, navigationBar: FrameNavigationBarDefinition.zero)
 
-	public static let RepositorySection = "ui-frame"
 
 	public final let bindings: DynamicBindings
 	public final let navigationBar: FrameNavigationBarDefinition
@@ -163,19 +198,25 @@ public class FrameDefinition {
 	]
 
 
-	final func apply(controller: UIViewController, model: AnyObject, delegate: FragmentDelegate, dependency: DependencyResolver) -> [ActionRouter] {
+	final func apply(controller: UIViewController, model: AnyObject, delegate: FragmentDelegate, dependency: DependencyResolver) throws -> [FrameActor] {
 		let frame = FrameBuilder(controller: controller, model: model, bindings: bindings, delegate: delegate, dependency: dependency)
-		navigationBar.apply(frame: frame)
-		return frame.actions
+		try navigationBar.apply(frame: frame)
+		return frame.actors
+	}
+
+
+	public static let RepositorySection = "frame"
+
+	static func createFromRepository(_ element: DeclarationElement, _ startAttribute: Int, _ context: DeclarationContext) throws -> (String, AnyObject) {
+		let name = element.attributes[startAttribute].name
+		let definition = try FrameDefinition.from(element: element, startAttribute: startAttribute, context: context)
+		return (name, definition)
 	}
 
 
 
 	static func setup() {
-		DefaultRepository.register(section: RepositorySection) {
-			element, startAttribute, context in
-			return (element.attributes[startAttribute].name, try FrameDefinition.from(element: element, startAttribute: startAttribute, context: context))
-		}
+		DefaultRepository.register(section: RepositorySection, itemFactory: createFromRepository)
 	}
 }
 

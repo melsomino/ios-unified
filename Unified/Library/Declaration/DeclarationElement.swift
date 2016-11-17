@@ -51,6 +51,13 @@ public struct DeclarationElement {
 	}
 
 
+	public func attributes(from start: Int) -> ArraySlice<DeclarationAttribute> {
+		return attributes[start ..< attributes.count]
+	}
+
+	public var skipName: ArraySlice<DeclarationAttribute> {
+		return attributes[1 ..< attributes.count]
+	}
 
 	public static func parse(_ source: String) throws -> [DeclarationElement] {
 		let scanner = Scanner(source: source, passWhitespaces: false)

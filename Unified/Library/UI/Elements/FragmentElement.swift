@@ -10,21 +10,9 @@ import UIKit
 
 
 
-public protocol FragmentElementDelegate: class {
-	func tryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?)
-
-
-
-	func layoutChanged(forElement element: FragmentElement)
-}
-
-
-
-
-
 open class FragmentElement {
 
-	public final weak var delegate: FragmentElementDelegate?
+	public final weak var fragment: Fragment?
 	public final var definition: FragmentElementDefinition!
 	public final var margin = UIEdgeInsets.zero
 	public final var horizontalAlignment = FragmentAlignment.leading

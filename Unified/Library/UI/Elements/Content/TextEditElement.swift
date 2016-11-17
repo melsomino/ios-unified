@@ -162,9 +162,9 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 		lockReflectView += 1
 		text = textEdit.text
 		lockReflectView -= 1
-		delegate?.tryExecuteAction(definition.textChangeAction, defaultArgs: text)
+		fragment?.tryExecuteAction(definition.textChangeAction, defaultArgs: text)
 		if maxLines > 0 {
-			delegate?.layoutChanged(forElement: self)
+			fragment?.layoutChanged(forElement: self)
 			if let editor = view as? TextEditView {
 				let point = CGPoint(x: 0, y: editor.contentSize.height - editor.bounds.size.height)
 				editor.setContentOffset(point, animated: true)
@@ -178,7 +178,7 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 		guard let definition = definition as? TextEditDefinition else {
 			return
 		}
-		delegate?.tryExecuteAction(definition.returnKeyAction, defaultArgs: text)
+		fragment?.tryExecuteAction(definition.returnKeyAction, defaultArgs: text)
 	}
 
 

@@ -6,6 +6,8 @@
 import Foundation
 import UIKit
 
+
+
 class UnifiedUi {
 	public static func setup() {
 		FragmentDefinition.setup()
@@ -13,21 +15,32 @@ class UnifiedUi {
 	}
 }
 
+
+
 public protocol FragmentDelegate: class {
 	var controller: UIViewController! { get }
 	func onAction(_ action: String, args: String?)
+
+
+
 	func layoutChanged(forFragment fragment: Fragment)
 }
 
 
-open class Fragment: NSObject, RepositoryDependent, RepositoryListener, FragmentElementDelegate {
+
+open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 
 
 	public final let modelType: AnyObject.Type
 	public final var layoutCacheKeyProvider: ((AnyObject) -> String?)?
 	public final var performLayoutInWidth = false
 	public final var definition: FragmentDefinition! {
-		return internalDefinition
+		get {
+			return internalDefinition
+		}
+		set {
+			setDefinition(newValue)
+		}
 	}
 	open var layoutName: String? {
 		didSet {
@@ -90,10 +103,19 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 	}
 
 
+	public convenience init(definition: FragmentDefinition, dependency: DependencyResolver) {
+		self.init(forModelType: AnyObject.self)
+		dependency.resolve(self)
+		self.definition = definition
+	}
+
+
 
 	public final func reflectCellHighlight(_ highlight: Bool) {
 		internalUpdateBackgroundSensitiveElements(toBackgroundColor: highlight ? UIColor.parse("dadada") : UIColor.white)
 	}
+
+
 
 	open func notifyLayoutChanged() {
 		delegate?.layoutChanged(forFragment: self)
@@ -392,6 +414,9 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 
 	func updateDefinitionFromRepository() {
+		guard modelType != AnyObject.self else {
+			return
+		}
 		setDefinition(try! repository.fragmentDefinition(forModelType: modelType, name: layoutName))
 	}
 
@@ -429,6 +454,8 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 			container?.clipsToBounds = true
 		}
 	}
+
+
 
 	static func parse(action: DynamicBindings.Expression?, values: [Any?], defaultArgs: String?) -> (String, String?)? {
 		guard let actionWithArgs = action?.evaluate(values) else {
@@ -533,8 +560,7 @@ open class FragmentDefinition {
 		var selectionStyle = UITableViewCellSelectionStyle.default
 		var layoutCacheKey: DynamicBindings.Expression?
 
-		for index in startAttribute + 1 ..< element.attributes.count {
-			let attribute = element.attributes[index]
+		for attribute in element.attributes(from: startAttribute + 1) {
 			switch attribute.name {
 				case "background-color":
 					containerBackgroundColor = try context.getColor(attribute)
@@ -570,29 +596,66 @@ open class FragmentDefinition {
 
 
 
-	private func createOrReuseElement(_ fragment: Fragment, definition: FragmentElementDefinition, existingElementById: [String:FragmentElement]) -> FragmentElement {
+	private func createOrReuseElement(_ fragment: Fragment, definition: FragmentElementDefinition, existingElementById: [String: FragmentElement]) -> FragmentElement {
 		var children = [FragmentElement]()
 		for childDefinition in definition.childrenDefinitions {
 			children.append(createOrReuseElement(fragment, definition: childDefinition, existingElementById: existingElementById))
 		}
 		let element: FragmentElement = (definition.id != nil ? existingElementById[definition.id!] : nil) ?? definition.createElement()
-		element.delegate = fragment
+		element.fragment = fragment
 		definition.initialize(element, children: children)
 		return element
 	}
 
-	static let selectionStyleByName: [String:UITableViewCellSelectionStyle] = [
+	static let selectionStyleByName: [String: UITableViewCellSelectionStyle] = [
 		"none": .none,
 		"blue": .blue,
 		"gray": .gray,
 		"default": .default
 	]
 
-	static let RepositorySection = "ui"
+	static let RepositorySection = "fragment"
+	static func createFromRepository(_ element: DeclarationElement, _ startAttribute: Int, _ context: DeclarationContext) throws -> (String, AnyObject) {
+		let name = element.attributes[startAttribute].name
+		let definition = try FragmentDefinition.from(element: element, startAttribute: startAttribute, context: context)
+		return (name, definition)
+	}
+
+
+
 	static func setup() {
-		DefaultRepository.register(section: RepositorySection) {
-			element, startAttribute, context in
-			return (element.attributes[startAttribute].name, try FragmentDefinition.from(element: element, startAttribute: startAttribute, context: context))
+		DefaultRepository.register(section: RepositorySection + " ui", itemFactory: createFromRepository)
+	}
+}
+
+
+
+public class FragmentContainer: UIView {
+	public var fragment: Fragment!
+
+	public override func layoutSubviews() {
+		super.layoutSubviews()
+		guard let fragment = fragment else {
+			return
+		}
+		if fragment.performLayoutInWidth {
+			fragment.performLayout(inWidth: bounds.width)
+		}
+		else {
+			fragment.performLayout(inBounds: bounds.size)
 		}
 	}
+
+}
+
+
+
+extension Repository {
+	public func fragmentDefinition(for modelType: AnyObject.Type, name: String?) throws -> FragmentDefinition {
+		if let definition = try findDefinition(for: modelType, with: name, in: FragmentDefinition.RepositorySection) as? FragmentDefinition {
+			return definition
+		}
+		fatalError("Repository does not contains fragment definition: \(String(reflecting: modelType))")
+	}
+
 }

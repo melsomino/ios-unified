@@ -72,25 +72,45 @@ class FrameBarButtonItem: FrameBarItem {
 
 
 	override func create(frame: FrameBuilder) -> UIBarButtonItem {
-		let target = frame.target(action: action)
+		let target = frame.actionRouter(action)
 		if let image = image {
-			return UIBarButtonItem(image: image, style: .plain, target: target, action: frame.action)
+			return UIBarButtonItem(image: image, style: .plain, target: target, action: #selector(ActionRouter.onAction))
 		}
-		return UIBarButtonItem(title: frame.evaluate(title), style: .plain, target: target, action: frame.action)
+		return UIBarButtonItem(title: frame.evaluate(title), style: .plain, target: target, action: #selector(ActionRouter.onAction))
 	}
 }
 
 
 
 class FrameBarFragmentItem: FrameBarItem {
+	let action: DynamicBindings.Expression?
+	let fragmentDefinition: FragmentDefinition
 
 	init(element: DeclarationElement, context: DeclarationContext) throws {
+		var action: DynamicBindings.Expression?
+		for attribute in element.attributes[1 ..< element.attributes.count] {
+			switch attribute.name {
+				case "action":
+					action = try context.getExpression(attribute)
+				default:
+					break
+			}
+		}
+		self.action = action
+		fragmentDefinition = try FragmentDefinition.from(element: element, startAttribute: 0, context: context)
 	}
 
 
 
 	override func create(frame: FrameBuilder) -> UIBarButtonItem {
-		return UIBarButtonItem(barButtonSystemItem: .action, target: nil, action: nil)
+		let actor = frame.fragmentActor(definition: fragmentDefinition, createContainer: true, measureInWidth: 320)
+
+		if let action = action, let container = actor.container {
+			let recognizer = UITapGestureRecognizer(target: frame.actionRouter(action), action: #selector(ActionRouter.onAction))
+			container.isUserInteractionEnabled = true
+			container.addGestureRecognizer(recognizer)
+		}
+		return UIBarButtonItem(customView: actor.container!)
 	}
 }
 
@@ -121,7 +141,7 @@ class FrameBarSystemItem: FrameBarItem {
 
 
 	override func create(frame: FrameBuilder) -> UIBarButtonItem {
-		return UIBarButtonItem(barButtonSystemItem: systemItem, target: frame.target(action: action), action: frame.action)
+		return UIBarButtonItem(barButtonSystemItem: systemItem, target: frame.actionRouter(action), action: #selector(ActionRouter.onAction))
 	}
 
 

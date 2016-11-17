@@ -70,12 +70,12 @@ public class FrameNavigationBarDefinition {
 
 
 
-	final func apply(frame: FrameBuilder) {
+	final func apply(frame: FrameBuilder) throws {
 		if let bar = frame.bar {
 			bar.barTintColor = barTintColor
 			bar.tintColor = tintColor
 			bar.isTranslucent = translucent
-			title.apply(frame: frame)
+			try title.apply(frame: frame)
 		}
 		var items = [UIBarButtonItem]()
 		for factory in left {

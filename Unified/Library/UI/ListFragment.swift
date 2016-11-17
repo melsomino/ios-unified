@@ -320,7 +320,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	private var layoutCache = FragmentLayoutCache()
 	fileprivate var loadingIndicator: UIRefreshControl!
 	private var reloadingIndicator: UIActivityIndicatorView!
-	private var actionRouters = [ActionRouter]()
+	private var actors = [FrameActor]()
 
 
 	func keyboardWillAppear(_ notification: Notification) {
@@ -442,13 +442,13 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		var repositoryDefinition: FrameDefinition?
 		do {
 			repositoryDefinition = try optionalRepository?.findDefinition(for: type(of: model), with: nil, in: FrameDefinition.RepositorySection) as? FrameDefinition
+			frameDefinition = repositoryDefinition ?? FrameDefinition.zero
+			actors = try frameDefinition.apply(controller: controller, model: model, delegate: self, dependency: dependency)
+			tableView.backgroundColor = frameDefinition.backgroundColor
 		}
 		catch let error {
 			optionalCentralUI?.push(alert: .error, message: error.userDescription)
 		}
-		frameDefinition = repositoryDefinition ?? FrameDefinition.zero
-		actionRouters = frameDefinition.apply(controller: controller, model: model, delegate: self, dependency: dependency)
-		tableView.backgroundColor = frameDefinition.backgroundColor
 	}
 }
 

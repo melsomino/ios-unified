@@ -22,9 +22,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 
 	init() {
 		for (sectionName, itemFactory) in DefaultRepository.itemFactoryBySectionName {
-			if sectionByName[sectionName] == nil {
-				sectionByName[sectionName] = RepositorySection(itemFactory: itemFactory)
-			}
+			register(section: sectionName, itemFactory: itemFactory)
 		}
 	}
 
@@ -76,7 +74,10 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		defer {
 			lock.unlock()
 		}
-		sectionByName[section] = RepositorySection(itemFactory: itemFactory)
+		let repositorySection = RepositorySection(itemFactory: itemFactory)
+		for name in section.components(separatedBy: CharacterSet.whitespaces) {
+			sectionByName[name] = repositorySection
+		}
 	}
 
 
