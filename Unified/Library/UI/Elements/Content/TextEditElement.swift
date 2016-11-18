@@ -7,7 +7,13 @@ import Foundation
 import UIKit
 
 
-
+public class TextEditActionRouting: ActionRouting {
+	public let text: String
+	public init(combined: String, text: String) {
+		self.text = text
+		super.init(combined: combined)
+	}
+}
 
 
 open class TextEditElement: ViewElement, TextEditDelegate {
@@ -162,7 +168,7 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 		lockReflectView += 1
 		text = textEdit.text
 		lockReflectView -= 1
-		fragment?.tryExecuteAction(definition.textChangeAction, defaultArgs: text)
+		fire(action: definition.textChangeAction)
 		if maxLines > 0 {
 			fragment?.layoutChanged(forElement: self)
 			if let editor = view as? TextEditView {
@@ -178,10 +184,16 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 		guard let definition = definition as? TextEditDefinition else {
 			return
 		}
-		fragment?.tryExecuteAction(definition.returnKeyAction, defaultArgs: text)
+		fire(action: definition.returnKeyAction)
 	}
 
 
+	private func fire(action: DynamicBindings.Expression?) {
+		if let expression = action, let fragment = fragment, let delegate = fragment.delegate {
+			let action = expression.evaluate(fragment.modelValues)
+			delegate.onAction(routing: TextEditActionRouting(combined: action ?? "", text: text ?? ""))
+		}
+	}
 
 }
 

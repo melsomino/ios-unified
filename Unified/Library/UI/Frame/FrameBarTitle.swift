@@ -16,9 +16,8 @@ class FrameBarTitle {
 	static func from(element: DeclarationElement, context: DeclarationContext) throws -> FrameBarTitle {
 		var text: DynamicBindings.Expression?
 		var textAttributes = [String: Any]()
-		var action: DynamicBindings.Expression?
 
-		for attribute in element.attributes[1 ..< element.attributes.count] {
+		for attribute in element.skipName {
 			switch attribute.name {
 				case "text":
 					text = try context.getExpression(attribute)
@@ -26,14 +25,13 @@ class FrameBarTitle {
 					textAttributes[NSFontAttributeName] = try context.getFont(attribute, defaultFont: nil)
 				case "color":
 					textAttributes[NSForegroundColorAttributeName] = try context.getColor(attribute)
-				case "action":
-					action = try context.getExpression(attribute)
 				default:
 					break
 			}
 		}
+		let action = try FragmentAction.from(element: element, context: context)
 		if let text = text {
-			return FrameBarTitleText(text: text, attributes: textAttributes, action: action)
+			return FrameBarTitleText(text: text, attributes: textAttributes.count > 0 ? textAttributes : nil, action: action)
 		}
 		let fragmentDefinition = try FragmentDefinition.from(element: element, startAttribute: 0, context: context)
 		return FrameBarTitleFragment(definition: fragmentDefinition, action: action)
@@ -45,9 +43,9 @@ class FrameBarTitle {
 class FrameBarTitleText: FrameBarTitle {
 	let text: DynamicBindings.Expression
 	let attributes: [String: Any]?
-	let action: DynamicBindings.Expression?
+	let action: FragmentAction?
 
-	init(text: DynamicBindings.Expression, attributes: [String: Any]?, action: DynamicBindings.Expression?) {
+	init(text: DynamicBindings.Expression, attributes: [String: Any]?, action: FragmentAction?) {
 		self.text = text
 		self.attributes = attributes
 		self.action = action
@@ -84,10 +82,10 @@ class FrameBarTitleText: FrameBarTitle {
 
 
 class FrameBarTitleFragment: FrameBarTitle {
-	let action: DynamicBindings.Expression?
+	let action: FragmentAction?
 	let definition: FragmentDefinition
 
-	init(definition: FragmentDefinition, action: DynamicBindings.Expression?) {
+	init(definition: FragmentDefinition, action: FragmentAction?) {
 		self.definition = definition
 		self.action = action
 	}

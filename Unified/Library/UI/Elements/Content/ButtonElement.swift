@@ -131,9 +131,7 @@ open class ButtonElement: ContentElement {
 
 
 	func onTouchUpInside() {
-		if let action = (definition as? ButtonElementDefinition)?.action, let fragment = fragment {
-			fragment.tryExecuteAction(action, defaultArgs: nil)
-		}
+		buttonDefinition.action?.execute(from: self)
 	}
 
 
@@ -224,7 +222,7 @@ open class ButtonElementDefinition: ContentElementDefinition {
 	var color: UIColor?
 	var image: UIImage?
 	var title: DynamicBindings.Expression?
-	var action: DynamicBindings.Expression?
+	var action: FragmentAction?
 	var lineBreak = NSLineBreakMode.byTruncatingMiddle
 
 
@@ -241,8 +239,6 @@ open class ButtonElementDefinition: ContentElementDefinition {
 				color = try context.getColor(attribute)
 			case "title":
 				title = try context.getExpression(attribute)
-			case "action":
-				action = try context.getExpression(attribute)
 			case "image":
 				image = try context.getImage(attribute)
 			case "line-break":
@@ -259,6 +255,14 @@ open class ButtonElementDefinition: ContentElementDefinition {
 				}
 		}
 	}
+
+
+
+	open override func afterApplyDeclaration(element: DeclarationElement, context: DeclarationContext) throws {
+		try super.afterApplyDeclaration(element: element, context: context)
+		action = try FragmentAction.from(element: element, context: context)
+	}
+
 
 
 	open override func createElement() -> FragmentElement {

@@ -44,18 +44,15 @@ class FrameBarMenuItem: FrameBarItem {
 
 
 class FrameBarButtonItem: FrameBarItem {
-	let action: DynamicBindings.Expression?
+	let action: FragmentAction?
 	let image: UIImage?
 	let title: DynamicBindings.Expression?
 
 	init(element: DeclarationElement, context: DeclarationContext) throws {
 		var image: UIImage?
-		var action: DynamicBindings.Expression?
 		var title: DynamicBindings.Expression?
-		for attribute in element.attributes[1 ..< element.attributes.count] {
+		for attribute in element.skipName {
 			switch attribute.name {
-				case "action":
-					action = try context.getExpression(attribute)
 				case "image":
 					image = try context.getImage(attribute)
 				case "title":
@@ -64,7 +61,7 @@ class FrameBarButtonItem: FrameBarItem {
 					break
 			}
 		}
-		self.action = action
+		self.action = try FragmentAction.from(element: element, context: context)
 		self.image = image
 		self.title = title
 	}
@@ -83,20 +80,11 @@ class FrameBarButtonItem: FrameBarItem {
 
 
 class FrameBarFragmentItem: FrameBarItem {
-	let action: DynamicBindings.Expression?
+	let action: FragmentAction?
 	let fragmentDefinition: FragmentDefinition
 
 	init(element: DeclarationElement, context: DeclarationContext) throws {
-		var action: DynamicBindings.Expression?
-		for attribute in element.attributes[1 ..< element.attributes.count] {
-			switch attribute.name {
-				case "action":
-					action = try context.getExpression(attribute)
-				default:
-					break
-			}
-		}
-		self.action = action
+		action = try FragmentAction.from(element: element, context: context)
 		fragmentDefinition = try FragmentDefinition.from(element: element, startAttribute: 0, context: context)
 	}
 
@@ -118,24 +106,11 @@ class FrameBarFragmentItem: FrameBarItem {
 
 class FrameBarSystemItem: FrameBarItem {
 	let systemItem: UIBarButtonSystemItem
-	let action: DynamicBindings.Expression?
+	let action: FragmentAction?
 
 	init(element: DeclarationElement, context: DeclarationContext) throws {
-		var systemItem: UIBarButtonSystemItem?
-		var action: DynamicBindings.Expression?
-		for attribute in element.attributes[1 ..< element.attributes.count] {
-			if attribute.value.isMissing, let item = FrameBarSystemItem.systemItemByName[attribute.name] {
-				systemItem = item
-			}
-			else if attribute.name == "action" {
-				action = try context.getExpression(attribute)
-			}
-		}
-		guard systemItem != nil else {
-			throw DeclarationError("Invalid navigation bar item definition", element, context)
-		}
-		self.systemItem = systemItem!
-		self.action = action
+		self.systemItem = try context.getEnum(element.attributes[0], FrameBarSystemItem.systemItemByName)
+		self.action = try FragmentAction.from(element: element, context: context)
 	}
 
 

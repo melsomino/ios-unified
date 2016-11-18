@@ -35,27 +35,18 @@ class FrameActor {
 
 
 class ActionRouter: FrameActor {
-	let action: String
-	let args: String?
-	weak var delegate: FragmentDelegate?
+	let action: FragmentAction?
+	var context: FragmentActionContext
 
-	init(action: DynamicBindings.Expression?, values: [Any?], delegate: FragmentDelegate) {
-		if let (name, args) = Fragment.parse(action: action, values: values, defaultArgs: nil) {
-			self.action = name
-			self.args = args
-			self.delegate = delegate
-		}
-		else {
-			self.action = ""
-			self.args = nil
-			self.delegate = nil
-		}
+	init(action: FragmentAction?, context: FragmentActionContext) {
+		self.action = action
+		self.context = context
 	}
 
 
 
 	@objc func onAction() {
-		delegate?.onAction(action, args: args)
+		action?.execute(context: context)
 	}
 }
 
@@ -117,8 +108,9 @@ class FrameBuilder {
 
 
 
-	func actionRouter(_ action: DynamicBindings.Expression?) -> FrameActor {
-		let router = ActionRouter(action: action, values: modelValues, delegate: delegate)
+	func actionRouter(_ action: FragmentAction?) -> FrameActor {
+		let router = ActionRouter(action: action,
+			context: FragmentActionContext(dependency: dependency, delegate: delegate, model: model, modelValues: modelValues, reasonElement: nil))
 		actors.append(router)
 		return router
 	}

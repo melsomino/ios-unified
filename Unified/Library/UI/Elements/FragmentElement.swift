@@ -171,6 +171,9 @@ open class FragmentElementDefinition {
 	// MARK: - Overridable
 
 
+	open func beforeApplyDeclaration(element: DeclarationElement, context: DeclarationContext) throws {
+	}
+
 	open func applyDeclarationAttribute(_ attribute: DeclarationAttribute, isElementValue: Bool, context: DeclarationContext) throws {
 		if attribute.name.hasPrefix("@") {
 			id = attribute.name.substring(from: attribute.name.characters.index(attribute.name.startIndex, offsetBy: 1))
@@ -194,6 +197,9 @@ open class FragmentElementDefinition {
 
 	open func applyDeclarationElement(_ element: DeclarationElement, context: DeclarationContext) throws -> Bool {
 		return false
+	}
+
+	open func afterApplyDeclaration(element: DeclarationElement, context: DeclarationContext) throws {
 	}
 
 
@@ -222,19 +228,24 @@ open class FragmentElementDefinition {
 		}
 		let definition = definition_factory()
 
-		for index in 1 ..< element.attributes.count {
-			let attribute = element.attributes[index]
-			let isElementValue = index == 1 && attribute.value.isMissing
+		try definition.beforeApplyDeclaration(element: element, context: context)
+
+		var isFirst = true
+		for attribute in element.skipName {
+			let isElementValue = isFirst && attribute.value.isMissing
 			try definition.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
+			isFirst = false
 		}
 
 		for child in element.children {
 			if try definition.applyDeclarationElement(child, context: context) {
 			}
-			else {
+			else if !child.name.hasPrefix(".") {
 				definition.childrenDefinitions.append(try FragmentElementDefinition.from(declaration: child, context: context))
 			}
 		}
+
+		try definition.afterApplyDeclaration(element: element, context: context)
 
 		return definition
 	}

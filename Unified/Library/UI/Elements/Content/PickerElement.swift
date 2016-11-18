@@ -96,14 +96,14 @@ open class PickerElement: ViewElement, PickerElementDelegate {
 	open func pickerItemSelected(_ item: Int, inSection section: Int) {
 		let section = sections[section]
 		if let action = section.selectAction {
-			var actionWithArgs = ""
-			if let value = section.items[item].value , !value.isEmpty {
-				actionWithArgs = "\(action) \(value)"
+			var value: String
+			if let itemValue = section.items[item].value , !itemValue.isEmpty {
+				value = itemValue
 			}
 			else {
-				actionWithArgs = "\(action) \(item)"
+				value = String(item)
 			}
-			fragment?.tryExecuteAction(DynamicBindings.Literal(value: actionWithArgs, next: nil), defaultArgs: nil)
+			fragment?.delegate?.onAction(routing: ActionRouting(action: action, value: value))
 		}
 	}
 

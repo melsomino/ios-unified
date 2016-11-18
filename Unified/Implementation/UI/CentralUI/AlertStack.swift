@@ -165,8 +165,8 @@ class AlertPanel: UIView, Dependent, FragmentDelegate {
 		return nil
 	}
 
-	func onAction(_ action: String, args: String?) {
-		if action == "close" {
+	func onAction(routing: ActionRouting) {
+		if routing.action == "close" {
 			stack?.hidePanelAnimated(self)
 		}
 	}

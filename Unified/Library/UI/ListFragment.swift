@@ -178,7 +178,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
-	open func onAction(_ action: String, args: String?) {
+	open func onAction(routing: ActionRouting) {
 	}
 
 
@@ -293,7 +293,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		guard let cell = tableView.cellForRow(at: indexPath) as? ListFragmentCell else {
 			return
 		}
-		cell.fragment.tryExecuteAction(cell.fragment.definition.selectAction, defaultArgs: nil)
+		cell.fragment.definition.selectAction?.execute(from: cell.fragment.rootElement)
 	}
 
 

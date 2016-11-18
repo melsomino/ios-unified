@@ -17,9 +17,41 @@ class UnifiedUi {
 
 
 
+public class ActionRouting {
+	public final let action: String
+	public final let value: String
+
+	public init(action: String, value: String) {
+		self.action = action
+		self.value = value
+	}
+
+	public init(combined: String?) {
+		(action, value) = ActionRouting.parse(combined: combined)
+	}
+
+	convenience public init(expression: DynamicBindings.Expression?, values: [Any?]) {
+		self.init(combined: expression?.evaluate(values))
+	}
+
+
+
+	public static func parse(combined: String?) -> (action: String, value: String) {
+		if let combined = combined, let separator = combined.rangeOfCharacter(from: CharacterSet.whitespaces) {
+			return (combined.substring(to: separator.lowerBound),
+				combined.substring(from: separator.upperBound).trimmingCharacters(in: CharacterSet.whitespaces))
+		}
+		else {
+			return (combined ?? "", "")
+		}
+	}
+}
+
+
+
 public protocol FragmentDelegate: class {
 	var controller: UIViewController! { get }
-	func onAction(_ action: String, args: String?)
+	func onAction(routing: ActionRouting)
 
 
 
@@ -92,12 +124,6 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 
 
 
-	public final func tryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?) {
-		internalTryExecuteAction(action, defaultArgs: defaultArgs)
-	}
-
-
-
 	public init(forModelType modelType: AnyObject.Type) {
 		self.modelType = modelType
 	}
@@ -140,8 +166,8 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 
 
 
-	open func onAction(_ action: String, args: String?) {
-		delegate?.onAction(action, args: args)
+	open func onAction(routing: ActionRouting) {
+		delegate?.onAction(routing: routing)
 	}
 
 
@@ -182,7 +208,8 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 
 	open private(set) var rootElement: FragmentElement!
 	private var contentElements = [ContentElement]()
-	private var modelValues = [Any?]()
+	public private(set) final var modelValues = [
+Any?]()
 	private var currentDefinition: FragmentDefinition?
 	private func definitionRequired() {
 		if currentDefinition == nil {
@@ -305,14 +332,6 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 		}
 		else if let singleContainer = parent as? SingleElementContainer {
 			checkVisibilityOfContentElements(singleContainer.child, parentHidden: parentHidden)
-		}
-	}
-
-
-
-	private func internalTryExecuteAction(_ action: DynamicBindings.Expression?, defaultArgs: String?) {
-		if let (name, args) = Fragment.parse(action: action, values: modelValues, defaultArgs: defaultArgs) {
-			onAction(name, args: args)
 		}
 	}
 
@@ -454,28 +473,6 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 			container?.clipsToBounds = true
 		}
 	}
-
-
-
-	static func parse(action: DynamicBindings.Expression?, values: [Any?], defaultArgs: String?) -> (String, String?)? {
-		guard let actionWithArgs = action?.evaluate(values) else {
-			return nil
-		}
-		var name: String
-		var args: String?
-		if let argsSeparator = actionWithArgs.rangeOfCharacter(from: CharacterSet.whitespaces) {
-			name = actionWithArgs.substring(to: argsSeparator.lowerBound)
-			args = actionWithArgs.substring(from: argsSeparator.upperBound).trimmingCharacters(in: CharacterSet.whitespaces)
-			if args!.isEmpty {
-				args = defaultArgs
-			}
-		}
-		else {
-			name = actionWithArgs
-			args = defaultArgs
-		}
-		return (name, args)
-	}
 }
 
 
@@ -489,7 +486,7 @@ open class FragmentDefinition {
 	public final let bindings: DynamicBindings
 	public final let hasBindings: Bool
 
-	public final let selectAction: DynamicBindings.Expression?
+	public final let selectAction: FragmentAction?
 	public final let selectionStyle: UITableViewCellSelectionStyle
 	public final let layoutCacheKey: DynamicBindings.Expression?
 
@@ -507,7 +504,7 @@ open class FragmentDefinition {
 		bindings: DynamicBindings,
 		hasBindings: Bool,
 		ids: Set<String>,
-		selectAction: DynamicBindings.Expression?,
+		selectAction: FragmentAction?,
 		selectionStyle: UITableViewCellSelectionStyle,
 		layoutCacheKey: DynamicBindings.Expression?,
 		containerBackgroundColor: UIColor?,
@@ -556,7 +553,7 @@ open class FragmentDefinition {
 	public static func from(element: DeclarationElement, startAttribute: Int, context: DeclarationContext) throws -> FragmentDefinition {
 		var containerBackgroundColor: UIColor?
 		var containerCornerRadius: CGFloat?
-		var selectAction: DynamicBindings.Expression?
+		let selectAction = try FragmentAction.from(element: element, context: context, name: "select-action")
 		var selectionStyle = UITableViewCellSelectionStyle.default
 		var layoutCacheKey: DynamicBindings.Expression?
 
@@ -566,8 +563,6 @@ open class FragmentDefinition {
 					containerBackgroundColor = try context.getColor(attribute)
 				case "corner-radius":
 					containerCornerRadius = try context.getFloat(attribute)
-				case "select-action":
-					selectAction = try context.getExpression(attribute)
 				case "selection-style":
 					selectionStyle = try context.getEnum(attribute, selectionStyleByName)
 				case "layout-cache-key":

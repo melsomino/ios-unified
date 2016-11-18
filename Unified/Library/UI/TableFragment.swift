@@ -162,7 +162,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 
 
 
-	open func onAction(_ action: String, args: String?) {
+	open func onAction(routing: ActionRouting) {
 	}
 
 
@@ -280,7 +280,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 		guard let cell = tableView.cellForRow(at: indexPath) as? TableFragmentCell else {
 			return
 		}
-		cell.fragment.tryExecuteAction(cell.fragment.definition.selectAction, defaultArgs: nil)
+		cell.fragment.definition.selectAction?.execute(from: cell.fragment.rootElement)
 	}
 
 
