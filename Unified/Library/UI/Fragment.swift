@@ -60,8 +60,7 @@ public protocol FragmentDelegate: class {
 
 
 
-open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
-
+open class Fragment: NSObject, RepositoryDependent, RepositoryListener, FragmentDelegate {
 
 	public final let modelType: AnyObject.Type
 	public final var layoutCacheKeyProvider: ((AnyObject) -> String?)?
@@ -81,9 +80,6 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 	}
 	open weak var delegate: FragmentDelegate?
 	open var layoutCache: FragmentLayoutCache?
-	open var controller: UIViewController! {
-		return delegate?.controller
-	}
 
 	open var container: UIView? {
 		didSet {
@@ -147,6 +143,27 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 		delegate?.layoutChanged(forFragment: self)
 	}
 
+
+	// MARK: - FragmentDelegate
+
+
+	open var controller: UIViewController! {
+		return delegate?.controller
+	}
+
+
+	open func layoutChanged(forFragment fragment: Fragment) {
+		delegate?.layoutChanged(forFragment: fragment)
+	}
+
+
+
+	open func onAction(routing: ActionRouting) {
+		delegate?.onAction(routing: routing)
+	}
+
+
+
 	// MARK: - Overridable
 
 
@@ -162,12 +179,6 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener {
 
 
 	open func onModelChanged() {
-	}
-
-
-
-	open func onAction(routing: ActionRouting) {
-		delegate?.onAction(routing: routing)
 	}
 
 

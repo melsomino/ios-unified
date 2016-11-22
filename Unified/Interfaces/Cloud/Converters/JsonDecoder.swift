@@ -154,6 +154,7 @@ public class JsonDecoder {
 	}
 
 	public static var defaultDateTimeFormatter = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
+	private static var dateTimeFormatterWithTAndMilliseconds = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
 	private static var dateTimeFormatterWithMilliseconds = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
 	private static var dateFormatter: DateFormatter {
 		return createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: true)
@@ -175,6 +176,9 @@ public class JsonDecoder {
 		switch value {
 			case let string as String:
 				if let date = defaultDateTimeFormatter.date(from: string) {
+					return date
+				}
+				if let date = dateTimeFormatterWithTAndMilliseconds.date(from: string) {
 					return date
 				}
 				if let date = dateTimeFormatterWithMilliseconds.date(from: string) {

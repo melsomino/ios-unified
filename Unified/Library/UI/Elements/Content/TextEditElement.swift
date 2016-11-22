@@ -189,9 +189,9 @@ open class TextEditElement: ViewElement, TextEditDelegate {
 
 
 	private func fire(action: DynamicBindings.Expression?) {
-		if let expression = action, let fragment = fragment, let delegate = fragment.delegate {
+		if let expression = action, let fragment = fragment {
 			let action = expression.evaluate(fragment.modelValues)
-			delegate.onAction(routing: TextEditActionRouting(combined: action ?? "", text: text ?? ""))
+			fragment.onAction(routing: TextEditActionRouting(combined: action ?? "", text: text ?? ""))
 		}
 	}
 

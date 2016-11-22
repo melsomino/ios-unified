@@ -24,7 +24,8 @@ public class FragmentActionContext {
 
 	convenience init(element: FragmentElement) {
 		let fragment = element.fragment!
-		self.init(dependency: fragment.dependency, delegate: fragment.delegate!, model: fragment.model ?? NSNull(), modelValues: fragment.modelValues, reasonElement: element)
+		self.init(dependency: fragment.dependency, delegate: fragment,
+			model: fragment.model ?? NSNull(), modelValues: fragment.modelValues, reasonElement: element)
 	}
 }
 
