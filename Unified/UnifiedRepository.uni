@@ -12,3 +12,7 @@ ui
 	Unified.EmptyTableFragment background-color=white
 		vertical margin=(30 12 7 12)
 			text {message} font=15 color=777 hor=center
+
+	Unified.EmptyListFragment background-color=white
+		vertical margin=(30 12 7 12)
+			text {message} font=15 color=777 hor=center

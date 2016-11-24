@@ -33,12 +33,7 @@ extension String {
 
 extension Error {
 	public var userDescription: String {
-		switch self {
-			case let nsError as NSError:
-				return nsError.localizedDescription
-			default:
-				return String(describing: self)
-		}
+		return String(describing: self)
 	}
 }
 
