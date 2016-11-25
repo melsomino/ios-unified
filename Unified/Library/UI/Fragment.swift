@@ -571,7 +571,10 @@ open class FragmentDefinition {
 					break
 			}
 		}
-		let rootElementDefinition = try FragmentElementDefinition.from(declaration: element.children[0], context: context)
+		guard let firstChild = element.children.first else {
+			throw DeclarationError("Fragment definition does not contains root element definition", element, context)
+		}
+		let rootElementDefinition = try FragmentElementDefinition.from(declaration: firstChild, context: context)
 		var ids = Set<String>()
 		rootElementDefinition.traversal {
 			if let id = $0.id {
