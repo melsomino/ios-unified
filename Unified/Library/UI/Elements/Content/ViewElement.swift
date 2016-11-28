@@ -17,7 +17,7 @@ open class ViewElement: ContentElement {
 	}
 
 
-	// MARK: - LayoutItem
+	// MARK: - FragmentElement
 
 
 	open override func createView() -> UIView {

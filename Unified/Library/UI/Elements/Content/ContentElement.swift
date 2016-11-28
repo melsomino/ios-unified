@@ -122,7 +122,7 @@ open class ContentElement: FragmentElement {
 	}
 
 
-	// MARK: - UiElement
+	// MARK: - FragmentElement
 
 
 	open override var visible: Bool {

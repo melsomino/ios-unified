@@ -4,9 +4,9 @@
 
 import Foundation
 
-class StringHashes {
+public class StringHashes {
 
-	static func getHash(_ string: String) -> String {
+	public static func hash(string: String) -> String {
 		return String(Fnv1.fromString(string)) + String(CRC32.fromString(string))
 	}
 

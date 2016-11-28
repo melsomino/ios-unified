@@ -40,7 +40,7 @@ open class DefaultCloudFilesCache: CloudFileCache {
 	private var lock = NSLock()
 
 	private func calcHash(_ url: String) -> String {
-		return StringHashes.getHash(url)
+		return StringHashes.hash(string: url)
 	}
 
 	private func getFileExtension(_ url: URL) -> String {
