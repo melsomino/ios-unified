@@ -5,6 +5,8 @@
 
 import Foundation
 
+
+
 public class EmptyListViewModel {
 	public final var message: String
 	public init(message: String) {
@@ -22,9 +24,21 @@ public class NextListPortionViewModel {
 
 public protocol ListFragmentUpdates: class {
 	func insert(item: AnyObject, at index: Int)
+
+
+
 	func insert(items: [AnyObject], at index: Int)
+
+
+
 	func update(item: AnyObject, at index: Int)
+
+
+
 	func delete(at index: Int)
+
+
+
 	func delete(count: Int, at index: Int)
 }
 
@@ -87,6 +101,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		}
 
 
+
 		private func indexes(start: Int, count: Int) -> [IndexPath] {
 			var indexes = [IndexPath]()
 			for row in start ..< start + count {
@@ -95,7 +110,12 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			return indexes
 		}
 
+
+
 		func insert(items: [AnyObject], at index: Int) {
+			guard items.count > 0 else {
+				return
+			}
 			owner.items.insert(contentsOf: items, at: index)
 			owner.tableView.insertRows(at: indexes(start: index, count: items.count), with: .automatic)
 		}
@@ -118,7 +138,12 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			owner.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
+
+
 		func delete(count: Int, at index: Int) {
+			guard count > 0 else {
+				return
+			}
 			owner.items.removeSubrange(index ..< index + count)
 			owner.tableView.deleteRows(at: indexes(start: index, count: count), with: .fade)
 		}
@@ -205,9 +230,13 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	open func onResize() {
 	}
 
+
+
 	open func onModelChange() {
 		reloadFrameDefinition()
 	}
+
+
 
 	open func onItemsLoaded() {
 	}
@@ -297,6 +326,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	}
 
 
+
 	open func onTableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 		guard let cell = cell as? ListFragmentCell, items[indexPath.row] is NextListPortionViewModel else {
 			return
@@ -384,6 +414,8 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			}
 		}
 	}
+
+
 
 	private func loadComplete(portion: [AnyObject], next: Any?, resetItems: Bool, loadError: Error?) {
 		defer {

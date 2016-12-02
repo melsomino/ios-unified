@@ -7,7 +7,7 @@ import Foundation
 
 public protocol DatabaseReader {
 	func close()
-	func read() -> Bool
+	func read() throws -> Bool
 
 	func isNull(_ index: Int) -> Bool
 	func getString(_ index: Int) -> String?

@@ -16,8 +16,8 @@ open class DefaultModuleDatabase: StorageDatabase {
 	// MARK: - ModuleDatabase
 
 
-	open func tableExists(_ tableName: String) -> Bool {
-		return platformDatabase.tableExists(tableName)
+	open func tableExists(_ tableName: String) throws -> Bool {
+		return try platformDatabase.tableExists(tableName)
 	}
 
 	open func createUpdateStatement(_ sql: String) throws -> DatabaseUpdateStatement {

@@ -5,6 +5,8 @@
 
 import Foundation
 
+
+
 open class DatabaseValueReader<Value>: IteratorProtocol {
 	public typealias Element = Value
 
@@ -25,17 +27,24 @@ open class DatabaseValueReader<Value>: IteratorProtocol {
 	}
 
 
+
 	open func next() -> Element? {
-		while reader.read() {
-			let readed = readValue(reader)
-			if readed != nil {
-				return readed
+		do {
+			while try reader.read() {
+				let readed = readValue(reader)
+				if readed != nil {
+					return readed
+				}
 			}
+		}
+		catch let error {
+			fatalError("Database read error: \(error)")
 		}
 		return nil
 	}
 
 }
+
 
 
 open class DatabaseValueSequence<Value>: Sequence {
@@ -53,10 +62,13 @@ open class DatabaseValueSequence<Value>: Sequence {
 		self.readValue = readValue
 	}
 
+
+
 	open func makeIterator() -> DatabaseValueReader<Value> {
 		return try! DatabaseValueReader(database: database, sql: sql, setParams: setParams, readValue: readValue)
 	}
 }
+
 
 
 open class DatabaseRecordReader<Record>: IteratorProtocol {
@@ -81,15 +93,22 @@ open class DatabaseRecordReader<Record>: IteratorProtocol {
 	}
 
 
+
 	open func next() -> Element? {
-		guard reader.read() else {
-			return nil
+		do {
+			guard try reader.read() else {
+				return nil
+			}
+		}
+		catch let error {
+			fatalError("Database read error: \(error)")
 		}
 		readRecord(reader, record)
 		return record
 	}
 
 }
+
 
 
 open class DatabaseRecordSequence<Record>: Sequence {
@@ -109,15 +128,20 @@ open class DatabaseRecordSequence<Record>: Sequence {
 		self.readRecord = readRecord
 	}
 
+
+
 	open func makeIterator() -> DatabaseRecordReader<Record> {
 		return try! DatabaseRecordReader(database: database, sql: sql, record: record, setParams: setParams, readRecord: readRecord)
 	}
 }
 
 
+
 public enum DatabaseRecordFieldFilter {
 	case all, key, nonKey
 }
+
+
 
 open class DatabaseRecordField<Record> {
 	public typealias ParamSetter = (DatabaseUpdateStatement, Int, Record) -> Void
@@ -131,6 +155,7 @@ open class DatabaseRecordField<Record> {
 		self.paramSetter = paramSetter
 	}
 }
+
 
 
 open class DatabaseSqlFactory<Record> {
@@ -169,6 +194,7 @@ open class DatabaseSqlFactory<Record> {
 	}
 
 
+
 	func get(_ fieldSet: Int) -> SqlWithFields {
 		lock.lock()
 		defer {
@@ -183,11 +209,13 @@ open class DatabaseSqlFactory<Record> {
 		return created
 	}
 
+
+
 	func createInsert(_ fieldSet: Int) -> DatabaseSqlFactory<Record>.SqlWithFields {
 		var insertSection = "INSERT INTO \(tableName)("
 		var valuesSection = ") VALUES ("
 
-		var fields = [DatabaseRecordField < Record>]()
+		var fields = [DatabaseRecordField<Record>]()
 		iterateFieldSet(fieldSet, .all) {
 			field, isFirst in
 			if !isFirst {
@@ -201,9 +229,11 @@ open class DatabaseSqlFactory<Record> {
 		return (insertSection + valuesSection + ")", fields)
 	}
 
+
+
 	func createUpdate(_ fieldSet: Int) -> DatabaseSqlFactory<Record>.SqlWithFields {
 		var sql = "UPDATE \(tableName) SET "
-		var fields = [DatabaseRecordField < Record>]()
+		var fields = [DatabaseRecordField<Record>]()
 		iterateFieldSet(fieldSet, .nonKey) {
 			field, isFirst in
 			if !isFirst {
@@ -224,9 +254,11 @@ open class DatabaseSqlFactory<Record> {
 		return (sql, fields)
 	}
 
+
+
 	func createDelete(_ fieldSet: Int) -> DatabaseSqlFactory<Record>.SqlWithFields {
 		var sql = "DELETE FROM \(tableName) WHERE "
-		var fields = [DatabaseRecordField < Record>]()
+		var fields = [DatabaseRecordField<Record>]()
 		iterateFieldSet(fieldSet, .all) {
 			field, isFirst in
 			if !isFirst {
@@ -256,6 +288,7 @@ open class DatabaseStatementFactory<Record> {
 	}
 
 
+
 	func get(_ fieldSet: Int) -> StatementWithFields {
 		if let cached = cache[fieldSet] {
 			return cached
@@ -266,6 +299,8 @@ open class DatabaseStatementFactory<Record> {
 		return created
 	}
 
+
+
 	open func execute(_ record: Record) -> Void {
 		let (statement, fields) = get(sqlFactory.getFieldSet(record))
 		for index in 0 ..< fields.count {
@@ -273,6 +308,7 @@ open class DatabaseStatementFactory<Record> {
 		}
 		try! statement.execute()
 	}
+
 
 
 	open func execute(_ records: [Record]) -> Void {
@@ -283,19 +319,23 @@ open class DatabaseStatementFactory<Record> {
 }
 
 
+
 open class DatabaseRecordSqlFactory<Record> {
 	open let updates: DatabaseSqlFactory<Record>
 	open let inserts: DatabaseSqlFactory<Record>
 	open let deletes: DatabaseSqlFactory<Record>
 	public init(_ tableName: String, _ getFieldSet: @escaping (Record) -> Int, _ fields: [DatabaseRecordField<Record>]) {
 		updates = DatabaseSqlFactory<Record>(tableName, getFieldSet, fields) {
-			fieldSet, factory in return factory.createUpdate(fieldSet)
+			fieldSet, factory in
+			return factory.createUpdate(fieldSet)
 		}
 		inserts = DatabaseSqlFactory<Record>(tableName, getFieldSet, fields) {
-			fieldSet, factory in return factory.createInsert(fieldSet)
+			fieldSet, factory in
+			return factory.createInsert(fieldSet)
 		}
 		deletes = DatabaseSqlFactory<Record>(tableName, getFieldSet, fields) {
-			fieldSet, factory in return factory.createDelete(fieldSet)
+			fieldSet, factory in
+			return factory.createDelete(fieldSet)
 		}
 	}
 }
@@ -317,6 +357,7 @@ open class DatabaseRecordStatementFactory<Record> {
 }
 
 
+
 extension StorageDatabase {
 	public func iterateRecords<Record>(_ sql: String,
 		record: Record,
@@ -325,6 +366,8 @@ extension StorageDatabase {
 
 		return DatabaseRecordSequence(database: self, sql: sql, record: record, setParams: setParams, readRecord: readRecord)
 	}
+
+
 
 	public func iterateValues<Value>(_ sql: String,
 		setParams: @escaping (DatabaseSelectStatement) -> Void,

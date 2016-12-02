@@ -158,7 +158,7 @@ open class DefaultModuleStorage: ModuleStorage {
 
 
 	private func selectDatabaseInfo(_ database: StorageDatabase) throws -> DatabaseInfoRecord? {
-		guard database.tableExists(databaseInfoTable) else {
+		guard try database.tableExists(databaseInfoTable) else {
 			return nil
 		}
 		return try DatabaseRecordReader(database: database,

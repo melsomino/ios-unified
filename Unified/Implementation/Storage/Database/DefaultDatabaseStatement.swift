@@ -14,8 +14,8 @@ open class DefaultDatabaseStatement: DatabaseStatement {
 		self.platformStatement = platformStatement
 	}
 
-	open func executeSelect() throws -> DatabaseIterator<Row> {
-		return Row.fetch(platformStatement as! SelectStatement, arguments: StatementArguments(arguments)).makeIterator()
+	open func executeSelect() throws -> DatabaseCursor<Row> {
+		return try Row.fetchCursor(platformStatement as! SelectStatement, arguments: StatementArguments(arguments))
 	}
 
 	open func executeUpdate() throws {

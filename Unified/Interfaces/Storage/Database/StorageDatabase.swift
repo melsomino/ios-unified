@@ -6,7 +6,7 @@
 import Foundation
 
 public protocol StorageDatabase {
-	func tableExists(_ tableName: String) -> Bool
+	func tableExists(_ tableName: String) throws -> Bool
 	func createSelectStatement(_ sql: String) throws -> DatabaseSelectStatement
 	func createUpdateStatement(_ sql: String) throws -> DatabaseUpdateStatement
 	func executeStatement(_ sql: String) throws

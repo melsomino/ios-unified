@@ -8,7 +8,7 @@ import GRDB
 
 open class DefaultDatabaseReader: DatabaseReader {
 
-	init(_ platformReader: DatabaseIterator<Row>) {
+	init(_ platformReader: DatabaseCursor<Row>) {
 		self.platformReader = platformReader
 	}
 
@@ -17,8 +17,8 @@ open class DefaultDatabaseReader: DatabaseReader {
 	open func close() {
 	}
 
-	open func read() -> Bool {
-		current = self.platformReader.next()
+	open func read() throws -> Bool {
+		current = try self.platformReader.next()
 		return current != nil
 	}
 
@@ -60,7 +60,7 @@ open class DefaultDatabaseReader: DatabaseReader {
 
 	// MARK: - Internals
 
-	private let platformReader: DatabaseIterator<Row>
+	private let platformReader: DatabaseCursor<Row>
 	private var current: Row?
 
 }
