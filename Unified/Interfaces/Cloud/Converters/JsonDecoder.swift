@@ -153,23 +153,14 @@ public class JsonDecoder {
 		return formatter
 	}
 
-	public static var defaultDateTimeFormatter = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
-	private static var dateTimeFormatterWithTAndMilliseconds = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
-	private static var dateTimeFormatterWithMilliseconds = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
-	private static var dateFormatter: DateFormatter {
-		return createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: true)
-	}
-	private static var dotSeparatedDateTimeFormatter: DateFormatter {
-		return createDateTimeFormatter("dd.MM.yyyy HH.mm.ss", withTodayAsDefaultDate: true)
-	}
-
-	private static var dotSeparatedDateFormatter: DateFormatter {
-		return createDateTimeFormatter("dd.MM.yy", withTodayAsDefaultDate: true)
-	}
-
-	private static var dotSeparatedDayMonthFormatter: DateFormatter {
-		return createDateTimeFormatter("dd.MM", withTodayAsDefaultDate: true)
-	}
+	public static let defaultDateTimeFormatter = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ssx", withTodayAsDefaultDate: false)
+	private static let dateTimeFallbackFormatter1 = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd'T'HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
+	private static let dateTimeFallbackFormatter2 = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss.SSSx", withTodayAsDefaultDate: false)
+	private static let dateTimeFallbackFormatter3 = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd", withTodayAsDefaultDate: true)
+	private static let dateTimeFallbackFormatter4 = JsonDecoder.createDateTimeFormatter("dd.MM.yyyy HH.mm.ss", withTodayAsDefaultDate: true)
+	private static let dateTimeFallbackFormatter5 = JsonDecoder.createDateTimeFormatter("dd.MM.yy", withTodayAsDefaultDate: true)
+	private static let dateTimeFallbackFormatter6 = JsonDecoder.createDateTimeFormatter("dd.MM", withTodayAsDefaultDate: true)
+	private static let dateTimeFallbackFormatter7 = JsonDecoder.createDateTimeFormatter("yyyy-MM-dd HH:mm:ss", withTodayAsDefaultDate: true)
 
 
 	public static func dateTime(_ value: Any) -> Date? {
@@ -178,22 +169,25 @@ public class JsonDecoder {
 				if let date = defaultDateTimeFormatter.date(from: string) {
 					return date
 				}
-				if let date = dateTimeFormatterWithTAndMilliseconds.date(from: string) {
+				if let date = dateTimeFallbackFormatter1.date(from: string) {
 					return date
 				}
-				if let date = dateTimeFormatterWithMilliseconds.date(from: string) {
+				if let date = dateTimeFallbackFormatter2.date(from: string) {
 					return date
 				}
-				if string.contains("-"), let date = dateFormatter.date(from: string) {
+				if string.contains("-"), let date = dateTimeFallbackFormatter3.date(from: string) {
 					return date
 				}
-				if let date = dotSeparatedDateTimeFormatter.date(from: string) {
+				if let date = dateTimeFallbackFormatter4.date(from: string) {
 					return date
 				}
-				if let date = dotSeparatedDateFormatter.date(from: string) {
+				if let date = dateTimeFallbackFormatter5.date(from: string) {
 					return date
 				}
-				if let date = dotSeparatedDayMonthFormatter.date(from: string) {
+				if let date = dateTimeFallbackFormatter6.date(from: string) {
+					return date
+				}
+				if let date = dateTimeFallbackFormatter7.date(from: string) {
 					return date
 				}
 

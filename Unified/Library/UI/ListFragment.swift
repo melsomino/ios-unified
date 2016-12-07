@@ -72,82 +72,39 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
-	public final func ensureCellFactory(itemType: AnyObject.Type) -> ListFragmentCellFactory {
-		for cellFactory in cellFactories {
-			if cellFactory.itemType == itemType {
-				return cellFactory
+	private func ensure(itemType: AnyObject.Type) -> ListFragmentItemType {
+		for registered in registeredItemTypes {
+			if registered.itemType == itemType {
+				return registered
 			}
 		}
 
-		let cellFactory = ListFragmentCellFactory(itemType: itemType, layoutCache: layoutCache, dependency: dependency)
-		cellFactories.append(cellFactory)
-		tableView?.register(ListFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
-		return cellFactory
+		let registered = ListFragmentItemType(itemType: itemType, layoutCache: layoutCache, dependency: dependency)
+		registeredItemTypes.append(registered)
+		return registered
+	}
+
+
+	private func ensureCellFactory(item: AnyObject) -> ListFragmentCellFactory {
+		let registered = ensure(itemType: type(of: item))
+		return registered.ensure(layout: registered.layoutSelector(item), tableView: tableView)
 	}
 
 
 
-	private class Updates: ListFragmentUpdates {
-		let owner: ListFragment
-		init(owner: ListFragment) {
-			self.owner = owner
-		}
+
+	public final func register(itemType: AnyObject.Type, layoutSelector: @escaping (AnyObject) -> String) {
+		ensure(itemType: itemType).layoutSelector = layoutSelector
+	}
 
 
-
-		func insert(item: AnyObject, at index: Int) {
-			owner.items.insert(item, at: index)
-			owner.tableView.insertRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-		}
+	public final func register(itemType: AnyObject.Type, fragment: @escaping () -> Fragment) {
+		ensure(itemType: itemType).fragmentFactory = fragment
+	}
 
 
-
-		private func indexes(start: Int, count: Int) -> [IndexPath] {
-			var indexes = [IndexPath]()
-			for row in start ..< start + count {
-				indexes.append(IndexPath(row: row, section: 0))
-			}
-			return indexes
-		}
-
-
-
-		func insert(items: [AnyObject], at index: Int) {
-			guard items.count > 0 else {
-				return
-			}
-			owner.items.insert(contentsOf: items, at: index)
-			owner.tableView.insertRows(at: indexes(start: index, count: items.count), with: .automatic)
-		}
-
-
-
-		func update(item: AnyObject, at index: Int) {
-			owner.items[index] = item
-			let cellFactory = owner.ensureCellFactory(itemType: type(of: item))
-			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: item) {
-				owner.layoutCache.drop(cacheForKey: cacheKey)
-			}
-			owner.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-		}
-
-
-
-		func delete(at index: Int) {
-			owner.items.remove(at: index)
-			owner.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
-		}
-
-
-
-		func delete(count: Int, at index: Int) {
-			guard count > 0 else {
-				return
-			}
-			owner.items.removeSubrange(index ..< index + count)
-			owner.tableView.deleteRows(at: indexes(start: index, count: count), with: .fade)
-		}
-
+	public final func register(itemType: AnyObject.Type, layout: String, fragment: @escaping () -> Fragment) {
+		ensure(itemType: itemType).ensure(layout: layout, tableView: tableView).fragmentFactory = fragment
 	}
 
 
@@ -157,12 +114,6 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		tableView.beginUpdates()
 		update(updates)
 		tableView.endUpdates()
-	}
-
-
-
-	public final func register(itemType: AnyObject.Type, fragment: @escaping () -> Fragment) {
-		return ensureCellFactory(itemType: itemType).fragmentFactory = fragment
 	}
 
 
@@ -289,7 +240,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 	open func onTableView(_ tableView: UITableView, cellForRowAtIndexPath indexPath: IndexPath) -> UITableViewCell {
 		let item = items[indexPath.row]
-		let cellFactory = ensureCellFactory(itemType: type(of: item))
+		let cellFactory = ensureCellFactory(item: item)
 		let cell = tableView.dequeueReusableCell(withIdentifier: cellFactory.cellReuseId, for: indexPath) as! ListFragmentCell
 		if cell.fragment == nil {
 			let fragment = cellFactory.createFragment()
@@ -311,7 +262,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 	open func onTableView(_ tableView: UITableView, heightForRowAtIndexPath indexPath: IndexPath) -> CGFloat {
 		let item = items[indexPath.row]
-		return ensureCellFactory(itemType: type(of: item)).heightFor(item: item, inWidth: tableView.bounds.width)
+		return ensureCellFactory(item: item).heightFor(item: item, inWidth: tableView.bounds.width)
 	}
 
 
@@ -346,11 +297,78 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	private var nextPortionStart: Any?
 
 	private var keyboardFrame = CGRect.zero
-	private var cellFactories = [ListFragmentCellFactory]()
+	private var registeredItemTypes = [ListFragmentItemType]()
 	private var layoutCache = FragmentLayoutCache()
 	fileprivate var loadingIndicator: UIRefreshControl!
 	private var reloadingIndicator: UIActivityIndicatorView!
 	private var actors = [FrameActor]()
+
+
+
+	private class Updates: ListFragmentUpdates {
+		let owner: ListFragment
+		init(owner: ListFragment) {
+			self.owner = owner
+		}
+
+
+
+		func insert(item: AnyObject, at index: Int) {
+			owner.items.insert(item, at: index)
+			owner.tableView.insertRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+		}
+
+
+
+		private func indexes(start: Int, count: Int) -> [IndexPath] {
+			var indexes = [IndexPath]()
+			for row in start ..< start + count {
+				indexes.append(IndexPath(row: row, section: 0))
+			}
+			return indexes
+		}
+
+
+
+		func insert(items: [AnyObject], at index: Int) {
+			guard items.count > 0 else {
+				return
+			}
+			owner.items.insert(contentsOf: items, at: index)
+			owner.tableView.insertRows(at: indexes(start: index, count: items.count), with: .automatic)
+		}
+
+
+
+		func update(item: AnyObject, at index: Int) {
+			owner.items[index] = item
+			let cellFactory = owner.ensureCellFactory(item: item)
+			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: item) {
+				owner.layoutCache.drop(cacheForKey: cacheKey)
+			}
+			owner.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
+		}
+
+
+
+		func delete(at index: Int) {
+			owner.items.remove(at: index)
+			owner.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
+		}
+
+
+
+		func delete(count: Int, at index: Int) {
+			guard count > 0 else {
+				return
+			}
+			owner.items.removeSubrange(index ..< index + count)
+			owner.tableView.deleteRows(at: indexes(start: index, count: count), with: .fade)
+		}
+
+	}
+
+
 
 
 	func keyboardWillAppear(_ notification: Notification) {
@@ -368,8 +386,10 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	func registerTableView(_ tableView: UITableView) {
-		for cellFactory in cellFactories {
-			tableView.register(ListFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		for registered in registeredItemTypes {
+			for (_, cellFactory) in registered.cellFactoryByLayout {
+				tableView.register(ListFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+			}
 		}
 	}
 
@@ -540,17 +560,53 @@ class ListFragmentCell: UITableViewCell {
 }
 
 
+class ListFragmentItemType {
+	final let itemType: AnyObject.Type
+	final let layoutCache: FragmentLayoutCache?
+	final let dependency: DependencyResolver
 
+	final var layoutSelector = { (item: AnyObject) -> String in
+		return ""
+	}
+	final var fragmentFactory: (() -> Fragment)? {
+		didSet {
+			for (_, cellFactory) in cellFactoryByLayout {
+				if cellFactory.fragmentFactory == nil {
+					cellFactory.fragmentFactory = fragmentFactory
+				}
+			}
+
+		}
+	}
+	final var cellFactoryByLayout = [String: ListFragmentCellFactory]()
+
+	init(itemType: AnyObject.Type, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
+		self.itemType = itemType
+		self.layoutCache = layoutCache
+		self.dependency = dependency
+	}
+
+	func ensure(layout: String, tableView: UITableView?) -> ListFragmentCellFactory {
+		if let cellFactory = cellFactoryByLayout[layout] {
+			return cellFactory
+		}
+		let cellFactory = ListFragmentCellFactory(itemType: itemType, layout: layout, layoutCache: layoutCache, dependency: dependency)
+		cellFactory.fragmentFactory = fragmentFactory
+		cellFactoryByLayout[layout] = cellFactory
+		tableView?.register(ListFragmentCell.self, forCellReuseIdentifier: cellFactory.cellReuseId)
+		return cellFactory
+	}
+
+}
 
 
 open class ListFragmentCellFactory {
 	final let dependency: DependencyResolver
 	final let cellReuseId: String
 	final let itemType: AnyObject.Type
+	final let layout: String
 	final let layoutCache: FragmentLayoutCache?
-	final var fragmentDefinition: FragmentDefinition!
 	public final var fragmentFactory: (() -> Fragment)?
-	public final var layoutName: String?
 
 	final lazy var heightCalculator: Fragment = {
 		[unowned self] in
@@ -558,7 +614,14 @@ open class ListFragmentCellFactory {
 	}()
 
 	public final func createFragment() -> Fragment {
-		return internalCreateFragment()
+		let fragment = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: itemType)
+		fragment.performLayoutInWidth = true
+		fragment.layoutCache = layoutCache
+		dependency.resolve(fragment)
+		if !layout.isEmpty {
+			fragment.layoutName = layout
+		}
+		return fragment
 	}
 
 
@@ -569,27 +632,17 @@ open class ListFragmentCellFactory {
 
 
 
-	public init(itemType: AnyObject.Type, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
+	public init(itemType: AnyObject.Type, layout: String, layoutCache: FragmentLayoutCache?, dependency: DependencyResolver) {
 		self.itemType = itemType
+		self.layout = layout
 		self.layoutCache = layoutCache
 		self.dependency = dependency
-		cellReuseId = String(reflecting: itemType)
+		cellReuseId = layout.isEmpty ? String(reflecting: itemType) : "\(String(reflecting: itemType)).\(layout)"
 	}
 
 
 	// MARK: - Internals
 
-
-	private func internalCreateFragment() -> Fragment {
-		let fragment = fragmentFactory != nil ? fragmentFactory!() : Fragment(forModelType: itemType)
-		fragment.performLayoutInWidth = true
-		fragment.layoutCache = layoutCache
-		dependency.resolve(fragment)
-		if layoutName != nil {
-			fragment.layoutName = layoutName!
-		}
-		return fragment
-	}
 }
 
 
