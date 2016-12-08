@@ -7,6 +7,7 @@ import Foundation
 import UIKit
 
 
+
 public class EmptyListViewModel {
 	public final var message: String
 	public init(message: String) {
@@ -72,6 +73,17 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
+	public func find<T>(item test: (T) -> Bool) -> T? {
+		for item in items {
+			if let typed = item as? T, test(typed) {
+				return typed
+			}
+		}
+		return nil
+	}
+
+
+
 	private func ensure(itemType: AnyObject.Type) -> ListFragmentItemType {
 		for registered in registeredItemTypes {
 			if registered.itemType == itemType {
@@ -83,6 +95,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		registeredItemTypes.append(registered)
 		return registered
 	}
+
 
 
 	private func ensureCellFactory(item: AnyObject) -> ListFragmentCellFactory {
@@ -98,9 +111,11 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	}
 
 
+
 	public final func register(itemType: AnyObject.Type, fragment: @escaping () -> Fragment) {
 		ensure(itemType: itemType).fragmentFactory = fragment
 	}
+
 
 
 	public final func register(itemType: AnyObject.Type, layout: String, fragment: @escaping () -> Fragment) {
@@ -489,6 +504,11 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
+	public final func reflectViewModelChanges() {
+		onModelChange()
+	}
+
+
 
 	fileprivate func reloadFrameDefinition() {
 		guard let controller = controller, let model = model else {
@@ -563,6 +583,7 @@ class ListFragmentCell: UITableViewCell {
 }
 
 
+
 class ListFragmentItemType {
 	final let itemType: AnyObject.Type
 	final let layoutCache: FragmentLayoutCache?
@@ -589,6 +610,8 @@ class ListFragmentItemType {
 		self.dependency = dependency
 	}
 
+
+
 	func ensure(layout: String, tableView: UITableView?) -> ListFragmentCellFactory {
 		if let cellFactory = cellFactoryByLayout[layout] {
 			return cellFactory
@@ -601,6 +624,7 @@ class ListFragmentItemType {
 	}
 
 }
+
 
 
 open class ListFragmentCellFactory {
