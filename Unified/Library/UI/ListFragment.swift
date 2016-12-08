@@ -4,7 +4,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 
 public class EmptyListViewModel {
@@ -155,6 +155,9 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	open func onAction(routing: ActionRouting) {
+		if routing.action == "close" {
+			controller?.wrapper.dismiss(animated: true)
+		}
 	}
 
 
