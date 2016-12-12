@@ -106,7 +106,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, CentralUIDependent, Repos
 			dependency in
 			UINavigationController(rootViewController: fragment.createController())
 		}))
-		centralUI.selectedMenuItem = centralUI.menuItemAtIndex(0)
+		centralUI.addMenuItem("Html", title: "HTML", icon: nil, action: .setContent({
+			dependency in
+			HtmlContentFragment.createRootController(dependency: dependency)
+		}))
+		centralUI.selectedMenuItem = centralUI.menuItemAtIndex(1)
 		return true
 	}
 

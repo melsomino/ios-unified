@@ -121,7 +121,7 @@ private struct Horizontal_layout {
 	let container: HorizontalContainer
 	let bounds: CGSize
 	let total_spacing: CGFloat
-	var children = [Element_layout]()
+	private var children = [Element_layout]()
 	var size = SizeMeasure.zero
 	var has_fill = false
 
@@ -141,7 +141,7 @@ private struct Horizontal_layout {
 
 
 
-	func width_of(_ predicate: (Element_layout) -> Bool) -> (min:CGFloat, max:CGFloat) {
+	private func width_of(_ predicate: (Element_layout) -> Bool) -> (min:CGFloat, max:CGFloat) {
 		var width = (min: CGFloat(0), max: (CGFloat(0)))
 		for child in children {
 			if predicate(child) {
@@ -249,7 +249,7 @@ private struct Horizontal_layout {
 
 
 
-	mutating func measure_children(_ measure_child: (_ child:inout Element_layout) -> SizeMeasure) {
+	private mutating func measure_children(_ measure_child: (_ child:inout Element_layout) -> SizeMeasure) {
 		size = SizeMeasure(width: total_spacing, height: 0)
 		for i in 0 ..< children.count {
 			let child = measure_child(&children[i])

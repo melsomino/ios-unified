@@ -1,11 +1,14 @@
 repository Layouts
 
-ui-frame
+frame
 	Layouts.AlbumsViewModel background-color=red
-		navigation-bar title={artist} bar-tint-color1=white translucent=true
+		navigation-bar bar-tint-color1=white translucent=true
+			left
+				menu
+			title text={artist}
 
 
-ui
+fragment
 	Layouts.Album background-color=f1f1f1
 		horizontal margin=12 margin-top=25
 			vertical
@@ -17,4 +20,28 @@ ui
 		horizontal margin=12
 			text {title} color=e33 max-lines=3 font=20
 			text {duration} font=8 color=333 align=right
+
+
+
+frame
+	Layouts.HtmlContentViewModel background-color=white
+		navigation-bar 
+			left
+				menu
+			title text=HTML
+
+fragment
+	Layouts.HtmlUrlViewModel
+		vertical
+			text before
+			view hor=fill height=1 background-color=888
+			waiting hor=center margin=30
+			web url='https://melsomino.com' background-color=red hor=fill initial-height=500
+			# web html='<body>hello <b>World</b></body>' background-color=red hor=fill
+			view hor=fill height=1 background-color=888
+			text after
+
+	Layouts.HtmlCommentViewModel
+		text {message} margin=12 padding=12 background-color=eee corner-radius=8 
+			~ shadow-opacity=0.2  shadow-offset=(0 1) shadow-radius=1
 

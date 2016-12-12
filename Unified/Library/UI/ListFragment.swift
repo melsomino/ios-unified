@@ -212,6 +212,9 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	open func layoutChanged(forFragment fragment: Fragment) {
+		if let index = items.index(where: { $0 === fragment.model }) {
+			tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+		}
 	}
 
 
