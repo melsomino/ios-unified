@@ -11,8 +11,8 @@ import UIKit
 
 
 public struct DeclarationAttribute: CustomStringConvertible {
-	public let name: String
-	public let value: DeclarationValue
+	public var name: String
+	public var value: DeclarationValue
 
 	// MARK: - CustomStringConvertible
 
@@ -32,8 +32,8 @@ public struct DeclarationAttribute: CustomStringConvertible {
 
 
 public struct DeclarationElement {
-	public let attributes: [DeclarationAttribute]
-	public let children: [DeclarationElement]
+	public var attributes: [DeclarationAttribute]
+	public var children: [DeclarationElement]
 
 
 	public var name: String {
@@ -108,8 +108,29 @@ public struct DeclarationElement {
 		}
 		return elements
 	}
-}
 
+	public static func apply(templates: [String:DeclarationElement], to element: DeclarationElement) -> DeclarationElement {
+		guard let template = templates[element.name] else {
+			return element
+		}
+		return element
+	}
+
+	public static func templates(from declarations: [DeclarationElement]) -> [String: DeclarationElement] {
+		var templates = [String:DeclarationElement]()
+		for element in declarations {
+			if element.name == "template" {
+				for templateElement in element.children {
+					templates[templateElement.name] = templateElement
+				}
+			}
+		}
+		guard
+		guard templates.count > 0 else {
+			templates
+		}
+	}
+}
 
 
 

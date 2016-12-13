@@ -534,6 +534,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			frameDefinition = repositoryDefinition ?? FrameDefinition.zero
 			actors = try frameDefinition.apply(controller: controller, model: model, delegate: self, dependency: dependency)
 			tableView.backgroundColor = frameDefinition.backgroundColor
+			controller.setNeedsStatusBarAppearanceUpdate()
 		}
 		catch let error {
 			optionalCentralUI?.push(alert: .error, message: error.userDescription)

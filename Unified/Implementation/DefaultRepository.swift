@@ -66,7 +66,11 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		if let definition = try findDefinition(for: modelType, with: name, in: FragmentDefinition.RepositorySection) as? FragmentDefinition {
 			return definition
 		}
-		fatalError("Repository does not contains fragment definition: \(String(reflecting: modelType))")
+		var definitionName = String(reflecting: modelType)
+		if let name = name {
+			definitionName += ".\(name)"
+		}
+		fatalError("Repository does not contains fragment definition: \(definitionName)")
 	}
 
 	open func register(section: String, itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)) {
