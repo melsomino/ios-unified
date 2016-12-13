@@ -34,11 +34,9 @@ fragment
 	Layouts.HtmlUrlViewModel
 		vertical
 			text before
-			view hor=fill height=1 background-color=888
-			waiting hor=center margin=30
-			web url='https://melsomino.com' background-color=red hor=fill initial-height=500
-			# web html='<body>hello <b>World</b></body>' background-color=red hor=fill
-			view hor=fill height=1 background-color=888
+			view hor=fill height=80 background-color=888
+			web html='<body style="margin: 0; font-size: 25; background-color: blue">hello <b>World</b><br>1<br>2<br>3<br>Hello</body>' hor=fill initial-height=0
+			view hor=fill height=10 background-color=green
 			text after
 
 	Layouts.HtmlCommentViewModel
