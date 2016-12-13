@@ -17,7 +17,6 @@ open class DefaultCloudFile: CloudFile {
 		self.localPath = localPath
 
 		if FileManager.default.fileExists(atPath: localPath) {
-			print("cached file: \(url)")
 			_state = .loaded
 		}
 		else {
@@ -78,7 +77,6 @@ open class DefaultCloudFile: CloudFile {
 	private func startDownload() {
 		weak var weakSelf = self
 
-		print("start download: \(url)")
 		let request = URLRequest(url: url)
 		cloudConnector.startDownload(request,
 			progress: {
@@ -90,14 +88,12 @@ open class DefaultCloudFile: CloudFile {
 			},
 			error: {
 				error in
-				print("download failed: [\(self.url)], error: \(error)")
 				guard let strongSelf = weakSelf else {
 					return
 				}
 				strongSelf.setState(.failed(error))
 			}) {
 			downloadedUrl in
-			print("download complete: \(self.url)")
 			guard let strongSelf = weakSelf else {
 				return
 			}
