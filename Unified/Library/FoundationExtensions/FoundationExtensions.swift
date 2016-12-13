@@ -16,6 +16,17 @@ public func sameObjects(_ a: AnyObject?, _ b: AnyObject?) -> Bool {
 }
 
 
+extension URL {
+	public static func same(_ a: URL?, _ b: URL?) -> Bool {
+		if a == nil && b == nil {
+			return true
+		}
+		if a == nil || b == nil {
+			return false
+		}
+		return a! == b!
+	}
+}
 
 extension String {
 	public static func same(_ a: String?, _ b: String?) -> Bool {

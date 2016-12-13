@@ -31,6 +31,9 @@ public final class WebElement: ContentElement {
 
 	public var url: URL? {
 		didSet {
+			guard !URL.same(oldValue, url) else {
+				return
+			}
 			guard let view = view as? WKWebView else {
 				return
 			}
@@ -48,6 +51,9 @@ public final class WebElement: ContentElement {
 
 	public var html = "" {
 		didSet {
+			guard oldValue != html else {
+				return
+			}
 			guard let view = view as? WKWebView else {
 				return
 			}
@@ -95,6 +101,8 @@ public final class WebElement: ContentElement {
 		}
 		let configuration = WKWebViewConfiguration()
 		let view = WKWebView(frame: CGRect.zero, configuration: configuration)
+		let scrollView: UIScrollView = view.scrollView
+		scrollView.bounces = false
 		view.navigationDelegate = delegateForwarder
 		return view
 	}
@@ -132,8 +140,6 @@ public final class WebElement: ContentElement {
 		return SizeMeasure(width: (1, bounds.width), height: measuredHeight ?? initialHeight)
 	}
 
-
-
 	// MARK: - WKNavigationDelegate
 
 	func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -142,8 +148,8 @@ public final class WebElement: ContentElement {
 			guard let height = result as? Double else {
 				return
 			}
-			self.measuredHeight = CGFloat(height)
-			print(height)
+			self.measuredHeight = CGFloat(height) / UIScreen.main.scale
+			print(self.measuredHeight!)
 			self.fragment?.layoutChanged(forElement: self)
 		}
 	}
@@ -158,7 +164,7 @@ public final class WebElement: ContentElement {
 
 
 public final class WebElementDefinition: ContentElementDefinition {
-	public static let defaultInitialHeight = CGFloat(100)
+	public static let defaultInitialHeight = CGFloat(0)
 
 	public var initialHeight = WebElementDefinition.defaultInitialHeight
 	public var url: DynamicBindings.Expression?
