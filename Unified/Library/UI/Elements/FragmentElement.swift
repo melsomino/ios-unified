@@ -287,6 +287,9 @@ open class FragmentElementDefinition {
 		},
 		"waiting": {
 			WaitingElementDefinition()
+		},
+		"web": {
+			WebElementDefinition()
 		}
 	]
 

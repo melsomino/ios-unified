@@ -21,7 +21,7 @@ open class HtmlElement: ContentElement {
 
 	open var nowrap = false
 
-	open var font: UIFont? {
+	open var font = UIFont.systemFont(ofSize: UIFont.systemFontSize) {
 		didSet {
 			initializeView()
 		}
@@ -61,7 +61,6 @@ open class HtmlElement: ContentElement {
 				attributedText = nil
 				return
 			}
-			let font = resolveFont()
 			html = "<div style='font-family: \"\(font.familyName)\"; font-size: \(Int(font.pointSize))'>\(html)</div>"
 
 			var attributed: NSAttributedString!
@@ -123,7 +122,6 @@ open class HtmlElement: ContentElement {
 			return
 		}
 		defaultMaxLines = label.numberOfLines
-		defaultFont = label.font
 		defaultColor = label.textColor
 	}
 
@@ -133,7 +131,7 @@ open class HtmlElement: ContentElement {
 		guard let label = view as? UILabel else {
 			return
 		}
-		label.font = font ?? defaultFont
+		label.font = font
 		label.textColor = color ?? defaultColor
 		label.numberOfLines = maxLines
 		label.lineBreakMode = nowrap ? .byClipping : .byTruncatingTail
@@ -172,7 +170,6 @@ open class HtmlElement: ContentElement {
 
 
 	private var defaultMaxLines = 0
-	private var defaultFont: UIFont?
 	private var defaultColor: UIColor?
 
 	private func attributedTextForMeasure() -> NSAttributedString {
@@ -210,18 +207,12 @@ open class HtmlElement: ContentElement {
 			context: nil).size
 		return size
 	}
-
-
-	private func resolveFont() -> UIFont {
-		return font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
-	}
 }
 
 
 
 open class HtmlElementDefinition: ContentElementDefinition {
-	var fontName: String?
-	var fontSize: CGFloat?
+	var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	var maxLines = 0
 	var nowrap = false
 	var color: UIColor?
@@ -238,7 +229,7 @@ open class HtmlElementDefinition: ContentElementDefinition {
 		}
 		switch attribute.name {
 			case "font":
-				try applyFontValue(attribute, value: attribute.value, context: context)
+				font = try context.getFont(attribute, defaultFont: font)
 			case "max-lines":
 				maxLines = Int(try context.getFloat(attribute))
 			case "nowrap":
@@ -260,15 +251,7 @@ open class HtmlElementDefinition: ContentElementDefinition {
 		super.initialize(element, children: children)
 
 		let html = element as! HtmlElement
-		if let name = fontName, let size = fontSize {
-			html.font = font(name, size)
-		}
-		else if let name = fontName {
-			html.font = font(name, UIFont.systemFontSize)
-		}
-		else if let size = fontSize {
-			html.font = UIFont.systemFont(ofSize: size)
-		}
+		html.font = font
 		html.color = color
 		html.maxLines = maxLines
 		html.nowrap = nowrap
@@ -278,27 +261,4 @@ open class HtmlElementDefinition: ContentElementDefinition {
 	// MARK: - Internals
 
 
-	private func applyFontValue(_ attribute: DeclarationAttribute, value: DeclarationValue, context: DeclarationContext) throws {
-		switch value {
-			case .value(let string):
-				var size: Float = 0
-				if Scanner(string: string).scanFloat(&size) {
-					fontSize = CGFloat(size)
-				}
-				else {
-					fontName = string
-				}
-			case .list(let values):
-				for value in values {
-					try applyFontValue(attribute, value: value, context: context)
-				}
-			default:
-				throw DeclarationError("Font attributes expected", attribute, context)
-		}
-	}
-
-
-	func font(_ name: String, _ size: CGFloat) -> UIFont {
-		return UIFont(name: name, size: size) ?? UIFont.systemFont(ofSize: size)
-	}
 }

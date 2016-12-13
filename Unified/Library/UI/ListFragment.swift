@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 
@@ -72,6 +73,17 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
+	public func find<T>(item test: (T) -> Bool) -> T? {
+		for item in items {
+			if let typed = item as? T, test(typed) {
+				return typed
+			}
+		}
+		return nil
+	}
+
+
+
 	private func ensure(itemType: AnyObject.Type) -> ListFragmentItemType {
 		for registered in registeredItemTypes {
 			if registered.itemType == itemType {
@@ -83,6 +95,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		registeredItemTypes.append(registered)
 		return registered
 	}
+
 
 
 	private func ensureCellFactory(item: AnyObject) -> ListFragmentCellFactory {
@@ -98,9 +111,11 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	}
 
 
+
 	public final func register(itemType: AnyObject.Type, fragment: @escaping () -> Fragment) {
 		ensure(itemType: itemType).fragmentFactory = fragment
 	}
+
 
 
 	public final func register(itemType: AnyObject.Type, layout: String, fragment: @escaping () -> Fragment) {
@@ -110,10 +125,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	public final func updateItems(update: (ListFragmentUpdates) -> Void) {
-		let updates = Updates(owner: self)
-		tableView.beginUpdates()
-		update(updates)
-		tableView.endUpdates()
+		Updates(owner: self).apply(updates: update)
 	}
 
 
@@ -155,6 +167,9 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	open func onAction(routing: ActionRouting) {
+		if routing.action == "close" {
+			controller?.wrapper.dismiss(animated: true)
+		}
 	}
 
 
@@ -197,6 +212,9 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	open func layoutChanged(forFragment fragment: Fragment) {
+		if let index = items.index(where: { $0 === fragment.model }) {
+			tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+		}
 	}
 
 
@@ -307,15 +325,21 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 	private class Updates: ListFragmentUpdates {
 		let owner: ListFragment
+		let controller: ListFragmentController?
+		let tableView: UITableView?
+		let dataSource: UITableViewDataSource?
 		init(owner: ListFragment) {
 			self.owner = owner
+			controller = owner.controller as? ListFragmentController
+			dataSource = controller != nil ? owner.tableView?.dataSource : nil
+			tableView = dataSource != nil ? owner.tableView : nil
 		}
 
 
 
 		func insert(item: AnyObject, at index: Int) {
 			owner.items.insert(item, at: index)
-			owner.tableView.insertRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+			tableView?.insertRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
 		}
 
 
@@ -335,7 +359,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 				return
 			}
 			owner.items.insert(contentsOf: items, at: index)
-			owner.tableView.insertRows(at: indexes(start: index, count: items.count), with: .automatic)
+			tableView?.insertRows(at: indexes(start: index, count: items.count), with: .automatic)
 		}
 
 
@@ -346,14 +370,14 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: item) {
 				owner.layoutCache.drop(cacheForKey: cacheKey)
 			}
-			owner.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
+			tableView?.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
 
 
 		func delete(at index: Int) {
 			owner.items.remove(at: index)
-			owner.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
+			tableView?.deleteRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
 
 
@@ -363,7 +387,15 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 				return
 			}
 			owner.items.removeSubrange(index ..< index + count)
-			owner.tableView.deleteRows(at: indexes(start: index, count: count), with: .fade)
+			tableView?.deleteRows(at: indexes(start: index, count: count), with: .fade)
+		}
+
+
+
+		fileprivate func apply(updates: (ListFragmentUpdates) -> Void) {
+			tableView?.beginUpdates()
+			updates(self)
+			tableView?.endUpdates()
 		}
 
 	}
@@ -486,6 +518,11 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 
+	public final func reflectViewModelChanges() {
+		onModelChange()
+	}
+
+
 
 	fileprivate func reloadFrameDefinition() {
 		guard let controller = controller, let model = model else {
@@ -560,6 +597,7 @@ class ListFragmentCell: UITableViewCell {
 }
 
 
+
 class ListFragmentItemType {
 	final let itemType: AnyObject.Type
 	final let layoutCache: FragmentLayoutCache?
@@ -586,6 +624,8 @@ class ListFragmentItemType {
 		self.dependency = dependency
 	}
 
+
+
 	func ensure(layout: String, tableView: UITableView?) -> ListFragmentCellFactory {
 		if let cellFactory = cellFactoryByLayout[layout] {
 			return cellFactory
@@ -598,6 +638,7 @@ class ListFragmentItemType {
 	}
 
 }
+
 
 
 open class ListFragmentCellFactory {

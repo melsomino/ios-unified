@@ -19,7 +19,11 @@ open class ContentElement: FragmentElement {
 
 	open var frame: CGRect = CGRect.zero {
 		didSet {
-			view?.frame = frame
+			guard let view = view else {
+				return
+			}
+			view.frame = frame
+			updateShadow()
 		}
 	}
 
@@ -119,6 +123,7 @@ open class ContentElement: FragmentElement {
 		layer.shadowRadius = shadowRadius
 		layer.shadowOffset = shadowOffset
 		layer.shadowColor = shadowColor
+		updateShadow()
 	}
 
 
@@ -145,6 +150,17 @@ open class ContentElement: FragmentElement {
 	// MARK: - Internals
 
 	var cornersLayer: CAShapeLayer?
+
+	private func updateShadow() {
+		guard let view = view, let definition = definition as? ContentElementDefinition, definition.hasShadow else {
+			return
+		}
+		let radius = cornerRadius ?? 0
+		let shadow = radius > 0
+			? UIBezierPath(roundedRect: view.bounds, cornerRadius: radius)
+			: UIBezierPath(rect: view.bounds)
+		view.layer.shadowPath = shadow.cgPath
+	}
 }
 
 
@@ -157,6 +173,7 @@ open class ContentElementDefinition: FragmentElementDefinition {
 	open var borderWidth: CGFloat?
 	open var borderColor: UIColor?
 
+	public var hasShadow = false
 	public var shadowOpacity = CGFloat(0)
 	public var shadowRadius = CGFloat(3)
 	public var shadowOffset = CGSize(width: 0, height: 3)
@@ -174,12 +191,16 @@ open class ContentElementDefinition: FragmentElementDefinition {
 				borderColor = try context.getColor(attribute)
 			case "shadow-opacity":
 				shadowOpacity = try context.getFloat(attribute)
+				hasShadow = true
 			case "shadow-radius":
 				shadowRadius = try context.getFloat(attribute)
+				hasShadow = true
 			case "shadow-offset":
 				shadowOffset = try context.getSize(attribute)
+				hasShadow = true
 			case "shadow-color":
 				shadowColor = try context.getColor(attribute).cgColor
+				hasShadow = true
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}

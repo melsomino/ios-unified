@@ -56,7 +56,7 @@ private struct Vertical_measure {
 
 	let container: VerticalContainer
 	let total_spacing: CGFloat
-	var children = [Element_measure]()
+	private var children = [Element_measure]()
 	var measured = SizeMeasure.zero
 
 	init(container: VerticalContainer) {

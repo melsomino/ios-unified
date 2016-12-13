@@ -59,7 +59,7 @@ private struct Layered_measure {
 
 
 
-	var children = [Element_measure]()
+	private var children = [Element_measure]()
 	var measured = SizeMeasure.zero
 
 	init(elements: [FragmentElement]) {
