@@ -120,6 +120,7 @@
 		EBE70B1798BE7F4A6737C4F6 /* ListFragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70AB742898B92F776EAC5 /* ListFragment.swift */; };
 		EBE70B1DA9570E3EFFA677FC /* DefaultCloudFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70457BDF24AFA80836BFE /* DefaultCloudFile.swift */; };
 		EBE70B37FBD72EF6CB48A385 /* ViewElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE707CEDE6008ECC990AE89 /* ViewElement.swift */; };
+		EBE70B52CF301CE39AB03BB2 /* DeclarationTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70C92F34F1D935E37B0BA /* DeclarationTemplate.swift */; };
 		EBE70BEF25E005D3DD9D1335 /* DefaultRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE7062A18972A57DF2E1AAA /* DefaultRepository.swift */; };
 		EBE70C38B13CC6D07569A357 /* FragmentElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE70357E7CD76C4D431BCF0 /* FragmentElement.swift */; };
 		EBE70C39EDBFAED88A484C01 /* ImageElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBE700CEF0F47FC9DDC0048D /* ImageElement.swift */; };
@@ -264,6 +265,7 @@
 		EBE70BC42F276614D2B9B0BD /* CentralUiDesign.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUiDesign.swift; sourceTree = "<group>"; };
 		EBE70C08AEB49A18B31E2B8F /* DefaultCloudConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultCloudConnector.swift; sourceTree = "<group>"; };
 		EBE70C32A75478762B9607BB /* ExecutionQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExecutionQueue.swift; sourceTree = "<group>"; };
+		EBE70C92F34F1D935E37B0BA /* DeclarationTemplate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeclarationTemplate.swift; sourceTree = "<group>"; };
 		EBE70CC8D28B65361DBC2E1A /* CloudApiStructConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudApiStructConverter.swift; sourceTree = "<group>"; };
 		EBE70D4631A66D0C7E809660 /* FrameBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FrameBar.swift; sourceTree = "<group>"; };
 		EBE70D89E912FAF5351B4D4A /* CentralUIRootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CentralUIRootController.swift; sourceTree = "<group>"; };
@@ -568,6 +570,7 @@
 			children = (
 				EBE705A7323F5528AF5947D4 /* DeclarationElement.swift */,
 				EBE70B8A67DBBAD23D9A077C /* DeclarationValue.swift */,
+				EBE70C92F34F1D935E37B0BA /* DeclarationTemplate.swift */,
 			);
 			path = Declaration;
 			sourceTree = "<group>";
@@ -895,6 +898,7 @@
 				EBE7010B6CAF68574C4204D3 /* FrameBar.swift in Sources */,
 				EBE70AC95B980483BF38B457 /* FragmentAction.swift in Sources */,
 				CF7B92B356198FE3420EA2C8 /* WebElement.swift in Sources */,
+				EBE70B52CF301CE39AB03BB2 /* DeclarationTemplate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

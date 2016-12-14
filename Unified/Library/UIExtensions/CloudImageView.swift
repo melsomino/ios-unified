@@ -40,6 +40,13 @@ open class CloudImageView: UIImageView, CloudFileListener {
 	}
 
 
+	// MARK: - UIView
+
+	open override func layoutSubviews() {
+		super.layoutSubviews()
+		checkPendingImage()
+	}
+
 
 	// MARK: - Internals
 
@@ -68,10 +75,15 @@ open class CloudImageView: UIImageView, CloudFileListener {
 	}
 
 
-
-	private func startLoadImage(_ imageFilePath: String) {
-		pendingImageFilePath = imageFilePath
+	private func checkPendingImage() {
+		if pendingImageFilePath.isEmpty {
+			return
+		}
 		let bounds = imageSize ?? self.bounds.size
+		if bounds.width == 0 || bounds.height == 0 {
+			return
+		}
+		let imageFilePath = pendingImageFilePath
 		weak var weakSelf = self
 		OperationQueue().addOperation {
 				guard let strongSelf = weakSelf else {
@@ -81,18 +93,26 @@ open class CloudImageView: UIImageView, CloudFileListener {
 					return
 				}
 				guard let imageData = try? Data(contentsOf: URL(fileURLWithPath: imageFilePath)) else {
+					print("CloudImageFile.startLoadImage() imageData load failed: [\(imageFilePath)]")
 					return
 				}
 				guard let image = UIImage(data: imageData) else {
+					print("CloudImageFile.startLoadImage() UIImage creation failed: [\(imageFilePath)]")
 					return
 				}
 				let ratio = max(bounds.width / image.size.width, bounds.height / image.size.height)
 				let thumbnailSize = CGSize(width: image.size.width * ratio, height: image.size.height * ratio)
+				if thumbnailSize.width == 0 || thumbnailSize.height == 0 {
+					print("CloudImageFile.startLoadImage() thumbnail size == 0: [\(imageFilePath)]")
+				}
 
 				UIGraphicsBeginImageContextWithOptions(thumbnailSize, false, UIScreen.main.scale);
 				image.draw(in: CGRect(x: 0, y: 0, width: thumbnailSize.width, height: thumbnailSize.height))
 				let thumbnail = UIGraphicsGetImageFromCurrentImageContext()
 				UIGraphicsEndImageContext()
+				if thumbnail == nil {
+					print("CloudImageFile.startLoadImage() resize to [\(thumbnailSize.width) x \(thumbnailSize.height)] failed: [\(imageFilePath)]")
+				}
 
 				OperationQueue.main.addOperation {
 					guard let strongSelf = weakSelf else {
@@ -101,8 +121,14 @@ open class CloudImageView: UIImageView, CloudFileListener {
 					guard strongSelf.pendingImageFilePath == imageFilePath else {
 						return
 					}
+					strongSelf.pendingImageFilePath = ""
 					strongSelf.image = thumbnail
 				}
 			}
+	}
+
+	private func startLoadImage(_ imageFilePath: String) {
+		pendingImageFilePath = imageFilePath
+		checkPendingImage()
 	}
 }

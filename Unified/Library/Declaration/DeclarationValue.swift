@@ -61,11 +61,13 @@ public struct DeclarationError: Error, CustomStringConvertible {
 
 
 
-open class DeclarationContext {
+public final class DeclarationContext {
 
-	open var source: String
-	open var bindings = DynamicBindings()
-	open var hasBindings = false
+	public final var source: String
+	public final var bindings = DynamicBindings()
+	public final var hasBindings = false
+	public final var templates = [String: DeclarationTemplate]()
+
 
 	init(_ source: String) {
 		self.source = source
@@ -203,7 +205,7 @@ open class DeclarationContext {
 				return CGSize(width: size, height: size)
 			case .list(let values):
 				if values.count == 2 {
-					return CGSize(width: try getFloat(attribute, values[0]), height: try getFloat(attribute, values[1]))
+					return CGSize(width: try getFloat(attribute, .value(values[0])), height: try getFloat(attribute, .value(values[1])))
 				}
 				throw DeclarationError("Size value must contains single number or two numbers (width, height)", attribute, self)
 			default:
@@ -221,11 +223,15 @@ open class DeclarationContext {
 			case .list(let values):
 				switch values.count {
 					case 2:
-						let x = try getFloat(attribute, values[0])
-						let y = try getFloat(attribute, values[1])
+						let x = try getFloat(attribute, .value(values[0]))
+						let y = try getFloat(attribute, .value(values[1]))
 						return UIEdgeInsetsMake(y, x, y, x)
 					case 4:
-						return UIEdgeInsetsMake(try getFloat(attribute, values[0]), try getFloat(attribute, values[1]), try getFloat(attribute, values[2]), try getFloat(attribute, values[3]))
+						return UIEdgeInsetsMake(
+							try getFloat(attribute, .value(values[0])),
+							try getFloat(attribute, .value(values[1])),
+							try getFloat(attribute, .value(values[2])),
+							try getFloat(attribute, .value(values[3])))
 					default:
 						throw DeclarationError("Inset values must contains single number or two numbers (horizontal, vertical) or four numbers (top, left, bottom, right)", attribute, self)
 				}
@@ -324,7 +330,7 @@ open class DeclarationContext {
 			case .list(let values):
 				var font = defaultFont
 				for value in values {
-					font = try getFont(attribute, value: value, defaultFont: font)
+					font = try getFont(attribute, value: .value(value), defaultFont: font)
 				}
 				return font
 			default:
@@ -391,7 +397,7 @@ open class DeclarationContext {
 public enum DeclarationValue: CustomStringConvertible {
 	case missing
 	case value(String)
-	case list([DeclarationValue])
+	case list([String])
 
 	public var isMissing: Bool {
 		switch self {
@@ -420,7 +426,7 @@ public enum DeclarationValue: CustomStringConvertible {
 					else {
 						string += ", "
 					}
-					string += value.description
+					string += value
 				}
 				string += ")"
 				return string

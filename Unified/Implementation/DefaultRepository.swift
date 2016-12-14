@@ -234,6 +234,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		let context = DeclarationContext(repositoryName)
 		do {
 			elements = try DeclarationElement.parse(repositoryString)
+			context.templates = DeclarationTemplate.from(declarations: elements)
 		}
 		catch let error as ParseError {
 			throw DeclarationError(error, context)
@@ -252,6 +253,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			let context = DeclarationContext((uniPath as NSString).lastPathComponent)
 			do {
 				elements = try DeclarationElement.load(uniPath)
+				context.templates = DeclarationTemplate.from(declarations: elements)
 			}
 			catch let error as ParseError {
 				throw DeclarationError(error, context)

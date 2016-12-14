@@ -355,12 +355,17 @@ Any?]()
 				modelValues[i] = nil
 			}
 			if let model = model {
-				let mirror = Mirror(reflecting: model)
-				for member in mirror.children {
-					if let name = member.label {
-						if let index = currentDefinition!.bindings.valueIndexByName[name] {
-							modelValues[index] = member.value
+				var currentMirror: Mirror? = Mirror(reflecting: model)
+				while currentMirror != nil {
+					if let mirror = currentMirror {
+						for member in mirror.children {
+							if let name = member.label {
+								if let index = currentDefinition!.bindings.valueIndexByName[name] {
+									modelValues[index] = member.value
+								}
+							}
 						}
+						currentMirror = mirror.superclassMirror
 					}
 				}
 			}
@@ -582,7 +587,8 @@ open class FragmentDefinition {
 					break
 			}
 		}
-		guard let rootElementDeclaration = element.children.first else {
+		let children = DeclarationTemplate.apply(templates: context.templates, to: element.children)
+		guard let rootElementDeclaration = children.first else {
 			throw DeclarationError("Fragment declaration does not contains root element declaration", element, context)
 		}
 		let rootElementDefinition = try FragmentElementDefinition.from(declaration: rootElementDeclaration, context: context)

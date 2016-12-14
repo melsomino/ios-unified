@@ -223,7 +223,7 @@ open class ContentElementDefinition: FragmentElementDefinition {
 				}
 			case .list(let values):
 				for value in values {
-					try applyCornerRadius(attribute, value: value, context: context)
+					try applyCornerRadius(attribute, value: .value(value), context: context)
 				}
 			default:
 				throw DeclarationError("Invalid corner radius attribute", attribute, context)

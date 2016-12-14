@@ -327,7 +327,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 			let container = UIView(frame: CGRect.zero)
 			bottomBarFragment!.container = container
 			bottomBarFragment!.layoutCache = layoutCache
-			controller.view.addSubview(container)
+			controller?.view.addSubview(container)
 		}
 		bottomBarFragment!.model = model
 		adjustBottomBar()
