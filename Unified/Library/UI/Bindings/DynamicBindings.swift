@@ -16,6 +16,22 @@ public struct DynamicBindings {
 	}
 
 
+	public func fill(model: Any, values: inout [Any?]) {
+		var currentMirror: Mirror? = Mirror(reflecting: model)
+		while currentMirror != nil {
+			if let mirror = currentMirror {
+				for member in mirror.children {
+					if let name = member.label {
+						if let index = valueIndexByName[name] {
+							values[index] = member.value
+						}
+					}
+				}
+				currentMirror = mirror.superclassMirror
+			}
+		}
+	}
+
 
 	public mutating func clear() {
 		valueIndexByName.removeAll()

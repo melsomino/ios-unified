@@ -6,54 +6,96 @@
 import Foundation
 import UIKit
 
-private class FragmentFramesByKey {
-	var frames = [String: [CGRect]]()
+
+
+fileprivate class FragmentElements {
+	var byIndex = [Int: [String:
+Any]]()
 }
 
-open class FragmentLayoutCache {
 
-	open func clear() {
-		cacheByWidth.removeAll(keepingCapacity: true)
+
+fileprivate class Fragments {
+	var framesByKey = [String: [CGRect]]()
+	var elementsByKey = [String: FragmentElements]()
+}
+
+
+
+public final class FragmentLayoutCache {
+
+	public final func clear() {
+		byWidth.removeAll(keepingCapacity: true)
 	}
 
 
 
-	open func cachedFramesForWidth(_ width: CGFloat, key: String) -> [CGRect]? {
-		return cacheByWidth[width]?.frames[key]
+	public final func cachedFramesForWidth(_ width: CGFloat, key: String) -> [CGRect]? {
+		return byWidth[width]?.framesByKey[key]
 	}
 
 
-	open func setFrames(_ frames: [CGRect], forWidth width: CGFloat, key: String) {
-		if let existing = cacheByWidth[width] {
+
+	public final func valueFor(width: CGFloat, fragment: String, element: Int, key: String) -> Any? {
+		if let fragments = byWidth[width],
+		   let elements = fragment.elementsByKey[fragment],
+		   let values = elements.byIndex[element],
+		   let value = values[key] {
+			return value
+		}
+		return nil
+	}
+
+
+
+	public final func set(value: Any, forWidth width: CGFloat, fragment: String, element: Int, key: String) {
+		if let existing = byWidth[width] {
 			existing.frames[key] = frames
 		}
 		else {
 			let framesByKey = FragmentFramesByKey()
 			framesByKey.frames[key] = frames
-			cacheByWidth[width] = framesByKey
+			byWidth[width] = framesByKey
 		}
 	}
 
 
-	open func cachedHeightForWidth(_ width: CGFloat, key: String) -> CGFloat? {
-		return cacheByWidth[width]?.frames[key]?[0].height
+
+	public final func setFrames(_ frames: [CGRect], forWidth width: CGFloat, key: String) {
+		if let existing = byWidth[width] {
+			existing.frames[key] = frames
+		}
+		else {
+			let framesByKey = FragmentFramesByKey()
+			framesByKey.frames[key] = frames
+			byWidth[width] = framesByKey
+		}
 	}
+
+
+
+	public final func cachedHeightForWidth(_ width: CGFloat, key: String) -> CGFloat? {
+		return byWidth[width]?.frames[key]?[0].height
+	}
+
+
 
 	public init() {
 	}
 
+
+
 	public final func drop(cacheForKey key: String) {
-		for (_, frames) in cacheByWidth {
-			frames.frames.removeValue(forKey: key)
+		for (_, fragments) in byWidth {
+			fragments.frames.removeValue(forKey: key)
+			fragments.values.removeValue(forKey: key)
 		}
 	}
 
 	// MARK: - Internals
 
 
-	private var cacheByWidth = [CGFloat: FragmentFramesByKey]()
-
-
+	private var byWidth = [CGFloat: FragmentFramesByKey]()
 
 
 }

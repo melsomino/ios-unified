@@ -63,7 +63,6 @@ public protocol FragmentDelegate: class {
 open class Fragment: NSObject, RepositoryDependent, RepositoryListener, FragmentDelegate {
 
 	public final let modelType: AnyObject.Type
-	public final var layoutCacheKeyProvider: ((AnyObject) -> String?)?
 	public final var performLayoutInWidth = false
 	public final var definition: FragmentDefinition! {
 		get {
@@ -195,14 +194,11 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 	// MARK: - RepositoryListener
 
-
 	open func repositoryChanged(_ repository: Repository) {
 		updateDefinitionFromRepository()
 	}
 
-
 	// MARK: - Dependency
-
 
 	open var dependency: DependencyResolver! {
 		willSet {
@@ -213,15 +209,13 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 		}
 	}
 
-
 	// MARK: - Internals
-
 
 	open private(set) var rootElement: FragmentElement!
 	private var contentElements = [ContentElement]()
-	public private(set) final var modelValues = [
-Any?]()
+	public private(set) final var modelValues = [Any?]()
 	private var currentDefinition: FragmentDefinition?
+
 	private func definitionRequired() {
 		if currentDefinition == nil {
 			updateDefinitionFromRepository()
@@ -248,9 +242,8 @@ Any?]()
 
 
 	private func internalHeightFor(_ model: AnyObject, inWidth width: CGFloat) -> CGFloat {
-		let layoutCacheKey = getLayoutCacheKey(forModel: model)
-		if layoutCacheKey != nil {
-			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
+		if let cache = layoutCache, let layoutCacheKey = getLayoutCacheKey(forModel: model) {
+			if let frames = cache.cachedFramesForWidth(width, key: layoutCacheKey) {
 				return frames[0].height
 			}
 		}
@@ -350,29 +343,20 @@ Any?]()
 
 	private func internalDidSetModel() {
 		definitionRequired()
+
 		if modelValues.count > 0 {
 			for i in 0 ..< modelValues.count {
 				modelValues[i] = nil
 			}
-			if let model = model {
-				var currentMirror: Mirror? = Mirror(reflecting: model)
-				while currentMirror != nil {
-					if let mirror = currentMirror {
-						for member in mirror.children {
-							if let name = member.label {
-								if let index = currentDefinition!.bindings.valueIndexByName[name] {
-									modelValues[index] = member.value
-								}
-							}
-						}
-						currentMirror = mirror.superclassMirror
+			if let definition = currentDefinition {
+				if let model = model {
+					definition.bindings.fill(model: model, values: &modelValues)
+				}
+				if definition.hasBindings {
+					rootElement?.traversal {
+						$0.bind(toModel: modelValues)
 					}
 				}
-			}
-		}
-		if currentDefinition!.hasBindings {
-			rootElement?.traversal {
-				$0.bind(toModel: modelValues)
 			}
 		}
 		onModelChanged()
@@ -396,19 +380,12 @@ Any?]()
 
 	private func defaultGetLayoutCacheKey(forModel model: AnyObject) -> String? {
 		definitionRequired()
-		guard let keyProvider = currentDefinition!.layoutCacheKey, let definition = currentDefinition else {
+		guard let definition = currentDefinition, let keyBinding = definition.layoutCacheKey else {
 			return nil
 		}
 		var values = [Any?](repeating: nil, count: definition.bindings.valueIndexByName.count)
-		let mirror = Mirror(reflecting: model)
-		for member in mirror.children {
-			if let name = member.label {
-				if let index = definition.bindings.valueIndexByName[name] {
-					values[index] = member.value
-				}
-			}
-		}
-		return keyProvider.evaluate(values)
+		definition.bindings.fill(model: model, values: &values)
+		return keyBinding.evaluate(values)
 	}
 
 
@@ -490,8 +467,6 @@ Any?]()
 		}
 	}
 }
-
-
 
 
 
