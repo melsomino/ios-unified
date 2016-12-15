@@ -369,7 +369,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			owner.items[index] = item
 			let cellFactory = owner.ensureCellFactory(item: item)
 			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: item) {
-				owner.layoutCache.drop(cacheForKey: cacheKey)
+				owner.layoutCache.dropCache(forFragment: cacheKey)
 			}
 			tableView?.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}

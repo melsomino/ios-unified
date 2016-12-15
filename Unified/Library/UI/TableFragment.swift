@@ -97,7 +97,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 			owner.models[index] = model
 			let cellFactory = owner.ensureCellFactory(forModelType: type(of: model))
 			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: model) {
-				owner.layoutCache.drop(cacheForKey: cacheKey)
+				owner.layoutCache.dropCache(forFragment: cacheKey)
 			}
 			owner.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}
@@ -202,7 +202,7 @@ open class TableFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposi
 	open func layoutChanged(forFragment fragment: Fragment) {
 		if fragment == bottomBarFragment {
 			if let cacheKey = fragment.getLayoutCacheKey(forModel: fragment.model!) {
-				layoutCache.drop(cacheForKey: cacheKey)
+				layoutCache.dropCache(forFragment: cacheKey)
 			}
 			UIView.animate(withDuration: 0.25, animations: {
 				self.adjustBottomBar()

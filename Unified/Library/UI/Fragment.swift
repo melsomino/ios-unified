@@ -94,6 +94,10 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 	open private(set) var frame = CGRect.zero
 
+	public final var layoutCacheKey: String? {
+		return model != nil ? getLayoutCacheKey(forModel: model!) : nil
+	}
+
 
 	public final func heightFor(_ model: AnyObject, inWidth width: CGFloat) -> CGFloat {
 		return internalHeightFor(model, inWidth: width)
@@ -243,7 +247,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 	private func internalHeightFor(_ model: AnyObject, inWidth width: CGFloat) -> CGFloat {
 		if let cache = layoutCache, let layoutCacheKey = getLayoutCacheKey(forModel: model) {
-			if let frames = cache.cachedFramesForWidth(width, key: layoutCacheKey) {
+			if let frames = cache.frames(forWidth: width, fragment: layoutCacheKey) {
 				return frames[0].height
 			}
 		}
@@ -271,7 +275,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 	private func internalPerformLayout(inWidth width: CGFloat) {
 		let layoutCacheKey = resolveLayoutCacheKey(forModel: model)
 		if layoutCacheKey != nil {
-			if let frames = layoutCache!.cachedFramesForWidth(width, key: layoutCacheKey!) {
+			if let frames = layoutCache!.frames(forWidth: width, fragment: layoutCacheKey!) {
 				frame = frames[0]
 				for index in 0 ..< min(frames.count - 1, contentElements.count) {
 					contentElements[index].frame = frames[index + 1]
@@ -298,7 +302,7 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 			for index in 0 ..< contentElements.count {
 				frames[index + 1] = contentElements[index].frame
 			}
-			layoutCache!.setFrames(frames, forWidth: width, key: layoutCacheKey!)
+			layoutCache!.set(frames: frames, forWidth: width, fragment: layoutCacheKey!)
 		}
 	}
 
@@ -343,20 +347,20 @@ open class Fragment: NSObject, RepositoryDependent, RepositoryListener, Fragment
 
 	private func internalDidSetModel() {
 		definitionRequired()
-
+		guard let definition = currentDefinition else {
+			return
+		}
 		if modelValues.count > 0 {
 			for i in 0 ..< modelValues.count {
 				modelValues[i] = nil
 			}
-			if let definition = currentDefinition {
-				if let model = model {
-					definition.bindings.fill(model: model, values: &modelValues)
-				}
-				if definition.hasBindings {
-					rootElement?.traversal {
-						$0.bind(toModel: modelValues)
-					}
-				}
+			if let model = model {
+				definition.bindings.fill(model: model, values: &modelValues)
+			}
+		}
+		if definition.hasBindings {
+			rootElement?.traversal {
+				$0.bind(toModel: modelValues)
 			}
 		}
 		onModelChanged()
@@ -568,10 +572,13 @@ open class FragmentDefinition {
 		}
 		let rootElementDefinition = try FragmentElementDefinition.from(declaration: rootElementDeclaration, context: context)
 		var ids = Set<String>()
+		var layoutIndex = 1
 		rootElementDefinition.traversal {
 			if let id = $0.id {
 				ids.insert(id)
 			}
+			$0.layoutIndex = layoutIndex
+			layoutIndex += 1
 		}
 		return FragmentDefinition(rootElementDefinition: rootElementDefinition,
 			bindings: context.bindings,

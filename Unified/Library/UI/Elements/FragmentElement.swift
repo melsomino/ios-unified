@@ -40,6 +40,27 @@ open class FragmentElement {
 
 
 
+	public final func setLayout(value: Any, forKey key: String) {
+		if let fragment = fragment, let cache = fragment.layoutCache {
+			cache.set(value: value, forWidth: fragment.frame.width, fragment: fragment.layoutCacheKey ?? "",
+				element: definition?.layoutIndex ?? 0, key: key)
+		}
+	}
+
+	public final func getLayoutValue(forKey key: String) -> Any? {
+		if let fragment = fragment, let cache = fragment.layoutCache {
+			return cache.value(forWidth: fragment.frame.width, fragment: fragment.layoutCacheKey ?? "",
+				element: definition?.layoutIndex ?? 0, key: key)
+		}
+		return nil
+	}
+
+	public final func layoutValue<T>(forKey key: String) -> T? {
+		if let value = getLayoutValue(forKey: key) {
+			return value as? T
+		}
+		return nil
+	}
 
 
 	// MARK: - Overridable
@@ -126,6 +147,7 @@ open class FragmentElement {
 open class FragmentElementDefinition {
 
 	public final var id: String?
+	public final var layoutIndex = 0
 	public final var childrenDefinitions = [FragmentElementDefinition]()
 	public final var margin = UIEdgeInsets.zero
 	public final var horizontalAlignment = FragmentAlignment.leading
