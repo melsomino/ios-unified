@@ -213,7 +213,9 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 	open func layoutChanged(forFragment fragment: Fragment) {
 		if let index = items.index(where: { $0 === fragment.model }) {
-			layoutCache.clear()
+			if let fragmentKey = fragment.layoutCacheKey {
+				layoutCache.dropFrames(forFragment: fragmentKey)
+			}
 			tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
 		}
 	}
@@ -369,7 +371,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			owner.items[index] = item
 			let cellFactory = owner.ensureCellFactory(item: item)
 			if let cacheKey = cellFactory.heightCalculator.getLayoutCacheKey(forModel: item) {
-				owner.layoutCache.dropCache(forFragment: cacheKey)
+				owner.layoutCache.dropFrames(forFragment: cacheKey)
 			}
 			tableView?.reloadRows(at: [IndexPath(row: index, section: 0)], with: .fade)
 		}

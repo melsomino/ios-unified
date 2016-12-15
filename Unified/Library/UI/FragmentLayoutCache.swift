@@ -72,10 +72,9 @@ public final class FragmentLayoutCache {
 
 
 
-	public final func dropCache(forFragment fragment: String) {
+	public final func dropFrames(forFragment fragment: String) {
 		for (_, cache) in cacheByWidth {
 			cache.frames.removeValue(forKey: fragment)
-			cache.values.removeValue(forKey: fragment)
 		}
 	}
 

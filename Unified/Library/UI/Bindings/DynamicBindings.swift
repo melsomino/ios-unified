@@ -38,6 +38,12 @@ public struct DynamicBindings {
 	}
 
 
+	public static func evaluate(expression: Expression?, values: [Any?]) -> String? {
+		guard let expression = expression else {
+			return nil
+		}
+		return expression.evaluate(values)
+	}
 
 	public mutating func parse(_ string: String?) -> Expression? {
 		let expression = parseString(string)
@@ -191,7 +197,6 @@ public struct DynamicBindings {
 		init(next: Expression?) {
 			self.next = next
 		}
-
 
 
 		public final func evaluate(_ values: [Any?]) -> String? {

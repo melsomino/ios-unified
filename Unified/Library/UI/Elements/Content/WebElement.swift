@@ -7,6 +7,31 @@ import UIKit
 import WebKit
 
 
+public enum WebElementSource {
+	case unassigned
+	case blank
+	case url(URL)
+	case html(String, URL?)
+
+	public static func ==(_ a: WebElementSource, _ b: WebElementSource) -> Bool {
+		switch a {
+			case .unassigned:
+				return b == .unassigned
+			case .blank:
+				return b == .blank
+			case .url(let aUrl):
+				if case .url(let bUrl) = b {
+					return aUrl == bUrl
+				}
+				return false
+			case .html(let aHtml, let aBaseUrl):
+				if case .html(let bHtml, let bBaseUrl) = b {
+					return aHtml == bHtml &&  URL.same(aBaseUrl, bBaseUrl)
+				}
+				return false
+		}
+	}
+}
 
 public final class WebElement: ContentElement {
 
@@ -29,39 +54,16 @@ public final class WebElement: ContentElement {
 
 	public var initialHeight = WebElementDefinition.defaultInitialHeight
 
-	public var url: URL? {
+	public var source = WebElementSource.unassigned {
 		didSet {
-			guard !URL.same(oldValue, url) else {
+			guard !(oldValue == source) else {
 				return
 			}
-			guard let view = view as? WKWebView else {
-				return
-			}
-			measuredHeight = nil
-			if let url = url {
-				view.load(URLRequest(url: url))
-			}
-			else {
-				view.loadHTMLString("", baseURL: nil)
+			if let view = view as? WKWebView {
+				load(view: view)
 			}
 		}
 	}
-
-	public var htmlBaseUrl: URL?
-
-	public var html = "" {
-		didSet {
-			guard oldValue != html else {
-				return
-			}
-			guard let view = view as? WKWebView else {
-				return
-			}
-			measuredHeight = nil
-			view.loadHTMLString(html, baseURL: htmlBaseUrl)
-		}
-	}
-
 
 	public override required init() {
 		super.init()
@@ -70,26 +72,24 @@ public final class WebElement: ContentElement {
 	// MARK: - ContentElement
 
 
-	public override func onViewCreated() {
-		super.onViewCreated()
-//		guard let view = view as? WKWebView else {
-//			return
-//		}
+	private func load(view: WKWebView) {
+		print("load: \(source)")
+		switch source {
+			case .unassigned:
+				break
+			case .blank:
+				lastLoadNavigation = view.loadHTMLString("", baseURL: nil)
+			case .url(let url):
+				lastLoadNavigation = view.load(URLRequest(url: url))
+			case .html(let html, let baseUrl):
+				lastLoadNavigation = view.loadHTMLString("<body style='margin: 0; padding: 0'><div id=__web_element__>\(html)</div></body>", baseURL: baseUrl)
+		}
 	}
-
-
 
 	public override func initializeView() {
 		super.initializeView()
-		guard let view = view as? WKWebView else {
-			return
-		}
-		measuredHeight = nil
-		if let url = url {
-			view.load(URLRequest(url: url))
-		}
-		else {
-			view.loadHTMLString(html, baseURL: htmlBaseUrl)
+		if let view = view as? WKWebView {
+			load(view: view)
 		}
 	}
 
@@ -116,14 +116,16 @@ public final class WebElement: ContentElement {
 		guard let definition = definition as? WebElementDefinition else {
 			return
 		}
-		if let htmlBaseUrlBinding = definition.htmlBaseUrl {
-			htmlBaseUrl = URL(string: htmlBaseUrlBinding.evaluate(values) ?? "")
+		let html = DynamicBindings.evaluate(expression: definition.html, values: values) ?? ""
+		let url = URL(string: DynamicBindings.evaluate(expression: definition.url, values: values) ?? "")
+		if !html.isEmpty {
+			source = .html(html, url)
 		}
-		if let urlBinding = definition.url {
-			url = URL(string: urlBinding.evaluate(values) ?? "")
+		else if let url = url {
+			source = .url(url)
 		}
-		else if let htmlBinding = definition.html {
-			html = htmlBinding.evaluate(values) ?? ""
+		else {
+			source = .blank
 		}
 	}
 
@@ -132,31 +134,43 @@ public final class WebElement: ContentElement {
 		if hidden {
 			return false
 		}
-		return url != nil || !html.isEmpty
+		return !(source == .blank)
 	}
 
 
 	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
-		return SizeMeasure(width: (1, bounds.width), height: measuredHeight ?? initialHeight)
+		if let height = layoutValue(forKey: "measuredHeight") as CGFloat? {
+			return SizeMeasure(width: (1, bounds.width), height: height)
+		}
+		return SizeMeasure(width: (1, bounds.width), height: initialHeight)
 	}
 
 	// MARK: - WKNavigationDelegate
 
 	func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-		webView.evaluateJavaScript("document.body.offsetHeight") {
+		guard lastLoadNavigation != nil && navigation == lastLoadNavigation! else {
+			return
+		}
+		lastLoadNavigation = nil
+		print("didFinish: \(navigation)")
+		webView.evaluateJavaScript("document.getElementById('__web_element__').offsetHeight") {
 			result, error in
 			guard let height = result as? Double else {
 				return
 			}
-			self.measuredHeight = CGFloat(height) / UIScreen.main.scale
-			print(self.measuredHeight!)
-			self.fragment?.layoutChanged(forElement: self)
+			let measuredHeight = CGFloat(height) / UIScreen.main.scale
+			let oldMeasured = self.layoutValue(forKey: "measuredHeight") as CGFloat?
+			if oldMeasured == nil || oldMeasured! != measuredHeight {
+				print("measured: \(measuredHeight)")
+				self.setLayout(value: measuredHeight, forKey: "measuredHeight")
+				self.fragment?.layoutChanged(forElement: self)
+			}
 		}
 	}
 
 	// MARK: - Internals
 
-	var measuredHeight: CGFloat?
+	private var lastLoadNavigation: WKNavigation?
 	private var delegateForwarder: WKDelegate?
 
 }
@@ -169,7 +183,6 @@ public final class WebElementDefinition: ContentElementDefinition {
 	public var initialHeight = WebElementDefinition.defaultInitialHeight
 	public var url: DynamicBindings.Expression?
 	public var html: DynamicBindings.Expression?
-	public var htmlBaseUrl: DynamicBindings.Expression?
 
 
 	// MARK: - ElementDefinition
@@ -183,8 +196,6 @@ public final class WebElementDefinition: ContentElementDefinition {
 				url = try context.getExpression(attribute)
 			case "html":
 				html = try context.getExpression(attribute)
-			case "html-base-url":
-				htmlBaseUrl = try context.getExpression(attribute)
 			default:
 				try super.applyDeclarationAttribute(attribute, isElementValue: isElementValue, context: context)
 		}

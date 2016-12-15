@@ -33,11 +33,12 @@ frame
 fragment
 	Layouts.HtmlUrlViewModel
 		vertical
-			text before
-			view hor=fill height=80 background-color=888
-			web html='<body style="margin: 0; font-size: 25; background-color: blue">hello <b>World</b><br>1<br>2<br>3<br>Hello</body>' hor=fill initial-height=0
-			view hor=fill height=10 background-color=green
-			text after
+			text 'hello, World hello, World hello, World' font=(19.2 'Times New Roman')
+			view hor=fill height=1 background-color=red
+			web html='<div style="margin: 0; font-size: 50; ">hello, World hello, World hello, World<br>1<br>2<br>3<br>Hello</div>' 
+				~ hor=fill initial-height=100
+			view hor=fill height=1 background-color=red
+			text after font=25
 
 	Layouts.HtmlCommentViewModel
 		text {message} margin=12 padding=12 background-color=eee corner-radius=8 
