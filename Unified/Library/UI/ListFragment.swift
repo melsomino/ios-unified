@@ -5,7 +5,7 @@
 
 import Foundation
 import UIKit
-
+import Dispatch
 
 
 public class EmptyListViewModel {
@@ -62,7 +62,6 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 		}
 	}
 	public final var items = [AnyObject]()
-
 
 	public final func createController() -> UIViewController {
 		let controller = ListFragmentController()
@@ -133,7 +132,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	public final func startLoad() {
 		items = [AnyObject]()
 		tableView.reloadData()
-		startLoadPortion(restart: true)
+		startLoadPortion(restart: true, userInitiated: false)
 	}
 
 
@@ -244,7 +243,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 
 	func onLoadingIndicatorRefresh() {
-		startLoadPortion(restart: true)
+		startLoadPortion(restart: true, userInitiated: true)
 	}
 
 
@@ -271,8 +270,8 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			cell.selectionStyle = fragment.definition.selectAction != nil ? fragment.definition.selectionStyle : .none
 		}
 		cell.fragment.model = item
-		if indexPath.row >= items.count - 10 && nextPortionStart != nil {
-			startLoadPortion(restart: false)
+		if hasNextPortion && indexPath.row >= items.count - 10 {
+			startLoadPortion(restart: false, userInitiated: false)
 		}
 		return cell
 	}
@@ -313,16 +312,28 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 
 	// MARK: - Internals
 
+	private enum LoadingState {
+		case none
+		case loading
+		case loadingThenContinue(Bool, Bool)
+	}
 
-	private var loading = false
+	private enum LoadingPortion {
+		case start
+		case next
+		case finished
+	}
+
+	private var loading = LoadingState.none
+	private var hasNextPortion = true
 	private var nextPortionStart: Any?
 
 	private var keyboardFrame = CGRect.zero
 	private var registeredItemTypes = [ListFragmentItemType]()
 	private var layoutCache = FragmentLayoutCache()
-	fileprivate var loadingIndicator: UIRefreshControl!
-	private var reloadingIndicator: UIActivityIndicatorView!
+	fileprivate var loadingRefresher: UIRefreshControl!
 	private var actors = [FrameActor]()
+	private var reloadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
 
 
 
@@ -429,22 +440,35 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 	}
 
 
-
-	private func startLoadPortion(restart: Bool) {
-		guard !loading else {
+	fileprivate func adjustReloadingIndicator() {
+		guard !reloadingIndicator.isHidden else {
 			return
 		}
-		loading = true
+		let bounds = tableView.bounds.size
+		let size = reloadingIndicator.bounds.size
+		let frame = CGRect(x: bounds.width / 2 - size.width / 2, y: tableView.contentInset.top + 40, width: size.width, height: size.height)
+		reloadingIndicator.frame = frame
+	}
+
+
+	private func startLoadPortion(restart: Bool, userInitiated: Bool) {
+		guard restart || hasNextPortion else {
+			return
+		}
+		guard case .none = loading else {
+			loading = .loadingThenContinue(restart, userInitiated)
+			return
+		}
+		loading = .loading
 		if restart {
+			hasNextPortion = true
 			nextPortionStart = nil
-//			reloadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
-//			reloadingIndicator.color = UIColor.darkGray
-//			let bounds = tableView.bounds
-//			let size = reloadingIndicator.bounds.size
-//			reloadingIndicator.frame = CGRect(x: bounds.width / 2 - size.width / 2, y: tableView.contentInset.top + size.height / 2, width: size.width, height: size.height)
-//			reloadingIndicator.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin]
-//			tableView.addSubview(reloadingIndicator)
-//			reloadingIndicator.startAnimating()
+			if !userInitiated && reloadingIndicator.isHidden {
+				adjustReloadingIndicator()
+				reloadingIndicator.isHidden = false
+				tableView.addSubview(reloadingIndicator)
+				reloadingIndicator.startAnimating()
+			}
 		}
 		weak var weakSelf = self
 		let _ = threading.backgroundQueue.newExecution {
@@ -452,8 +476,12 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			guard weakSelf != nil else {
 				return
 			}
+			let hasNextPortion = weakSelf?.hasNextPortion ?? false
+			var nextPortionStart: Any? = weakSelf?.nextPortionStart
+
 			var loadError: Error?
-			var nextPortionStart = weakSelf?.nextPortionStart
+
+			let isFirstPortion = hasNextPortion && nextPortionStart == nil
 			var portion = [AnyObject]()
 			do {
 				nextPortionStart = try weakSelf?.loadPortion(items: &portion, from: nextPortionStart, async: async)
@@ -465,25 +493,42 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 				return
 			}
 			async.continueOnUiQueue {
-				weakSelf?.loadComplete(portion: portion, next: nextPortionStart, resetItems: restart, loadError: loadError)
+				weakSelf?.loadComplete(portion: portion, isFirstPortion: isFirstPortion, next: nextPortionStart, resetItems: restart, loadError: loadError)
 			}
 		}
 	}
 
 
 
-	private func loadComplete(portion: [AnyObject], next: Any?, resetItems: Bool, loadError: Error?) {
+	private func loadComplete(portion: [AnyObject], isFirstPortion: Bool, next: Any?, resetItems: Bool, loadError: Error?) {
 		defer {
-			loading = false
+			let prevLoading = loading
+			loading = .none
+			if case .loadingThenContinue(let restart, let userInitiated) = prevLoading {
+				startLoadPortion(restart: restart, userInitiated: userInitiated)
+			}
 		}
-		loadingIndicator.endRefreshing()
-		reloadingIndicator?.removeFromSuperview()
-		reloadingIndicator = nil
+
+
+		if isFirstPortion {
+			reloadingIndicator.stopAnimating()
+			reloadingIndicator.removeFromSuperview()
+			reloadingIndicator.isHidden = true
+			if loadingRefresher.isRefreshing {
+				DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.milliseconds(1000)) {
+					[weak self] in
+					self?.loadingRefresher.endRefreshing()
+				}
+			}
+		}
+
 		if let error = loadError {
 			optionalCentralUI?.push(alert: .error, message: error.userDescription)
 			print(error)
 			return
 		}
+
+		hasNextPortion = next != nil
 		nextPortionStart = next
 
 		if resetItems {
@@ -492,7 +537,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 			if items.count == 0 {
 				items.append(EmptyListViewModel(message: emptyMessage))
 			}
-			else if nextPortionStart != nil {
+			else if hasNextPortion {
 				items.append(NextListPortionViewModel.instance)
 			}
 			tableView?.reloadData()
@@ -510,7 +555,7 @@ open class ListFragment: NSObject, FragmentDelegate, ThreadingDependent, Reposit
 				if items.count == 0 {
 					updates.insert(item: EmptyListViewModel(message: emptyMessage), at: index)
 				}
-				else if nextPortionStart != nil {
+				else if hasNextPortion {
 					updates.insert(item: NextListPortionViewModel.instance, at: index)
 				}
 			}
@@ -610,6 +655,7 @@ class ListFragmentItemType {
 	final var layoutSelector = { (item: AnyObject) -> String in
 		return ""
 	}
+
 	final var fragmentFactory: (() -> Fragment)? {
 		didSet {
 			for (_, cellFactory) in cellFactoryByLayout {
@@ -709,9 +755,9 @@ class ListFragmentController: UITableViewController {
 		fragment.registerTableView(tableView)
 		tableView.separatorStyle = .none
 		adjustTableInsets()
-		fragment.loadingIndicator = UIRefreshControl()
-		refreshControl = fragment.loadingIndicator
-		fragment.loadingIndicator.addTarget(self, action: #selector(onLoadingIndicatorRefresh), for: .valueChanged)
+		fragment.loadingRefresher = UIRefreshControl()
+		refreshControl = fragment.loadingRefresher
+		fragment.loadingRefresher.addTarget(self, action: #selector(onLoadingIndicatorRefresh), for: .valueChanged)
 		fragment.reloadFrameDefinition()
 		fragment.onInit()
 		fragment.startLoad()
@@ -783,12 +829,15 @@ class ListFragmentController: UITableViewController {
 
 
 	@objc private func onLoadingIndicatorRefresh() {
-		fragment.onLoadingIndicatorRefresh()
+		if fragment.loadingRefresher.isRefreshing {
+			fragment.onLoadingIndicatorRefresh()
+		}
 	}
 
 
 
 	private func adjustTableInsets() {
+		fragment.adjustReloadingIndicator()
 //		let isPortrait = view.bounds.width < view.bounds.height
 //		var top = isPortrait ? CGFloat(20) : CGFloat(0)
 //		if let navigationBarFrame = self.navigationController?.navigationBar.frame {
