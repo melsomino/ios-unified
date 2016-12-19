@@ -45,4 +45,16 @@ class HtmlContentFragment: ListFragment {
 		return nil
 	}
 
+
+
+	override func onAction(routing: ActionRouting) {
+		switch routing.action {
+			case "reload":
+				startLoad()
+				break
+			default:
+				super.onAction(routing: routing)
+		}
+	}
+
 }

@@ -31,14 +31,31 @@ frame
 			title text=HTML
 
 fragment
-	Layouts.HtmlUrlViewModel
+	Layouts.HtmlUrlViewModel layout-cache-key=1
 		vertical
-			text 'hello, World hello, World hello, World' font=(19.2 'Times New Roman')
+			button title=reload action=reload margin=12
+			text 'hello, World hello, World hello, World' font=(17 'Times New Roman')
 			view hor=fill height=1 background-color=red
-			web html='<div style="margin: 0; font-size: 50; ">hello, World hello, World hello, World<br>1<br>2<br>3<br>Hello</div>' 
-				~ hor=fill initial-height=100
+			# web margin=(100 10) border-width=1 border-color=red
+			# 	~ html='<div style="margin: 0; font-size: 17; ">hello, <br>2<br>3<br>Hello</div>' 
+			# 	~ hor=fill initial-height=5
+			# web margin=(10 10)
+			# 	~ url='https://melsomino.com'
+			# 	~ hor=fill initial-height=100
+			web margin=(120 0)
+				~ html='<div style="margin: 0; font-size: 17; ">hello, World hello, World hello, World<br>hello, World hello, World hello, World</div>' 
+				~ hor=fill initial-height=5
+			# web margin=(100 10)
+			# 	~ html='<div style="margin: 0; font-size: 17; ">hello, World hello, World hello, World<br>1<br>2<br>3<br>Hello</div>' 
+			# 	~ hor=fill initial-height=5
+			# web margin=(100 10)
+			# 	~ html='<div style="margin: 0; font-size: 17; ">hello, World hello, World hello, World<br>1<br>2<br>3<br>Hello</div>' 
+			# 	~ hor=fill initial-height=5
+			# web margin=(100 10)
+			# 	~ html='<div style="margin: 0; font-size: 17; ">hello, World hello, World hello, World<br>1<br>2<br>3<br>Hello</div>' 
+			# 	~ hor=fill initial-height=5
 			view hor=fill height=1 background-color=red
-			text after font=25
+			text after font=17
 
 	Layouts.HtmlCommentViewModel
 		text {message} margin=12 padding=12 background-color=eee corner-radius=8 

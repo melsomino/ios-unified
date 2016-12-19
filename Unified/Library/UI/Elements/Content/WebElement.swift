@@ -7,11 +7,14 @@ import UIKit
 import WebKit
 
 
+
 public enum WebElementSource {
 	case unassigned
 	case blank
 	case url(URL)
 	case html(String, URL?)
+
+
 
 	public static func ==(_ a: WebElementSource, _ b: WebElementSource) -> Bool {
 		switch a {
@@ -26,12 +29,14 @@ public enum WebElementSource {
 				return false
 			case .html(let aHtml, let aBaseUrl):
 				if case .html(let bHtml, let bBaseUrl) = b {
-					return aHtml == bHtml &&  URL.same(aBaseUrl, bBaseUrl)
+					return aHtml == bHtml && URL.same(aBaseUrl, bBaseUrl)
 				}
 				return false
 		}
 	}
 }
+
+
 
 public final class WebElement: ContentElement {
 
@@ -56,11 +61,12 @@ public final class WebElement: ContentElement {
 
 	public var source = WebElementSource.unassigned {
 		didSet {
-			guard !(oldValue == source) else {
-				return
-			}
 			if let view = view as? WKWebView {
-				load(view: view)
+				if oldValue == source {
+				}
+				else {
+					load(view: view)
+				}
 			}
 		}
 	}
@@ -82,9 +88,14 @@ public final class WebElement: ContentElement {
 			case .url(let url):
 				lastLoadNavigation = view.load(URLRequest(url: url))
 			case .html(let html, let baseUrl):
-				lastLoadNavigation = view.loadHTMLString("<body style='margin: 0; padding: 0'><div id=__web_element__>\(html)</div></body>", baseURL: baseUrl)
+				lastLoadNavigation = view.loadHTMLString(
+					"<meta name='viewport' content='width=device-width; initial-scale=1.0; maximum-scale=1.0;' />" +
+						"<style>html { -webkit-text-size-adjust: none; }</style>" +
+						"<body style='margin: 0; padding: 0'><div id=__web_element__>\(html)</div></body>", baseURL: baseUrl)
 		}
 	}
+
+
 
 	public override func initializeView() {
 		super.initializeView()
@@ -137,9 +148,19 @@ public final class WebElement: ContentElement {
 		return !(source == .blank)
 	}
 
+	public override var frame: CGRect {
+		didSet {
+			if let view = view as? WKWebView, lastLoadNavigation == nil && layoutValue(forKey: "measuredHeight") as CGFloat? == nil {
+				OperationQueue.main.addOperation {
+					self.evalHeight(view: view)
+				}
+			}
+		}
+	}
 
 	public override func measureContent(inBounds bounds: CGSize) -> SizeMeasure {
 		if let height = layoutValue(forKey: "measuredHeight") as CGFloat? {
+			print("measureContent: \(height)")
 			return SizeMeasure(width: (1, bounds.width), height: height)
 		}
 		return SizeMeasure(width: (1, bounds.width), height: initialHeight)
@@ -147,18 +168,17 @@ public final class WebElement: ContentElement {
 
 	// MARK: - WKNavigationDelegate
 
-	func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-		guard lastLoadNavigation != nil && navigation == lastLoadNavigation! else {
-			return
-		}
-		lastLoadNavigation = nil
-		print("didFinish: \(navigation)")
-		webView.evaluateJavaScript("document.getElementById('__web_element__').offsetHeight") {
+	func evalHeight(view: WKWebView) {
+		let js = "var __web_element__ = document.getElementById('__web_element__');" +
+		"__web_element__ ? __web_element__.offsetHeight : document.body.offsetHeight;"
+
+		view.evaluateJavaScript(js) {
 			result, error in
 			guard let height = result as? Double else {
+				print("height eval error: \(error)")
 				return
 			}
-			let measuredHeight = CGFloat(height) / UIScreen.main.scale
+			let measuredHeight = CGFloat(height)
 			let oldMeasured = self.layoutValue(forKey: "measuredHeight") as CGFloat?
 			if oldMeasured == nil || oldMeasured! != measuredHeight {
 				print("measured: \(measuredHeight)")
@@ -166,6 +186,16 @@ public final class WebElement: ContentElement {
 				self.fragment?.layoutChanged(forElement: self)
 			}
 		}
+	}
+
+
+
+	func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+		guard lastLoadNavigation != nil && navigation == lastLoadNavigation! else {
+			return
+		}
+		lastLoadNavigation = nil
+		evalHeight(view: webView)
 	}
 
 	// MARK: - Internals

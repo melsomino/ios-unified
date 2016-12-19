@@ -5,6 +5,7 @@
 import Foundation
 import UIKit
 import Starscream
+import Dispatch
 
 
 
@@ -73,6 +74,8 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		fatalError("Repository does not contains fragment definition: \(definitionName)")
 	}
 
+
+
 	open func register(section: String, itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)) {
 		lock.lock()
 		defer {
@@ -83,6 +86,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			sectionByName[name] = repositorySection
 		}
 	}
+
 
 
 	open func findDefinition(for item: String, in section: String, bundle: Bundle?) throws -> AnyObject? {
@@ -146,9 +150,22 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	open var dependency: DependencyResolver!
 
 
-
 	// MARK: - DevServer WebSocket Delegate
 
+
+	private func onDevServerReloadRepository(name: String, string: String) {
+		do {
+			try loadRepositoryFromDevServer(name, repositoryString: string)
+			notify()
+		} catch let error {
+			optionalCentralUI?.push(alert: .error, message: error.userDescription)
+			print(error)
+		}
+	}
+
+	private var pendingDevServerRepository = false
+	private var pendingDevServerRepositoryName = ""
+	private var pendingDevServerRepositoryString = ""
 
 	open func websocketDidReceiveMessage(socket: WebSocket, text: String) {
 		let parts = text.components(separatedBy: "`")
@@ -156,13 +173,14 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			case "repository-changed":
 				socket.write(string: "get-repository`\(parts[1])")
 			case "repository":
-				do {
-					try loadRepositoryFromDevServer(parts[0], repositoryString: parts[1])
-					notify()
-				}
-				catch let error {
-					optionalCentralUI?.push(alert: .error, message: error.userDescription)
-					print(error)
+				pendingDevServerRepositoryName = parts[0]
+				pendingDevServerRepositoryString = parts[1]
+				if !pendingDevServerRepository {
+					pendingDevServerRepository = true
+					DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.milliseconds(10)) {
+						self.pendingDevServerRepository = false
+						self.onDevServerReloadRepository(name: self.pendingDevServerRepositoryName, string: self.pendingDevServerRepositoryString)
+					}
 				}
 			default:
 				break
@@ -193,7 +211,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
-	// MARK: - Internals
+// MARK: - Internals
 
 
 	private var devServerConnection: WebSocket?
@@ -230,17 +248,18 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		defer {
 			lock.unlock()
 		}
+		print("reload from dev server")
 		var elements: [DeclarationElement]
 		let context = DeclarationContext(repositoryName)
 		do {
 			elements = try DeclarationElement.parse(repositoryString)
 			context.templates = DeclarationTemplate.from(declarations: elements)
-		}
-		catch let error as ParseError {
+		} catch let error as ParseError {
 			throw DeclarationError(error, context)
 		}
 		try loadRepository(elements: elements, context: context, overrideExisting: true)
 	}
+
 
 
 	private func loadRepositories(bundle: Bundle) throws {
@@ -254,8 +273,7 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 			do {
 				elements = try DeclarationElement.load(uniPath)
 				context.templates = DeclarationTemplate.from(declarations: elements)
-			}
-			catch let error as ParseError {
+			} catch let error as ParseError {
 				throw DeclarationError(error, context)
 			}
 			try loadRepository(elements: elements, context: context, overrideExisting: false)
@@ -273,11 +291,16 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 	}
 
 
-	private static var itemFactoryBySectionName = [String: (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)]()
+	private static var itemFactoryBySectionName = [String: (DeclarationElement, Int, DeclarationContext)
+throws -> (String, AnyObject)]()
+
+
 
 	public static func register(section: String, itemFactory: @escaping (DeclarationElement, Int, DeclarationContext) throws -> (String, AnyObject)) {
 		itemFactoryBySectionName[section] = itemFactory
 	}
+
+
 
 	private func loadRepository(elements: [DeclarationElement], context: DeclarationContext, overrideExisting: Bool) throws {
 		for element in elements {
@@ -305,7 +328,6 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 
 
 
-
 	private func load(repository name: String, from bundle: Bundle) throws -> [DeclarationElement] {
 		let context = DeclarationContext("[\(name).uni] in bundle [\(bundle.bundleIdentifier ?? "")]")
 		guard let path = bundle.path(forResource: name, ofType: ".uni") else {
@@ -313,17 +335,13 @@ open class DefaultRepository: Repository, Dependent, WebSocketDelegate, CentralU
 		}
 		do {
 			return try DeclarationElement.load(path)
-		}
-		catch let error as ParseError {
+		} catch let error as ParseError {
 			throw DeclarationError(error, context)
 		}
 	}
 
 
-
 }
-
-
 
 
 
